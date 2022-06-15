@@ -6,9 +6,9 @@
   "version": "2.0.0",
   "tasks": [
     // * -------------------------------------------------------------------------- * //
-    // * PROJECT-SPECIFIC * //
+    // * WSL-SPECIFIC * //
     {
-      "label": "Copy PID of Python Debugger",
+      "label": "wsl: Copy PID of Python Debugger",
       "type": "shell",
       "command": "ps aux | grep python | grep --max-count 1 -- --adapter-access-token | grep --only-matching --perl-regexp 'user\\s+\\d+' | grep --only-matching --perl-regexp '\\d+' | clip.exe",
       "group": {
