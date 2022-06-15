@@ -4,15 +4,7 @@
 
   // Environment variables don't load properly otherwise
   // See: https://github.com/microsoft/vscode-python/issues/944#issuecomment-808516207
-  "terminal.integrated.defaultProfile.linux": "bash",
-  "terminal.integrated.profiles.linux": {
-    "bash": {
-      "path": "bash",
-      "icon": "terminal-bash",
-      "args": ["-c", "export `cat .env`; $SHELL"]
-    }
-  },
-  "python.envFile": "${workspaceFolder}/.env",
+  "terminal.integrated.defaultProfile.linux": "pwsh",
 
   //! Pylance
   //* Pylance settings aren't very discoverable.
