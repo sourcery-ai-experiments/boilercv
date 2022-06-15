@@ -2,6 +2,18 @@
   // * -------------------------------------------------------------------------- * //
   // * PROJECT-SPECIFIC * //
 
+  // Environment variables don't load properly otherwise
+  // See: https://github.com/microsoft/vscode-python/issues/944#issuecomment-808516207
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "bash",
+      "icon": "terminal-bash",
+      "args": ["-c", "export `cat .env`; $SHELL"]
+    }
+  },
+  "python.envFile": "${workspaceFolder}/.env",
+
   //! Pylance
   //* Pylance settings aren't very discoverable.
   //* https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance
@@ -63,7 +75,7 @@
     "*.tsx": "${capture}.ts",
     "tsconfig.json": "tsconfig.*.json",
     "package.json": "package-lock.json, yarn.lock",
-    ".nest_tools_config": "coverage.xml, setup.ps1, update.ps1, *.code-workspace, *.prof, .copier-answers.yml, .coverage, .coveragerc, .env, .flake8, .gitattributes, .isort.cfg, .pre-commit-config.yaml, .pytest_cache, .sourcery.yaml, codecov.yml, package.json, pyrightconfig.json, pytest.ini, pytest_local.ini, pythonrc.py",
+    ".nest_tools_config": "build.txt, coverage.xml, setup.ps1, setup_wsl.sh, update.ps1, *.code-workspace, *.prof, .copier-answers.yml, .coverage, .coveragerc, .env, .flake8, .gitattributes, .isort.cfg, .pre-commit-config.yaml, .pytest_cache, .sourcery.yaml, codecov.yml, package.json, pyrightconfig.json, pytest.ini, pytest_local.ini, pythonrc.py",
     ".nest_md": "*.md, LICENSE"
   },
 

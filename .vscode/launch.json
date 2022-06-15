@@ -2,11 +2,42 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Current File",
+      "name": "auto",
+      "type": "auto-debug",
+      "request": "launch",
+      "map": {
+        "*.py": "Python",
+        "*": "C++"
+      }
+    },
+    {
+      "name": "Python",
       "type": "python",
       "request": "launch",
       "program": "${file}",
       "console": "internalConsole",
+      "stopOnEntry": true,
+      "justMyCode": true
+    },
+    {
+      "name": "C++",
+      "type": "cppdbg",
+      "request": "attach",
+      "program": "${workspaceFolder}/.venv/bin/python",
+      "processId": "${command:pickProcess}",
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }
