@@ -1,6 +1,4 @@
 {
-  "version": 4,
-  "enableConfigurationSquiggles": false,
   "configurations": [
     {
       "name": "Linux",
@@ -9,6 +7,17 @@
       "cStandard": "gnu17",
       "cppStandard": "gnu++17",
       "intelliSenseMode": "linux-gcc-x64"
+    },
+    {
+      "name": "Win32",
+      "includePath": ["${workspaceFolder}/**"],
+      "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
+      "windowsSdkVersion": "10.0.19041.0",
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64/cl.exe",
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-msvc-x64"
     }
-  ]
+  ],
+  "version": 4
 }
