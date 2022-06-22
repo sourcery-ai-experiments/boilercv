@@ -7,8 +7,12 @@
   "terminal.integrated.defaultProfile.linux": "pwsh",
 
   "git.ignoredRepositories": [
-    "/home/user/opencv-python/opencv",
-    "/home/user/opencv-python"
+    "/home/user/.cache",
+    "/home/user/opencv-python",
+    "/home/user/opencv-python/multibuild",
+    "/home/user/opencv-python/opencv_contrib",
+    "/home/user/opencv-python/opencv_extra",
+    "/home/user/opencv-python/opencv"
   ],
 
   //! Pylance
