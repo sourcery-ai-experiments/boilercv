@@ -1,8 +1,8 @@
 $VENV_ACTIVATE_WINDOWS = '.venv/Scripts/activate'
-$VENV_ACTIVATE_LINUX = '.venv/bin/Activate.ps1'
+$VENV_ACTIVATE_UNIX = '.venv/bin/Activate.ps1'
 
 if ( Test-Path $VENV_ACTIVATE_WINDOWS ) { . $VENV_ACTIVATE_WINDOWS }
-elseif ( Test-Path $VENV_ACTIVATE_LINUX ) { . $VENV_ACTIVATE_LINUX }
+elseif ( Test-Path $VENV_ACTIVATE_UNIX ) { . $VENV_ACTIVATE_UNIX }
 else {
     throw [System.Management.Automation.ItemNotFoundException] 'Could not find a virtual environment.'
 }
