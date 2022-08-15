@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: '3535602'
+_commit: 5e1f576
 _src_path: gh:blakeNaccarato/copier-python
 github_repo_name: boilercv
 include_funding: true
@@ -15,6 +15,7 @@ override_precommit: false
 override_pyrightconfig: false
 override_pytest: false
 override_sourcery: false
+override_update: true
 override_vscode_extensions: true
 override_vscode_launch: true
 override_vscode_settings: true
