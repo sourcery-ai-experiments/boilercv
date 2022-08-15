@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 85b5773
+_commit: '3535602'
 _src_path: gh:blakeNaccarato/copier-python
 github_repo_name: boilercv
 include_funding: true
@@ -9,6 +9,7 @@ override_coveragerc: false
 override_env: false
 override_flake8: false
 override_gitattributes: false
+override_gitignore: false
 override_isort: false
 override_precommit: false
 override_pyrightconfig: false
@@ -22,5 +23,6 @@ project_email: blake.naccarato+boilercv@gmail.com
 project_name: boilercv
 project_owner_github_username: blakeNaccarato
 project_owner_name: Blake Naccarato
-python_version: "3.10"
+python_version: '3.10'
+use_dvc: true
 year_of_project_creation: 2022
