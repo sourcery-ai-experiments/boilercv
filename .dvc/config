@@ -1,4 +1,6 @@
 [core]
     remote = origin
+[cache]
+    type = "hardlink,symlink,copy"
 ['remote "origin"']
     url = gs://boilercv
