@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "boilercv"
 requires-python = ">=3.10"
-dependencies = [ "matplotlib~=3.6.0", "opencv-contrib-python==4.6.0.66", "scipy~=1.9.1", "dvc[gs]~=2.33.1",]
+dependencies = [ "matplotlib~=3.6.0", "opencv-contrib-python==4.6.0.66", "scipy~=1.9.1", "dvc[gs]~=2.34.0",]
 readme = "README.md"
 dynamic = [ "version", "description",]
 [[project.authors]]
