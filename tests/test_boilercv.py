@@ -2,4 +2,4 @@ import boilercv
 
 
 def test():
-    pass
+    boilercv.__version__
