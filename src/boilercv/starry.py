@@ -3,7 +3,7 @@ import sys
 import cv2 as cv
 
 img = cv.imread(cv.samples.findFile("starry_night.jpg"))
-if img is None:
+if not img:
     sys.exit("Could not read the image.")
 cv.imshow("Display window", img)
 k = cv.waitKey(0)

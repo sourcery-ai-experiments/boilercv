@@ -72,14 +72,13 @@ def get_roi(img: npt.NDArray[NpNumber_T]) -> npt.NDArray[NpNumber_T]:
 
     click = 0
     clicks: list[tuple[int, int]] = []
-    hull: ConvexHull = None
+    hull: ConvexHull = None  # type: ignore
     img_composite = img
 
     cv.imshow(WINDOW_NAME, img)
     cv.setMouseCallback(WINDOW_NAME, handle_mouse_events)
-    while True:
-        if cv.waitKey(10) == ESC_KEY:
-            break
+    while True and cv.waitKey(10) != ESC_KEY:
+        pass
     hull.close()
     return np.array(clicks)[hull.vertices]
 
