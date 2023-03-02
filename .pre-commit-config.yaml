@@ -58,6 +58,14 @@ repos:
     rev: "v0.6.0"
     hooks:
       - id: markdownlint-cli2-fix
+  - repo: https://github.com/ikamensh/flynt/
+    rev: "0.77"
+    hooks:
+      - id: flynt
+  - repo: https://github.com/asottile/pyupgrade
+    rev: "v3.3.1"
+    hooks:
+      - id: pyupgrade
 
   - repo: https://github.com/iterative/dvc
     rev: "2.45.1"
@@ -77,3 +85,4 @@ repos:
         language_version: python3
         stages:
           - post-checkout
+

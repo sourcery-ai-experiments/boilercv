@@ -4,7 +4,6 @@
     "config:base",
     "group:allNonMajor",
     ":automergeAll",
-    
     ":preserveSemverRanges"
   ],
   "enabledManagers": ["pip_requirements", "git-submodules"],
