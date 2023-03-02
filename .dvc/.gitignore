@@ -1,3 +1,5 @@
 /config.local
 /tmp
 /cache
+/W:\.dvc\boilercv\cache
+/W:\.dvc\boilercv\cache
