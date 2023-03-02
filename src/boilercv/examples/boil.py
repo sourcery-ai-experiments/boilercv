@@ -12,7 +12,7 @@ WINDOW_NAME = "image"
 
 
 def main():
-    cap = cv.VideoCapture("data/in/results_2022-04-08T16-12-42.mp4")
+    cap = cv.VideoCapture("data/examples_mp4/results_2022-04-08T16-12-42.mp4")
     frame = get_frame(cap)
     blank = np.zeros_like(frame)
     roi = get_roi(frame)
