@@ -15,7 +15,6 @@ def main():
             f"{SAMPLES_ENV_VAR} not set or specified directory does not exist."
         )
     samples_dir = Path(__file__).parent.parent.parent / "data"
-
     cap = cv.VideoCapture(cv.samples.findFile("vtest.avi"))
     while cap.isOpened():
         ret, frame = cap.read()
