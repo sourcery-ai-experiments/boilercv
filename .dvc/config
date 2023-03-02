@@ -1,7 +1,0 @@
-[core]
-    remote = origin
-[cache]
-    type = "hardlink,symlink,copy"
-    dir = W:\.dvc\boilercv\cache
-['remote "origin"']
-    url = gs://boilercv

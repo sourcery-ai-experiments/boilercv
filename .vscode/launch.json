@@ -11,13 +11,13 @@
       "type": "auto-debug",
       "request": "launch",
       "map": {
-        "*.py": "Python",
+        "*.py": "Python: Current file, not just my code, stop on entry",
         "*.ps1": "pwsh",
         "*": "C++"
       }
     },
     {
-      "name": "Python",
+      "name": "Python: Current file, not just my code, stop on entry",
       "type": "python",
       "request": "launch",
       "program": "${file}",
