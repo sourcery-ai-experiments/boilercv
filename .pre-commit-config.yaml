@@ -14,6 +14,13 @@
 ci:
   autoupdate_schedule: quarterly
 
+  skip:
+    - dvc-pre-commit
+    - dvc-pre-push
+    - dvc-post-checkout
+
+
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "v4.4.0"
