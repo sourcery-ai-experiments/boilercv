@@ -38,6 +38,7 @@
       "label": "dvc: repro all",
       "dependsOrder": "sequence",
       "dependsOn": [
+        "dvc: freeze",
         "dvc: setup",
         "git: Stage all files",
         "pre-commit",
@@ -47,6 +48,16 @@
       "command": "pwsh",
       "args": ["-Command", "dvc repro"],
       "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
+    {
+      "label": "dvc: freeze",
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-Command",
+        "pip freeze --requirement requirements.txt --local --exclude-editable > frozen_requirements.txt"
+      ],
       "problemMatcher": []
     },
     // * -------------------------------------------------------------------------- * //
