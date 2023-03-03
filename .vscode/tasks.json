@@ -10,7 +10,7 @@
       "type": "pickString",
       "description": "stage",
       "default": "",
-      "options": ["", "-f", "stage"]
+      "options": ["", "-f", "schema"]
     }
   ],
   "tasks": [
@@ -23,6 +23,7 @@
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "python -m boilercv.stages.setup"],
+      "icon": { "id": "graph" },
       "problemMatcher": []
     },
     {
@@ -30,6 +31,7 @@
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro ${input:stage}"],
+      "icon": { "id": "graph" },
       "problemMatcher": []
     },
     {
@@ -44,6 +46,7 @@
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro"],
+      "icon": { "id": "graph" },
       "problemMatcher": []
     },
     // * -------------------------------------------------------------------------- * //
@@ -56,6 +59,7 @@
         "-Command",
         "(dvc dag --md) -Replace 'mermaid', '{mermaid}' > docs/dag.md && . '~/.local/nodeenvs/markdownlint/Scripts/Activate.ps1' && markdownlint --fix docs/dag.md"
       ],
+      "icon": { "id": "graph" },
       "problemMatcher": []
     },
     // * -------------------------------------------------------------------------- * //
@@ -73,6 +77,7 @@
         "focus": true,
         "reveal": "always"
       },
+      "icon": { "id": "terminal-linux" },
       "problemMatcher": []
     },
 

@@ -1,12 +1,10 @@
-from typing import Any
-
 import cv2 as cv
 import numpy as np
 import numpy.typing as npt
 from scipy.spatial import ConvexHull
 
-from boilercv.cvutils import ESC_KEY, MARKER_COLOR, WHITE
-from boilercv.types import NpNumber_T
+from boilercv.common import ESC_KEY, MARKER_COLOR, WHITE
+from boilercv.types import NBitBase_T
 
 WINDOW_NAME = "image"
 
@@ -40,7 +38,7 @@ def main():
     cap.release()
 
 
-def get_frame(cap: cv.VideoCapture) -> npt.NDArray[np.integer[Any]]:
+def get_frame(cap: cv.VideoCapture) -> npt.NDArray[np.integer[npt.NBitBase]]:
     """Get a frame from the video."""
     success, frame = cap.read()
     if not success:
@@ -48,7 +46,9 @@ def get_frame(cap: cv.VideoCapture) -> npt.NDArray[np.integer[Any]]:
     return frame
 
 
-def get_roi(img: npt.NDArray[NpNumber_T]) -> npt.NDArray[NpNumber_T]:
+def get_roi(
+    img: npt.NDArray[np.integer[NBitBase_T]],
+) -> npt.NDArray[np.integer[NBitBase_T]]:
     """
     Get the region of interest of an image.
 

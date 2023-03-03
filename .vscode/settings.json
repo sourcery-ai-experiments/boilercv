@@ -2,6 +2,11 @@
   // * -------------------------------------------------------------------------- * //
   // * PROJECT-SPECIFIC * //
 
+  //! Schema
+  "yaml.schemas": {
+    "data/schema/params_schema.json": "params.yaml"
+  },
+
   "git.ignoredRepositories": [
     "/home/user/.cache",
     "/home/user/opencv-python",

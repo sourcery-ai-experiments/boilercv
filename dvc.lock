@@ -1,0 +1,13 @@
+schema: '2.0'
+stages:
+  schema:
+    cmd: python -m boilercv.stages.schema
+    deps:
+    - path: src/boilercv/stages/schema.py
+      md5: dc9a2e9a90a31d5d6962164674f7c8a2
+      size: 751
+    outs:
+    - path: data/schema
+      md5: a4f43d23850463f89ca997a97b96b24e.dir
+      size: 1689
+      nfiles: 1

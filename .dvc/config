@@ -1,6 +1,4 @@
 [core]
     remote = origin
-[cache]
-    dir = W:\.dvc\boilercv\cache
 ['remote "origin"']
     url = gs://boilercv

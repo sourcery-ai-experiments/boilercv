@@ -1,5 +1,5 @@
-from typing import Any, TypeVar
+from typing import TypeVar
 
-import numpy as np
+from numpy import typing as npt
 
-NpNumber_T = TypeVar("NpNumber_T", bound=np.number[Any])
+NBitBase_T = TypeVar("NBitBase_T", bound=npt.NBitBase)
