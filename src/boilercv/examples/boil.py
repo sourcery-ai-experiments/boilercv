@@ -4,14 +4,17 @@ import numpy.typing as npt
 from scipy.spatial import ConvexHull
 
 from boilercv.common import ESC_KEY, MARKER_COLOR, WHITE
-from boilercv.types import NBitBase_T
+from boilercv.models.params import Params
+from boilercv.types import Img, Img8Bit, NBit_T
 
 WINDOW_NAME = "image"
 
 
-def main():
-    cap = cv.VideoCapture("data/examples_mp4/results_2022-04-08T16-12-42.mp4")
-    frame = get_frame(cap)
+def main(params: Params):
+    cap = cv.VideoCapture(
+        str(params.paths.examples_mp4 / "results_2022-04-08T16-12-42.mp4")
+    )
+    frame: Img8Bit = get_frame(cap)
     blank = np.zeros_like(frame)
     roi = get_roi(frame)
     while cap.isOpened():
@@ -26,7 +29,7 @@ def main():
             ~binarized, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
         )
         frame_with_contours = cv.drawContours(
-            image=frame.copy(),  # because cv.drawContours modifies in-place AND returns
+            image=frame.copy(),  # Because cv.drawContours modifies in-place AND returns
             contours=contours,
             contourIdx=-1,
             color=(0, 255, 0),
@@ -38,7 +41,7 @@ def main():
     cap.release()
 
 
-def get_frame(cap: cv.VideoCapture) -> npt.NDArray[np.integer[npt.NBitBase]]:
+def get_frame(cap: cv.VideoCapture) -> Img[NBit_T]:
     """Get a frame from the video."""
     success, frame = cap.read()
     if not success:
@@ -47,16 +50,15 @@ def get_frame(cap: cv.VideoCapture) -> npt.NDArray[np.integer[npt.NBitBase]]:
 
 
 def get_roi(
-    img: npt.NDArray[np.integer[NBitBase_T]],
-) -> npt.NDArray[np.integer[NBitBase_T]]:
-    """
-    Get the region of interest of an image.
+    img: Img[NBit_T],
+) -> Img[NBit_T]:
+    """Get the region of interest of an image.
 
     See: https://docs.opencv.org/4.6.0/db/d5b/tutorial_py_mouse_handling.html
     """
 
     def handle_mouse_events(event: int, x: int, y: int, *_):
-        """Handle all mouse events."""
+        """Handle all mouse events. Form a convex hull from left clicks."""
         nonlocal img, click, clicks, hull, img_composite
         if event == cv.EVENT_LBUTTONDOWN:
             click += 1
@@ -64,15 +66,15 @@ def get_roi(
             img = cv.drawMarker(img, clicks[-1], MARKER_COLOR)
             if click == 3:
                 hull = ConvexHull(clicks, incremental=True)
-                img_composite = draw_hull(hull, clicks, img)
+                img_composite = draw_hull(hull, img)
             elif click > 3:
                 hull.add_points([clicks[-1]])
-                img_composite = draw_hull(hull, clicks, img)
+                img_composite = draw_hull(hull, img)
             cv.imshow(WINDOW_NAME, img_composite)
 
     click = 0
     clicks: list[tuple[int, int]] = []
-    hull: ConvexHull = None  # type: ignore
+    hull: ConvexHull = ConvexHull([(0, 0), (0, 1), (1, 0)])
     img_composite = img
 
     cv.imshow(WINDOW_NAME, img)
@@ -83,13 +85,19 @@ def get_roi(
     return np.array(clicks)[hull.vertices]
 
 
-def draw_hull(hull, clicks, img):
+def draw_hull(
+    hull: ConvexHull, img: npt.NDArray[np.integer[NBit_T]]
+) -> npt.NDArray[np.integer[NBit_T]]:
+    """Draw a convex hull on the image."""
     img = img.copy()
+    clicks = hull.points.astype(int)
     for simplex in hull.simplices:
         img = cv.line(img, clicks[simplex[0]], clicks[simplex[1]], MARKER_COLOR)
     return img
 
 
 if __name__ == "__main__":
-    main()
-    cv.destroyAllWindows()
+    try:
+        main(Params.get_params())
+    finally:
+        cv.destroyAllWindows()

@@ -1,3 +1,5 @@
+from typing import Self
+
 from pydantic import Field
 
 from boilercv.models.common import PARAMS_FILE, MyBaseModel, load_config
@@ -10,5 +12,5 @@ class Params(MyBaseModel):
     paths: Paths = Field(default_factory=Paths)
 
     @classmethod
-    def get_params(cls):
+    def get_params(cls: type[Self]) -> Self:
         return load_config(PARAMS_FILE, cls)

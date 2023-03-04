@@ -2,7 +2,10 @@ paths:
   file_params: params.yaml
   package: src/boilercv
   stages: src/boilercv/stages
+  models: src/boilercv/models
   data: data
+  samples_data: data/samples_data
+  examples_mp4: data/examples_mp4
   project_schema: data/schema
   stage_setup: src/boilercv/stages/setup.py
   stage_schema: src/boilercv/stages/schema.py

@@ -3,5 +3,6 @@ stages:
     cmd: "python -m boilercv.stages.schema"
     deps:
       - "${paths.stage_schema}"
+      - "${paths.models}"
     outs:
       - "${paths.project_schema}"

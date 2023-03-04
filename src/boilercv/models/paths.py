@@ -1,3 +1,5 @@
+"""Paths for this project."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -5,7 +7,10 @@ from typing import Any
 
 from pydantic import DirectoryPath, FilePath, validator
 
-from boilercv.models.common import DATA_DIR, PACKAGE_DIR, PARAMS_FILE, MyBaseModel
+from boilercv.models.common import PARAMS_FILE, MyBaseModel
+
+PACKAGE_DIR = Path("src") / "boilercv"
+DATA_DIR = Path("data")
 
 
 class Paths(MyBaseModel):
@@ -25,9 +30,12 @@ class Paths(MyBaseModel):
     # ! PACKAGE
     package: DirectoryPath = PACKAGE_DIR
     stages: DirectoryPath = package / "stages"
+    models: DirectoryPath = package / "models"
 
     # ! DATA
     data: DirectoryPath = DATA_DIR
+    samples_data: DirectoryPath = data / "samples_data"
+    examples_mp4: DirectoryPath = data / "examples_mp4"
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass

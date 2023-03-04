@@ -6,8 +6,6 @@ from pydantic import BaseModel, Extra, MissingError, ValidationError
 import yaml
 
 PARAMS_FILE = Path("params.yaml")
-PACKAGE_DIR = Path("src") / "boilercv"
-DATA_DIR = Path("data")
 
 
 class MyBaseModel(BaseModel):
