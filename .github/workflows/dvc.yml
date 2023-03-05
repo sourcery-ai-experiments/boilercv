@@ -2,6 +2,10 @@ name: "dvc"
 
 on: ["workflow_dispatch", "push"]
 
+permissions:
+  contents: "read"
+  id-token: "write"
+
 jobs:
   dvc:
     runs-on: "ubuntu-latest"
