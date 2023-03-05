@@ -18,7 +18,7 @@ jobs:
           workload_identity_provider: "projects/326920613558/locations/global/workloadIdentityPools/github-actions/providers/github-actions"
           service_account: "github-actions@secure-garden-355020.iam.gserviceaccount.com"
       - uses: "google-github-actions/setup-gcloud@v1.1.0"
+      - uses: falti/dotenv-action@v1.0.4
       - env:
           GH_TOKEN: ${{ github.token }}
-          OPENCV_SAMPLES_DATA_PATH: data/samples_data
         run: "dvc pull;dvc repro"
