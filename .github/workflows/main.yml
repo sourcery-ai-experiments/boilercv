@@ -63,9 +63,10 @@ jobs:
         with:
           python-version: "3.11"
       - run: "pyright"
+
   pytest-cov:
-    needs: "bump_template"
-    if: "${{ !failure() }}"
+    # needs: "bump_template"
+    # if: "${{ !failure() }}"
     runs-on: "ubuntu-latest"
     permissions:
       contents: "read"
