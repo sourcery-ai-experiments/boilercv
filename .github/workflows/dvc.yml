@@ -21,4 +21,4 @@ jobs:
       - env:
           GH_TOKEN: ${{ github.token }}
           OPENCV_SAMPLES_DATA_PATH: data/samples_data
-        run: "dvc pull;dvc repro"
+        run: "dvc pull;dvc repro;dvc push"
