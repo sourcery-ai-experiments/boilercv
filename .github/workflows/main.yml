@@ -60,6 +60,9 @@ jobs:
           python-version: "3.11"
       - run: "pyright"
   pytest-cov:
+    permissions:
+      contents: "read"
+      id-token: "write"
     needs: "bump_template"
     if: "${{ !failure() }}"
     runs-on: "ubuntu-latest"
