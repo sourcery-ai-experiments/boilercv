@@ -27,6 +27,10 @@ class Paths(MyBaseModel):
     # ! PARAMS FILE
     file_params: FilePath = PARAMS_FILE
 
+    # ! REQUIREMENTS
+    requirements: FilePath = Path("requirements.txt")
+    dev_requirements: DirectoryPath = Path(".tools/requirements")
+
     # ! PACKAGE
     package: DirectoryPath = PACKAGE_DIR
     stages: DirectoryPath = package / "stages"

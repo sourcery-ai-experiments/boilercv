@@ -1,5 +1,7 @@
 paths:
   file_params: params.yaml
+  requirements: requirements.txt
+  dev_requirements: .tools/requirements
   package: src/boilercv
   stages: src/boilercv/stages
   models: src/boilercv/models
