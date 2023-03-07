@@ -3,12 +3,17 @@
 from os import environ
 from pathlib import Path
 
+from loguru import logger
+
 __version__ = "0.0.0"
+
+logger.configure()
 
 
 def main():
-    """Initial checks that always run."""
+    """Initialize the package."""
     check_samples_env_var()
+    # logger.configure()
 
 
 def check_samples_env_var():

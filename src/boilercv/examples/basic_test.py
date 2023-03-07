@@ -2,14 +2,15 @@
 
 import cv2 as cv
 
+from boilercv import logger
+
 
 def main():
     cap = cv.VideoCapture(cv.samples.findFile("vtest.avi"))
     while cap.isOpened():
         ret, frame = cap.read()
-        # if frame is read correctly ret is True
         if not ret:
-            print("Can't receive frame (stream end?). Exiting ...")
+            logger.info("Can't receive frame (stream end?). Exiting ...")
             break
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         cv.imshow("frame", gray)

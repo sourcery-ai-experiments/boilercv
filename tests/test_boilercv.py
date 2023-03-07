@@ -1,5 +1,6 @@
-import boilercv
+from subprocess import run
 
 
-def test():
-    boilercv.__version__
+def test_repro():
+    run(["dvc", "pull"])
+    run(["dvc", "repro"])

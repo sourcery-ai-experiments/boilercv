@@ -64,10 +64,11 @@ def get_roi(
             click += 1
             clicks.append((x, y))
             img = cv.drawMarker(img, clicks[-1], MARKER_COLOR)
-            if click == 3:
+            hull_minimum_vertices = 3
+            if click == hull_minimum_vertices:
                 hull = ConvexHull(clicks, incremental=True)
                 img_composite = draw_hull(hull, img)
-            elif click > 3:
+            elif click > hull_minimum_vertices:
                 hull.add_points([clicks[-1]])
                 img_composite = draw_hull(hull, img)
             cv.imshow(WINDOW_NAME, img_composite)

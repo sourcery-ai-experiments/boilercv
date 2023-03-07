@@ -2,8 +2,8 @@
 
 from typing import TypeAlias, TypeVar
 
-from numpy import typing as npt
 import numpy as np
+from numpy import typing as npt
 from numpy._typing import _8Bit  # pyright: ignore[reportPrivateUsage]
 
 NBit: TypeAlias = npt.NBitBase
