@@ -7,7 +7,7 @@
     ":enablePreCommit",
     ":preserveSemverRanges"
   ],
-  "schedule": ["on the eighth day of the month"],
+  "schedule": ["on the 8th day of the month"],
   "git-submodules": { "enabled": true },
   "enabledManagers": [
     "git-submodules",
