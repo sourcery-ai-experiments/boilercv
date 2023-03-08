@@ -16,25 +16,25 @@ ci:
   # * Changes below should persist in significant template updates.
 
   skip:
-    - dvc-pre-commit
-    - dvc-pre-push
-    - dvc-post-checkout
+    - "dvc-pre-commit"
+    - "dvc-post-checkout"
+    - "dvc-pre-push"
 
   # * ------------------------------------------------------------------------------ * #
   # * Changes below may be lost in significant template updates.
 
-  autoupdate_schedule: quarterly
+  autoupdate_schedule: "quarterly"
 
 repos:
   # * ------------------------------------------------------------------------------ * #
   # * Changes below should persist in significant template updates.
 
-  - repo: https://github.com/iterative/dvc
+  - repo: "https://github.com/iterative/dvc"
     rev: "2.46.0"
     hooks:
-      - id: dvc-pre-commit
-      - id: dvc-post-checkout
-      - id: dvc-pre-push
+      - id: "dvc-pre-commit"
+      - id: "dvc-post-checkout"
+      - id: "dvc-pre-push"
         additional_dependencies: ["dvc[gs]"]
 
   # * ------------------------------------------------------------------------------ * #
