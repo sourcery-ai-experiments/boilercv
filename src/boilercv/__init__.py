@@ -7,13 +7,11 @@ from loguru import logger
 
 __version__ = "0.0.0"
 
-logger.configure()
 
-
-def main():
+def init():
     """Initialize the package."""
     check_samples_env_var()
-    # logger.configure()
+    logger.configure()
 
 
 def check_samples_env_var():
@@ -28,4 +26,4 @@ def check_samples_env_var():
         )
 
 
-main()
+init()
