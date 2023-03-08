@@ -2,7 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base",
-    "group:allNonMajor",
     ":automergeAll",
     ":enablePreCommit",
     ":preserveSemverRanges"
@@ -21,6 +20,13 @@
     "ignorePaths": ["frozen_requirements.txt"]
   },
   "packageRules": [
+    {
+      "groupName": "all non-major dependencies except pyright",
+      "groupSlug": "all-minor-patch",
+      "matchPackagePatterns": ["*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "excludeDepNames": ["pyright"]
+    },
     {
       "description": "Check for typings updates all the time.",
       "matchManagers": ["git-submodules"],
