@@ -30,5 +30,3 @@ pre-commit install --install-hooks
 
 # * -------------------------------------------------------------------------------- * #
 # * Changes below should persist in significant template updates.
-
-pre-commit install --install-hooks --hook-type pre-push --hook-type post-checkout
