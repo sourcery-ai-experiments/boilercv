@@ -19,6 +19,8 @@
 
     {
       "label": "dvc: repro",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dvc: setup"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro ${input:stage}"],
