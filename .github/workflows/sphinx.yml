@@ -22,6 +22,7 @@ jobs:
       - uses: "blakeNaccarato/copier-python-workflow-setup@v0.0.12"
         with:
           python-version: "3.11"
+      - run: "pip install --no-deps --requirement .tools/requirements/requirements_nodeps.txt"
       - run: "python -m sphinx -T -E docs _site"
       - uses: "actions/upload-pages-artifact@v1"
   deploy:

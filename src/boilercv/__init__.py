@@ -2,7 +2,9 @@
 
 from os import environ
 from pathlib import Path
+from textwrap import dedent
 
+from cv2 import version
 from loguru import logger
 
 __version__ = "0.0.0"
@@ -10,8 +12,20 @@ __version__ = "0.0.0"
 
 def init():
     """Initialize the package."""
+    check_contrib()
     check_samples_env_var()
     logger.configure()
+
+
+def check_contrib():
+    """Ensure the installed version of OpenCV has extras.
+
+    Dependencies can specify a different version of OpenCV than the one required in this
+    project, unintentionally clobbering the installed version of OpenCV. Detect whether
+    a non-`contrib` version is installed by a dependency.
+    """
+    if not version.contrib:
+        raise ImportError(NO_CONTRIB_MSG)
 
 
 def check_samples_env_var():
@@ -24,6 +38,14 @@ def check_samples_env_var():
         raise RuntimeError(
             f"{samples_env_var} not set or specified directory does not exist."
         )
+
+
+NO_CONTRIB_MSG = dedent(
+    """\
+    OpenCV is not installed with extras. A dependent package may have pinned
+    `opencv-pyhon` and clobbered your installed version.
+    """
+)
 
 
 init()
