@@ -1,7 +1,11 @@
 """Import frames from a cine file."""
 
 import cv2
+import numpy as np
 from pycine.raw import read_frames
+
+from boilercv.examples import interact_with_video
+from boilercv.models.params import Params
 
 
 def imshow(img):
@@ -10,13 +14,12 @@ def imshow(img):
 
 
 def main():
-    raw_images, *_ = read_frames(
-        cine_file="C:/Users/Blake/Desktop/test/results_2022-01-06T13-23-39.cine",
-        start_frame=0,
-        count=10,
+    images, *_ = read_frames(
+        cine_file=Params.get_params().paths.examples_data
+        / "results_2022-11-30T12-39-07_98C.cine"
     )
-    for _image in raw_images:
-        ...
+    video = np.stack(list(images))
+    interact_with_video(video)
 
 
 if __name__ == "__main__":

@@ -42,7 +42,7 @@ def play_video(data):
     app.exec()
 
 
-def interact_with_video(data):
+def interact_with_video(data: Img[NBit_T]):
     """Interact with video."""
     pg.setConfigOption("imageAxisOrder", "row-major")
     pg.image(data)
