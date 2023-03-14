@@ -17,6 +17,17 @@ def init():
     logger.configure()
 
 
+NO_CONTRIB_MSG = dedent(
+    """\
+    OpenCV is not installed with extras. A dependent package may have pinned
+    `opencv-pyhon` and clobbered your installed version.
+    """
+)
+WHITE = (255, 255, 255)
+MARKER_COLOR = (0, 0, 255)
+ESC_KEY = ord("\x1b")
+
+
 def check_contrib():
     """Ensure the installed version of OpenCV has extras.
 
@@ -38,14 +49,6 @@ def check_samples_env_var():
         raise RuntimeError(
             f"{samples_env_var} not set or specified directory does not exist."
         )
-
-
-NO_CONTRIB_MSG = dedent(
-    """\
-    OpenCV is not installed with extras. A dependent package may have pinned
-    `opencv-pyhon` and clobbered your installed version.
-    """
-)
 
 
 init()

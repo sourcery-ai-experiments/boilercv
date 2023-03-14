@@ -2,7 +2,7 @@
 
 import re
 
-from boilercv.models.common import write_schema
+from boilercv.models import write_schema
 from boilercv.models.params import Params
 
 

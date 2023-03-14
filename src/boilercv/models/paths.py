@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import DirectoryPath, FilePath, validator
 
-from boilercv.models.common import PARAMS_FILE, MyBaseModel
+from boilercv.models import PARAMS_FILE, MyBaseModel
 
 PACKAGE_DIR = Path("src") / "boilercv"
 DATA_DIR = Path("data")

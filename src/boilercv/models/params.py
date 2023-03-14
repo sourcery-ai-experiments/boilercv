@@ -2,7 +2,7 @@ from typing import Self
 
 from pydantic import Field
 
-from boilercv.models.common import PARAMS_FILE, MyBaseModel, load_config
+from boilercv.models import PARAMS_FILE, MyBaseModel, load_config
 from boilercv.models.paths import Paths
 
 

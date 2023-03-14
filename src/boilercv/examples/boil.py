@@ -3,7 +3,7 @@ import numpy as np
 import numpy.typing as npt
 from scipy.spatial import ConvexHull
 
-from boilercv.common import ESC_KEY, MARKER_COLOR, WHITE
+from boilercv import ESC_KEY, MARKER_COLOR, WHITE
 from boilercv.examples import video_images
 from boilercv.models.params import Params
 from boilercv.types import Img, Img8Bit, NBit_T
