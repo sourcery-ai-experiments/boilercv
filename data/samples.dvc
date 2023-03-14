@@ -2,4 +2,4 @@ outs:
 - md5: 2039f3ac1b4df1e9059cfb4d74b8c1db.dir
   size: 22147287
   nfiles: 113
-  path: samples_data
+  path: samples

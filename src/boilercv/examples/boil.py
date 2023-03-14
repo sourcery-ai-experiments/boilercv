@@ -13,7 +13,7 @@ WINDOW_NAME = "image"
 
 def main(params: Params):
     with video_images(
-        params.paths.examples_mp4 / "results_2022-04-08T16-12-42.mp4"
+        params.paths.examples_data / "results_2022-04-08T16-12-42.mp4"
     ) as images:
         image: Img8Bit = next(images)
         blank = np.zeros_like(image)
