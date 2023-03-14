@@ -1,3 +1,5 @@
+"""Custom ROI and contour finding in MP4 boiling video data."""
+
 import cv2 as cv
 import numpy as np
 import numpy.typing as npt

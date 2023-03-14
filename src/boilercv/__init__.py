@@ -5,7 +5,6 @@ from pathlib import Path
 from textwrap import dedent
 
 from cv2 import version
-from loguru import logger
 
 __version__ = "0.0.0"
 
@@ -14,7 +13,6 @@ def init():
     """Initialize the package."""
     check_contrib()
     check_samples_env_var()
-    logger.configure()
 
 
 NO_CONTRIB_MSG = dedent(

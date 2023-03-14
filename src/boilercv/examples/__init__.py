@@ -6,9 +6,12 @@ from pathlib import Path
 
 import cv2 as cv
 import pyqtgraph as pg
+from loguru import logger
 from pyqtgraph.Qt import QtCore
 
 from boilercv.types import Img, NBit_T
+
+pg.setConfigOption("imageAxisOrder", "row-major")
 
 
 def play_video(data):
@@ -44,9 +47,26 @@ def play_video(data):
 
 def interact_with_video(data: Img[NBit_T]):
     """Interact with video."""
-    pg.setConfigOption("imageAxisOrder", "row-major")
-    pg.image(data)
-    pg.exec()
+    app = pg.mkQApp()
+    image_view = pg.ImageView()
+    image_view.ui.histogram.hide()
+    image_view.ui.roiBtn.hide()
+    image_view.ui.menuBtn.hide()
+    image_view.setImage(data)
+    (_, width, height) = data.shape
+    roi = pg.CircleROI([0.5, 0.5], min(width, height))
+    image_view.addItem(roi)
+
+    def roi_changed():
+        nonlocal roi
+        logger.trace(roi.saveState())
+
+    roi.sigRegionChanged.connect(roi_changed)
+    image_view.show()
+    app.exec()
+
+
+# connecting roi changed signal to custom function
 
 
 @contextmanager
