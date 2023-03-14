@@ -4,6 +4,7 @@ import numpy.typing as npt
 from scipy.spatial import ConvexHull
 
 from boilercv.common import ESC_KEY, MARKER_COLOR, WHITE
+from boilercv.examples import video_images
 from boilercv.models.params import Params
 from boilercv.types import Img, Img8Bit, NBit_T
 
@@ -11,42 +12,32 @@ WINDOW_NAME = "image"
 
 
 def main(params: Params):
-    cap = cv.VideoCapture(
-        str(params.paths.examples_mp4 / "results_2022-04-08T16-12-42.mp4")
-    )
-    frame: Img8Bit = get_frame(cap)
-    blank = np.zeros_like(frame)
-    roi = get_roi(frame)
-    while cap.isOpened():
-        frame = get_frame(cap)
-        mask = ~cv.fillConvexPoly(blank, roi, WHITE)
-        masked = cv.add(frame, mask)
-        gray = cv.cvtColor(masked, cv.COLOR_BGR2GRAY)
-        binarized = cv.adaptiveThreshold(
-            gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 11, 2
-        )
-        contours, _hierarchy = cv.findContours(
-            ~binarized, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
-        )
-        frame_with_contours = cv.drawContours(
-            image=frame.copy(),  # Because cv.drawContours modifies in-place AND returns
-            contours=contours,
-            contourIdx=-1,
-            color=(0, 255, 0),
-            thickness=3,
-        )
-        cv.imshow(WINDOW_NAME, frame_with_contours)
-        if cv.waitKey(100) == ESC_KEY:
-            break
-    cap.release()
-
-
-def get_frame(cap: cv.VideoCapture) -> Img[NBit_T]:
-    """Get a frame from the video."""
-    success, frame = cap.read()
-    if not success:
-        raise RuntimeError("Could not read frame")
-    return frame
+    with video_images(
+        params.paths.examples_mp4 / "results_2022-04-08T16-12-42.mp4"
+    ) as images:
+        image: Img8Bit = next(images)
+        blank = np.zeros_like(image)
+        roi = get_roi(image)
+        for image in images:
+            mask = ~cv.fillConvexPoly(blank, roi, WHITE)
+            masked = cv.add(image, mask)
+            gray = cv.cvtColor(masked, cv.COLOR_BGR2GRAY)
+            binarized = cv.adaptiveThreshold(
+                gray, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 11, 2
+            )
+            contours, _hierarchy = cv.findContours(
+                ~binarized, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+            )
+            frame_with_contours = cv.drawContours(
+                image=image.copy(),  # cv.drawContours modifies in-place AND returns
+                contours=contours,
+                contourIdx=-1,
+                color=(0, 255, 0),
+                thickness=3,
+            )
+            cv.imshow(WINDOW_NAME, frame_with_contours)
+            if cv.waitKey(100) == ESC_KEY:
+                break
 
 
 def get_roi(

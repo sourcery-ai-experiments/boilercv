@@ -118,14 +118,9 @@
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": true,
   //* Editor format on save and more. Can run "File: Save without formatting" to skip.
-  "editor.formatOnPaste": true,
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "file",
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.organizeImports": true
-  },
+  "python.formatting.provider": "black",
   //* Enforce whitespace and newlines.
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
@@ -161,10 +156,6 @@
     "editor.wordWrap": "wordWrapColumn",
     "rewrap.autoWrap.enabled": false
   },
-  //* IPYNB
-  "[ipynb]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
-  },
   //* MD
   "[markdown]": {
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
@@ -185,6 +176,10 @@
   },
   //* PYTHON
   "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  //* IPYNB
+  "[ipynb]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
   //* TXT

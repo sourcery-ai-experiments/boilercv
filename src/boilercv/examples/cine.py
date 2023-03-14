@@ -1,3 +1,5 @@
+"""Import frames from a cine file."""
+
 import cv2
 from pycine.raw import read_frames
 
