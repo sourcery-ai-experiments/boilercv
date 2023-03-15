@@ -1,4 +1,4 @@
-"""Custom ROI and contour finding in MP4 boiling video data."""
+"""Given an MP4, find ROI using `opencv` and find contours."""
 
 import cv2 as cv
 import numpy as np

@@ -1,4 +1,4 @@
-"""Example of finding ROI in a CINE file."""
+"""Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
 import sys
 
