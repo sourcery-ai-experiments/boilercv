@@ -4,15 +4,57 @@ from typing import TypeAlias, TypeVar
 
 import numpy as np
 from numpy import typing as npt
-from numpy._typing import _8Bit  # pyright: ignore[reportPrivateUsage]
+from numpy._typing import _8Bit, _16Bit, _32Bit, _64Bit
+
+Arr = npt.NDArray[np.generic]
+"""Array type consistent with OpenCV's type annotations."""
 
 NBit: TypeAlias = npt.NBitBase
 
 NBit_T = TypeVar("NBit_T", bound=NBit)
-"""Represents a number with arbitrary precision."""
+"""A number with arbitrary precision."""
 
-Img: TypeAlias = npt.NDArray[np.integer[NBit_T]]
-"""An image parametrized on its bit depth."""
+_8Bit_T = TypeVar("_8Bit_T", bound=_8Bit)
+"""A number with 8-bit precision."""
 
-Img8Bit: TypeAlias = npt.NDArray[np.integer[_8Bit]]
+_16Bit_T = TypeVar("_16Bit_T", bound=_16Bit)
+"""A number with 16-bit precision."""
+
+_32Bit_T = TypeVar("_32Bit_T", bound=_32Bit)
+"""A number with 32-bit precision."""
+
+_64Bit_T = TypeVar("_64Bit_T", bound=_32Bit)
+"""A number with 64-bit precision."""
+
+ArrInt: TypeAlias = npt.NDArray[np.integer[NBit_T]]
+"""An integer array with arbitrary bit depth."""
+
+ArrInt8: TypeAlias = ArrInt[_8Bit]
+"""An integer array with 8-bit depth."""
+
+ArrInt16: TypeAlias = ArrInt[_16Bit]
+"""An integer array with 16-bit depth."""
+
+ArrInt32: TypeAlias = ArrInt[_32Bit]
+"""An integer array with 32-bit depth."""
+
+ArrInt64: TypeAlias = ArrInt[_64Bit]
+"""An integer array with 64-bit depth."""
+
+ArrIntDef: TypeAlias = ArrInt32
+"""The default integer array type."""
+
+Img: TypeAlias = ArrInt[NBit_T]
+"""An image with arbitrary bit depth."""
+
+Img8: TypeAlias = ArrInt[_8Bit]
 """An image with 8-bit depth."""
+
+Img16: TypeAlias = ArrInt[_16Bit]
+"""An image with 16-bit depth."""
+
+Img32: TypeAlias = ArrInt[_32Bit]
+"""An image with 32-bit depth."""
+
+Img64: TypeAlias = ArrInt[_64Bit]
+"""An image with 64-bit depth."""

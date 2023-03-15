@@ -8,6 +8,7 @@ import cv2 as cv
 import pyqtgraph as pg
 from loguru import logger
 from pyqtgraph.Qt import QtCore
+from PySide6.QtWidgets import QGridLayout, QWidget
 
 from boilercv.types import Img, NBit_T
 
@@ -47,22 +48,43 @@ def play_video(data):
 
 def interact_with_video(data: Img[NBit_T]):
     """Interact with video."""
+
     app = pg.mkQApp()
+
+    widget = QWidget()
+    widget.resize(800, 600)
+
+    layout = QGridLayout()
+    widget.setLayout(layout)
+
     image_view = pg.ImageView()
+    image_view.playRate = 30
     image_view.ui.histogram.hide()
     image_view.ui.roiBtn.hide()
     image_view.ui.menuBtn.hide()
     image_view.setImage(data)
+    layout.addWidget(image_view, 0, 0)
+
     (_, width, height) = data.shape
-    roi = pg.CircleROI([0.5, 0.5], min(width, height))
+    roi = pg.PolyLineROI(
+        pen=pg.mkPen("red"),
+        hoverPen=pg.mkPen("magenta"),
+        handlePen=pg.mkPen("blue"),
+        handleHoverPen=pg.mkPen("magenta"),
+        closed=True,
+        positions=[(0, 0), (0, width), (height, width), (height, 0)],
+    )
     image_view.addItem(roi)
 
-    def roi_changed():
-        nonlocal roi
-        logger.trace(roi.saveState())
+    def save_roi(self):
+        self.roi.saveState()
+        logger.trace("Save ROI")
 
-    roi.sigRegionChanged.connect(roi_changed)
-    image_view.show()
+    button = pg.QtWidgets.QPushButton("Save ROI")
+    button.clicked.connect(save_roi)
+    layout.addWidget(button, 1, 0)
+
+    widget.show()
     app.exec()
 
 
@@ -94,12 +116,21 @@ def has_channels(image: Img[NBit_T], channels: int):
     return number_of_channels == channels
 
 
+def gray_to_rgb(image: Img[NBit_T]) -> Img[NBit_T]:
+    return convert_image(image, cv.COLOR_GRAY2RGB)
+
+
 def rgb_to_gray(image: Img[NBit_T]) -> Img[NBit_T]:
     return convert_image(image, cv.COLOR_RGB2GRAY)
 
 
 def bgr_to_rgb(image: Img[NBit_T]) -> Img[NBit_T]:
     return convert_image(image, cv.COLOR_BGR2RGB)
+
+
+def get_first_channel(image: Img[NBit_T]) -> Img[NBit_T]:
+    """Return just the first channel of an image."""
+    return image[:, :, 0]
 
 
 def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:

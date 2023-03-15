@@ -10,7 +10,7 @@ __version__ = "0.0.0"
 
 
 def init():
-    """Initialize the package."""
+    """Initialize the package. Invoked at the end of this module."""
     check_contrib()
     check_samples_env_var()
 
