@@ -5,7 +5,7 @@
   "extraPaths": ["tests"],
 
   // Type inference helps with untyped upstream, but can be unpredictable
-  "useLibraryCodeForTypes": true,
+  "useLibraryCodeForTypes": false,
 
   // Sets most checks to "error". See overrides below
   "typeCheckingMode": "strict",
