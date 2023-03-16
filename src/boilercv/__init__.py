@@ -4,15 +4,12 @@ from os import environ
 from pathlib import Path
 from textwrap import dedent
 
+import pyqtgraph as pg
 from cv2 import version
 
+from boilercv.models.params import Params
+
 __version__ = "0.0.0"
-
-
-def init():
-    """Initialize the package. Invoked at the end of this module."""
-    check_contrib()
-    check_samples_env_var()
 
 
 NO_CONTRIB_MSG = dedent(
@@ -23,7 +20,14 @@ NO_CONTRIB_MSG = dedent(
 )
 WHITE = (255, 255, 255)
 MARKER_COLOR = (0, 0, 255)
-ESC_KEY = ord("\x1b")
+PARAMS = Params.get_params()
+
+
+def init():
+    """Initialize the package. Invoked at the end of this module."""
+    check_contrib()
+    check_samples_env_var()
+    pg.setConfigOption("imageAxisOrder", "row-major")
 
 
 def check_contrib():

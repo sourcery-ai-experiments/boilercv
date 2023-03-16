@@ -6,13 +6,9 @@ from pathlib import Path
 
 import cv2 as cv
 import pyqtgraph as pg
-from loguru import logger
 from pyqtgraph.Qt import QtCore
-from PySide6.QtWidgets import QGridLayout, QWidget
 
 from boilercv.types import Img, NBit_T
-
-pg.setConfigOption("imageAxisOrder", "row-major")
 
 
 def play_video(data):
@@ -44,51 +40,6 @@ def play_video(data):
     timer.timeout.connect(update_data)
     update_data()
     app.exec()
-
-
-def interact_with_video(data: Img[NBit_T]):
-    """Interact with video."""
-
-    app = pg.mkQApp()
-
-    widget = QWidget()
-    widget.resize(800, 600)
-
-    layout = QGridLayout()
-    widget.setLayout(layout)
-
-    image_view = pg.ImageView()
-    image_view.playRate = 30
-    image_view.ui.histogram.hide()
-    image_view.ui.roiBtn.hide()
-    image_view.ui.menuBtn.hide()
-    image_view.setImage(data)
-    layout.addWidget(image_view, 0, 0)
-
-    (_, width, height) = data.shape
-    roi = pg.PolyLineROI(
-        pen=pg.mkPen("red"),
-        hoverPen=pg.mkPen("magenta"),
-        handlePen=pg.mkPen("blue"),
-        handleHoverPen=pg.mkPen("magenta"),
-        closed=True,
-        positions=[(0, 0), (0, width), (height, width), (height, 0)],
-    )
-    image_view.addItem(roi)
-
-    def save_roi(self):
-        self.roi.saveState()
-        logger.trace("Save ROI")
-
-    button = pg.QtWidgets.QPushButton("Save ROI")
-    button.clicked.connect(save_roi)
-    layout.addWidget(button, 1, 0)
-
-    widget.show()
-    app.exec()
-
-
-# connecting roi changed signal to custom function
 
 
 @contextmanager
