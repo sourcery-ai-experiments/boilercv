@@ -1,5 +1,3 @@
-from contextlib import contextmanager
-
 import cv2 as cv
 import numpy as np
 import pyqtgraph as pg
@@ -10,14 +8,6 @@ from boilercv import WHITE
 from boilercv.types import ArrIntDef, Img, NBit_T
 
 ESC_KEY = ord("\x1b")
-
-
-@contextmanager
-def qt_window():
-    """Create a Qt window with a given name and size."""
-    app = pg.mkQApp()
-    yield app, GraphicsLayoutWidgetWithKeySignal(show=True, size=(800, 600))
-    app.exec()
 
 
 class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):

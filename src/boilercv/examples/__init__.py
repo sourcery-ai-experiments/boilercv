@@ -6,9 +6,12 @@ from pathlib import Path
 
 import cv2 as cv
 import pyqtgraph as pg
+from pycince.file import read_header
+from pycine.raw import read_frames
 from pyqtgraph.Qt import QtCore
 
-from boilercv.types import Img, NBit_T
+from boilercv.examples.contours import GraphicsLayoutWidgetWithKeySignal
+from boilercv.types import Img, Img8, NBit_T
 
 
 def play_video(data):
@@ -42,23 +45,40 @@ def play_video(data):
     app.exec()
 
 
-@contextmanager
-def video_images(path: Path):
+def video_images(path: Path) -> Iterator[Img8]:
     """Images from a video file."""
-    cap = cv.VideoCapture(str(path))
+    bpp = read_header(path)["setup"].RealBPP
+    images, *_ = read_frames(cine_file=path)
+    yield (image.astype(f"uint{bpp}") for image in images)  # type: ignore
+
+
+@contextmanager
+def video_capture_images(path: Path):
+    """Images from a video file."""
+    video_capture = cv.VideoCapture(str(path))
     try:
-        yield get_image(cap)
+        yield get_video_capture_image(video_capture)
     finally:
-        cap.release()
+        video_capture.release()
 
 
-def get_image(video_capture: cv.VideoCapture) -> Iterator[Img[NBit_T]]:
+def get_video_capture_image(video_capture: cv.VideoCapture) -> Iterator[Img[NBit_T]]:
     """Get an image from a video capture."""
     while True:
         read_is_successful, image = video_capture.read()
         if not read_is_successful:
             break
         yield image
+
+
+@contextmanager
+def qt_window():
+    """Create a Qt window with a given name and size."""
+    app = pg.mkQApp()
+    try:
+        yield app, GraphicsLayoutWidgetWithKeySignal(show=True, size=(800, 600))
+    finally:
+        app.exec()
 
 
 def has_channels(image: Img[NBit_T], channels: int):
@@ -86,4 +106,4 @@ def get_first_channel(image: Img[NBit_T]) -> Img[NBit_T]:
 
 def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
     """Convert image format, handling inconsistent type annotations."""
-    return image if code is None else cv.cvtColor(image, code)  # type: ignore
+    return image if code is None else cv.cvtColor(image, code)

@@ -4,21 +4,19 @@
 import numpy as np
 import pyqtgraph as pg
 import yaml
-from pycine.raw import read_frames
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout
 
-from boilercv import PARAMS
-from boilercv.examples.contours import mask_and_threshold, qt_window
-from boilercv.models.params import Params
+from boilercv import PARAMS, Params
+from boilercv.examples import qt_window, video_images
+from boilercv.examples.contours import mask_and_threshold
 from boilercv.types import ArrIntDef, Img, Img8, NBit_T
 
 
 def main():
-    images, *_ = read_frames(
-        cine_file=Params.get_params().paths.examples_data
-        / "results_2022-11-30T12-39-07_98C.cine"
+    images = video_images(
+        Params.get_params().paths.examples_data / "results_2022-11-30T12-39-07_98C.cine"
     )
     image: Img8 = next(images)
     with qt_window() as (app, window):

@@ -5,7 +5,7 @@ import numpy as np
 from scipy.spatial import ConvexHull
 
 from boilercv import MARKER_COLOR
-from boilercv.examples import get_first_channel, gray_to_rgb, video_images
+from boilercv.examples import get_first_channel, gray_to_rgb, video_capture_images
 from boilercv.examples.contours import ESC_KEY, mask_and_threshold
 from boilercv.models.params import Params
 from boilercv.types import ArrIntDef, Img, Img8, NBit_T
@@ -14,7 +14,7 @@ WINDOW_NAME = "image"
 
 
 def main(params: Params):
-    with video_images(
+    with video_capture_images(
         params.paths.examples_data / "results_2022-04-08T16-12-42.mp4"
     ) as images:
         image: Img8 = get_first_channel(next(images))

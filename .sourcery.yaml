@@ -11,6 +11,7 @@ rule_settings:
   disable:
     - "avoid-global-variables"
     - "avoid-single-character-names-variables"
+    - "snake-case-functions"
     - "do-not-use-staticmethod"
     - "docstrings-for-classes"
     - "docstrings-for-functions"
