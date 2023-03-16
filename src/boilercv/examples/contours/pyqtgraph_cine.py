@@ -1,6 +1,8 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
 
+from collections.abc import Iterator
+
 import numpy as np
 import pyqtgraph as pg
 import yaml
@@ -15,10 +17,10 @@ from boilercv.types import ArrIntDef, Img, Img8, NBit_T
 
 
 def main():
-    images = video_images(
+    images: Iterator[Img8] = video_images(
         Params.get_params().paths.examples_data / "results_2022-11-30T12-39-07_98C.cine"
     )
-    image: Img8 = next(images)
+    image = next(images)
     with qt_window() as (app, window):
         roi = get_roi(image, app, window)
     mask_and_threshold(image, roi)

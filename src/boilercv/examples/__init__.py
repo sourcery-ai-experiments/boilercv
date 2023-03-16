@@ -6,12 +6,12 @@ from pathlib import Path
 
 import cv2 as cv
 import pyqtgraph as pg
-from pycince.file import read_header
+from pycine.file import read_header
 from pycine.raw import read_frames
 from pyqtgraph.Qt import QtCore
 
 from boilercv.examples.contours import GraphicsLayoutWidgetWithKeySignal
-from boilercv.types import Img, Img8, NBit_T
+from boilercv.types import Img, NBit_T
 
 
 def play_video(data):
@@ -45,11 +45,11 @@ def play_video(data):
     app.exec()
 
 
-def video_images(path: Path) -> Iterator[Img8]:
+def video_images(path: Path) -> Iterator[Img[NBit_T]]:
     """Images from a video file."""
     bpp = read_header(path)["setup"].RealBPP
     images, *_ = read_frames(cine_file=path)
-    yield (image.astype(f"uint{bpp}") for image in images)  # type: ignore
+    return (image.astype(f"uint{bpp}") for image in images)
 
 
 @contextmanager
