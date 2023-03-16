@@ -106,4 +106,4 @@ def get_first_channel(image: Img[NBit_T]) -> Img[NBit_T]:
 
 def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
     """Convert image format, handling inconsistent type annotations."""
-    return image if code is None else cv.cvtColor(image, code)
+    return image if code is None else cv.cvtColor(image, code)  # type: ignore
