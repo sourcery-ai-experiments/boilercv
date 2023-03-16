@@ -34,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - run: "pytest --cov"
         env:
-          OPENCV_SAMPLES_DATA_PATH: data/samples_data
+          OPENCV_SAMPLES_DATA_PATH: data/samples
       - uses: "codecov/codecov-action@v3.1.1"
   bump_project:
     needs: ["pyright", "pytest-cov"]
