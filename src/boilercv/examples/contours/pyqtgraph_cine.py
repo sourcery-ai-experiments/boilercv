@@ -21,16 +21,16 @@ def main():
         / "results_2022-11-30T12-39-07_98C.cine"
     )
     image: Img8 = next(images)
-    roi = get_roi(image)
+    with qt_window() as (app, window):
+        roi = get_roi(image, app, window)
     mask_and_threshold(image, roi)
 
 
-def get_roi(data: Img[NBit_T]) -> ArrIntDef:
+def get_roi(image: Img[NBit_T], app, window) -> ArrIntDef:
     """Get the region of interest of an image."""
 
     # Load or initialize the ROI
-    app = pg.mkQApp()
-    (width, height) = data.shape[-2:]
+    (width, height) = image.shape[-2:]
     saved_roi = PARAMS.paths.examples_data / "roi.yaml"
     if saved_roi.exists():
         positions = yaml.safe_load(saved_roi.read_text(encoding="utf-8"))
@@ -47,25 +47,24 @@ def get_roi(data: Img[NBit_T]) -> ArrIntDef:
 
     def main():
         """Lay out the widget and connect callbacks."""
-        with qt_window() as window:
-            window.key_signal.connect(handle_keys)
+        window.key_signal.connect(handle_keys)
 
-            layout = QGridLayout()
-            window.setLayout(layout)
+        layout = QGridLayout()
+        window.setLayout(layout)
 
-            image_view = pg.ImageView()
-            image_view.playRate = 30
-            image_view.ui.histogram.hide()
-            image_view.ui.roiBtn.hide()
-            image_view.ui.menuBtn.hide()
-            image_view.setImage(data)
-            layout.addWidget(image_view, 0, 0)
+        image_view = pg.ImageView()
+        image_view.playRate = 30
+        image_view.ui.histogram.hide()
+        image_view.ui.roiBtn.hide()
+        image_view.ui.menuBtn.hide()
+        image_view.setImage(image)
+        layout.addWidget(image_view, 0, 0)
 
-            image_view.addItem(roi)
+        image_view.addItem(roi)
 
-            button = pg.QtWidgets.QPushButton("Save ROI")
-            button.clicked.connect(save_roi)
-            layout.addWidget(button, 1, 0)
+        button = pg.QtWidgets.QPushButton("Save ROI")
+        button.clicked.connect(save_roi)
+        layout.addWidget(button, 1, 0)
 
         return save_roi()
 
@@ -78,13 +77,13 @@ def get_roi(data: Img[NBit_T]) -> ArrIntDef:
 
     def save_roi() -> ArrIntDef:
         """Save the ROI."""
-        nonlocal roi
-        vertices = roi.saveState()["points"]
+        nonlocal roi, image
+        vertices = np.array(roi.saveState()["points"], dtype=int)
         saved_roi.write_text(
             encoding="utf-8",
-            data=yaml.safe_dump(vertices, indent=2),
+            data=yaml.safe_dump(vertices.tolist(), indent=2),
         )
-        return np.array(vertices, dtype=int)
+        return vertices
 
     return main()
 

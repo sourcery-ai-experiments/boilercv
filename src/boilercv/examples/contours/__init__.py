@@ -16,7 +16,7 @@ ESC_KEY = ord("\x1b")
 def qt_window():
     """Create a Qt window with a given name and size."""
     app = pg.mkQApp()
-    yield GraphicsLayoutWidgetWithKeySignal(show=True, size=(800, 600))
+    yield app, GraphicsLayoutWidgetWithKeySignal(show=True, size=(800, 600))
     app.exec()
 
 
