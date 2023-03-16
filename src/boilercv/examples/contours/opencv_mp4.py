@@ -4,11 +4,11 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from boilercv import MARKER_COLOR
-from boilercv.examples import get_first_channel, gray_to_rgb, video_capture_images
-from boilercv.examples.contours import ESC_KEY, mask_and_threshold
+from boilercv import MARKER_COLOR, _8_bit, convert_image, mask_and_threshold
+from boilercv.examples import get_first_channel
+from boilercv.examples.contours import ESC_KEY, video_capture_images
 from boilercv.models.params import Params
-from boilercv.types import ArrIntDef, Img, Img8, NBit_T
+from boilercv.types import ArrIntDef, Img, NBit_T
 
 WINDOW_NAME = "image"
 
@@ -17,10 +17,10 @@ def main(params: Params):
     with video_capture_images(
         params.paths.examples_data / "results_2022-04-08T16-12-42.mp4"
     ) as images:
-        image: Img8 = get_first_channel(next(images))
+        image = _8_bit(get_first_channel(next(images)))
         roi = get_roi(image)
         for image in images:
-            image = get_first_channel(next(images))
+            image = _8_bit(get_first_channel(next(images)))
             thresholded = mask_and_threshold(image, roi)
             contours, _ = cv.findContours(
                 image=~thresholded,
@@ -28,14 +28,16 @@ def main(params: Params):
                 method=cv.CHAIN_APPROX_SIMPLE,
             )
             # Need three-channel image to paint colored contours
-            three_channel_gray = gray_to_rgb(image)
+            three_channel_gray = convert_image(image, cv.COLOR_GRAY2RGB)
             # ! Careful: cv.drawContours modifies in-place AND returns
-            image_with_contours = cv.drawContours(
-                image=three_channel_gray,
-                contours=contours,
-                contourIdx=-1,
-                color=(0, 255, 0),
-                thickness=3,
+            image_with_contours = _8_bit(
+                cv.drawContours(
+                    image=three_channel_gray,
+                    contours=contours,
+                    contourIdx=-1,
+                    color=(0, 255, 0),
+                    thickness=3,
+                )
             )
             cv.imshow(WINDOW_NAME, image_with_contours)
             if cv.waitKey(100) == ESC_KEY:
@@ -50,7 +52,7 @@ def get_roi(image: Img[NBit_T]) -> ArrIntDef:
 
     clicks: list[tuple[int, int]] = []
 
-    image = gray_to_rgb(image)
+    image = convert_image(image, cv.COLOR_GRAY2RGB)
     click = 0
     hull = ConvexHull([(0, 0), (0, 1), (1, 0)])
     composite_image = image

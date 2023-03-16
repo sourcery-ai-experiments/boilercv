@@ -10,14 +10,12 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout
 
-from boilercv import PARAMS, Params
-from boilercv.examples import qt_window, video_images
-from boilercv.examples.contours import mask_and_threshold
+from boilercv import PARAMS, Params, mask_and_threshold, qt_window, video_images_8bit
 from boilercv.types import ArrIntDef, Img, Img8, NBit_T
 
 
 def main():
-    images: Iterator[Img8] = video_images(
+    images: Iterator[Img8] = video_images_8bit(
         Params.get_params().paths.examples_data / "results_2022-11-30T12-39-07_98C.cine"
     )
     image = next(images)

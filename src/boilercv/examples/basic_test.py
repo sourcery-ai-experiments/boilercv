@@ -6,7 +6,9 @@ from pathlib import Path
 import cv2 as cv
 import numpy as np
 
-from boilercv.examples import bgr_to_rgb, qt_window, video_capture_images
+from boilercv import qt_window
+from boilercv.examples import bgr_to_rgb
+from boilercv.examples.contours import video_capture_images
 from boilercv.examples.contours.pyqtgraph_cine import get_roi
 
 
