@@ -100,9 +100,9 @@ class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):
 
     key_signal = Signal(QKeyEvent)
 
-    def keyPressEvent(self, event: QKeyEvent):  # noqa: N802
-        super().keyPressEvent(event)
-        self.key_signal.emit(event)
+    def keyPressEvent(self, ev: QKeyEvent):  # noqa: N802
+        super().keyPressEvent(ev)
+        self.key_signal.emit(ev)
 
 
 @contextmanager

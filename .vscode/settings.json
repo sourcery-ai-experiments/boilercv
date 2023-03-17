@@ -24,19 +24,18 @@
   "terminal.integrated.defaultProfile.linux": "pwsh",
 
   //! Pylance
-  //* Pylance settings aren't very discoverable.
-  //* https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance
   "python.languageServer": "Pylance",
-  "python.analysis.typeCheckingMode": "off",
   "python.analysis.diagnosticMode": "workspace",
   "python.analysis.indexing": true,
+  //? These are safer defaults which are overridden in `pyrightconfig.json`.
+  "python.analysis.typeCheckingMode": "off",
   "python.analysis.useLibraryCodeForTypes": false,
   //? Refactoring
   "python.analysis.fixAll": [
     "source.convertImportFormat",
     "source.unusedImports"
   ],
-  "python.analysis.completeFunctionParens": false, // Buggy for now
+  "python.analysis.completeFunctionParens": true, // ! Buggy for now, let's try it
   "python.analysis.refactoring.allowMovingSymbols": true,
   //? Auto imports
   "python.analysis.importFormat": "absolute",
@@ -51,6 +50,33 @@
   "python.analysis.inlayHints.pytestParameters": true,
   //? See "include" and "extrapaths" in pyrightconfig.json
   "python.analysis.autoSearchPaths": false,
+  //? Zero out the depth for packages which slow down Pylance
+  "python.analysis.packageIndexDepths": [
+    {
+      "name": "sklearn",
+      "depth": 2
+    },
+    {
+      "name": "matplotlib",
+      "depth": 2
+    },
+    {
+      "name": "scipy",
+      "depth": 2
+    },
+    {
+      "name": "django",
+      "depth": 2
+    },
+    {
+      "name": "PySide6",
+      "depth": 0
+    },
+    {
+      "name": "pyqtgraph",
+      "depth": 0
+    }
+  ],
 
   //! Lint, test, format
   //* pytest
@@ -131,6 +157,10 @@
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
   "python.formatting.provider": "black",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": false,
+    "source.organizeImports": false
+  },
   //* Enforce whitespace and newlines.
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
