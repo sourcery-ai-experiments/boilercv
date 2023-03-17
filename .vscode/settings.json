@@ -35,7 +35,7 @@
     "source.convertImportFormat",
     "source.unusedImports"
   ],
-  "python.analysis.completeFunctionParens": true, // ! Buggy for now, let's try it
+  "python.analysis.completeFunctionParens": false, // Buggy
   "python.analysis.refactoring.allowMovingSymbols": true,
   //? Auto imports
   "python.analysis.importFormat": "absolute",
@@ -53,20 +53,8 @@
   //? Zero out the depth for packages which slow down Pylance
   "python.analysis.packageIndexDepths": [
     {
-      "name": "sklearn",
-      "depth": 2
-    },
-    {
-      "name": "matplotlib",
-      "depth": 2
-    },
-    {
-      "name": "scipy",
-      "depth": 2
-    },
-    {
-      "name": "django",
-      "depth": 2
+      "name": "cv2",
+      "depth": 0
     },
     {
       "name": "PySide6",

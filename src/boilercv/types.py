@@ -6,7 +6,7 @@ import numpy as np
 from numpy import typing as npt
 from numpy._typing import _8Bit, _16Bit, _32Bit, _64Bit
 
-Arr = npt.NDArray[np.generic]
+ArrOpenCV = npt.NDArray[np.generic]
 """Array type consistent with OpenCV's type annotations."""
 
 NBit: TypeAlias = npt.NBitBase
@@ -58,3 +58,18 @@ Img32: TypeAlias = ArrInt[_32Bit]
 
 Img64: TypeAlias = ArrInt[_64Bit]
 """An image with 64-bit depth."""
+
+ImgSeq = list[Img[NBit_T]]
+"""A sequence of images."""
+
+ImgSeq8: TypeAlias = ImgSeq[_8Bit]
+"""An image sequence with 8-bit depth."""
+
+ImgSeq16: TypeAlias = ImgSeq[_16Bit]
+"""An image sequence with 16-bit depth."""
+
+ImgSeq32: TypeAlias = ImgSeq[_32Bit]
+"""An image sequence with 32-bit depth."""
+
+ImgSeq64: TypeAlias = ImgSeq[_64Bit]
+"""An image sequence with 64-bit depth."""

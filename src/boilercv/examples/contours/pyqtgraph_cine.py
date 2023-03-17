@@ -1,6 +1,4 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
-
-
 from pathlib import Path
 
 import numpy as np
@@ -12,13 +10,14 @@ from PySide6.QtWidgets import QPushButton
 
 from boilercv import (
     PARAMS,
+    compare_images,
     get_8bit_images,
     get_video_images,
     preview_images,
     qt_window,
 )
 from boilercv.examples.contours import draw_contours, find_contours, mask, threshold
-from boilercv.types import ArrIntDef, Img, Img8, NBit_T
+from boilercv.types import ArrIntDef, Img, ImgSeq8, NBit_T
 
 
 def main():
@@ -28,19 +27,21 @@ def main():
         )
     )
     roi = edit_roi(PARAMS.paths.examples_data / "roi.yaml", next(images))
-    result: list[Img8] = []
+    result: ImgSeq8 = []
     for image in images:
         masked = mask(image, roi)
         thresholded = threshold(masked)
         contours, _ = find_contours(thresholded)
         result.append(draw_contours(image, contours))
     preview_images(result)
+    compare_images([result, result])
+    compare_images([result, result, result])
 
 
 def edit_roi(roi_path: Path, image: Img[NBit_T]) -> ArrIntDef:
     """Edit the region of interest for an image."""
 
-    with qt_window() as (app, window, layout, image_view):
+    with qt_window() as (_app, window, layout, image_views):
         roi = pg.PolyLineROI(
             pen=pg.mkPen("red"),
             hoverPen=pg.mkPen("magenta"),
@@ -52,22 +53,18 @@ def edit_roi(roi_path: Path, image: Img[NBit_T]) -> ArrIntDef:
 
         def main():
             """Allow ROI interaction."""
-            window.key_signal.connect(handle_keys)
+            window.key_signal.connect(keyPressEvent)
             button = QPushButton("Save ROI")
             button.clicked.connect(save_roi)  # type: ignore
-            layout.addWidget(button, 1, 0)
-            image_view.setImage(image)
-            image_view.addItem(roi)
+            layout.addWidget(button)
+            image_views[0].setImage(image)
+            image_views[0].addItem(roi)
 
-        def handle_keys(event: QKeyEvent):
+        def keyPressEvent(ev: QKeyEvent):  # noqa: N802
             """Save ROI or quit on key presses."""
-            if event.key() == Qt.Key.Key_S:
+            if ev.key() == Qt.Key.Key_S:
                 save_roi()
-            if any(
-                event.key() == key
-                for key in (Qt.Key.Key_Escape, Qt.Key.Key_Q, Qt.Key.Key_Enter)
-            ):
-                app.quit()
+                ev.accept()
 
         def save_roi():
             """Save the ROI."""
