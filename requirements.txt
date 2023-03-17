@@ -1,5 +1,6 @@
 # List project dependencies here. A workflow ports them to `pyproject.toml`. This is needed because Dependabot does not currently support `flit`-flavored `pyproject.toml`.
 dvc[gs]==2.46.0
+loguru==0.6.0
 matplotlib==3.7.1
 opencv-contrib-python==4.7.0.72
 pandas==1.5.3
@@ -7,9 +8,9 @@ pandera==0.13.4
 pyarrow==11.0.0
 pydantic==1.10.6
 pyjanitor==0.24.0
-ruamel.yaml==0.17.21
-seaborn==0.12.2
 pyqtgraph==0.13.2
 pyside6==6.4.2
 pyyaml==6.0
-loguru==0.6.0
+ruamel.yaml==0.17.21
+scikit-image==0.20.0
+seaborn==0.12.2

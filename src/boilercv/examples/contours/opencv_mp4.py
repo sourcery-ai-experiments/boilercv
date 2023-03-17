@@ -6,7 +6,7 @@ from scipy.spatial import ConvexHull
 
 from boilercv import MARKER_COLOR, PARAMS, convert_image, get_8bit_images
 from boilercv.examples import capture_images
-from boilercv.examples.contours import draw_contours, find_contours, mask, threshold
+from boilercv.images import draw_contours, find_contours, mask, threshold
 from boilercv.types import ArrIntDef, Img, NBit_T
 
 WINDOW_NAME = "image"
