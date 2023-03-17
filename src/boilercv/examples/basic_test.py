@@ -6,17 +6,14 @@ from pathlib import Path
 import cv2 as cv
 import numpy as np
 
-from boilercv import qt_window
-from boilercv.examples import bgr_to_rgb
-from boilercv.examples.contours import video_capture_images
-from boilercv.examples.contours.pyqtgraph_cine import get_roi
+from boilercv import convert_image, preview_images
+from boilercv.examples import capture_images
 
 
 def main():
-    with video_capture_images(Path(cv.samples.findFile("vtest.avi"))) as images:
-        video = np.stack([bgr_to_rgb(image) for image in images])
-    with qt_window() as (app, window):
-        get_roi(video, app, window)
+    images = capture_images(Path(cv.samples.findFile("vtest.avi")))
+    video = np.stack([convert_image(image, cv.COLOR_BGR2RGB) for image in images])
+    preview_images(video)
 
 
 if __name__ == "__main__":

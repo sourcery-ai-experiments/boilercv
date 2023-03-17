@@ -4,44 +4,33 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from boilercv import MARKER_COLOR, _8_bit, convert_image, mask_and_threshold
-from boilercv.examples import get_first_channel
-from boilercv.examples.contours import ESC_KEY, video_capture_images
-from boilercv.models.params import Params
+from boilercv import MARKER_COLOR, PARAMS, convert_image, get_8bit_images
+from boilercv.examples import capture_images
+from boilercv.examples.contours import draw_contours, find_contours, mask, threshold
 from boilercv.types import ArrIntDef, Img, NBit_T
 
 WINDOW_NAME = "image"
+ESC_KEY = ord("\x1b")
 
 
-def main(params: Params):
-    with video_capture_images(
-        params.paths.examples_data / "results_2022-04-08T16-12-42.mp4"
-    ) as images:
-        image = _8_bit(get_first_channel(next(images)))
-        roi = get_roi(image)
-        for image in images:
-            image = _8_bit(get_first_channel(next(images)))
-            thresholded = mask_and_threshold(image, roi)
-            contours, _ = cv.findContours(
-                image=~thresholded,
-                mode=cv.RETR_EXTERNAL,
-                method=cv.CHAIN_APPROX_SIMPLE,
+def main():
+    images = (
+        image[:, :, 0]
+        for image in get_8bit_images(
+            capture_images(
+                PARAMS.paths.examples_data / "results_2022-04-08T16-12-42.mp4"
             )
-            # Need three-channel image to paint colored contours
-            three_channel_gray = convert_image(image, cv.COLOR_GRAY2RGB)
-            # ! Careful: cv.drawContours modifies in-place AND returns
-            image_with_contours = _8_bit(
-                cv.drawContours(
-                    image=three_channel_gray,
-                    contours=contours,
-                    contourIdx=-1,
-                    color=(0, 255, 0),
-                    thickness=3,
-                )
-            )
-            cv.imshow(WINDOW_NAME, image_with_contours)
-            if cv.waitKey(100) == ESC_KEY:
-                break
+        )
+    )
+    roi = get_roi(next(images))
+    for image in images:
+        masked = mask(image, roi)
+        thresholded = threshold(masked)
+        contours, _ = find_contours(thresholded)
+        image_with_contours = draw_contours(image, contours)
+        cv.imshow(WINDOW_NAME, image_with_contours)
+        if cv.waitKey(100) == ESC_KEY:
+            break
 
 
 def get_roi(image: Img[NBit_T]) -> ArrIntDef:
@@ -60,7 +49,7 @@ def get_roi(image: Img[NBit_T]) -> ArrIntDef:
     def main() -> ArrIntDef:
         cv.imshow(WINDOW_NAME, image)
         cv.setMouseCallback(WINDOW_NAME, handle_mouse_events)
-        while True and cv.waitKey(10) != ESC_KEY:
+        while True and cv.waitKey(100) != ESC_KEY:
             pass
         hull.close()
         return np.array(clicks)[hull.vertices]
@@ -93,7 +82,4 @@ def get_roi(image: Img[NBit_T]) -> ArrIntDef:
 
 
 if __name__ == "__main__":
-    try:
-        main(Params.get_params())
-    finally:
-        cv.destroyAllWindows()
+    main()

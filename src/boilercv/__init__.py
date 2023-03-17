@@ -1,6 +1,6 @@
 """Computer vision routines suitable for nucleate pool boiling bubble analysis."""
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from os import environ
 from pathlib import Path
@@ -14,9 +14,10 @@ from pycine.file import read_header
 from pycine.raw import read_frames
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QKeyEvent
+from PySide6.QtWidgets import QGridLayout
 
 from boilercv.models.params import Params
-from boilercv.types import ArrIntDef, Img, Img8, NBit, NBit_T
+from boilercv.types import Img, Img8, NBit, NBit_T
 
 __version__ = "0.0.0"
 
@@ -67,26 +68,31 @@ init()
 # * -------------------------------------------------------------------------------- * #
 
 
-def video_images_8bit(path: Path) -> Iterator[Img8]:
-    """Images from a CINE video file with 8-bit depth."""
-    bpp = read_header(path)["setup"].RealBPP
-    return (_8_bit(image.astype(f"uint{bpp}")) for image in video_images(path))
+def get_video_images(cine_file: Path) -> Iterator[Img[NBit]]:
+    """Get images from a CINE video file."""
+    images, *_ = read_frames(cine_file=cine_file)
+    bpp = read_header(cine_file)["setup"].RealBPP
+    return (image.astype(f"uint{bpp}") for image in images)
 
 
-def video_images(path: Path) -> Iterator[Img[NBit]]:
-    """Images from a CINE video file."""
-    images, *_ = read_frames(cine_file=path)
-    return images
+def preview_images(result: list[Img[NBit_T]] | Img[NBit_T]):
+    with qt_window() as (_app, _window, _layout, image_view):
+        image_view.setImage(np.array(result))
 
 
-@contextmanager
-def qt_window():
-    """Create a Qt window with a given name and size."""
-    app = pg.mkQApp()
-    try:
-        yield app, GraphicsLayoutWidgetWithKeySignal(show=True, size=(800, 600))
-    finally:
-        app.exec()
+def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
+    """Convert image format, handling inconsistent type annotations."""
+    return image if code is None else cv.cvtColor(image, code)  # type: ignore
+
+
+def get_8bit_images(images: Iterable[Img[NBit]]) -> Iterator[Img8]:
+    """Assume images are 8-bit."""
+    return (_8_bit(image) for image in images)
+
+
+def _8_bit(image: Img[NBit]) -> Img8:
+    """Assume an image is 8-bit."""
+    return image  # type: ignore
 
 
 class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):
@@ -95,31 +101,32 @@ class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):
     key_signal = Signal(QKeyEvent)
 
     def keyPressEvent(self, event: QKeyEvent):  # noqa: N802
-        self.scene().keyPressEvent(event)
-        self.key_signal.emit(event)
         super().keyPressEvent(event)
+        self.key_signal.emit(event)
 
 
-def mask_and_threshold(image: Img[NBit_T], roi: ArrIntDef) -> Img[NBit_T]:
-    """Mask an image and threshold it."""
-    blank = np.zeros_like(image)
-    mask: Img[NBit_T] = ~cv.fillConvexPoly(blank, roi, WHITE)
-    masked = cv.add(image, mask)
-    return cv.adaptiveThreshold(
-        src=masked,
-        maxValue=np.iinfo(masked.dtype).max,
-        adaptiveMethod=cv.ADAPTIVE_THRESH_MEAN_C,
-        thresholdType=cv.THRESH_BINARY,
-        blockSize=11,
-        C=2,
-    )
+@contextmanager
+def qt_window():
+    """Create a Qt window with a given name and size."""
+    app = pg.mkQApp()
+    try:
+        # Isolate pg.ImageView in a layout cell. It is complicated to directly modify
+        # the UI of pg.ImageView. Can't use the convenient pg.LayoutWidget because
+        # GraphicsLayoutWidget cannot contain it, and GraphicsLayoutWidget is convenient
+        # on its own.
 
+        image_view = pg.ImageView()
+        image_view.playRate = 30
+        image_view.ui.histogram.hide()
+        image_view.ui.roiBtn.hide()
+        image_view.ui.menuBtn.hide()
 
-def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
-    """Convert image format, handling inconsistent type annotations."""
-    return image if code is None else cv.cvtColor(image, code)  # type: ignore
+        layout = QGridLayout()
+        layout.addWidget(image_view)
 
+        window = GraphicsLayoutWidgetWithKeySignal(show=True, size=(800, 600))
+        window.setLayout(layout)
 
-def _8_bit(image: Img[NBit]) -> Img8:
-    """Assume an image is 8-bit."""
-    return image  # type: ignore
+        yield app, window, layout, image_view
+    finally:
+        app.exec()
