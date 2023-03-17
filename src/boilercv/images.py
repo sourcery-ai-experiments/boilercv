@@ -39,9 +39,7 @@ def threshold(image: Img[NBit_T]) -> Img[NBit_T]:
 
 def find_contours(image: Img[NBit_T]) -> tuple[list[ArrIntDef], ArrIntDef]:
     return cv.findContours(
-        image=~image,
-        mode=cv.RETR_EXTERNAL,
-        method=cv.CHAIN_APPROX_SIMPLE,
+        image=~image, mode=cv.RETR_EXTERNAL, method=cv.CHAIN_APPROX_SIMPLE
     )
 
 

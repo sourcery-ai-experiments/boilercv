@@ -1,10 +1,7 @@
 """Find blobs in footage."""
 
 
-from boilercv import (
-    PARAMS,
-    get_8bit_images,
-)
+from boilercv import PARAMS, get_8bit_images
 from boilercv.gui import get_video_images, preview_images
 from boilercv.images import load_roi
 from boilercv.types import ImgSeq8

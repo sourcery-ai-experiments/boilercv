@@ -33,13 +33,7 @@ def compare_images(results: Sequence[Img[NBit_T] | ImgSeq[NBit_T]]):
 def preview_images(result: Img[NBit_T] | ImgSeq[NBit_T]):
     """Preview a single image or timeseries of images."""
     result = np.array(result)
-    with image_viewer() as (
-        _app,
-        _window,
-        _layout,
-        _button_layout,
-        image_views,
-    ):
+    with image_viewer() as (_app, _window, _layout, _button_layout, image_views):
         image_views[0].setImage(result)
 
 
@@ -82,8 +76,7 @@ def edit_roi(roi_path: Path, image: Img[NBit_T]) -> ArrIntDef:
             """Save the ROI."""
             vertices = get_roi_vertices()
             roi_path.write_text(
-                encoding="utf-8",
-                data=yaml.safe_dump(vertices.tolist(), indent=2),
+                encoding="utf-8", data=yaml.safe_dump(vertices.tolist(), indent=2)
             )
 
         def get_roi_vertices() -> ArrIntDef:

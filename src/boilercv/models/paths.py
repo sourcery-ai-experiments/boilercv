@@ -51,11 +51,7 @@ class Paths(MyBaseModel):
 
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation
-    @validator(
-        "project_schema",
-        always=True,
-        pre=True,
-    )
+    @validator("project_schema", always=True, pre=True)
     def validate_output_directories(cls, directory: Path):
         """Re-create designated output directories each run, for reproducibility."""
         directory = Path(directory)

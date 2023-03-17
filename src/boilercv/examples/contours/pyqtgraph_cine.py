@@ -1,10 +1,7 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
 
-from boilercv import (
-    PARAMS,
-    get_8bit_images,
-)
+from boilercv import PARAMS, get_8bit_images
 from boilercv.gui import edit_roi, get_video_images, preview_images
 from boilercv.images import draw_contours, find_contours, mask, threshold
 from boilercv.types import ImgSeq8
