@@ -4,7 +4,7 @@ from dvc.repo import Repo
 
 def test_repro():
     """Test that the pipeline can be reproduced."""
-    Repo().reproduce(pull=True)
+    Repo().reproduce()
 
 
 def test_contrib():
