@@ -1,6 +1,5 @@
 """Examples, experiments, and demonstrations."""
 
-
 from collections.abc import Iterator
 from pathlib import Path
 

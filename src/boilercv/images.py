@@ -4,7 +4,7 @@ import cv2 as cv
 import numpy as np
 import yaml
 
-from boilercv import WHITE, convert_image
+from boilercv import MARKER_COLOR, WHITE, convert_image
 from boilercv.types import ArrIntDef, Img, NBit_T
 
 
@@ -51,6 +51,6 @@ def draw_contours(image: Img[NBit_T], contours) -> Img[NBit_T]:
         image=three_channel_gray,
         contours=contours,
         contourIdx=-1,
-        color=(0, 255, 0),
-        thickness=3,
+        color=MARKER_COLOR,
+        thickness=2,
     )

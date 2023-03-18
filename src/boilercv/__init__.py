@@ -21,7 +21,10 @@ NO_CONTRIB_MSG = dedent(
     """
 )
 WHITE = (255, 255, 255)
-MARKER_COLOR = (0, 0, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+MARKER_COLOR = BLUE
 PARAMS = Params.get_params()
 
 
