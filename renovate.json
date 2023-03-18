@@ -1,11 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-
-    ":enablePreCommit",
-    ":preserveSemverRanges"
-  ],
+  "extends": ["config:base", ":enablePreCommit", ":preserveSemverRanges"],
   "schedule": ["on the 8th day of the month"],
   "git-submodules": { "enabled": true },
   "enabledManagers": [
@@ -38,6 +33,12 @@
       "matchManagers": ["pip_requirements"],
       "matchDepNames": ["pyright"],
       "schedule": ["at any time"],
+      "automerge": false
+    },
+    {
+      "description": "Don't automerge template updates.",
+      "matchManagers": ["git-submodules"],
+      "matchDepNames": ["template"],
       "automerge": false
     },
     {
