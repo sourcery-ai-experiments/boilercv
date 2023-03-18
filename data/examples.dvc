@@ -1,5 +1,5 @@
 outs:
-- md5: f924831eec19cca767fa637686d1628f.dir
-  size: 136240486
-  nfiles: 6
+- md5: 7bdf99854631543f6bdcd72a03be2043.dir
+  size: 136239942
+  nfiles: 5
   path: examples

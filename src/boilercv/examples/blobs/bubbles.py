@@ -14,7 +14,7 @@ NUM_FRAMES = 10
 
 def main():
     input_images = list(IMAGES)[:NUM_FRAMES]
-    roi = edit_roi(PARAMS.paths.examples_data / "roi_blobs.yaml", input_images[0])
+    roi = edit_roi(PARAMS.paths.examples_data / "roi.yaml", input_images[0])
     # results_log: ImgSeq8 = []
     # results_dog: ImgSeq8 = []
     results_doh: ImgSeq8 = []

@@ -22,7 +22,11 @@ def load_roi(roi_path: Path, image: Img[NBit_T]) -> ArrIntDef:
 
 def mask(image: Img[NBit_T], roi: ArrIntDef) -> Img[NBit_T]:
     blank = np.zeros_like(image)
-    mask: Img[NBit_T] = ~cv.fillConvexPoly(blank, roi, WHITE)
+    mask: Img[NBit_T] = ~cv.fillPoly(
+        img=blank,
+        pts=[roi],  # Needs a list of arrays
+        color=WHITE,
+    )
     return cv.add(image, mask)
 
 
@@ -37,10 +41,11 @@ def threshold(image: Img[NBit_T]) -> Img[NBit_T]:
     )
 
 
-def find_contours(image: Img[NBit_T]) -> tuple[list[ArrIntDef], ArrIntDef]:
-    return cv.findContours(
+def find_contours(image: Img[NBit_T]) -> list[ArrIntDef]:
+    (contours, _) = cv.findContours(
         image=~image, mode=cv.RETR_EXTERNAL, method=cv.CHAIN_APPROX_SIMPLE
     )
+    return contours
 
 
 def draw_contours(image: Img[NBit_T], contours, thickness=2) -> Img[NBit_T]:
