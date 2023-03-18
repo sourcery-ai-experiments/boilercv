@@ -1,10 +1,11 @@
+from subprocess import run
+
 from cv2 import version
-from dvc.repo import Repo
 
 
 def test_repro():
     """Test that the pipeline can be reproduced."""
-    Repo().reproduce()
+    run(["dvc", "repro"])
 
 
 def test_contrib():
