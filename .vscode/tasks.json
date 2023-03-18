@@ -157,7 +157,7 @@
       "problemMatcher": []
     },
     {
-      "label": "pre-commit",
+      "label": "pre-commit: all",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "pre-commit run --all-files"],

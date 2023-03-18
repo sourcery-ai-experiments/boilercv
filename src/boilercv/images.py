@@ -43,7 +43,7 @@ def find_contours(image: Img[NBit_T]) -> tuple[list[ArrIntDef], ArrIntDef]:
     )
 
 
-def draw_contours(image: Img[NBit_T], contours) -> Img[NBit_T]:
+def draw_contours(image: Img[NBit_T], contours, thickness=2) -> Img[NBit_T]:
     # Need three-channel image to paint colored contours
     three_channel_gray = convert_image(image, cv.COLOR_GRAY2RGB)
     # ! Careful: cv.drawContours modifies in-place AND returns
@@ -52,5 +52,5 @@ def draw_contours(image: Img[NBit_T], contours) -> Img[NBit_T]:
         contours=contours,
         contourIdx=-1,
         color=MARKER_COLOR,
-        thickness=2,
+        thickness=thickness,
     )
