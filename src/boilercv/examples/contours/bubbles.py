@@ -1,7 +1,7 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
 
-from matplotlib.pyplot import imshow
+from matplotlib.pyplot import subplot_mosaic
 
 from boilercv import PARAMS
 from boilercv.examples.contours import IMAGES
@@ -15,7 +15,7 @@ ROI_FILE = PARAMS.paths.examples_data / "roi.yaml"
 
 def preview_contours(
     interact: bool = False, thickness: int = 2
-) -> list[list[ArrIntDef]]:
+) -> list[list[ArrIntDef]] | None:
     input_images = [ALL_IMAGES[0]] if interact else ALL_IMAGES
     if interact:
         roi = load_roi(ROI_FILE, input_images[0])
@@ -32,10 +32,14 @@ def preview_contours(
         all_thresholded.append(thresholded)
         contoured.append(draw_contours(image, contours, thickness))
     if interact:
-        imshow(contoured[0])
+        _, ax = subplot_mosaic([["input", "masked"], ["thresholded", "contoured"]])
+        ax["input"].imshow(input_images[0], cmap="gray")  # type: ignore
+        ax["masked"].imshow(all_masked[0], cmap="gray")  # type: ignore
+        ax["thresholded"].imshow(all_thresholded[0], cmap="gray")  # type: ignore
+        ax["contoured"].imshow(contoured[0], cmap="gray")  # type: ignore
     else:
         compare_images([input_images, all_masked, all_thresholded, contoured])
-    return all_contours
+        return all_contours
 
 
 def get_contours(
