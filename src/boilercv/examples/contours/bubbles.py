@@ -13,7 +13,9 @@ ALL_IMAGES = list(IMAGES)
 ROI_FILE = PARAMS.paths.examples_data / "roi.yaml"
 
 
-def preview_contours(interact=False, thickness: int = 2) -> list[list[ArrIntDef]]:
+def preview_contours(
+    interact: bool = False, thickness: int = 2
+) -> list[list[ArrIntDef]]:
     input_images = [ALL_IMAGES[0]] if interact else ALL_IMAGES
     if interact:
         roi = load_roi(ROI_FILE, input_images[0])
