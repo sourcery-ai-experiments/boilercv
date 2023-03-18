@@ -30,14 +30,17 @@ def mask(image: Img[NBit_T], roi: ArrIntDef) -> Img[NBit_T]:
     return cv.add(image, mask)
 
 
-def threshold(image: Img[NBit_T]) -> Img[NBit_T]:
+def threshold(
+    image: Img[NBit_T], block_size: int = 11, thresh_dist_from_mean: int = 2
+) -> Img[NBit_T]:
+    block_size += 1 if block_size % 2 == 0 else 0
     return cv.adaptiveThreshold(
         src=image,
         maxValue=np.iinfo(image.dtype).max,
         adaptiveMethod=cv.ADAPTIVE_THRESH_MEAN_C,
         thresholdType=cv.THRESH_BINARY,
-        blockSize=11,
-        C=2,
+        blockSize=block_size,
+        C=thresh_dist_from_mean,
     )
 
 
@@ -48,14 +51,16 @@ def find_contours(image: Img[NBit_T]) -> list[ArrIntDef]:
     return contours
 
 
-def draw_contours(image: Img[NBit_T], contours, thickness=2) -> Img[NBit_T]:
+def draw_contours(
+    image: Img[NBit_T], contours: list[ArrIntDef], contour_index: int = -1, thickness=2
+) -> Img[NBit_T]:
     # Need three-channel image to paint colored contours
     three_channel_gray = convert_image(image, cv.COLOR_GRAY2RGB)
     # ! Careful: cv.drawContours modifies in-place AND returns
     return cv.drawContours(
         image=three_channel_gray,
         contours=contours,
-        contourIdx=-1,
+        contourIdx=contour_index,
         color=MARKER_COLOR,
         thickness=thickness,
     )

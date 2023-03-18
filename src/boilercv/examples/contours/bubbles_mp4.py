@@ -26,7 +26,7 @@ def main():
     for image in images:
         masked = mask(image, roi)
         thresholded = threshold(masked)
-        contours, _ = find_contours(thresholded)
+        contours = find_contours(thresholded)
         image_with_contours = draw_contours(image, contours)
         cv.imshow(WINDOW_NAME, image_with_contours)
         if cv.waitKey(100) == ESC_KEY:
