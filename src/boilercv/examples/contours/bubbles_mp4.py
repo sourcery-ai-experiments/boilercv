@@ -4,9 +4,10 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from boilercv import MARKER_COLOR, PARAMS, convert_image, get_8bit_images
+from boilercv import MARKER_COLOR, convert_image, get_8bit_images
 from boilercv.examples import capture_images
 from boilercv.images import draw_contours, find_contours, mask, threshold
+from boilercv.models.params import PARAMS
 from boilercv.types import ArrIntDef, Img, NBit_T
 
 WINDOW_NAME = "image"
@@ -17,9 +18,7 @@ def main():
     images = (
         image[:, :, 0]
         for image in get_8bit_images(
-            capture_images(
-                PARAMS.paths.examples_data / "results_2022-04-08T16-12-42.mp4"
-            )
+            capture_images(PARAMS.paths.examples / "results_2022-04-08T16-12-42.mp4")
         )
     )
     roi = get_roi(next(images))

@@ -38,8 +38,10 @@ class Paths(MyBaseModel):
 
     # ! DATA
     data: DirectoryPath = DATA_DIR
-    samples_data: DirectoryPath = data / "samples"
-    examples_data: DirectoryPath = data / "examples"
+    samples: DirectoryPath = data / "samples"
+    examples: DirectoryPath = data / "examples"
+    sources: DirectoryPath = data / "sources"
+    trimmed: DirectoryPath = data / "trimmed"
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass

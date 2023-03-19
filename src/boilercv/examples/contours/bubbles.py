@@ -1,16 +1,15 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
-
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv import PARAMS
 from boilercv.examples.contours import IMAGES
 from boilercv.gui import compare_images, edit_roi
 from boilercv.images import draw_contours, find_contours, load_roi, mask, threshold
+from boilercv.models.params import PARAMS
 from boilercv.types import ArrIntDef, Img, ImgSeq8, NBit_T
 
 ALL_IMAGES = list(IMAGES)
-ROI_FILE = PARAMS.paths.examples_data / "roi.yaml"
+ROI_FILE = PARAMS.paths.examples / "roi.yaml"
 
 
 def main():

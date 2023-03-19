@@ -1,3 +1,5 @@
+"""Graphical user interface utilities."""
+
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
@@ -37,9 +39,14 @@ def preview_images(result: Img[NBit_T] | ImgSeq[NBit_T]):
         image_views[0].setImage(result)
 
 
-def get_video_images(cine_file: Path) -> Iterator[Img[NBit_T]]:
+def get_video_images(
+    cine_file: Path,
+    start_frame: int | None = None,
+    start_frame_cine: int | None = None,
+    count: int | None = None,
+) -> Iterator[Img[NBit_T]]:
     """Get images from a CINE video file."""
-    images, *_ = read_frames(cine_file=cine_file)
+    images, *_ = read_frames(cine_file, start_frame, start_frame_cine, count)
     bpp = read_header(cine_file)["setup"].RealBPP
     return (image.astype(f"uint{bpp}") for image in images)
 

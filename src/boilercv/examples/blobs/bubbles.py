@@ -1,12 +1,13 @@
-"""Find bubbles as blobs.."""
+"""Find bubbles as blobs."""
 
 import cv2 as cv
 
-from boilercv import PARAMS, RED, convert_image
+from boilercv import RED, convert_image
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
 from boilercv.examples.contours import IMAGES
 from boilercv.gui import compare_images, edit_roi
 from boilercv.images import mask
+from boilercv.models.params import PARAMS
 from boilercv.types import ImgSeq8
 
 NUM_FRAMES = 10
@@ -14,7 +15,7 @@ NUM_FRAMES = 10
 
 def main():
     input_images = list(IMAGES)[:NUM_FRAMES]
-    roi = edit_roi(PARAMS.paths.examples_data / "roi.yaml", input_images[0])
+    roi = edit_roi(PARAMS.paths.examples / "roi.yaml", input_images[0])
     # results_log: ImgSeq8 = []
     # results_dog: ImgSeq8 = []
     results_doh: ImgSeq8 = []

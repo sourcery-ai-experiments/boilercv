@@ -1,3 +1,5 @@
+"""Parameters for the data pipeline."""
+
 from typing import Self
 
 from pydantic import Field
@@ -14,3 +16,6 @@ class Params(MyBaseModel):
     @classmethod
     def get_params(cls: type[Self]) -> Self:
         return load_config(PARAMS_FILE, cls)
+
+
+PARAMS = Params.get_params()

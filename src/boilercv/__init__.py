@@ -1,4 +1,5 @@
 """Computer vision routines suitable for nucleate pool boiling bubble analysis."""
+
 from collections.abc import Iterable, Iterator
 from os import environ
 from pathlib import Path
@@ -8,7 +9,6 @@ import cv2 as cv
 import pyqtgraph as pg
 from cv2 import version
 
-from boilercv.models.params import Params
 from boilercv.types import Img, Img8, NBit, NBit_T
 
 __version__ = "0.0.0"
@@ -25,7 +25,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 MARKER_COLOR = BLUE
-PARAMS = Params.get_params()
 
 
 def init():

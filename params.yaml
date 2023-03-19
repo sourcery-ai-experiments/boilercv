@@ -6,8 +6,10 @@ paths:
   stages: src/boilercv/stages
   models: src/boilercv/models
   data: data
-  samples_data: data/samples
-  examples_data: data/examples
+  samples: data/samples
+  examples: data/examples
+  sources: data/sources
+  trimmed: data/trimmed
   project_schema: data/schema
   stage_setup: src/boilercv/stages/setup.py
   stage_schema: src/boilercv/stages/schema.py
