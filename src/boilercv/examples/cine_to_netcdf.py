@@ -1,21 +1,17 @@
 """Example of converting CINE files to the NetCDF file format."""
 
-
 import xarray as xr
 
 from boilercv import get_8bit_images
-from boilercv.gui import (
-    get_attrs_and_timestamps_from_header,
-    get_header,
-    get_video_images,
-)
+from boilercv.gui import get_video_images
 from boilercv.models.params import PARAMS
+from boilercv.video.cine import Header, flatten_header_study_specific
 
 
 def main():
     source = PARAMS.paths.examples / "results_2022-11-30T12-39-07_98C.cine"
-    header = get_header(source)
-    attrs, timestamps = get_attrs_and_timestamps_from_header(header)
+    header = Header.from_file(source)
+    attrs, timestamps = flatten_header_study_specific(header)
     images = xr.DataArray(
         data=list(get_8bit_images(get_video_images(source))),
         dims=("image", "y", "x"),
