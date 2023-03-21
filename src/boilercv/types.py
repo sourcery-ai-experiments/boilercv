@@ -6,8 +6,11 @@ import numpy as np
 from numpy import typing as npt
 from numpy._typing import _8Bit, _16Bit, _32Bit, _64Bit
 
-ArrOpenCV = npt.NDArray[np.generic]
-"""Array type consistent with OpenCV's type annotations."""
+ArrGen: TypeAlias = npt.NDArray[np.generic]
+"""Generic array type. Consistent with OpenCV's type annotations."""
+
+ArrDatetime = npt.NDArray[np.datetime64]
+"""Datetime array type."""
 
 NBit: TypeAlias = npt.NBitBase
 
@@ -25,6 +28,12 @@ _32Bit_T = TypeVar("_32Bit_T", bound=_32Bit)
 
 _64Bit_T = TypeVar("_64Bit_T", bound=_32Bit)
 """A number with 64-bit precision."""
+
+ArrFloat: TypeAlias = npt.NDArray[np.floating[NBit_T]]
+"""An integer array with arbitrary bit depth."""
+
+ArrFloat64: TypeAlias = ArrFloat[_64Bit]
+"""An integer array with 64-bit depth."""
 
 ArrInt: TypeAlias = npt.NDArray[np.integer[NBit_T]]
 """An integer array with arbitrary bit depth."""
