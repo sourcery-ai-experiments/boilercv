@@ -55,6 +55,7 @@ ignore = [
     "RET",     # Return checks are flaky, Sourcery does fine analysing these paths
     "TCH",     # Type checking linter doesn't play nicely with pydantic
     "TRY003",  # Allow long exception messages
+    "W2",      # Allow whitespace issues. Fixed automatically by black.
     # * ---------------------------------------------------------------------------- * #
     # * These Jupyter-specific ignores can't be per-file-ignores
     # * https://nbqa.readthedocs.io/en/latest/known-limitations.html
@@ -77,11 +78,16 @@ unfixable = [
     # * ---------------------------------------------------------------------------- * #
     # * Changes below should persist in significant template updates.
 
+    "N815", #
+
     # * ---------------------------------------------------------------------------- * #
     # * Changes below may be lost in significant template updates.
 
     "ARG001", # Allow unused arguments in tests
     "S101",   # Allow assert in tests
+]
+"src/boilercv/video/cine/**" = [
+    "N815", # Allow camelCase in cine metadata models, which map to C structures
 ]
 
 [tool.ruff.flake8-bugbear]
