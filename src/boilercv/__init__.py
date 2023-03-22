@@ -14,6 +14,7 @@ from boilercv.types import Img, Img8, NBit, NBit_T
 
 __version__ = "0.0.0"
 
+SAMPLE_DIAMETER_UM = 9_525_000
 TIMEZONE = timezone("US/Pacific")
 
 NO_CONTRIB_MSG = dedent(

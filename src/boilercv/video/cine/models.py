@@ -1,6 +1,7 @@
 """Models for CINE file metadata."""
 
 from contextlib import suppress
+from copy import copy
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta, tzinfo
 from pathlib import Path
@@ -363,36 +364,234 @@ class Setup:
             self.__dict__[field] = list(self.__dict__[field])
 
 
+@dataclass
+class FlatHeader:
+    Type: int
+    Headersize: int
+    Compression: int
+    Version: int
+    FirstMovieImage: int
+    TotalImageCount: int
+    FirstImageNo: int
+    ImageCount: int
+    OffImageHeader: int
+    OffSetup: int
+    OffImageOffsets: int
+    TriggerTime: str
+    BiSize: int
+    BiWidth: int
+    BiHeight: int
+    BiPlanes: int
+    BiBitCount: int
+    BiCompression: int
+    BiSizeImage: int
+    BiXPelsPerMeter: int
+    BiYPelsPerMeter: int
+    BiClrUsed: int
+    BiClrImportant: int
+    TrigFrame: int
+    Mark: int
+    Length: int
+    SigOption: int
+    BinChannels: int
+    SamplesPerImage: int
+    BinName: bytes
+    AnaOption: int
+    AnaChannels: int
+    AnaBoard: int
+    ChOption: list[int]
+    AnaGain: list[float]
+    AnaUnit: bytes
+    AnaName: bytes
+    LFirstImage: int
+    DwImageCount: int
+    NQFactor: int
+    WCineFileType: int
+    SzCinePath: bytes
+    ImWidth: int
+    ImHeight: int
+    Serial: int
+    AutoExposure: int
+    BFlipH: bool
+    BFlipV: bool
+    FrameRate: int
+    Grid: int
+    PostTrigger: int
+    BEnableColor: bool
+    CameraVersion: int
+    FirmwareVersion: int
+    SoftwareVersion: int
+    RecordingTimeZone: int
+    CFA: int
+    AutoExpLevel: int
+    AutoExpSpeed: int
+    AutoExpRectLeft: int
+    AutoExpRectTop: int
+    AutoExpRectRight: int
+    AutoExpRectBottom: int
+    WBGain0R: float
+    WBGain0B: float
+    WBGain1R: float
+    WBGain1B: float
+    WBGain2R: float
+    WBGain2B: float
+    WBGain3R: float
+    WBGain3B: float
+    Rotate: int
+    WBViewR: float
+    WBViewB: float
+    RealBPP: int
+    FilterCode: int
+    FilterParam: int
+    UFDim: int
+    UFShifts: int
+    UFBias: int
+    UFCoef: list[int]
+    BlackCalSVer: int
+    WhiteCalSVer: int
+    GrayCalSVer: int
+    BStampTime: bool
+    SoundDest: int
+    FRPSteps: int
+    FRPImgNr: list[int]
+    FRPRate: list[int]
+    FRPExp: list[int]
+    MCCnt: int
+    MCPercent: list[float]
+    CICalib: int
+    CalibWidth: int
+    CalibHeight: int
+    CalibRate: int
+    CalibExp: int
+    CalibEDR: int
+    CalibTemp: int
+    HeadSerial: list[int]
+    RangeCode: int
+    RangeSize: int
+    Decimation: int
+    MasterSerial: int
+    Sensor: int
+    ShutterNs: int
+    EDRShutterNs: int
+    FrameDelayNs: int
+    ImPosXAcq: int
+    ImPosYAcq: int
+    ImWidthAcq: int
+    ImHeightAcq: int
+    Description: bytes
+    RisingEdge: bool
+    FilterTime: int
+    LongReady: bool
+    ShutterOff: bool
+    BMetaWB: bool
+    BlackLevel: int
+    WhiteLevel: int
+    LensDescription: bytes
+    LensAperture: float
+    LensFocusDistance: float
+    LensFocalLength: float
+    FOffset: float
+    FGain: float
+    FSaturation: float
+    FHue: float
+    FGamma: float
+    FGammaR: float
+    FGammaB: float
+    FFlare: float
+    FPedestalR: float
+    FPedestalG: float
+    FPedestalB: float
+    FChroma: float
+    ToneLabel: bytes
+    TonePoints: int
+    FTone: list[float]
+    UserMatrixLabel: bytes
+    EnableMatrices: bool
+    CmUser: list[float]
+    EnableCrop: bool
+    CropRectLeft: int
+    CropRectTop: int
+    CropRectRight: int
+    CropRectBottom: int
+    EnableResample: bool
+    ResampleWidth: int
+    ResampleHeight: int
+    FGain16_8: float
+    FRPShape: list[int]
+    TrigTCFramesU: int
+    TrigTCFramesT: int
+    TrigTCDropFrameFlag: int
+    TrigTCColorFrameFlag: int
+    TrigTCSecondsU: int
+    TrigTCSecondsT: int
+    TrigTCFlag1: int
+    TrigTCMinutesU: int
+    TrigTCMinutesT: int
+    TrigTCFlag2: int
+    TrigTCHoursU: int
+    TrigTCHoursT: int
+    TrigTCFlag3: int
+    TrigTCFlag4: int
+    TrigTCUserBitData: int
+    FPbRate: float
+    FTcRate: float
+    CineName: bytes
+    FGainR: float
+    FGainG: float
+    FGainB: float
+    CmCalib: list[float]
+    FWBTemp: float
+    FWBCc: float
+    CalibrationInfo: bytes
+    OpticalFilter: bytes
+    GpsInfo: bytes
+    Uuid: bytes
+    CreatedBy: bytes
+    RecBPP: int
+    LowestFormatBPP: int
+    LowestFormatQ: int
+    FToe: float
+    LogMode: int
+    CameraModel: bytes
+    WBType: int
+    FDecimation: float
+    MagSerial: int
+    CSSerial: int
+    DFrameRate: float
+    SensorMode: int
+
+
 SETUP_IGNORED_FIELDS = {
-    "Res7",
-    "Res8",
-    "Res9",
+    "Conv8Min",
+    "Res1",
     "Res10",
     "Res11",
     "Res12",
     "Res13",
-    "Res6",
     "Res14",
     "Res15",
     "Res16",
     "Res17",
     "Res18",
     "Res19",
-    "Res20",
-    "Res1",
     "Res2",
-    "Res3",
-    "Res5",
+    "Res20",
     "Res21",
-    "Conv8Min",
+    "Res3",
     "Res4",
+    "Res5",
+    "Res6",
+    "Res7",
+    "Res8",
+    "Res9",
 }
 """Ignore these fields.
 
 See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L185
 """
 
-FIELDS_MAPPING_UPDATED_TO_ORIGINAL = {
+FIELDS_MAPPING_ORIGINAL_TO_UPDATED = {
+    "AspectRatio": "ImWidth, ImHeight",
     "FrameRate16": "FrameRate",
     "Shutter16": "ShutterNs",
     "PostTrigger16": "PostTrigger",
@@ -418,13 +617,18 @@ See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd016898
 def remove_outdated_fields_from_setup(setup_full: Setup) -> dict[str, Any]:
     """Ensure updated fields are valid and delete outdated and ignored fields."""
     setup: dict[str, Any] = asdict(setup_full)
-    for updated, original in FIELDS_MAPPING_UPDATED_TO_ORIGINAL.items():
-        if not setup.get(original):
+    for original, updated in FIELDS_MAPPING_ORIGINAL_TO_UPDATED.items():
+        if original not in setup:
             continue
         if (
-            setup[updated] == setup[original]
-            or ("16" in updated and 1000 * setup[updated] == setup[original])
-            or (updated in ["Saturation", "Contrast", "Gamma", "Conv8Max"])
+            original == "AspectRatio"  # Delete this unconditionally
+            or setup[original] == setup[updated]
+            or (
+                original == "Shutter"
+                or "16" in original
+                and (1000 * setup[original]) == setup[updated]
+            )
+            or (original in ["Saturation", "Contrast", "Gamma", "Conv8Max"])
         ):
             del setup[original]
         else:
@@ -491,14 +695,14 @@ class Header:
 
 def flatten_header(
     header: Header, timezone: tzinfo
-) -> tuple[dict[str, Any], ArrDatetime, ArrFloat64]:
+) -> tuple[FlatHeader, ArrDatetime, ArrFloat64]:
     """Flatten the header metadata into top-level attributes and extract timestamps."""
     flat: dict[str, Any] = {}
     cinefileheader = asdict(header.cinefileheader)
     for field, value in cinefileheader.items():
         if field == "TriggerTime":
             trigger_time = cinefileheader[field]
-            flat[field] = (
+            flat[capfirst(field)] = (
                 datetime.fromtimestamp(
                     trigger_time["seconds"],
                     timezone,
@@ -506,22 +710,233 @@ def flatten_header(
                 + timedelta(seconds=trigger_time["fractions"] / 2**32)
             ).isoformat()
         else:
-            flat[field] = value
+            flat[capfirst(field)] = value
     for field, value in asdict(header.bitmapinfoheader).items():
-        flat[field] = value
+        flat[capfirst(field)] = value
     setup = remove_outdated_fields_from_setup(header.setup)
     for field, value in setup.items():
         if field in {"AutoExpRect", "WBView", "CropRect", "TrigTC", "UF"}:
             flat |= {
-                f"{field}{subfield.capitalize()}": subvalue
+                f"{field}{capfirst(subfield)}": subvalue
                 for subfield, subvalue in setup[field].items()
             }
         elif field == "WBGain":
             flat |= {
-                f"{field}{i}{color.capitalize()}": wb[color]
+                f"{capfirst(field)}{i}{capfirst(color)}": wb[color]
                 for i, wb in enumerate(setup["WBGain"])
                 for color in wb
             }
         else:
-            flat[field] = value
-    return (flat, header.utc, header.exposuretime)
+            flat[capfirst(field)] = value
+    return (FlatHeader(**flat), header.utc, header.exposuretime)
+
+
+def capfirst(string: str) -> str:
+    """Capitalize the first letter of a string."""
+    return f"{string[0].upper()}{string[1:]}"
+
+
+@dataclass
+class FlatHeaderStudySpecific:
+    ExposureTime: int
+    Type: int
+    Headersize: int
+    Compression: int
+    Version: int
+    FirstMovieImage: int
+    TotalImageCount: int
+    FirstImageNo: int
+    ImageCount: int
+    OffImageOffsets: int
+    TriggerTime: str
+    BiSize: int
+    BiWidth: int
+    BiHeight: int
+    BiPlanes: int
+    BiBitCount: int
+    BiCompression: int
+    BiSizeImage: int
+    BiXPelsPerMeter: int
+    BiYPelsPerMeter: int
+    BiClrUsed: int
+    BiClrImportant: int
+    TrigFrame: int
+    Mark: int
+    Length: int
+    SigOption: int
+    BinChannels: int
+    SamplesPerImage: int
+    BinName: bytes
+    AnaOption: int
+    AnaChannels: int
+    AnaBoard: int
+    ChOption: list[int]
+    AnaGain: list[float]
+    AnaUnit: bytes
+    AnaName: bytes
+    LFirstImage: int
+    DwImageCount: int
+    NQFactor: int
+    WCineFileType: int
+    SzCinePath: bytes
+    ImWidth: int
+    ImHeight: int
+    Serial: int
+    AutoExposure: int
+    BFlipH: bool
+    BFlipV: bool
+    FrameRate: int
+    Grid: int
+    PostTrigger: int
+    BEnableColor: bool
+    CameraVersion: int
+    FirmwareVersion: int
+    SoftwareVersion: int
+    RecordingTimeZone: int
+    CFA: int
+    AutoExpLevel: int
+    AutoExpSpeed: int
+    AutoExpRectLeft: int
+    AutoExpRectTop: int
+    AutoExpRectRight: int
+    AutoExpRectBottom: int
+    WBGain0R: float
+    WBGain0B: float
+    WBGain1R: float
+    WBGain1B: float
+    WBGain2R: float
+    WBGain2B: float
+    WBGain3R: float
+    WBGain3B: float
+    Rotate: int
+    WBViewR: float
+    WBViewB: float
+    RealBPP: int
+    FilterCode: int
+    FilterParam: int
+    UFDim: int
+    UFShifts: int
+    UFBias: int
+    UFCoef: list[int]
+    BlackCalSVer: int
+    WhiteCalSVer: int
+    GrayCalSVer: int
+    BStampTime: bool
+    SoundDest: int
+    FRPSteps: int
+    FRPImgNr: list[int]
+    FRPRate: list[int]
+    FRPExp: list[int]
+    MCCnt: int
+    MCPercent: list[float]
+    CICalib: int
+    CalibWidth: int
+    CalibHeight: int
+    CalibRate: int
+    CalibExp: int
+    CalibEDR: int
+    CalibTemp: int
+    HeadSerial: list[int]
+    RangeCode: int
+    RangeSize: int
+    Decimation: int
+    MasterSerial: int
+    Sensor: int
+    ShutterNs: int
+    EDRShutterNs: int
+    FrameDelayNs: int
+    ImPosXAcq: int
+    ImPosYAcq: int
+    ImWidthAcq: int
+    ImHeightAcq: int
+    Description: bytes
+    RisingEdge: bool
+    FilterTime: int
+    LongReady: bool
+    ShutterOff: bool
+    BMetaWB: bool
+    BlackLevel: int
+    WhiteLevel: int
+    LensDescription: bytes
+    LensAperture: float
+    LensFocusDistance: float
+    LensFocalLength: float
+    FOffset: float
+    FGain: float
+    FSaturation: float
+    FHue: float
+    FGamma: float
+    FGammaR: float
+    FGammaB: float
+    FFlare: float
+    FPedestalR: float
+    FPedestalG: float
+    FPedestalB: float
+    FChroma: float
+    ToneLabel: bytes
+    TonePoints: int
+    FTone: list[float]
+    UserMatrixLabel: bytes
+    EnableMatrices: bool
+    CmUser: list[float]
+    EnableCrop: bool
+    CropRectLeft: int
+    CropRectTop: int
+    CropRectRight: int
+    CropRectBottom: int
+    EnableResample: bool
+    ResampleWidth: int
+    ResampleHeight: int
+    FGain16_8: float
+    FRPShape: list[int]
+
+
+CINE_HEADER_INVALID_FIELDS_THIS_STUDY = {"OffImageHeader", "OffSetup"}
+"""These fields are invalid for the camera and PCC software used in this study."""
+
+SETUP_INVALID_FIELDS_THIS_STUDY = {
+    "TrigTC",
+    "fPbRate",
+    "fTcRate",
+    "CineName",
+    "fGainR",
+    "fGainG",
+    "fGainB",
+    "cmCalib",
+    "fWBTemp",
+    "fWBCc",
+    "CalibrationInfo",
+    "OpticalFilter",
+    "GpsInfo",
+    "Uuid",
+    "CreatedBy",
+    "RecBPP",
+    "LowestFormatBPP",
+    "LowestFormatQ",
+    "fToe",
+    "LogMode",
+    "CameraModel",
+    "WBType",
+    "fDecimation",
+    "MagSerial",
+    "CSSerial",
+    "dFrameRate",
+    "SensorMode",
+}
+"""These setup fields are invalid for the camera and PCC software used in this study."""
+
+
+def remove_study_specific_fields(
+    flat: FlatHeader, exposure_time: int
+) -> FlatHeaderStudySpecific:
+    """Remove fields specific to this study."""
+    flat_specific = copy(asdict(flat))
+    for field in asdict(flat):
+        if any(
+            capfirst(invalid_field) in field
+            for invalid_field in CINE_HEADER_INVALID_FIELDS_THIS_STUDY
+            | SETUP_INVALID_FIELDS_THIS_STUDY
+        ):
+            del flat_specific[field]
+    flat_specific["ExposureTime"] = exposure_time
+    return FlatHeaderStudySpecific(**flat_specific)
