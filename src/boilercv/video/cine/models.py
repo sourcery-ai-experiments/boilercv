@@ -1,7 +1,6 @@
 """Models for CINE file metadata."""
 
 from contextlib import suppress
-from copy import copy
 from dataclasses import InitVar, asdict, dataclass
 from datetime import UTC, datetime, timedelta, tzinfo
 from pathlib import Path
@@ -12,6 +11,141 @@ from pycine.file import read_header
 
 from boilercv.types import ArrDatetime, ArrFloat64
 
+BYTES_TYPE_FIELDS = {
+    "CalibrationInfo",
+    "CameraModel",
+    "CineName",
+    "CreatedBy",
+    "Description",
+    "DescriptionOld",
+    "GpsInfo",
+    "LensDescription",
+    "OpticalFilter",
+    "ToneLabel",
+    "UserMatrixLabel",
+    "Uuid",
+}
+
+CHAR_ARRAY_FIELDS = {"BinName", "AnaUnit", "AnaName", "szCinePath"}
+
+LIST_TYPE_FIELDS = {
+    "ChOption",
+    "AnaGain",
+    "FRPImgNr",
+    "FRPRate",
+    "FRPExp",
+    "MCPercent",
+    "HeadSerial",
+    "Res4",
+    "fTone",
+    "cmUser",
+    "FRPShape",
+    "cmCalib",
+}
+
+SETUP_IGNORED_FIELDS = {
+    "Conv8Min",
+    "Res1",
+    "Res10",
+    "Res11",
+    "Res12",
+    "Res13",
+    "Res14",
+    "Res15",
+    "Res16",
+    "Res17",
+    "Res18",
+    "Res19",
+    "Res2",
+    "Res20",
+    "Res21",
+    "Res3",
+    "Res4",
+    "Res5",
+    "Res6",
+    "Res7",
+    "Res8",
+    "Res9",
+}
+"""Ignore these fields.
+
+See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L185
+"""
+
+SETUP_FIELDS_MAPPING_ORIGINAL_TO_UPDATED = {
+    "AspectRatio": "ImWidth, ImHeight",
+    "FrameRate16": "FrameRate",
+    "Shutter16": "ShutterNs",
+    "PostTrigger16": "PostTrigger",
+    "FrameDelay16": "FrameDelayNs",
+    "DescriptionOld": "Description",
+    "EDRShutter16": "EDRShutterNs",
+    "Saturation": "fSaturation",
+    "Shutter": "ShutterNs",
+    "EDRShutter": "EDRShutterNs",
+    "FrameDelay": "FrameDelayNs",
+    "Bright": "fOffset",
+    "Contrast": "fGain",
+    "Gamma": "fGamma",
+    "Conv8Max": "fGain16_8",
+    "Hue": "fHue",
+}
+"""Use the updated fields here instead of the original ones.
+
+See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L174
+"""
+
+SETUP_FIELDS_TO_REMOVE = (
+    set(SETUP_FIELDS_MAPPING_ORIGINAL_TO_UPDATED) | SETUP_IGNORED_FIELDS
+)
+
+CINE_HEADER_INVALID_FIELDS_THIS_STUDY = {"OffImageHeader", "OffSetup"}
+"""These fields are invalid for the camera and PCC software used in this study."""
+
+SETUP_INVALID_FIELDS_THIS_STUDY = {
+    # Using passive lenses
+    "LensDescription",
+    "LensAperture",
+    "LensFocusDistance",
+    "LensFocalLength",
+    # Setup file ends here in this study
+    "TrigTC",
+    "fPbRate",
+    "fTcRate",
+    "CineName",
+    "fGainR",
+    "fGainG",
+    "fGainB",
+    "cmCalib",
+    "fWBTemp",
+    "fWBCc",
+    "CalibrationInfo",
+    "OpticalFilter",
+    "GpsInfo",
+    "Uuid",
+    "CreatedBy",
+    "RecBPP",
+    "LowestFormatBPP",
+    "LowestFormatQ",
+    "fToe",
+    "LogMode",
+    "CameraModel",
+    "WBType",
+    "fDecimation",
+    "MagSerial",
+    "CSSerial",
+    "dFrameRate",
+    "SensorMode",
+}
+"""These setup fields are invalid for the camera and PCC software used in this study."""
+
+FIELDS_TO_REMOVE_THIS_STUDY = (
+    BYTES_TYPE_FIELDS
+    | CHAR_ARRAY_FIELDS
+    | CINE_HEADER_INVALID_FIELDS_THIS_STUDY
+    | SETUP_INVALID_FIELDS_THIS_STUDY
+)
+
 
 def struct_to_dict(structure):
     """Convert a C-style structure to a dictionary from its `_fields_`."""
@@ -19,6 +153,11 @@ def struct_to_dict(structure):
         field[0]: getattr(structure, field[0])
         for field in structure._fields_  # noqa: SLF001
     }
+
+
+def capfirst(string: str) -> str:
+    """Capitalize the first letter of a string."""
+    return f"{string[0].upper()}{string[1:]}"
 
 
 @dataclass
@@ -318,29 +457,14 @@ class Setup:
         self.AutoExpRect = Rect(**struct_to_dict(self.AutoExpRect))
         self.TrigTC = TC(**struct_to_dict(self.TrigTC))
 
-        bytes_type_fields = {
-            "CalibrationInfo",
-            "CameraModel",
-            "CineName",
-            "CreatedBy",
-            "Description",
-            "DescriptionOld",
-            "GpsInfo",
-            "LensDescription",
-            "OpticalFilter",
-            "ToneLabel",
-            "UserMatrixLabel",
-            "Uuid",
-        }
-        for field in bytes_type_fields:
+        for field in BYTES_TYPE_FIELDS:
             # Version-specific invalid fields will point to invalid memory addresses
             with suppress(UnicodeDecodeError):
                 self.__dict__[field] = (
                     self.__dict__[field].decode("ascii").rstrip("\x00")
                 )
 
-        char_array_fields = ["BinName", "AnaUnit", "AnaName", "szCinePath"]
-        for field in char_array_fields:
+        for field in CHAR_ARRAY_FIELDS:
             self.__dict__[field] = (
                 np.char.decode(self.__dict__[field], encoding="ascii")
                 .tobytes()
@@ -348,21 +472,7 @@ class Setup:
                 .rstrip("\x00")
             )
 
-        list_type_fields = {
-            "ChOption",
-            "AnaGain",
-            "FRPImgNr",
-            "FRPRate",
-            "FRPExp",
-            "MCPercent",
-            "HeadSerial",
-            "Res4",
-            "fTone",
-            "cmUser",
-            "FRPShape",
-            "cmCalib",
-        }
-        for field in list_type_fields:
+        for field in LIST_TYPE_FIELDS:
             self.__dict__[field] = list(self.__dict__[field])
 
 
@@ -421,59 +531,6 @@ class Header:
             timezone=timezone,
             utc=None,  # type: ignore  # Handled in __post_init__
         )
-
-
-SETUP_IGNORED_FIELDS = {
-    "Conv8Min",
-    "Res1",
-    "Res10",
-    "Res11",
-    "Res12",
-    "Res13",
-    "Res14",
-    "Res15",
-    "Res16",
-    "Res17",
-    "Res18",
-    "Res19",
-    "Res2",
-    "Res20",
-    "Res21",
-    "Res3",
-    "Res4",
-    "Res5",
-    "Res6",
-    "Res7",
-    "Res8",
-    "Res9",
-}
-"""Ignore these fields.
-
-See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L185
-"""
-
-FIELDS_MAPPING_ORIGINAL_TO_UPDATED = {
-    "AspectRatio": "ImWidth, ImHeight",
-    "FrameRate16": "FrameRate",
-    "Shutter16": "ShutterNs",
-    "PostTrigger16": "PostTrigger",
-    "FrameDelay16": "FrameDelayNs",
-    "DescriptionOld": "Description",
-    "EDRShutter16": "EDRShutterNs",
-    "Saturation": "fSaturation",
-    "Shutter": "ShutterNs",
-    "EDRShutter": "EDRShutterNs",
-    "FrameDelay": "FrameDelayNs",
-    "Bright": "fOffset",
-    "Contrast": "fGain",
-    "Gamma": "fGamma",
-    "Conv8Max": "fGain16_8",
-    "Hue": "fHue",
-}
-"""Use the updated fields here instead of the original ones.
-
-See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L174
-"""
 
 
 @dataclass
@@ -693,7 +750,11 @@ class FlatHeader:
                 flat[capfirst(field)] = value
         for field, value in asdict(header.bitmapinfoheader).items():
             flat[capfirst(field)] = value
-        setup = remove_outdated_fields_from_setup(header.setup)
+        setup = {
+            field: value
+            for field, value in asdict(header.setup).items()
+            if field not in SETUP_FIELDS_TO_REMOVE
+        }
         for field, value in setup.items():
             if field in {"AutoExpRect", "WBView", "CropRect", "TrigTC", "UF"}:
                 flat |= {
@@ -709,70 +770,6 @@ class FlatHeader:
             else:
                 flat[capfirst(field)] = value
         return cls(**flat)
-
-
-def remove_outdated_fields_from_setup(setup_full: Setup) -> dict[str, Any]:
-    """Ensure updated fields are valid and delete outdated and ignored fields."""
-    setup: dict[str, Any] = asdict(setup_full)
-    for original, updated in FIELDS_MAPPING_ORIGINAL_TO_UPDATED.items():
-        if original not in setup:
-            continue
-        if (
-            original == "AspectRatio"  # Delete this unconditionally
-            or setup[original] == setup[updated]
-            or (
-                original == "Shutter"
-                or "16" in original
-                and (1000 * setup[original]) == setup[updated]
-            )
-            or (original in ["Saturation", "Contrast", "Gamma", "Conv8Max"])
-        ):
-            del setup[original]
-        else:
-            raise RuntimeError("Could not map updated field to original.")
-    for field in SETUP_IGNORED_FIELDS:
-        del setup[field]
-    return setup
-
-
-def capfirst(string: str) -> str:
-    """Capitalize the first letter of a string."""
-    return f"{string[0].upper()}{string[1:]}"
-
-
-CINE_HEADER_INVALID_FIELDS_THIS_STUDY = {"OffImageHeader", "OffSetup"}
-"""These fields are invalid for the camera and PCC software used in this study."""
-
-SETUP_INVALID_FIELDS_THIS_STUDY = {
-    "TrigTC",
-    "fPbRate",
-    "fTcRate",
-    "CineName",
-    "fGainR",
-    "fGainG",
-    "fGainB",
-    "cmCalib",
-    "fWBTemp",
-    "fWBCc",
-    "CalibrationInfo",
-    "OpticalFilter",
-    "GpsInfo",
-    "Uuid",
-    "CreatedBy",
-    "RecBPP",
-    "LowestFormatBPP",
-    "LowestFormatQ",
-    "fToe",
-    "LogMode",
-    "CameraModel",
-    "WBType",
-    "fDecimation",
-    "MagSerial",
-    "CSSerial",
-    "dFrameRate",
-    "SensorMode",
-}
-"""These setup fields are invalid for the camera and PCC software used in this study."""
 
 
 @dataclass
@@ -805,19 +802,15 @@ class FlatHeaderStudySpecific:
     SigOption: int
     BinChannels: int
     SamplesPerImage: int
-    BinName: bytes
     AnaOption: int
     AnaChannels: int
     AnaBoard: int
     ChOption: list[int]
     AnaGain: list[float]
-    AnaUnit: bytes
-    AnaName: bytes
     LFirstImage: int
     DwImageCount: int
     NQFactor: int
     WCineFileType: int
-    SzCinePath: bytes
     ImWidth: int
     ImHeight: int
     Serial: int
@@ -888,7 +881,6 @@ class FlatHeaderStudySpecific:
     ImPosYAcq: int
     ImWidthAcq: int
     ImHeightAcq: int
-    Description: bytes
     RisingEdge: bool
     FilterTime: int
     LongReady: bool
@@ -896,10 +888,6 @@ class FlatHeaderStudySpecific:
     BMetaWB: bool
     BlackLevel: int
     WhiteLevel: int
-    LensDescription: bytes
-    LensAperture: float
-    LensFocusDistance: float
-    LensFocalLength: float
     FOffset: float
     FGain: float
     FSaturation: float
@@ -912,10 +900,8 @@ class FlatHeaderStudySpecific:
     FPedestalG: float
     FPedestalB: float
     FChroma: float
-    ToneLabel: bytes
     TonePoints: int
     FTone: list[float]
-    UserMatrixLabel: bytes
     EnableMatrices: bool
     CmUser: list[float]
     EnableCrop: bool
@@ -932,13 +918,12 @@ class FlatHeaderStudySpecific:
     @classmethod
     def from_flat_header(cls, flat: FlatHeader, exposure_time: int) -> Self:
         """Remove fields specific to this study."""
-        flat_specific = copy(asdict(flat))
-        for field in asdict(flat):
-            if any(
-                capfirst(invalid_field) in field
-                for invalid_field in CINE_HEADER_INVALID_FIELDS_THIS_STUDY
-                | SETUP_INVALID_FIELDS_THIS_STUDY
+        flat_dict = asdict(flat)
+        flat_specific_dict: dict[str, Any] = {"ExposureTime": exposure_time}
+        for field in flat_dict:
+            if all(
+                capfirst(field_part) not in field
+                for field_part in FIELDS_TO_REMOVE_THIS_STUDY
             ):
-                del flat_specific[field]
-        flat_specific["ExposureTime"] = exposure_time
-        return cls(**flat_specific)
+                flat_specific_dict[field] = flat_dict[field]
+        return cls(**flat_specific_dict)

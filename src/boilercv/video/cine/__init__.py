@@ -10,7 +10,7 @@ import xarray as xr
 from pycine.raw import read_frames
 from scipy.spatial.distance import euclidean
 
-from boilercv import SAMPLE_DIAMETER_UM, TIMEZONE, get_8bit_images
+from boilercv import SAMPLE_DIAMETER_UM, TIMEZONE
 from boilercv.images import load_roi
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrDatetime, ArrIntDef, Img, NBit_T
@@ -30,8 +30,8 @@ def convert_cine_to_netcdf(
     variable_name: str,
     cine_source: Path,
     nc_destination: Path,
-    start_frame: int = 0,
     count: int | None = None,
+    start_frame: int = 0,
 ):
     """Convert CINE to NetCDF."""
 
@@ -42,14 +42,14 @@ def convert_cine_to_netcdf(
     ns_to_s = 1e-9
     time = UnitScale("time", "s", ns_to_s)
 
-    header, utc = get_cine_attributes(cine_source, TIMEZONE, start_frame, count)
+    header, utc = get_cine_attributes(cine_source, TIMEZONE, count, start_frame)
+
     elapsed = (utc - utc[0]).astype(float) / time.scale
-    images = list(get_8bit_images(get_cine_images(cine_source, start_frame, count)))
     images = xr.DataArray(
         name=variable_name,
         dims=(time.dim, y.dim, x.dim),
         coords=dict(time=elapsed, utc=(time.dim, utc)),
-        data=images,
+        data=list(get_cine_images(cine_source, count, start_frame)),
         attrs=asdict(header)
         | dict(long_name="High-speed video data", units="intensity"),
     )
@@ -66,7 +66,6 @@ def convert_cine_to_netcdf(
         return np.round(coord / px_per_um).astype(int)
 
     images = images.assign_coords(dict(y=scale(images.y), x=scale(images.x)))
-
     images["y"] = images.y.assign_attrs(dict(long_name="Height", units=length_scale))
     images["x"] = images.x.assign_attrs(dict(long_name="Width", units=length_scale))
 
@@ -75,8 +74,8 @@ def convert_cine_to_netcdf(
 
 def get_cine_images(
     cine_file: Path,
-    start_frame: int = 0,
     count: int | None = None,
+    start_frame: int = 0,
 ) -> Iterator[Img[NBit_T]]:
     """Get images from a CINE video file."""
     images, _, bpp = read_frames(cine_file, start_frame=start_frame, count=count)  # type: ignore
@@ -86,8 +85,8 @@ def get_cine_images(
 def get_cine_attributes(
     cine_file: Path,
     timezone: tzinfo,
-    start_frame: int = 0,
     count: int | None = None,
+    start_frame: int = 0,
 ) -> tuple[FlatHeaderStudySpecific, ArrDatetime]:
     """Flatten the header metadata into top-level attributes, extract timestamps.
 
