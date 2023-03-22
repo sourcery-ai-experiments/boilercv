@@ -2,10 +2,10 @@
 
 from contextlib import suppress
 from copy import copy
-from dataclasses import asdict, dataclass
+from dataclasses import InitVar, asdict, dataclass
 from datetime import UTC, datetime, timedelta, tzinfo
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 import numpy as np
 from pycine.file import read_header
@@ -54,6 +54,8 @@ class Rect:
 
 @dataclass
 class TC:
+    """Time code according to the standard SMPTE 12M-1999."""
+
     framesU: int
     framesT: int
     dropFrameFlag: int
@@ -365,7 +367,119 @@ class Setup:
 
 
 @dataclass
+class Header:
+    """Top-level header for CINE file metadata.
+    See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/file.py#L15.
+    """
+
+    cinefileheader: CineFileHeader
+    bitmapinfoheader: BitmapInfoHeader
+    setup: Setup
+
+    pImage: list[int]
+    """List of pointers to each image in the video for low-level indexing."""
+
+    timestamp: ArrFloat64
+    """Array of timestamps for each image in the video."""
+
+    utc: ArrDatetime
+    """Array of the UTC time for each image in the video."""
+
+    exposuretime: ArrFloat64
+    """Array of exposure times for each image in the video."""
+
+    timezone: InitVar[tzinfo]
+    """The timezone in which the video was created."""
+
+    def __post_init__(self, timezone: tzinfo):
+        """Convert low-level structures to dataclasses."""
+        self.cinefileheader = CineFileHeader(**struct_to_dict(self.cinefileheader))
+        self.cinefileheader.TriggerTime = Time64(
+            **struct_to_dict(self.cinefileheader.TriggerTime)
+        )
+        self.bitmapinfoheader = BitmapInfoHeader(
+            **struct_to_dict(self.bitmapinfoheader)
+        )
+        self.setup = Setup(**struct_to_dict(self.setup))
+        self.pImage = list(self.pImage)
+        self.utc = np.array(
+            [
+                datetime.fromtimestamp(timestamp, timezone)
+                .astimezone(UTC)
+                .replace(tzinfo=None)
+                for timestamp in self.timestamp
+            ],
+            dtype="datetime64[ns]",
+        )
+        return self
+
+    @classmethod
+    def from_file(cls, cine_file: Path, timezone: tzinfo) -> Self:
+        """Extract the header from a CINE file."""
+        return cls(
+            **read_header(cine_file),
+            timezone=timezone,
+            utc=None,  # type: ignore  # Handled in __post_init__
+        )
+
+
+SETUP_IGNORED_FIELDS = {
+    "Conv8Min",
+    "Res1",
+    "Res10",
+    "Res11",
+    "Res12",
+    "Res13",
+    "Res14",
+    "Res15",
+    "Res16",
+    "Res17",
+    "Res18",
+    "Res19",
+    "Res2",
+    "Res20",
+    "Res21",
+    "Res3",
+    "Res4",
+    "Res5",
+    "Res6",
+    "Res7",
+    "Res8",
+    "Res9",
+}
+"""Ignore these fields.
+
+See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L185
+"""
+
+FIELDS_MAPPING_ORIGINAL_TO_UPDATED = {
+    "AspectRatio": "ImWidth, ImHeight",
+    "FrameRate16": "FrameRate",
+    "Shutter16": "ShutterNs",
+    "PostTrigger16": "PostTrigger",
+    "FrameDelay16": "FrameDelayNs",
+    "DescriptionOld": "Description",
+    "EDRShutter16": "EDRShutterNs",
+    "Saturation": "fSaturation",
+    "Shutter": "ShutterNs",
+    "EDRShutter": "EDRShutterNs",
+    "FrameDelay": "FrameDelayNs",
+    "Bright": "fOffset",
+    "Contrast": "fGain",
+    "Gamma": "fGamma",
+    "Conv8Max": "fGain16_8",
+    "Hue": "fHue",
+}
+"""Use the updated fields here instead of the original ones.
+
+See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L174
+"""
+
+
+@dataclass
 class FlatHeader:
+    """Flattened header for CINE file metadata."""
+
     Type: int
     Headersize: int
     Compression: int
@@ -560,58 +674,41 @@ class FlatHeader:
     DFrameRate: float
     SensorMode: int
 
-
-SETUP_IGNORED_FIELDS = {
-    "Conv8Min",
-    "Res1",
-    "Res10",
-    "Res11",
-    "Res12",
-    "Res13",
-    "Res14",
-    "Res15",
-    "Res16",
-    "Res17",
-    "Res18",
-    "Res19",
-    "Res2",
-    "Res20",
-    "Res21",
-    "Res3",
-    "Res4",
-    "Res5",
-    "Res6",
-    "Res7",
-    "Res8",
-    "Res9",
-}
-"""Ignore these fields.
-
-See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L185
-"""
-
-FIELDS_MAPPING_ORIGINAL_TO_UPDATED = {
-    "AspectRatio": "ImWidth, ImHeight",
-    "FrameRate16": "FrameRate",
-    "Shutter16": "ShutterNs",
-    "PostTrigger16": "PostTrigger",
-    "FrameDelay16": "FrameDelayNs",
-    "DescriptionOld": "Description",
-    "EDRShutter16": "EDRShutterNs",
-    "Saturation": "fSaturation",
-    "Shutter": "ShutterNs",
-    "EDRShutter": "EDRShutterNs",
-    "FrameDelay": "FrameDelayNs",
-    "Bright": "fOffset",
-    "Contrast": "fGain",
-    "Gamma": "fGamma",
-    "Conv8Max": "fGain16_8",
-    "Hue": "fHue",
-}
-"""Use the updated fields here instead of the original ones.
-
-See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/cine.py#L174
-"""
+    @classmethod
+    def from_header(cls, header: Header, timezone: tzinfo) -> Self:
+        """Flatten a header."""
+        flat: dict[str, Any] = {}
+        cinefileheader = asdict(header.cinefileheader)
+        for field, value in cinefileheader.items():
+            if field == "TriggerTime":
+                trigger_time = cinefileheader[field]
+                flat[capfirst(field)] = (
+                    datetime.fromtimestamp(
+                        trigger_time["seconds"],
+                        timezone,
+                    ).astimezone(UTC)
+                    + timedelta(seconds=trigger_time["fractions"] / 2**32)
+                ).isoformat()
+            else:
+                flat[capfirst(field)] = value
+        for field, value in asdict(header.bitmapinfoheader).items():
+            flat[capfirst(field)] = value
+        setup = remove_outdated_fields_from_setup(header.setup)
+        for field, value in setup.items():
+            if field in {"AutoExpRect", "WBView", "CropRect", "TrigTC", "UF"}:
+                flat |= {
+                    f"{field}{capfirst(subfield)}": subvalue
+                    for subfield, subvalue in setup[field].items()
+                }
+            elif field == "WBGain":
+                flat |= {
+                    f"{capfirst(field)}{i}{capfirst(color)}": wb[color]
+                    for i, wb in enumerate(setup["WBGain"])
+                    for color in wb
+                }
+            else:
+                flat[capfirst(field)] = value
+        return cls(**flat)
 
 
 def remove_outdated_fields_from_setup(setup_full: Setup) -> dict[str, Any]:
@@ -638,102 +735,44 @@ def remove_outdated_fields_from_setup(setup_full: Setup) -> dict[str, Any]:
     return setup
 
 
-@dataclass
-class Header:
-    """Top-level header for CINE file metadata.
-    See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/file.py#L15.
-    """
-
-    timezone: tzinfo
-    cinefileheader: CineFileHeader
-    bitmapinfoheader: BitmapInfoHeader
-    setup: Setup
-
-    pImage: list[int]
-    """List of pointers to each image in the video for low-level indexing."""
-
-    timestamp: ArrFloat64
-    """Array of timestamps for each image in the video."""
-
-    utc: ArrDatetime
-    """Array of the UTC time for each image in the video."""
-
-    exposuretime: ArrFloat64
-    """Array of exposure times for each image in the video."""
-
-    def __post_init__(self):
-        """Convert low-level structures to dataclasses."""
-        self.cinefileheader = CineFileHeader(**struct_to_dict(self.cinefileheader))
-        self.cinefileheader.TriggerTime = Time64(
-            **struct_to_dict(self.cinefileheader.TriggerTime)
-        )
-        self.bitmapinfoheader = BitmapInfoHeader(
-            **struct_to_dict(self.bitmapinfoheader)
-        )
-        self.setup = Setup(**struct_to_dict(self.setup))
-        self.pImage = list(self.pImage)
-        self.utc = np.array(
-            [
-                datetime.fromtimestamp(timestamp, self.timezone)
-                .astimezone(UTC)
-                .replace(tzinfo=None)
-                for timestamp in self.timestamp
-            ],
-            dtype="datetime64[ns]",
-        )
-        return self
-
-    @classmethod
-    def from_file(cls, cine_file: Path, timezone: tzinfo):
-        """Extract the header from a CINE file."""
-        return cls(
-            **read_header(cine_file),
-            timezone=timezone,
-            utc=None,  # type: ignore  # Handled in __post_init__
-        )
-
-
-def flatten_header(
-    header: Header, timezone: tzinfo
-) -> tuple[FlatHeader, ArrDatetime, ArrFloat64]:
-    """Flatten the header metadata into top-level attributes and extract timestamps."""
-    flat: dict[str, Any] = {}
-    cinefileheader = asdict(header.cinefileheader)
-    for field, value in cinefileheader.items():
-        if field == "TriggerTime":
-            trigger_time = cinefileheader[field]
-            flat[capfirst(field)] = (
-                datetime.fromtimestamp(
-                    trigger_time["seconds"],
-                    timezone,
-                ).astimezone(UTC)
-                + timedelta(seconds=trigger_time["fractions"] / 2**32)
-            ).isoformat()
-        else:
-            flat[capfirst(field)] = value
-    for field, value in asdict(header.bitmapinfoheader).items():
-        flat[capfirst(field)] = value
-    setup = remove_outdated_fields_from_setup(header.setup)
-    for field, value in setup.items():
-        if field in {"AutoExpRect", "WBView", "CropRect", "TrigTC", "UF"}:
-            flat |= {
-                f"{field}{capfirst(subfield)}": subvalue
-                for subfield, subvalue in setup[field].items()
-            }
-        elif field == "WBGain":
-            flat |= {
-                f"{capfirst(field)}{i}{capfirst(color)}": wb[color]
-                for i, wb in enumerate(setup["WBGain"])
-                for color in wb
-            }
-        else:
-            flat[capfirst(field)] = value
-    return (FlatHeader(**flat), header.utc, header.exposuretime)
-
-
 def capfirst(string: str) -> str:
     """Capitalize the first letter of a string."""
     return f"{string[0].upper()}{string[1:]}"
+
+
+CINE_HEADER_INVALID_FIELDS_THIS_STUDY = {"OffImageHeader", "OffSetup"}
+"""These fields are invalid for the camera and PCC software used in this study."""
+
+SETUP_INVALID_FIELDS_THIS_STUDY = {
+    "TrigTC",
+    "fPbRate",
+    "fTcRate",
+    "CineName",
+    "fGainR",
+    "fGainG",
+    "fGainB",
+    "cmCalib",
+    "fWBTemp",
+    "fWBCc",
+    "CalibrationInfo",
+    "OpticalFilter",
+    "GpsInfo",
+    "Uuid",
+    "CreatedBy",
+    "RecBPP",
+    "LowestFormatBPP",
+    "LowestFormatQ",
+    "fToe",
+    "LogMode",
+    "CameraModel",
+    "WBType",
+    "fDecimation",
+    "MagSerial",
+    "CSSerial",
+    "dFrameRate",
+    "SensorMode",
+}
+"""These setup fields are invalid for the camera and PCC software used in this study."""
 
 
 @dataclass
@@ -890,53 +929,16 @@ class FlatHeaderStudySpecific:
     FGain16_8: float
     FRPShape: list[int]
 
-
-CINE_HEADER_INVALID_FIELDS_THIS_STUDY = {"OffImageHeader", "OffSetup"}
-"""These fields are invalid for the camera and PCC software used in this study."""
-
-SETUP_INVALID_FIELDS_THIS_STUDY = {
-    "TrigTC",
-    "fPbRate",
-    "fTcRate",
-    "CineName",
-    "fGainR",
-    "fGainG",
-    "fGainB",
-    "cmCalib",
-    "fWBTemp",
-    "fWBCc",
-    "CalibrationInfo",
-    "OpticalFilter",
-    "GpsInfo",
-    "Uuid",
-    "CreatedBy",
-    "RecBPP",
-    "LowestFormatBPP",
-    "LowestFormatQ",
-    "fToe",
-    "LogMode",
-    "CameraModel",
-    "WBType",
-    "fDecimation",
-    "MagSerial",
-    "CSSerial",
-    "dFrameRate",
-    "SensorMode",
-}
-"""These setup fields are invalid for the camera and PCC software used in this study."""
-
-
-def remove_study_specific_fields(
-    flat: FlatHeader, exposure_time: int
-) -> FlatHeaderStudySpecific:
-    """Remove fields specific to this study."""
-    flat_specific = copy(asdict(flat))
-    for field in asdict(flat):
-        if any(
-            capfirst(invalid_field) in field
-            for invalid_field in CINE_HEADER_INVALID_FIELDS_THIS_STUDY
-            | SETUP_INVALID_FIELDS_THIS_STUDY
-        ):
-            del flat_specific[field]
-    flat_specific["ExposureTime"] = exposure_time
-    return FlatHeaderStudySpecific(**flat_specific)
+    @classmethod
+    def from_flat_header(cls, flat: FlatHeader, exposure_time: int) -> Self:
+        """Remove fields specific to this study."""
+        flat_specific = copy(asdict(flat))
+        for field in asdict(flat):
+            if any(
+                capfirst(invalid_field) in field
+                for invalid_field in CINE_HEADER_INVALID_FIELDS_THIS_STUDY
+                | SETUP_INVALID_FIELDS_THIS_STUDY
+            ):
+                del flat_specific[field]
+        flat_specific["ExposureTime"] = exposure_time
+        return cls(**flat_specific)
