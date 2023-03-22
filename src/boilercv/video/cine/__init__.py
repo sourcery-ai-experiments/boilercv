@@ -1,65 +1,16 @@
 """Models and operations specific to CINE files."""
 
 from copy import copy
-from dataclasses import dataclass
+from datetime import tzinfo
 from pathlib import Path
 from typing import Any
 
-from pycine.file import read_header
-
-from boilercv.types import ArrDatetime, ArrFloat64
-from boilercv.video.cine.models import (
-    BitmapInfoHeader,
-    CineFileHeader,
-    Setup,
-    Time64,
-    flatten_header,
-    struct_to_dict,
-)
+from boilercv.types import ArrDatetime
+from boilercv.video.cine.models import Header, flatten_header
 
 
-@dataclass
-class Header:
-    """Top-level header for CINE file metadata.
-
-    See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/file.py#L15
-    """
-
-    cinefileheader: CineFileHeader
-    bitmapinfoheader: BitmapInfoHeader
-    setup: Setup
-
-    pImage: list[int]
-    """List of pointers to each image in the video for low-level indexing."""
-
-    timestamp: ArrDatetime
-    """Array of timestamps for each image in the video."""
-
-    exposuretime: ArrFloat64
-    """Array of exposure times for each image in the video."""
-
-    def __post_init__(self):
-        """Convert low-level structures to dataclasses."""
-        self.cinefileheader = CineFileHeader(**struct_to_dict(self.cinefileheader))
-        self.cinefileheader.TriggerTime = Time64(
-            **struct_to_dict(self.cinefileheader.TriggerTime)
-        )
-        self.bitmapinfoheader = BitmapInfoHeader(
-            **struct_to_dict(self.bitmapinfoheader)
-        )
-        self.setup = Setup(**struct_to_dict(self.setup))
-        self.pImage = list(self.pImage)
-        self.timestamp = self.timestamp.astype("datetime64[ns]")
-        return self
-
-    @classmethod
-    def from_file(cls, cine_file: Path):
-        """Extract the header from a CINE file."""
-        return cls(**read_header(cine_file))
-
-
-def flatten_header_study_specific(
-    header: Header,
+def get_cine_attributes(
+    cine_file: Path, timezone: tzinfo
 ) -> tuple[dict[str, Any], ArrDatetime]:
     """Flatten the header metadata into top-level attributes, extract timestamps.
 
@@ -68,10 +19,11 @@ def flatten_header_study_specific(
     metadata.
     """
 
-    (flat, timestamp, exposuretime) = flatten_header(header)
+    header = Header.from_file(cine_file, timezone)
+    (flat, utc, exposuretime) = flatten_header(header, timezone)
     flat = remove_study_specific_fields(flat)
     flat["ExposureTime"] = exposuretime[0]
-    return (flat, timestamp)
+    return (flat, utc)
 
 
 CINE_HEADER_INVALID_FIELDS_THIS_STUDY = {"OffImageHeader", "OffSetup"}

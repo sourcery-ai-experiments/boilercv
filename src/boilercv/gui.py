@@ -3,6 +3,7 @@
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import pyqtgraph as pg
@@ -54,17 +55,26 @@ def get_video_images(
 # * -------------------------------------------------------------------------------- * #
 
 
-def edit_roi(roi_path: Path, image: Img[NBit_T]) -> ArrIntDef:
+def edit_roi(
+    image: Img[NBit_T], roi_path: Path, roi_type: Literal["poly", "line"] = "poly"
+) -> ArrIntDef:
     """Edit the region of interest for an image."""
 
     with image_viewer() as (_app, window, _layout, button_layout, image_views):
-        roi = pg.PolyLineROI(
+        common_roi_args = dict(
             pen=pg.mkPen("red"),
             hoverPen=pg.mkPen("magenta"),
             handlePen=pg.mkPen("blue"),
             handleHoverPen=pg.mkPen("magenta"),
-            closed=True,
-            positions=load_roi(roi_path, image),
+            positions=load_roi(image, roi_path, roi_type),
+        )
+        roi = (
+            pg.PolyLineROI(
+                **common_roi_args,
+                closed=True,
+            )
+            if roi_type == "poly"
+            else pg.LineSegmentROI(**common_roi_args)
         )
 
         def main():

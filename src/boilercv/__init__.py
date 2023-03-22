@@ -8,11 +8,13 @@ from textwrap import dedent
 import cv2 as cv
 import pyqtgraph as pg
 from cv2 import version
+from pytz import timezone
 
 from boilercv.types import Img, Img8, NBit, NBit_T
 
 __version__ = "0.0.0"
 
+TIMEZONE = timezone("US/Pacific")
 
 NO_CONTRIB_MSG = dedent(
     """\

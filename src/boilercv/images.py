@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 import cv2 as cv
 import numpy as np
@@ -8,7 +9,11 @@ from boilercv import MARKER_COLOR, WHITE, convert_image
 from boilercv.types import ArrIntDef, Img, NBit_T
 
 
-def load_roi(roi_path: Path, image: Img[NBit_T]) -> ArrIntDef:
+def load_roi(
+    image: Img[NBit_T],
+    roi_path: Path,
+    roi_type: Literal["poly", "line"] = "poly",
+) -> ArrIntDef:
     """Load the region of interest for an image."""
     (width, height) = image.shape[-2:]
     if roi_path.exists():
@@ -16,7 +21,11 @@ def load_roi(roi_path: Path, image: Img[NBit_T]) -> ArrIntDef:
             roi_path.read_text(encoding="utf-8")
         )
     else:
-        vertices = [(0, 0), (0, width), (height, width), (height, 0)]
+        vertices = (
+            [(0, 0), (0, width), (height, width), (height, 0)]
+            if roi_type == "poly"
+            else [(0, 0), (height, width)]
+        )
     return np.array(vertices, dtype=int)
 
 

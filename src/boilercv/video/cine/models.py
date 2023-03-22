@@ -2,13 +2,14 @@
 
 from contextlib import suppress
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta, tzinfo
+from pathlib import Path
 from typing import Any
 
 import numpy as np
+from pycine.file import read_header
 
 from boilercv.types import ArrDatetime, ArrFloat64
-from boilercv.video.cine import Header
 
 
 def struct_to_dict(structure):
@@ -433,8 +434,63 @@ def remove_outdated_fields_from_setup(setup_full: Setup) -> dict[str, Any]:
     return setup
 
 
+@dataclass
+class Header:
+    """Top-level header for CINE file metadata.
+    See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/file.py#L15.
+    """
+
+    timezone: tzinfo
+    cinefileheader: CineFileHeader
+    bitmapinfoheader: BitmapInfoHeader
+    setup: Setup
+
+    pImage: list[int]
+    """List of pointers to each image in the video for low-level indexing."""
+
+    timestamp: ArrFloat64
+    """Array of timestamps for each image in the video."""
+
+    utc: ArrDatetime
+    """Array of the UTC time for each image in the video."""
+
+    exposuretime: ArrFloat64
+    """Array of exposure times for each image in the video."""
+
+    def __post_init__(self):
+        """Convert low-level structures to dataclasses."""
+        self.cinefileheader = CineFileHeader(**struct_to_dict(self.cinefileheader))
+        self.cinefileheader.TriggerTime = Time64(
+            **struct_to_dict(self.cinefileheader.TriggerTime)
+        )
+        self.bitmapinfoheader = BitmapInfoHeader(
+            **struct_to_dict(self.bitmapinfoheader)
+        )
+        self.setup = Setup(**struct_to_dict(self.setup))
+        self.pImage = list(self.pImage)
+        self.utc = np.array(
+            [
+                datetime.fromtimestamp(timestamp, self.timezone)
+                .astimezone(UTC)
+                .replace(tzinfo=None)
+                for timestamp in self.timestamp
+            ],
+            dtype="datetime64[ns]",
+        )
+        return self
+
+    @classmethod
+    def from_file(cls, cine_file: Path, timezone: tzinfo):
+        """Extract the header from a CINE file."""
+        return cls(
+            **read_header(cine_file),
+            timezone=timezone,
+            utc=None,  # type: ignore  # Handled in __post_init__
+        )
+
+
 def flatten_header(
-    header: Header,
+    header: Header, timezone: tzinfo
 ) -> tuple[dict[str, Any], ArrDatetime, ArrFloat64]:
     """Flatten the header metadata into top-level attributes and extract timestamps."""
     flat: dict[str, Any] = {}
@@ -443,7 +499,10 @@ def flatten_header(
         if field == "TriggerTime":
             trigger_time = cinefileheader[field]
             flat[field] = (
-                datetime.fromtimestamp(trigger_time["seconds"])
+                datetime.fromtimestamp(
+                    trigger_time["seconds"],
+                    timezone,
+                ).astimezone(UTC)
                 + timedelta(seconds=trigger_time["fractions"] / 2**32)
             ).isoformat()
         else:
@@ -454,15 +513,15 @@ def flatten_header(
     for field, value in setup.items():
         if field in {"AutoExpRect", "WBView", "CropRect", "TrigTC", "UF"}:
             flat |= {
-                f"{field}{subfield}": subvalue
+                f"{field}{subfield.capitalize()}": subvalue
                 for subfield, subvalue in setup[field].items()
             }
         elif field == "WBGain":
             flat |= {
-                f"{field}{i}{color}": wb[color]
+                f"{field}{i}{color.capitalize()}": wb[color]
                 for i, wb in enumerate(setup["WBGain"])
                 for color in wb
             }
         else:
             flat[field] = value
-    return (flat, header.timestamp, header.exposuretime)
+    return (flat, header.utc, header.exposuretime)

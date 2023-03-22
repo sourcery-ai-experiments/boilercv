@@ -27,9 +27,9 @@ def preview_contours(
 ) -> list[list[ArrIntDef]] | None:
     input_images = [ALL_IMAGES[0]] if interact else ALL_IMAGES
     if interact:
-        roi = load_roi(ROI_FILE, input_images[0])
+        roi = load_roi(input_images[0], ROI_FILE)
     else:
-        roi = edit_roi(ROI_FILE, input_images[0])
+        roi = edit_roi(input_images[0], ROI_FILE)
     all_contours: list[list[ArrIntDef]] = []
     all_masked: ImgSeq8 = []
     all_thresholded: ImgSeq8 = []
