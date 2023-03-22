@@ -1,3 +1,5 @@
+"""Image acquisition and processing."""
+
 from pathlib import Path
 from typing import Literal
 

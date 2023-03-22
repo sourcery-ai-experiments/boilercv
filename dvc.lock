@@ -4,8 +4,8 @@ stages:
     cmd: python -m boilercv.stages.schema
     deps:
     - path: src/boilercv/models
-      md5: 1aa0de81b557c48dd21777bbb66e5b9c.dir
-      size: 23355
+      md5: cc1c396b00180ef48f2c5abe815c8432.dir
+      size: 23660
       nfiles: 8
     - path: src/boilercv/stages/schema.py
       md5: 7d8efccd264f905deacc9c8ff797f605

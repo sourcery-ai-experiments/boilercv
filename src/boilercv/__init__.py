@@ -16,6 +16,10 @@ __version__ = "0.0.0"
 
 SAMPLE_DIAMETER_UM = 9_525_000
 TIMEZONE = timezone("US/Pacific")
+PACKAGE_DIR = Path("src") / "boilercv"
+DATA_DIR = Path("data")
+CINE_SOURCES = Path("W:/selections")
+FRAMES_PER_SOURCE = 300
 
 NO_CONTRIB_MSG = dedent(
     """\

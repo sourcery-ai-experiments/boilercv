@@ -7,10 +7,8 @@ from typing import Any
 
 from pydantic import DirectoryPath, FilePath, validator
 
+from boilercv import CINE_SOURCES, DATA_DIR, PACKAGE_DIR
 from boilercv.models import PARAMS_FILE, MyBaseModel
-
-PACKAGE_DIR = Path("src") / "boilercv"
-DATA_DIR = Path("data")
 
 
 class Paths(MyBaseModel):
@@ -40,6 +38,8 @@ class Paths(MyBaseModel):
     data: DirectoryPath = DATA_DIR
     samples: DirectoryPath = data / "samples"
     examples: DirectoryPath = data / "examples"
+    sources: DirectoryPath = data / "sources"
+    cine_sources: Path = CINE_SOURCES
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass
@@ -48,6 +48,7 @@ class Paths(MyBaseModel):
     # ! STAGES
     stage_setup: FilePath = stages / "setup.py"
     stage_schema: FilePath = stages / "schema.py"
+    stage_sources: FilePath = stages / "sources.py"
 
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation

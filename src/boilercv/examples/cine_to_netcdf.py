@@ -8,7 +8,7 @@ def main():
     variable_name = "images"
     source = PARAMS.paths.examples / "results_2022-11-30T12-39-07_98C.cine"
     destination = PARAMS.paths.examples / f"{source.stem}.nc"
-    return convert_cine_to_netcdf(variable_name, source, destination)
+    convert_cine_to_netcdf(variable_name, source, destination, start_frame=0, count=100)
 
 
 if __name__ == "__main__":

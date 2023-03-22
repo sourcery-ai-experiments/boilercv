@@ -8,8 +8,6 @@ from typing import Literal
 import numpy as np
 import pyqtgraph as pg
 import yaml
-from pycine.file import read_header
-from pycine.raw import read_frames
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
@@ -38,18 +36,6 @@ def preview_images(result: Img[NBit_T] | ImgSeq[NBit_T]):
     result = np.array(result)
     with image_viewer() as (_app, _window, _layout, _button_layout, image_views):
         image_views[0].setImage(result)
-
-
-def get_video_images(
-    cine_file: Path,
-    start_frame: int | None = None,
-    start_frame_cine: int | None = None,
-    count: int | None = None,
-) -> Iterator[Img[NBit_T]]:
-    """Get images from a CINE video file."""
-    images, *_ = read_frames(cine_file, start_frame, start_frame_cine, count)
-    bpp = read_header(cine_file)["setup"].RealBPP
-    return (image.astype(f"uint{bpp}") for image in images)
 
 
 # * -------------------------------------------------------------------------------- * #
