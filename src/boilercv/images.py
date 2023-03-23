@@ -1,5 +1,6 @@
 """Image acquisition and processing."""
 
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from typing import Literal
 
@@ -7,8 +8,8 @@ import cv2 as cv
 import numpy as np
 import yaml
 
-from boilercv import MARKER_COLOR, WHITE, convert_image
-from boilercv.types import ArrIntDef, Img, NBit_T
+from boilercv import MARKER_COLOR, WHITE
+from boilercv.types import ArrIntDef, Img, Img8, NBit, NBit_T
 
 
 def load_roi(
@@ -75,3 +76,21 @@ def draw_contours(
         color=MARKER_COLOR,
         thickness=thickness,
     )
+
+
+# * -------------------------------------------------------------------------------- * #
+
+
+def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
+    """Convert image format, handling inconsistent type annotations."""
+    return image if code is None else cv.cvtColor(image, code)  # type: ignore
+
+
+def get_8bit_images(images: Iterable[Img[NBit]]) -> Iterator[Img8]:
+    """Assume images are 8-bit."""
+    return (_8_bit(image) for image in images)
+
+
+def _8_bit(image: Img[NBit]) -> Img8:
+    """Assume an image is 8-bit."""
+    return image  # type: ignore

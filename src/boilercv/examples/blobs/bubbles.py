@@ -2,11 +2,11 @@
 
 import cv2 as cv
 
-from boilercv import RED, convert_image
+from boilercv import RED
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
 from boilercv.examples.contours import IMAGES
 from boilercv.gui import compare_images, edit_roi
-from boilercv.images import mask
+from boilercv.images import convert_image, mask
 from boilercv.models.params import PARAMS
 from boilercv.types import ImgSeq8
 

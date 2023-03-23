@@ -4,9 +4,16 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from boilercv import MARKER_COLOR, convert_image, get_8bit_images
+from boilercv import MARKER_COLOR
 from boilercv.examples import capture_images
-from boilercv.images import draw_contours, find_contours, mask, threshold
+from boilercv.images import (
+    convert_image,
+    draw_contours,
+    find_contours,
+    get_8bit_images,
+    mask,
+    threshold,
+)
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrIntDef, Img, NBit_T
 

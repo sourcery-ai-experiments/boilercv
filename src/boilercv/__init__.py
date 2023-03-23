@@ -1,25 +1,24 @@
 """Computer vision routines suitable for nucleate pool boiling bubble analysis."""
 
-from collections.abc import Iterable, Iterator
 from os import environ
 from pathlib import Path
 from textwrap import dedent
 
-import cv2 as cv
 import pyqtgraph as pg
 from cv2 import version
 from pytz import timezone
 
-from boilercv.types import Img, Img8, NBit, NBit_T
-
 __version__ = "0.0.0"
 
+FRAMES_PER_SOURCE = 300
+LENGTH_UNITS = "um"
 SAMPLE_DIAMETER_UM = 9_525_000
 TIMEZONE = timezone("US/Pacific")
+
 PACKAGE_DIR = Path("src") / "boilercv"
 DATA_DIR = Path("data")
 CINE_SOURCES = Path("W:/selections")
-FRAMES_PER_SOURCE = 300
+
 
 NO_CONTRIB_MSG = dedent(
     """\
@@ -65,20 +64,3 @@ def check_samples_env_var():
 
 
 init()
-
-# * -------------------------------------------------------------------------------- * #
-
-
-def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
-    """Convert image format, handling inconsistent type annotations."""
-    return image if code is None else cv.cvtColor(image, code)  # type: ignore
-
-
-def get_8bit_images(images: Iterable[Img[NBit]]) -> Iterator[Img8]:
-    """Assume images are 8-bit."""
-    return (_8_bit(image) for image in images)
-
-
-def _8_bit(image: Img[NBit]) -> Img8:
-    """Assume an image is 8-bit."""
-    return image  # type: ignore

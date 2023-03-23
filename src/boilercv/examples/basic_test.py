@@ -6,9 +6,9 @@ from pathlib import Path
 import cv2 as cv
 import numpy as np
 
-from boilercv import convert_image
 from boilercv.examples import capture_images
 from boilercv.gui import preview_images
+from boilercv.images import convert_image
 
 
 def main():

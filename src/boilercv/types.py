@@ -1,6 +1,6 @@
 """Number container types, including images."""
 
-from typing import TypeAlias, TypeVar
+from typing import Any, Protocol, TypeAlias, TypeVar
 
 import numpy as np
 from numpy import typing as npt
@@ -82,3 +82,13 @@ ImgSeq32: TypeAlias = ImgSeq[_32Bit]
 
 ImgSeq64: TypeAlias = ImgSeq[_64Bit]
 """An image sequence with 64-bit depth."""
+
+
+class SupportsMul(Protocol):
+    """Protocol for types that support multiplication."""
+
+    def __mul__(self, other: Any) -> Any:
+        ...
+
+
+SupportsMul_T = TypeVar("SupportsMul_T", bound=SupportsMul)
