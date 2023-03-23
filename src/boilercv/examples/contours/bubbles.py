@@ -2,29 +2,37 @@
 
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv.examples.contours import IMAGES
+from boilercv.data import prepare_images
 from boilercv.gui import compare_images, edit_roi
 from boilercv.images import draw_contours, find_contours, load_roi, mask, threshold
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrIntDef, Img, ImgSeq8, NBit_T
+from boilercv.types import ArrIntDef, Img, Img8, ImgSeq8, NBit_T
 
+SOURCE = PARAMS.paths.examples / "2022-11-30T13-41-00.cine"
+NUM_FRAMES = 300
 ROI_FILE = PARAMS.paths.examples / "roi.yaml"
 
 
 def main():
+    images = get_images()
     preview_contours(
-        block_size=11, thresh_dist_from_mean=2, contour_index=-1, thickness=2
+        images=images,
+        block_size=11,
+        thresh_dist_from_mean=2,
+        contour_index=-1,
+        thickness=2,
     )
 
 
 def preview_contours(
+    images: list[Img8],
     block_size: int,
     thresh_dist_from_mean: int,
     contour_index: int,
     thickness: int,
     interact: bool = False,
 ) -> list[list[ArrIntDef]] | None:
-    input_images = [IMAGES[0]] if interact else IMAGES
+    input_images = [images[0]] if interact else images
     if interact:
         roi = load_roi(input_images[0], ROI_FILE)
     else:
@@ -47,6 +55,11 @@ def preview_contours(
     else:
         compare_images(to_preview)
         return all_contours
+
+
+def get_images():
+    images, _ = prepare_images(SOURCE, num_frames=NUM_FRAMES)
+    return list(images.values)
 
 
 def get_contours(

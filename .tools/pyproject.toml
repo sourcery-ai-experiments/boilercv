@@ -53,6 +53,7 @@ ignore = [
     "PD901",   # Allow `df` variable name. We are all consenting adults here.
     "PD011",   # Allow use of `.values`. False positives.
     "PGH003",  # Until black stops wrapping special ignores, let's allow bare
+    "PLR0913", # Allow more than five function arguments
     "PLW2901", # For loop variable
     "RET",     # Return checks are flaky, Sourcery does fine analysing these paths
     "TCH",     # Type checking linter doesn't play nicely with pydantic
