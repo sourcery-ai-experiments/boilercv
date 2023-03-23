@@ -8,7 +8,6 @@ from boilercv.images import draw_contours, find_contours, load_roi, mask, thresh
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrIntDef, Img, ImgSeq8, NBit_T
 
-ALL_IMAGES = list(IMAGES)
 ROI_FILE = PARAMS.paths.examples / "roi.yaml"
 
 
@@ -25,7 +24,7 @@ def preview_contours(
     thickness: int,
     interact: bool = False,
 ) -> list[list[ArrIntDef]] | None:
-    input_images = [ALL_IMAGES[0]] if interact else ALL_IMAGES
+    input_images = [IMAGES[0]] if interact else IMAGES
     if interact:
         roi = load_roi(input_images[0], ROI_FILE)
     else:

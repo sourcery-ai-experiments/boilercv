@@ -25,7 +25,7 @@ def main():
     images = (
         image[:, :, 0]
         for image in get_8bit_images(
-            capture_images(PARAMS.paths.examples / "results_2022-04-08T16-12-42.mp4")
+            capture_images(PARAMS.paths.examples / "2022-04-08T16-12-42.mp4")
         )
     )
     roi = get_roi(next(images))
