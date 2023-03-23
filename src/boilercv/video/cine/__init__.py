@@ -16,6 +16,17 @@ from boilercv.models.params import PARAMS
 from boilercv.types import ArrDatetime, ArrIntDef, Img, NBit_T
 from boilercv.video.cine.models import FlatHeader, FlatHeaderStudySpecific, Header
 
+MIN_VER = 691
+"""The version of Phantom Camera Control or Cine Viewer software to read monochrome.
+
+Files produced by earlier versions do not encode black level and white level into the
+header file, which is used by pycine to scale the raw data. For videos produced by older
+software, reproduce the video using a newer version of Phantom Cine Viewer so the
+correct header information is embedded.
+
+See: https://github.com/ottomatic-io/pycine/blob/815cfca06cafc50745a43b2cd0168982225c6dca/pycine/raw.py#L176
+"""
+
 
 @dataclass
 class UnitScale:
@@ -26,15 +37,14 @@ class UnitScale:
     scale: float
 
 
-def convert_cine_to_netcdf(
-    variable_name: str,
+def load_cine(
     cine_source: Path,
-    nc_destination: Path,
-    count: int | None = None,
+    num_frames: int | None = None,
     start_frame: int = 0,
-):
-    """Convert CINE to NetCDF."""
+) -> xr.DataArray:
+    """Load images from a CINE to an xr.DataArray."""
 
+    variable_name = "images"
     length_units = "um"
     length_scale = SAMPLE_DIAMETER_UM
     y = UnitScale("y", length_units, length_scale)
@@ -42,17 +52,24 @@ def convert_cine_to_netcdf(
     ns_to_s = 1e-9
     time = UnitScale("time", "s", ns_to_s)
 
-    header, utc = get_cine_attributes(cine_source, TIMEZONE, count, start_frame)
+    header, utc = get_cine_attributes(cine_source, TIMEZONE, num_frames, start_frame)
+
+    if header.SoftwareVersion < MIN_VER:
+        raise RuntimeError(
+            f"CINE file produced by software older than {MIN_VER}. Reproduce the video"
+            " in a newer version of Phantom Cine Viewer and try again."
+        )
 
     elapsed = (utc - utc[0]).astype(float) / time.scale
     images = xr.DataArray(
         name=variable_name,
         dims=(time.dim, y.dim, x.dim),
         coords=dict(time=elapsed, utc=(time.dim, utc)),
-        data=list(get_cine_images(cine_source, count, start_frame)),
+        data=list(get_cine_images(cine_source, num_frames, start_frame)),
         attrs=asdict(header)
         | dict(long_name="High-speed video data", units="intensity"),
     )
+
     images["time"] = images.time.assign_attrs(
         dict(long_name="Time elapsed", units=time.units)
     )
@@ -69,23 +86,23 @@ def convert_cine_to_netcdf(
     images["y"] = images.y.assign_attrs(dict(long_name="Height", units=length_scale))
     images["x"] = images.x.assign_attrs(dict(long_name="Width", units=length_scale))
 
-    xr.Dataset(coords={variable_name: images}).to_netcdf(path=nc_destination)
+    return images
 
 
 def get_cine_images(
     cine_file: Path,
-    count: int | None = None,
+    num_frames: int | None = None,
     start_frame: int = 0,
 ) -> Iterator[Img[NBit_T]]:
     """Get images from a CINE video file."""
-    images, _, bpp = read_frames(cine_file, start_frame=start_frame, count=count)  # type: ignore
+    images, _, bpp = read_frames(cine_file, start_frame=start_frame, count=num_frames)  # type: ignore
     return (image.astype(f"uint{bpp}") for image in images)
 
 
 def get_cine_attributes(
     cine_file: Path,
     timezone: tzinfo,
-    count: int | None = None,
+    num_frames: int | None = None,
     start_frame: int = 0,
 ) -> tuple[FlatHeaderStudySpecific, ArrDatetime]:
     """Flatten the header metadata into top-level attributes, extract timestamps.
@@ -99,5 +116,7 @@ def get_cine_attributes(
     flat_specific = FlatHeaderStudySpecific.from_flat_header(
         flat, header.exposuretime[start_frame]
     )
-    utc = header.utc[start_frame : start_frame + count] if count else header.utc
+    utc = (
+        header.utc[start_frame : start_frame + num_frames] if num_frames else header.utc
+    )
     return flat_specific, utc
