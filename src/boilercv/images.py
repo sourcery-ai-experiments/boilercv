@@ -81,7 +81,7 @@ def draw_contours(
     )
 
 
-def flood(image: Img[NBit], seed_point: tuple[int, int]) -> ImgBool8:
+def flood(image: Img[NBit_T], seed_point: tuple[int, int]) -> ImgBool8:
     """Flood the image, returning the resulting flood as a mask."""
     max_value = np.iinfo(image.dtype).max
     mask = np.pad(

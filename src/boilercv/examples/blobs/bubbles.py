@@ -2,7 +2,7 @@
 
 import cv2 as cv
 
-from boilercv import IMAGES, RED
+from boilercv import EXAMPLE_CINE, IMAGES, RED
 from boilercv.data import prepare_dataset
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
 from boilercv.gui import compare_images, edit_roi
@@ -10,7 +10,7 @@ from boilercv.images import convert_image, mask
 from boilercv.models.params import PARAMS
 from boilercv.types import ImgSeq8
 
-SOURCE = PARAMS.paths.examples / "2022-11-30T13-41-00.cine"
+SOURCE = PARAMS.paths.examples / EXAMPLE_CINE
 NUM_FRAMES = 10
 
 

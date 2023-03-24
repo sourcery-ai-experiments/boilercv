@@ -11,29 +11,24 @@ from boilercv.examples.blobs import (
     get_blobs_log,
 )
 from boilercv.gui import compare_images
+from boilercv.types import Img8
 
 
 def main():
     image = data.hubble_deep_field()[0:500, 0:500]
     image_gray = rgb2gray(image)
-    blobs_log = get_blobs_log(image_gray)
-    blobs_dog = get_blobs_dog(image_gray)
-    blobs_doh = get_blobs_doh(image_gray)
-    all_blobs = [blobs_log, blobs_dog, blobs_doh]
-    colors = [RED, GREEN, BLUE]
-    titles = [
-        "Laplacian of Gaussian",
-        "Difference of Gaussian",
-        "Determinant of Hessian",
-    ]
-    sequence = zip(all_blobs, colors, titles, strict=True)
-    results = []
-    for blobs, color, _title in sequence:
-        result = image.copy()
-        for blob in blobs:
-            draw_blobs(result, blob, color)
-        results.append(result)
-    compare_images([image, *results])
+    operations = {
+        "Laplacian of Gaussian": get_blobs_log,
+        "Difference of Gaussian": get_blobs_dog,
+        "Determinant of Hessian": get_blobs_doh,
+    }
+    blobs = {title: func(image_gray) for title, func in operations.items()}
+    results: dict[str, Img8] = {}
+    for (title, blobs_), color in zip(blobs.items(), [RED, GREEN, BLUE], strict=True):
+        results[title] = image.copy()
+        for blob in blobs_:
+            draw_blobs(results[title], blob, color)
+    compare_images({"input": image} | results)
 
 
 if __name__ == "__main__":

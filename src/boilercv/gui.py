@@ -1,9 +1,9 @@
 """Graphical user interface utilities."""
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TypeAlias
 
 import numpy as np
 import pyqtgraph as pg
@@ -16,27 +16,35 @@ from boilercv.images import load_roi
 from boilercv.types import ArrIntDef, ImgSeq
 from boilercv.types.base import Img, NBit_T
 
+Imgs: TypeAlias = Img[NBit_T] | ImgSeq[NBit_T]
 
-def compare_images(results: Sequence[Img[NBit_T] | ImgSeq[NBit_T]]):
+
+def preview_images(result: Mapping[str, Imgs[NBit_T]] | Imgs[NBit_T]):
+    """Preview a single image or timeseries of images."""
+    results = result if isinstance(result, Mapping) else [result]
+    compare_images(results)
+
+
+def compare_images(results: Mapping[str, Imgs[NBit_T]] | Sequence[Imgs[NBit_T]]):
     """Compare multiple sets of images or sets of timeseries of images."""
-    results = [np.array(result) for result in results]
-    num_results = len(results)
-    with image_viewer(num_results) as (
+    results = (
+        {title: np.array(value) for title, value in results.items()}
+        if isinstance(results, Mapping)
+        else {f"_{i}": np.array(value) for i, value in enumerate(results)}
+    )
+    with image_viewer(len(list(results.keys()))) as (
         _app,
         _window,
         _layout,
         _button_layout,
         image_views,
     ):
-        for result, image_view in zip(results, image_views, strict=False):
-            image_view.setImage(result)
-
-
-def preview_images(result: Img[NBit_T] | ImgSeq[NBit_T]):
-    """Preview a single image or timeseries of images."""
-    result = np.array(result)
-    with image_viewer() as (_app, _window, _layout, _button_layout, image_views):
-        image_views[0].setImage(result)
+        for (title, value), image_view in zip(
+            results.items(), image_views, strict=False
+        ):
+            image_view.setImage(value)
+            if not title.startswith("_"):
+                image_view.addItem(pg.TextItem(title, fill=pg.mkBrush("black")))
 
 
 # * -------------------------------------------------------------------------------- * #

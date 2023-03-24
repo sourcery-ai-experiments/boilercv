@@ -10,25 +10,22 @@ from pytz import timezone
 
 __version__ = "0.0.0"
 
+# Dataset constants
 IMAGES = "images"
 HEADER = "header"
-
 FRAMES_PER_SOURCE = 300
 LENGTH_UNITS = "um"
 SAMPLE_DIAMETER_UM = 9_525_000
 TIMEZONE = timezone("US/Pacific")
 
+# Paths
 PACKAGE_DIR = Path("src") / "boilercv"
 DATA_DIR = Path("data")
 CINE_SOURCES = Path("W:/selections")
+EXAMPLE_CINE = "2022-11-30T13-41-00_short.cine"
+EXAMPLE_BIG_CINE = Path("~").expanduser() / "Desktop/2022-11-30T13-41-00.cine"
 
-
-NO_CONTRIB_MSG = dedent(
-    """\
-    OpenCV is not installed with extras. A dependent package may have pinned
-    `opencv-pyhon` and clobbered your installed version.
-    """
-)
+# GUI
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -41,6 +38,14 @@ def init():
     check_contrib()
     check_samples_env_var()
     pg.setConfigOption("imageAxisOrder", "row-major")
+
+
+NO_CONTRIB_MSG = dedent(
+    """\
+    OpenCV is not installed with extras. A dependent package may have pinned
+    `opencv-pyhon` and clobbered your installed version.
+    """
+)
 
 
 def check_contrib():

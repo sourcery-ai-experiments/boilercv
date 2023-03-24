@@ -40,7 +40,7 @@ def main():
             break
 
 
-def get_roi(image: Img[NBit_T]) -> ArrIntDef:
+def get_roi(image: Img[NBit_T]) -> ArrIntDef:  # noqa: C901
     """Get the region of interest of an image.
 
     See: https://docs.opencv.org/4.6.0/db/d5b/tutorial_py_mouse_handling.html
@@ -49,16 +49,23 @@ def get_roi(image: Img[NBit_T]) -> ArrIntDef:
     clicks: list[tuple[int, int]] = []
 
     image = convert_image(image, cv.COLOR_GRAY2RGB)
+    (width, height) = image.shape[:-1]
     click = 0
-    hull = ConvexHull([(0, 0), (0, 1), (1, 0)])
+    default_clicks = [(0, 0), (0, width), (height, width), (height, 0)]
+    hull = ConvexHull(default_clicks)
+    hull_minimum_vertices = 3
     composite_image = image
 
     def main() -> ArrIntDef:
+        nonlocal clicks
         cv.imshow(WINDOW_NAME, image)
         cv.setMouseCallback(WINDOW_NAME, handle_mouse_events)
         while True and cv.waitKey(100) != ESC_KEY:
             pass
-        hull.close()
+        if len(clicks) < hull_minimum_vertices:
+            clicks = default_clicks
+        else:
+            hull.close()
         return np.array(clicks)[hull.vertices]
 
     def handle_mouse_events(event: int, x: int, y: int, *_):
@@ -68,7 +75,6 @@ def get_roi(image: Img[NBit_T]) -> ArrIntDef:
             click += 1
             clicks.append((x, y))
             image = cv.drawMarker(image, clicks[-1], MARKER_COLOR)
-            hull_minimum_vertices = 3
             if click == hull_minimum_vertices:
                 hull = ConvexHull(clicks, incremental=True)
                 composite_image = draw_hull(hull, image)

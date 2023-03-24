@@ -47,6 +47,7 @@ ignore = [
     "ERA",     # False positives. Don't get rid of commented out code.
     "FBT",     # Allow boolean "traps"
     "F841",    # Don't check for or fix unused variables
+    "G0",      # Allow f-strings, etc. in Loguru logging
     "INP001",  # False positives. Checks for packages missing `__init__.py`
     "ISC",     # False positives. Implicit string concatenation is fine.
     "PD013",   # Allow `stack` instead of `melt`. They're not a direct swap.
