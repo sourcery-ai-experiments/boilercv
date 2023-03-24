@@ -2,8 +2,8 @@
 
 import cv2 as cv
 
-from boilercv import RED
-from boilercv.data import prepare_images
+from boilercv import IMAGES, RED
+from boilercv.data import prepare_dataset
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
 from boilercv.gui import compare_images, edit_roi
 from boilercv.images import convert_image, mask
@@ -43,7 +43,7 @@ def main():
 
 
 def get_images():
-    images, _ = prepare_images(SOURCE, num_frames=NUM_FRAMES)
+    images = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[IMAGES]
     return list(images.values)
 
 

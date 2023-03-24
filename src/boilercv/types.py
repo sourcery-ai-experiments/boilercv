@@ -41,6 +41,9 @@ ArrInt: TypeAlias = npt.NDArray[np.integer[NBit_T]]
 ArrInt8: TypeAlias = ArrInt[_8Bit]
 """An integer array with 8-bit depth."""
 
+ArrBool8: TypeAlias = ArrInt8
+"""An array with 8-bit boolean depth."""
+
 ArrInt16: TypeAlias = ArrInt[_16Bit]
 """An integer array with 16-bit depth."""
 
@@ -55,6 +58,9 @@ ArrIntDef: TypeAlias = ArrInt32
 
 Img: TypeAlias = ArrInt[NBit_T]
 """An image with arbitrary bit depth."""
+
+ImgBool8: TypeAlias = ArrBool8
+"""An image with 8-bit boolean depth."""
 
 Img8: TypeAlias = ArrInt[_8Bit]
 """An image with 8-bit depth."""

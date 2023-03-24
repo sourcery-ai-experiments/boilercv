@@ -1,27 +1,43 @@
 """Tools for datasets."""
 
+from collections.abc import Callable
+from dataclasses import asdict
 from pathlib import Path
 
 import xarray as xr
 from scipy.spatial.distance import euclidean
 
-from boilercv import LENGTH_UNITS, SAMPLE_DIAMETER_UM, TIMEZONE
+from boilercv import HEADER, IMAGES, LENGTH_UNITS, SAMPLE_DIAMETER_UM, TIMEZONE
 from boilercv.data.models import UnitScale
 from boilercv.images import load_roi
 from boilercv.models.params import PARAMS
+from boilercv.types import Img, NBit_T
 from boilercv.video.cine import get_cine_attributes, get_cine_images
-from boilercv.video.cine.models import FlatHeaderStudySpecific
 
 
-def prepare_images(
-    cine_source: Path, num_frames: int | None = None, start_frame: int = 0
-) -> tuple[xr.DataArray, FlatHeaderStudySpecific]:
-    """Load images from a CINE to an xr.DataArray."""
-    variable_name = "images"
-    cine_header, utc_ = get_cine_attributes(
-        cine_source, TIMEZONE, num_frames, start_frame
+def apply_to_frames(
+    func: Callable[[Img[NBit_T]], Img[NBit_T]], images: xr.DataArray
+) -> xr.DataArray:
+    """Apply functions to each frame of a data array."""
+    core_dims = [["ypx", "xpx"]]
+    return xr.apply_ufunc(
+        func,
+        images,
+        input_core_dims=core_dims,
+        output_core_dims=core_dims,
+        vectorize=True,
     )
+
+
+def prepare_dataset(
+    cine_source: Path, num_frames: int | None = None, start_frame: int = 0
+) -> xr.Dataset:
+    """Prepare a dataset from a CINE."""
+    header_, utc_ = get_cine_attributes(cine_source, TIMEZONE, num_frames, start_frame)
+    header = xr.DataArray(name=HEADER, attrs=asdict(header_))
+    frames = UnitScale(dim="frames", long_name="Frame number")
     time = UnitScale(
+        parent_dim=frames.dim,
         dim="time",
         long_name="Time elapsed",
         units="s",
@@ -30,7 +46,7 @@ def prepare_images(
         scale=1e-9,
     )
     utc = UnitScale(
-        parent_dim=time.dim,
+        parent_dim=frames.dim,
         dim="utc",
         long_name="UTC time",
         coords=utc_,
@@ -38,18 +54,19 @@ def prepare_images(
     ypx = UnitScale(dim="ypx", long_name="Height", units="px")
     xpx = UnitScale(dim="xpx", long_name="Width", units="px")
     images = xr.DataArray(
-        name=variable_name,
-        dims=(time.dim, ypx.dim, xpx.dim),
+        name=IMAGES,
+        dims=(frames.dim, ypx.dim, xpx.dim),
         data=list(get_cine_images(cine_source, num_frames, start_frame)),
         attrs=dict(long_name="High-speed video data", units="Intensity"),
     )
-    for coord in [time, utc, ypx, xpx]:
+    for coord in (time, utc, ypx, xpx):
         images = coord.assign_to(images)
-    return images, cine_header
+    return xr.Dataset({images.name: images, header.name: header})
 
 
-def assign_length_scales(images: xr.DataArray) -> xr.DataArray:
+def assign_length_scales(dataset: xr.Dataset) -> xr.Dataset:
     """Assign length scales to "x" and "y" coordinates."""
+    images = dataset[IMAGES]
     parent_dim_units = "px"
     roi = load_roi(images.data, PARAMS.paths.examples / "roi_line.yaml", "line")
     pixels = euclidean(*iter(roi))
@@ -58,7 +75,7 @@ def assign_length_scales(images: xr.DataArray) -> xr.DataArray:
     x = get_length_scale(parent_dim_units, "x", "Width", um_per_px, images)
     images = y.assign_to(images)
     images = x.assign_to(images)
-    return images
+    return dataset
 
 
 def get_length_scale(

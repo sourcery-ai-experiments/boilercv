@@ -10,6 +10,9 @@ from pytz import timezone
 
 __version__ = "0.0.0"
 
+IMAGES = "images"
+HEADER = "header"
+
 FRAMES_PER_SOURCE = 300
 LENGTH_UNITS = "um"
 SAMPLE_DIAMETER_UM = 9_525_000

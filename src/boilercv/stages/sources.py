@@ -6,13 +6,13 @@ import xarray as xr
 from py7zr import SevenZipFile
 
 from boilercv import FRAMES_PER_SOURCE
-from boilercv.data import prepare_images
+from boilercv.data import prepare_dataset
 from boilercv.models.params import PARAMS
 
 
 def main():
     for cine in sorted(PARAMS.paths.cine_sources.glob("*.cine")):
-        images = prepare_images(cine, FRAMES_PER_SOURCE)
+        images = prepare_dataset(cine, FRAMES_PER_SOURCE)
         dataset = xr.Dataset({images.name: images})
         dataset.to_netcdf(PARAMS.paths.sources / f"{cine.stem}.nc")
     archive_directory(PARAMS.paths.sources)

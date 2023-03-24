@@ -9,7 +9,7 @@ import numpy as np
 import yaml
 
 from boilercv import MARKER_COLOR, WHITE
-from boilercv.types import ArrIntDef, Img, Img8, NBit, NBit_T
+from boilercv.types import ArrIntDef, Img, Img8, ImgBool8, NBit, NBit_T
 
 
 def load_roi(
@@ -57,8 +57,10 @@ def threshold(
 
 
 def find_contours(image: Img[NBit_T]) -> list[ArrIntDef]:
-    (contours, _) = cv.findContours(
-        image=~image, mode=cv.RETR_EXTERNAL, method=cv.CHAIN_APPROX_SIMPLE
+    contours, _hierarchy = cv.findContours(
+        image=~image,  # OpenCV finds bright contours, bubble edges are dark
+        mode=cv.RETR_EXTERNAL,  # No hierarchy needed because we keep external contours
+        method=cv.CHAIN_APPROX_SIMPLE,  # Approximate the contours
     )
     return contours
 
@@ -76,6 +78,24 @@ def draw_contours(
         color=MARKER_COLOR,
         thickness=thickness,
     )
+
+
+def flood(image: Img[NBit], seed_point: tuple[int, int]) -> ImgBool8:
+    """Flood the image, returning the resulting flood as a mask."""
+    max_value = np.iinfo(image.dtype).max
+    mask = np.pad(
+        np.full_like(image, 0),
+        pad_width=1,
+        constant_values=max_value,
+    )
+    _retval, _image, mask, _rect = cv.floodFill(
+        image=image,
+        mask=mask,
+        seedPoint=seed_point,
+        newVal=None,  # Ignored in mask only mode
+        flags=cv.FLOODFILL_MASK_ONLY,
+    )
+    return mask[1:-1, 1:-1].astype(np.bool_)
 
 
 # * -------------------------------------------------------------------------------- * #

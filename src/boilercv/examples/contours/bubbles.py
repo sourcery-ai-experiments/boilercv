@@ -2,7 +2,8 @@
 
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv.data import prepare_images
+from boilercv import IMAGES
+from boilercv.data import prepare_dataset
 from boilercv.gui import compare_images, edit_roi
 from boilercv.images import draw_contours, find_contours, load_roi, mask, threshold
 from boilercv.models.params import PARAMS
@@ -58,7 +59,7 @@ def preview_contours(
 
 
 def get_images():
-    images, _ = prepare_images(SOURCE, num_frames=NUM_FRAMES)
+    images, _ = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[IMAGES]
     return list(images.values)
 
 

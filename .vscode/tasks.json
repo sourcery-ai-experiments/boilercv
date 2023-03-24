@@ -223,7 +223,15 @@
       "problemMatcher": []
     },
     {
-      "label": "task: snakeviz",
+      "label": "task: profile this file",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python -m cProfile -o .prof ${file}"],
+      "icon": { "id": "graph-line" },
+      "problemMatcher": []
+    },
+    {
+      "label": "task: view profile results with snakeviz",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "snakeviz .prof"],
