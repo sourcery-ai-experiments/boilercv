@@ -7,7 +7,8 @@ from boilercv.data import prepare_dataset
 from boilercv.gui import compare_images, edit_roi
 from boilercv.images import draw_contours, find_contours, load_roi, mask, threshold
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrIntDef, Img, Img8, ImgSeq8, NBit_T
+from boilercv.types import ArrIntDef, Img8, ImgSeq8
+from boilercv.types.base import Img, NBit_T
 
 SOURCE = PARAMS.paths.examples / "2022-11-30T13-41-00.cine"
 NUM_FRAMES = 300

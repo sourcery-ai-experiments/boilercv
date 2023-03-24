@@ -9,7 +9,8 @@ import numpy as np
 import yaml
 
 from boilercv import MARKER_COLOR, WHITE
-from boilercv.types import ArrIntDef, Img, Img8, ImgBool8, NBit, NBit_T
+from boilercv.types import ArrIntDef, Img8, ImgBool8
+from boilercv.types.base import Img, NBit, NBit_T
 
 
 def load_roi(
@@ -101,6 +102,11 @@ def flood(image: Img[NBit], seed_point: tuple[int, int]) -> ImgBool8:
 # * -------------------------------------------------------------------------------- * #
 
 
+def _8_bit(image: Img[NBit]) -> Img8:
+    """Assume an image is 8-bit."""
+    return image  # type: ignore
+
+
 def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
     """Convert image format, handling inconsistent type annotations."""
     return image if code is None else cv.cvtColor(image, code)  # type: ignore
@@ -109,8 +115,3 @@ def convert_image(image: Img[NBit_T], code: int | None = None) -> Img[NBit_T]:
 def get_8bit_images(images: Iterable[Img[NBit]]) -> Iterator[Img8]:
     """Assume images are 8-bit."""
     return (_8_bit(image) for image in images)
-
-
-def _8_bit(image: Img[NBit]) -> Img8:
-    """Assume an image is 8-bit."""
-    return image  # type: ignore

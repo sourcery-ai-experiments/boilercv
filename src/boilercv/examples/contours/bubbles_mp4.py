@@ -15,7 +15,8 @@ from boilercv.images import (
     threshold,
 )
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrIntDef, Img, NBit_T
+from boilercv.types import ArrIntDef
+from boilercv.types.base import Img, NBit_T
 
 WINDOW_NAME = "image"
 ESC_KEY = ord("\x1b")

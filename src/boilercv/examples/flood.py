@@ -13,7 +13,8 @@ from boilercv import IMAGES
 from boilercv.data import prepare_dataset
 from boilercv.gui import compare_images
 from boilercv.images import flood, threshold
-from boilercv.types import Img, ImgBool8, NBit
+from boilercv.types import ImgBool8
+from boilercv.types.base import Img, NBit
 
 NUM_FRAMES = 100
 

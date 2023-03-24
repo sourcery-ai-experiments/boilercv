@@ -13,7 +13,8 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
 from boilercv.images import load_roi
-from boilercv.types import ArrIntDef, Img, ImgSeq, NBit_T
+from boilercv.types import ArrIntDef, ImgSeq
+from boilercv.types.base import Img, NBit_T
 
 
 def compare_images(results: Sequence[Img[NBit_T] | ImgSeq[NBit_T]]):

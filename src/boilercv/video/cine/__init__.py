@@ -6,7 +6,8 @@ from pathlib import Path
 
 from pycine.raw import read_frames
 
-from boilercv.types import ArrDatetime, Img, NBit_T
+from boilercv.types import ArrDatetime
+from boilercv.types.base import Img, NBit_T
 from boilercv.video.cine.models import FlatHeader, FlatHeaderStudySpecific, Header
 
 MIN_VER = 691

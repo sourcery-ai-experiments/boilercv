@@ -11,7 +11,7 @@ from boilercv import HEADER, IMAGES, LENGTH_UNITS, SAMPLE_DIAMETER_UM, TIMEZONE
 from boilercv.data.models import UnitScale
 from boilercv.images import load_roi
 from boilercv.models.params import PARAMS
-from boilercv.types import Img, NBit_T
+from boilercv.types.base import Img, NBit_T
 from boilercv.video.cine import get_cine_attributes, get_cine_images
 
 

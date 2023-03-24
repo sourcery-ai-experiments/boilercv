@@ -5,7 +5,7 @@ from pathlib import Path
 
 import cv2 as cv
 
-from boilercv.types import Img, NBit
+from boilercv.types.base import Img, NBit
 
 
 def capture_images(path: Path) -> Iterator[Img[NBit]]:
