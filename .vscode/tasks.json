@@ -16,7 +16,14 @@
   "tasks": [
     // * -------------------------------------------------------------------------- * //
     // * Changes below should persist in significant template updates.
-
+    {
+      "label": "proj: run examples",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python -m boilercv.examples"],
+      "icon": { "id": "repo" },
+      "problemMatcher": []
+    },
     {
       "label": "dvc: repro",
       "dependsOrder": "sequence",
