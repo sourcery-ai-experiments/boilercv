@@ -5,10 +5,10 @@ from pathlib import Path
 
 import cv2 as cv
 
-from boilercv.types.base import Img, NBit
+from boilercv.types import ArrInt
 
 
-def capture_images(path: Path) -> Iterator[Img[NBit]]:
+def capture_images(path: Path) -> Iterator[ArrInt]:
     """Images from a video file."""
     video_capture = cv.VideoCapture(str(path))
     while True:

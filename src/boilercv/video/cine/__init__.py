@@ -6,8 +6,7 @@ from pathlib import Path
 
 from pycine.raw import read_frames
 
-from boilercv.types import ArrDatetime
-from boilercv.types.base import Img, NBit_T
+from boilercv.types import ArrDT, ArrInt
 from boilercv.video.cine.models import FlatHeader, FlatHeaderStudySpecific, Header
 
 MIN_VER = 691
@@ -26,7 +25,7 @@ def get_cine_images(
     cine_file: Path,
     num_frames: int | None = None,
     start_frame: int = 0,
-) -> Iterator[Img[NBit_T]]:
+) -> Iterator[ArrInt]:
     """Get images from a CINE video file."""
     images, setup, bpp = read_frames(cine_file, start_frame=start_frame, count=num_frames)  # type: ignore
     if setup.SoftwareVersion < MIN_VER:
@@ -42,7 +41,7 @@ def get_cine_attributes(
     timezone: tzinfo,
     num_frames: int | None = None,
     start_frame: int = 0,
-) -> tuple[FlatHeaderStudySpecific, ArrDatetime]:
+) -> tuple[FlatHeaderStudySpecific, ArrDT]:
     """Flatten the header metadata into top-level attributes, extract timestamps.
 
     Specific to the Phantom v4.3 high-speed camera and Phantom Camera Control software

@@ -11,7 +11,7 @@ from boilercv.examples.blobs import (
     get_blobs_log,
 )
 from boilercv.gui import compare_images
-from boilercv.types import Img8
+from boilercv.types import ArrInt
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
         "Determinant of Hessian": get_blobs_doh,
     }
     blobs = {title: func(image_gray) for title, func in operations.items()}
-    results: dict[str, Img8] = {}
+    results: dict[str, ArrInt] = {}
     for (title, blobs_), color in zip(blobs.items(), [RED, GREEN, BLUE], strict=True):
         results[title] = image.copy()
         for blob in blobs_:

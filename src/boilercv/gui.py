@@ -13,19 +13,18 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
 from boilercv.images import load_roi
-from boilercv.types import ArrIntDef, ImgSeq
-from boilercv.types.base import Img, NBit_T
+from boilercv.types import ArrInt
 
-Imgs: TypeAlias = Img[NBit_T] | ImgSeq[NBit_T]
+ArrIntOrSeq: TypeAlias = ArrInt | list[ArrInt]
 
 
-def preview_images(result: Mapping[str, Imgs[NBit_T]] | Imgs[NBit_T]):
+def preview_images(result: Mapping[str, ArrIntOrSeq] | ArrIntOrSeq):
     """Preview a single image or timeseries of images."""
     results = result if isinstance(result, Mapping) else [result]
     compare_images(results)
 
 
-def compare_images(results: Mapping[str, Imgs[NBit_T]] | Sequence[Imgs[NBit_T]]):
+def compare_images(results: Mapping[str, ArrIntOrSeq] | Sequence[ArrIntOrSeq]):
     """Compare multiple sets of images or sets of timeseries of images."""
     results = (
         {title: np.array(value) for title, value in results.items()}
@@ -51,8 +50,8 @@ def compare_images(results: Mapping[str, Imgs[NBit_T]] | Sequence[Imgs[NBit_T]])
 
 
 def edit_roi(
-    image: Img[NBit_T], roi_path: Path, roi_type: Literal["poly", "line"] = "poly"
-) -> ArrIntDef:
+    image: ArrInt, roi_path: Path, roi_type: Literal["poly", "line"] = "poly"
+) -> ArrInt:
     """Edit the region of interest for an image."""
 
     with image_viewer() as (_app, window, _layout, button_layout, image_views):
@@ -92,7 +91,7 @@ def edit_roi(
             vertices = get_roi_vertices()
             save_roi(vertices, roi_path)
 
-        def get_roi_vertices() -> ArrIntDef:
+        def get_roi_vertices() -> ArrInt:
             """Get the vertices of the ROI."""
             return np.array(roi.saveState()["points"], dtype=int)
 
@@ -101,7 +100,7 @@ def edit_roi(
     return get_roi_vertices()
 
 
-def save_roi(roi_vertices: ArrIntDef, roi_path: Path):
+def save_roi(roi_vertices: ArrInt, roi_path: Path):
     """Save an ROI represented by an ordered array of vertices."""
     roi_path.write_text(
         encoding="utf-8", data=yaml.safe_dump(roi_vertices.tolist(), indent=2)
@@ -197,7 +196,7 @@ def get_image_view() -> pg.ImageView:
     return image_view
 
 
-def get_square_grid_coordinates(n: int) -> Iterator[ArrIntDef]:
+def get_square_grid_coordinates(n: int) -> Iterator[ArrInt]:
     """Get the coordinates of a square grid."""
     x, y = np.indices((n, n))
     yield from np.column_stack((x.ravel(), y.ravel()))

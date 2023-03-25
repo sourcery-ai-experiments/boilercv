@@ -6,17 +6,9 @@ from scipy.spatial import ConvexHull
 
 from boilercv import MARKER_COLOR
 from boilercv.examples import capture_images
-from boilercv.images import (
-    convert_image,
-    draw_contours,
-    find_contours,
-    get_8bit_images,
-    mask,
-    threshold,
-)
+from boilercv.images import convert_image, draw_contours, find_contours, mask, threshold
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrIntDef
-from boilercv.types.base import Img, NBit_T
+from boilercv.types import ArrInt
 
 WINDOW_NAME = "image"
 ESC_KEY = ord("\x1b")
@@ -25,9 +17,7 @@ ESC_KEY = ord("\x1b")
 def main():
     images = (
         image[:, :, 0]
-        for image in get_8bit_images(
-            capture_images(PARAMS.paths.examples / "2022-04-08T16-12-42.mp4")
-        )
+        for image in capture_images(PARAMS.paths.examples / "2022-04-08T16-12-42.mp4")
     )
     roi = get_roi(next(images))
     for image in images:
@@ -41,7 +31,7 @@ def main():
         cv.destroyAllWindows()
 
 
-def get_roi(image: Img[NBit_T]) -> ArrIntDef:  # noqa: C901
+def get_roi(image: ArrInt) -> ArrInt:  # noqa: C901
     """Get the region of interest of an image.
 
     See: https://docs.opencv.org/4.6.0/db/d5b/tutorial_py_mouse_handling.html
@@ -57,7 +47,7 @@ def get_roi(image: Img[NBit_T]) -> ArrIntDef:  # noqa: C901
     hull_minimum_vertices = 3
     composite_image = image
 
-    def main() -> ArrIntDef:
+    def main() -> ArrInt:
         nonlocal clicks
         cv.imshow(WINDOW_NAME, image)
         cv.setMouseCallback(WINDOW_NAME, handle_mouse_events)
@@ -84,7 +74,7 @@ def get_roi(image: Img[NBit_T]) -> ArrIntDef:  # noqa: C901
                 composite_image = draw_hull(hull, image)
             cv.imshow(WINDOW_NAME, composite_image)
 
-    def draw_hull(hull: ConvexHull, image: Img[NBit_T]) -> Img[NBit_T]:
+    def draw_hull(hull: ConvexHull, image: ArrInt) -> ArrInt:
         """Draw a convex hull on the image."""
         image = image.copy()
         clicks = hull.points.astype(int)

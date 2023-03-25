@@ -9,7 +9,7 @@ from typing import Any, Self
 import numpy as np
 from pycine.file import read_header
 
-from boilercv.types import ArrDatetime, ArrFloat64
+from boilercv.types import ArrDT, ArrFloat
 
 BYTES_TYPE_FIELDS = {
     "CalibrationInfo",
@@ -489,13 +489,13 @@ class Header:
     pImage: list[int]
     """List of pointers to each image in the video for low-level indexing."""
 
-    timestamp: ArrFloat64
+    timestamp: ArrFloat
     """Array of timestamps for each image in the video."""
 
-    utc: ArrDatetime
+    utc: ArrDT
     """Array of the UTC time for each image in the video."""
 
-    exposuretime: ArrFloat64
+    exposuretime: ArrFloat
     """Array of exposure times for each image in the video."""
 
     timezone: InitVar[tzinfo]

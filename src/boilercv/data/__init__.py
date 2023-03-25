@@ -11,12 +11,14 @@ from boilercv import HEADER, IMAGES, LENGTH_UNITS, SAMPLE_DIAMETER_UM, TIMEZONE
 from boilercv.data.models import UnitScale
 from boilercv.images import load_roi
 from boilercv.models.params import PARAMS
-from boilercv.types.base import Img, NBit_T
+from boilercv.types import ArrInt
 from boilercv.video.cine import get_cine_attributes, get_cine_images
+
+# TODO: Broaden type hints to take any parameters, since it won't have just one arg
 
 
 def apply_to_frames(
-    func: Callable[[Img[NBit_T]], Img[NBit_T]], images: xr.DataArray
+    func: Callable[[ArrInt], ArrInt], images: xr.DataArray
 ) -> xr.DataArray:
     """Apply functions to each frame of a data array."""
     core_dims = [["ypx", "xpx"]]

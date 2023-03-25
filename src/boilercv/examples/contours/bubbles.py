@@ -13,8 +13,7 @@ from boilercv.images import (
     threshold,
 )
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrIntDef, Img8, ImgSeq8
-from boilercv.types.base import Img, NBit_T
+from boilercv.types import ArrInt
 
 # TODO: Make a separate `bubbles_auto.py` example
 
@@ -35,22 +34,22 @@ def main():
 
 
 def preview_contours(
-    images: list[Img8],
+    images: list[ArrInt],
     block_size: int,
     thresh_dist_from_mean: int,
     contour_index: int,
     thickness: int,
     interact: bool = False,
-) -> list[list[ArrIntDef]] | None:
+) -> list[list[ArrInt]] | None:
     input_images = [images[0]] if interact else images
     if interact:
         roi = load_roi(input_images[0], ROI_FILE)
     else:
         roi = edit_roi(input_images[0], ROI_FILE)
-    all_contours: list[list[ArrIntDef]] = []
-    all_masked: ImgSeq8 = []
-    all_thresholded: ImgSeq8 = []
-    contoured: ImgSeq8 = []
+    all_contours: list[list[ArrInt]] = []
+    all_masked: list[ArrInt] = []
+    all_thresholded: list[ArrInt] = []
+    contoured: list[ArrInt] = []
     to_preview = dict(
         input_images=input_images,
         all_masked=all_masked,
@@ -78,11 +77,11 @@ def get_images():
 
 
 def get_contours(
-    input_image: Img[NBit_T],
-    roi: ArrIntDef,
+    input_image: ArrInt,
+    roi: ArrInt,
     block_size: int,
     thresh_dist_from_mean: int,
-) -> tuple[list[ArrIntDef], Img[NBit_T], Img[NBit_T]]:
+) -> tuple[list[ArrInt], ArrInt, ArrInt]:
     masked = mask(input_image, roi)
     thresholded = threshold(masked, block_size, thresh_dist_from_mean)
     return find_contours(thresholded), masked, thresholded
