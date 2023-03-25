@@ -11,7 +11,7 @@ from pytz import timezone
 __version__ = "0.0.0"
 
 # Dataset constants
-IMAGES = "images"
+VIDEO = "video"
 HEADER = "header"
 FRAMES_PER_SOURCE = 300
 LENGTH_UNITS = "um"
@@ -22,7 +22,8 @@ TIMEZONE = timezone("US/Pacific")
 PACKAGE_DIR = Path("src") / "boilercv"
 DATA_DIR = Path("data")
 CINE_SOURCES = Path("W:/selections")
-EXAMPLE_CINE = "2022-11-30T13-41-00_short.cine"
+EXAMPLE_CINE = Path("2022-11-30T13-41-00_short.cine")
+EXAMPLE_CINE_ZOOMED = Path("2022-01-06T16-57-31_short.cine")
 EXAMPLE_BIG_CINE = Path("~").expanduser() / "Desktop/2022-11-30T13-41-00.cine"
 
 # GUI

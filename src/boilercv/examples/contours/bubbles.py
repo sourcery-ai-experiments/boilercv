@@ -2,15 +2,14 @@
 
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv import EXAMPLE_CINE, IMAGES
+from boilercv import EXAMPLE_CINE, VIDEO
 from boilercv.data import prepare_dataset
-from boilercv.gui import compare_images, edit_roi
+from boilercv.gui import compare_images, edit_roi, load_roi
 from boilercv.images import (
+    binarize,
     draw_contours,
     find_contours,
-    load_roi,
     mask,
-    threshold,
 )
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
@@ -72,7 +71,7 @@ def preview_contours(
 
 
 def get_images():
-    images = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[IMAGES]
+    images = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[VIDEO]
     return list(images.values)
 
 
@@ -82,8 +81,8 @@ def get_contours(
     block_size: int,
     thresh_dist_from_mean: int,
 ) -> tuple[list[ArrInt], ArrInt, ArrInt]:
-    masked = mask(input_image, roi)
-    thresholded = threshold(masked, block_size, thresh_dist_from_mean)
+    masked = mask(input_image, [roi])
+    thresholded = binarize(masked, block_size, thresh_dist_from_mean)
     return find_contours(thresholded), masked, thresholded
 
 

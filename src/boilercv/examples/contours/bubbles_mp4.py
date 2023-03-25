@@ -6,7 +6,7 @@ from scipy.spatial import ConvexHull
 
 from boilercv import MARKER_COLOR
 from boilercv.examples import capture_images
-from boilercv.images import convert_image, draw_contours, find_contours, mask, threshold
+from boilercv.images import binarize, convert_image, draw_contours, find_contours, mask
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
 
@@ -23,8 +23,8 @@ def main():
     )
     roi = get_roi(next(images))
     for image in images:
-        masked = mask(image, roi)
-        thresholded = threshold(masked)
+        masked = mask(image, [roi])
+        thresholded = binarize(masked)
         contours = find_contours(thresholded)
         image_with_contours = draw_contours(image, contours)
         cv.imshow(WINDOW_NAME, image_with_contours)

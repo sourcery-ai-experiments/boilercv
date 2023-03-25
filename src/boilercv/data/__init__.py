@@ -7,9 +7,9 @@ from pathlib import Path
 import xarray as xr
 from scipy.spatial.distance import euclidean
 
-from boilercv import HEADER, IMAGES, LENGTH_UNITS, SAMPLE_DIAMETER_UM, TIMEZONE
+from boilercv import HEADER, LENGTH_UNITS, SAMPLE_DIAMETER_UM, TIMEZONE, VIDEO
 from boilercv.data.models import UnitScale
-from boilercv.images import load_roi
+from boilercv.gui import load_roi
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
 from boilercv.video.cine import get_cine_attributes, get_cine_images
@@ -56,7 +56,7 @@ def prepare_dataset(
     ypx = UnitScale(dim="ypx", long_name="Height", units="px")
     xpx = UnitScale(dim="xpx", long_name="Width", units="px")
     images = xr.DataArray(
-        name=IMAGES,
+        name=VIDEO,
         dims=(frames.dim, ypx.dim, xpx.dim),
         data=list(get_cine_images(cine_source, num_frames, start_frame)),
         attrs=dict(long_name="High-speed video data", units="Intensity"),
@@ -68,7 +68,7 @@ def prepare_dataset(
 
 def assign_length_scales(dataset: xr.Dataset) -> xr.Dataset:
     """Assign length scales to "x" and "y" coordinates."""
-    images = dataset[IMAGES]
+    images = dataset[VIDEO]
     parent_dim_units = "px"
     roi = load_roi(images.data, PARAMS.paths.examples / "roi_line.yaml", "line")
     pixels = euclidean(*iter(roi))

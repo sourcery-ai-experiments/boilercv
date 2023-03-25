@@ -1,64 +1,38 @@
 """Image acquisition and processing."""
 
-from functools import wraps
-from pathlib import Path
-from typing import Literal
 
 import cv2 as cv
 import numpy as np
-import yaml
 
 from boilercv import MARKER_COLOR, WHITE
-from boilercv.types import ArrInt
-
-# TODO: Now that our type system is simpler, see if this can be typed better
+from boilercv.types import ArrInt, Img
 
 
-def cv_func(func):
-    """Convert first argument to 8-bit for functions that use OpenCV internally."""
-
-    @wraps(func)
-    def wrapper(image, *args, **kwargs):
-        return func(image.astype(np.uint8), *args, **kwargs)
-
-    return wrapper
+def convert_image(image: Img, code: int | None = None) -> Img:
+    """Convert image format, handling inconsistent type annotations."""
+    return image if code is None else cv.cvtColor(image, code)  # type: ignore
 
 
-def load_roi(
-    image: ArrInt,
-    roi_path: Path,
-    roi_type: Literal["poly", "line"] = "poly",
-) -> ArrInt:
-    """Load the region of interest for an image."""
-    (width, height) = image.shape[-2:]
-    if roi_path.exists():
-        vertices: list[tuple[int, int]] = yaml.safe_load(
-            roi_path.read_text(encoding="utf-8")
-        )
-    else:
-        vertices = (
-            [(0, 0), (0, width), (height, width), (height, 0)]
-            if roi_type == "poly"
-            else [(0, 0), (height, width)]
-        )
-    return np.array(vertices, dtype=int)
-
-
-@cv_func
-def mask(image: ArrInt, roi: ArrInt) -> ArrInt:
-    blank = np.zeros_like(image)
-    mask: ArrInt = ~cv.fillPoly(
-        img=blank,
-        pts=[roi],  # Needs a list of arrays
-        color=WHITE,
+def pad(image: Img, pad_width: int, value: int) -> Img:
+    """Pad an image. Faster than np.pad()."""
+    return cv.copyMakeBorder(
+        image,
+        top=pad_width,
+        bottom=pad_width,
+        left=pad_width,
+        right=pad_width,
+        borderType=cv.BORDER_CONSTANT,
+        value=value,
     )
-    return cv.add(image, mask)
 
 
-@cv_func
-def threshold(
-    image: ArrInt, block_size: int = 11, thresh_dist_from_mean: int = 2
-) -> ArrInt:
+def unpad(image: Img, pad_width: int) -> Img:
+    """Remove padding from an image."""
+    return image[pad_width:-pad_width, pad_width:-pad_width]
+
+
+def binarize(image: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> Img:
+    """Binarize an image with an adaptive threshold."""
     block_size += 1 if block_size % 2 == 0 else 0
     return cv.adaptiveThreshold(
         src=image,
@@ -70,8 +44,52 @@ def threshold(
     )
 
 
-@cv_func
-def find_contours(image: ArrInt) -> list[ArrInt]:
+def flood(image: Img) -> Img:
+    """Flood the image, returning the resulting flood as a mask."""
+    seed_point = np.array(image.shape) // 2
+    max_value = np.iinfo(image.dtype).max
+    # OpenCV needs a masked array with a one-pixel pad
+    pad_width = 1
+    mask = pad(np.zeros_like(image), pad_width, value=1)
+    _retval, _image, mask, _rect = cv.floodFill(
+        image=image,
+        mask=mask,
+        seedPoint=seed_point,
+        newVal=None,  # Ignored in mask only mode
+        flags=cv.FLOODFILL_MASK_ONLY,
+    )
+    # Return the mask in original dimensions, maxing out the values
+    return unpad(mask, pad_width) * max_value
+
+
+def close_and_erode(image: Img) -> Img:
+    """Close small holes and erode the outer boundary of an ROI."""
+
+    # Explicitly pad out the image since cv.morphologyEx boundary handling is weird
+    close_size = 4
+    erode_size = 9
+    pad_width = max(close_size, erode_size)
+    padded = pad(image, pad_width, value=0)
+
+    # Close small holes inside the ROI
+    closed = cv.morphologyEx(
+        src=padded,
+        op=cv.MORPH_CLOSE,
+        kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE, (close_size, close_size)),
+    )
+
+    # Erode ROI boundaries
+    erode_size = 9
+    eroded = cv.morphologyEx(
+        src=closed,
+        op=cv.MORPH_ERODE,
+        kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE, (erode_size, erode_size)),
+    )
+
+    return unpad(eroded, pad_width)
+
+
+def find_contours(image: Img) -> list[Img]:
     """Find external contours of dark objects in an image."""
     # Invert the default of finding bright contours since bubble edges are dark
     image = ~image
@@ -85,10 +103,22 @@ def find_contours(image: ArrInt) -> list[ArrInt]:
     return contours
 
 
-@cv_func
+def mask(image: Img, rois: list[ArrInt]) -> Img:
+    """Mask an image bounded by one or more polygonal regions of interest."""
+    blank = np.zeros_like(image)
+    # Fill a polygon to make the ROI bright, invert this to make the ROI dark
+    mask: Img = ~cv.fillPoly(
+        img=blank,
+        pts=rois,  # Expects a list of coordinates, we have just one
+        color=WHITE,
+    )
+    # OpenCV saturates on addition, keeping only the ROI
+    return cv.add(image, mask)
+
+
 def draw_contours(
-    image: ArrInt, contours: list[ArrInt], contour_index: int = -1, thickness=2
-) -> ArrInt:
+    image: Img, contours: list[Img], contour_index: int = -1, thickness=2
+) -> Img:
     # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
     contours = [contour.reshape(-1, 1, 2) for contour in contours]
     # Need three-channel image to paint colored contours
@@ -100,30 +130,3 @@ def draw_contours(
         color=MARKER_COLOR,
         thickness=thickness,
     )
-
-
-@cv_func
-def flood(image: ArrInt, seed_point: tuple[int, int]) -> ArrInt:
-    """Flood the image, returning the resulting flood as a mask."""
-    max_value = np.iinfo(image.dtype).max
-    mask = np.pad(
-        np.full_like(image, 0),
-        pad_width=1,
-        constant_values=max_value,
-    )
-    _retval, _image, mask, _rect = cv.floodFill(
-        image=image,
-        mask=mask,
-        seedPoint=seed_point,
-        newVal=None,  # Ignored in mask only mode
-        flags=cv.FLOODFILL_MASK_ONLY,
-    )
-    return mask[1:-1, 1:-1].astype(np.bool_)
-
-
-# * -------------------------------------------------------------------------------- * #
-
-
-def convert_image(image: ArrInt, code: int | None = None) -> ArrInt:
-    """Convert image format, handling inconsistent type annotations."""
-    return image if code is None else cv.cvtColor(image, code)  # type: ignore

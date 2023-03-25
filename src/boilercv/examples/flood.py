@@ -1,68 +1,69 @@
-"""Flood the maximum across frames to establish a region of interest.
+"""Prepare the video for saving to disk.
 
-Although the OpenCV approach requires more boilerplate, it is faster than the skimage
-approach.
+Computing the median is a costly operation, so don't do it if we don't have to. Padding
+with OpenCV is faster than numpy padding.
 """
 
 
-import cv2 as cv
-import numpy as np
-from skimage.morphology import flood as flood_  # We define our own
+from pathlib import Path
+from warnings import warn
 
-from boilercv import EXAMPLE_BIG_CINE, IMAGES
+from boilercv import EXAMPLE_BIG_CINE, EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED, VIDEO
 from boilercv.data import prepare_dataset
 from boilercv.gui import compare_images, save_roi
-from boilercv.images import draw_contours, find_contours, flood, threshold
+from boilercv.images import (
+    binarize,
+    close_and_erode,
+    draw_contours,
+    find_contours,
+    flood,
+    mask,
+)
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
 
-NUM_FRAMES = 100
-ROI_FILE = PARAMS.paths.examples / "roi_auto.yaml"
-KERNEL_SIZE = 9
+NUM_FRAMES = 200
 DRAWN_CONTOUR_THICKNESS = 2
 
 
 def main():
-    source = EXAMPLE_BIG_CINE
-    dataset = prepare_dataset(source, NUM_FRAMES)
-    images = dataset[IMAGES]
-    maximum: ArrInt = images.max("frames").data
-    binarized = threshold(maximum)
-    (height, width) = maximum.shape
-    midpoint = (height // 2, width // 2)
-    flooded = flood(binarized, midpoint)
-    flooded8: ArrInt = flooded.astype(np.uint8)
-    kernel = np.ones((KERNEL_SIZE, KERNEL_SIZE), np.uint8)
-    eroded = cv.erode(flooded8, kernel)
-    contours = find_contours(~eroded)
-    if len(contours) > 1:
-        raise ValueError("More than one contour found when searching for the ROI.")
-    roi = contours[0]
-    first_image = images.isel(frames=0).values
-    contoured = draw_contours(first_image, [roi], thickness=DRAWN_CONTOUR_THICKNESS)
-    save_roi(roi, ROI_FILE)
-    # flooded_skim = flood_skim(binarized, midpoint)
-    # pixel_difference_rate = (
-    #     np.logical_xor(flooded, flooded_skim).sum() / flooded.size
-    # )
-    # print(f"{pixel_difference_rate=}")
-    compare_images(
-        dict(
-            maximum=maximum,
-            binarized=binarized,
-            eroded=eroded,
-            # flooded_skim=flooded_skim,
-            contoured=contoured,
-        )
+    mask_roi(
+        EXAMPLE_BIG_CINE,
+        EXAMPLE_BIG_CINE.parent / f"{EXAMPLE_BIG_CINE.stem}.yaml",
+    )
+    mask_roi(
+        PARAMS.paths.examples / EXAMPLE_CINE,
+        PARAMS.paths.examples / f"{EXAMPLE_CINE.stem}.yaml",
+    )
+    mask_roi(
+        PARAMS.paths.examples / EXAMPLE_CINE_ZOOMED,
+        PARAMS.paths.examples / f"{EXAMPLE_CINE_ZOOMED.stem}.yaml",
     )
 
 
-def flood_skim(image: ArrInt, seed_point: tuple[int, int]) -> ArrInt:
-    """Flood the image, returning the resulting flood as a mask."""
-    return flood_(
-        image,
-        seed_point,
-        connectivity=0,
+def mask_roi(source: Path, roi_path: Path):
+    dataset = prepare_dataset(source, NUM_FRAMES)
+    images = dataset[VIDEO]
+    maximum: ArrInt = images.max("frames").data
+    flooded = flood(maximum)
+    eroded = close_and_erode(flooded)
+    contours = find_contours(~eroded)
+    roi = contours[0]
+    if len(contours) > 1:
+        warn("More than one contour found when searching for the ROI.")
+    first_image = images.isel(frames=0).values
+    binarized_first = binarize(first_image)
+    contoured = draw_contours(first_image, contours)
+    save_roi(roi, roi_path)
+    masked = mask(binarized_first, [roi])
+    compare_images(
+        dict(
+            first_image=first_image,
+            maximum=maximum,
+            flood_vs_erode=flooded ^ eroded,
+            contoured=contoured,
+            masked=masked,
+        )
     )
 
 

@@ -12,8 +12,7 @@ from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
-from boilercv.images import load_roi
-from boilercv.types import ArrInt
+from boilercv.types import ArrInt, Img
 
 ArrIntOrSeq: TypeAlias = ArrInt | list[ArrInt]
 
@@ -47,6 +46,13 @@ def compare_images(results: Mapping[str, ArrIntOrSeq] | Sequence[ArrIntOrSeq]):
 
 
 # * -------------------------------------------------------------------------------- * #
+
+
+def save_roi(roi_vertices: ArrInt, roi_path: Path):
+    """Save an ROI represented by an ordered array of vertices."""
+    roi_path.write_text(
+        encoding="utf-8", data=yaml.safe_dump(roi_vertices.tolist(), indent=2)
+    )
 
 
 def edit_roi(
@@ -100,11 +106,94 @@ def edit_roi(
     return get_roi_vertices()
 
 
-def save_roi(roi_vertices: ArrInt, roi_path: Path):
-    """Save an ROI represented by an ordered array of vertices."""
-    roi_path.write_text(
-        encoding="utf-8", data=yaml.safe_dump(roi_vertices.tolist(), indent=2)
-    )
+def load_roi(
+    image: Img,
+    roi_path: Path,
+    roi_type: Literal["poly", "line"] = "poly",
+) -> ArrInt:
+    """Load the region of interest for an image."""
+    (width, height) = image.shape[-2:]
+    if roi_path.exists():
+        vertices: list[tuple[int, int]] = yaml.safe_load(
+            roi_path.read_text(encoding="utf-8")
+        )
+    else:
+        vertices = (
+            [(0, 0), (0, width), (height, width), (height, 0)]
+            if roi_type == "poly"
+            else [(0, 0), (height, width)]
+        )
+    return np.array(vertices, dtype=int)
+
+
+# * -------------------------------------------------------------------------------- * #
+
+Coord: TypeAlias = tuple[int, int]
+Height: TypeAlias = int
+Width: TypeAlias = int
+Shape: TypeAlias = tuple[Height, Width]
+
+
+def get_grid_shape(coords: list[Coord]) -> Shape:
+    """Get the shape of a grid of coordinates."""
+    y = 0
+    height = max(coords, key=lambda coord: coord[y])[y] + 1
+    x = 1
+    width = max(coords, key=lambda coord: coord[x])[x] + 1
+    return (height, width)
+
+
+SIX_GRID: list[Coord] = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+EIGHT_GRID: list[Coord] = [
+    (0, 0),
+    (0, 1),
+    (0, 2),
+    (0, 3),
+    (1, 0),
+    (1, 1),
+    (1, 2),
+    (1, 3),
+]
+TEN_GRID: list[Coord] = [
+    (0, 0),
+    (0, 1),
+    (0, 2),
+    (0, 3),
+    (0, 4),
+    (1, 0),
+    (1, 1),
+    (1, 2),
+    (1, 3),
+    (1, 4),
+]
+TWELVE_GRID: list[Coord] = [
+    (0, 0),
+    (0, 1),
+    (0, 2),
+    (0, 3),
+    (0, 4),
+    (0, 5),
+    (1, 0),
+    (1, 1),
+    (1, 2),
+    (1, 3),
+    (1, 4),
+    (1, 5),
+]
+COORDINATES: dict[int, list[Coord]] = {
+    1: [(0, 0)],
+    2: [(0, 0), (0, 1)],
+    3: [(0, 0), (0, 1), (0, 2)],
+    4: [(0, 0), (0, 1), (1, 0), (1, 1)],
+    5: SIX_GRID,
+    6: SIX_GRID,
+    7: EIGHT_GRID,
+    8: EIGHT_GRID,
+    9: TEN_GRID,
+    10: TEN_GRID,
+    11: TWELVE_GRID,
+    12: TWELVE_GRID,
+}
 
 
 @contextmanager
@@ -114,7 +203,11 @@ def image_viewer(num_views: int = 1):  # noqa: C901
     # of pg.ImageView. Can't use the convenient pg.LayoutWidget because
     # GraphicsLayoutWidget cannot contain it, and GraphicsLayoutWidget is convenient on
     # its own.
-    image_view_grid_size = int(np.ceil(np.sqrt(num_views)))
+    if num_views > len(COORDINATES):
+        square_length = int(np.ceil(np.sqrt(num_views)))
+        (height, width) = (square_length, square_length)
+    else:
+        (height, width) = get_grid_shape(COORDINATES[num_views])
     app = pg.mkQApp()
     image_views: list[pg.ImageView] = []
     layout = QGridLayout()
@@ -131,11 +224,8 @@ def image_viewer(num_views: int = 1):  # noqa: C901
             app.exec()
 
     def add_image_views():
-        if num_views == 2:  # noqa: PLR2004
-            coordinates = [(0, 0), (0, 1)]
-        else:
-            coordinates = get_square_grid_coordinates(image_view_grid_size)
-        for column in range(image_view_grid_size):
+        coordinates = COORDINATES[num_views]
+        for column in range(width):
             layout.setColumnStretch(column, 1)
         for coordinate in coordinates:
             image_view = get_image_view()
@@ -144,9 +234,7 @@ def image_viewer(num_views: int = 1):  # noqa: C901
 
     def add_actions():
         window.key_signal.connect(keyPressEvent)
-        layout.addLayout(
-            button_layout, image_view_grid_size, 0, 1, image_view_grid_size
-        )
+        layout.addLayout(button_layout, height, 0, 1, width)
         if num_views > 1:
             add_button(button_layout, "Toggle Play All", trigger_space).setFocus()
         add_button(button_layout, "Continue", app.quit)

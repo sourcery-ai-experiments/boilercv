@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from boilercv import IMAGES
+from boilercv import VIDEO
 from boilercv.data import prepare_dataset
-from boilercv.images import threshold
+from boilercv.images import binarize
 
 
 def main():
@@ -12,9 +12,9 @@ def main():
     sources = (desktop / "video").iterdir()
     destinations = (desktop / "binarized" / f"{source.stem}.nc" for source in sources)
     for source, destination in zip(sources, destinations, strict=True):
-        dataset = prepare_dataset(source)[IMAGES]
-        images = dataset[IMAGES]
-        images.values = (threshold(image.values) for image in images)
+        dataset = prepare_dataset(source)[VIDEO]
+        images = dataset[VIDEO]
+        images.values = (binarize(image.values) for image in images)
         dataset.to_netcdf(path=destination)
 
 

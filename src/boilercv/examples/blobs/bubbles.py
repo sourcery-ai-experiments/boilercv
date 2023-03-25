@@ -2,7 +2,7 @@
 
 import cv2 as cv
 
-from boilercv import EXAMPLE_CINE, IMAGES, RED
+from boilercv import EXAMPLE_CINE, RED, VIDEO
 from boilercv.data import prepare_dataset
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
 from boilercv.gui import compare_images, edit_roi
@@ -26,7 +26,7 @@ def main():
         results_doh,
     ]
     for input_image in input_images:
-        image = mask(input_image, roi)
+        image = mask(input_image, [roi])
         image = ~image
         all_blobs = [
             # get_blobs_log(image),
@@ -43,7 +43,7 @@ def main():
 
 
 def get_images():
-    images = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[IMAGES]
+    images = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[VIDEO]
     return list(images.values)
 
 
