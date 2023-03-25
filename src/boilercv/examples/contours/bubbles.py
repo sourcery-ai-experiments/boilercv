@@ -5,7 +5,13 @@ from matplotlib.pyplot import subplot_mosaic
 from boilercv import EXAMPLE_CINE, IMAGES
 from boilercv.data import prepare_dataset
 from boilercv.gui import compare_images, edit_roi
-from boilercv.images import draw_contours, find_contours, load_roi, mask, threshold
+from boilercv.images import (
+    draw_contours,
+    find_contours,
+    load_roi,
+    mask,
+    threshold,
+)
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrIntDef, Img8, ImgSeq8
 from boilercv.types.base import Img, NBit_T

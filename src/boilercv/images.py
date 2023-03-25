@@ -1,6 +1,7 @@
 """Image acquisition and processing."""
 
 from collections.abc import Iterable, Iterator
+from functools import wraps
 from pathlib import Path
 from typing import Literal
 
@@ -11,6 +12,16 @@ import yaml
 from boilercv import MARKER_COLOR, WHITE
 from boilercv.types import ArrIntDef, Img8, ImgBool8
 from boilercv.types.base import Img, NBit, NBit_T
+
+
+def cv_func(func):
+    """Convert first argument to 8-bit for functions that use OpenCV internally."""
+
+    @wraps(func)
+    def wrapper(image, *args, **kwargs):
+        return func(image.astype(np.uint8), *args, **kwargs)
+
+    return wrapper
 
 
 def load_roi(
@@ -33,6 +44,7 @@ def load_roi(
     return np.array(vertices, dtype=int)
 
 
+@cv_func
 def mask(image: Img[NBit_T], roi: ArrIntDef) -> Img[NBit_T]:
     blank = np.zeros_like(image)
     mask: Img[NBit_T] = ~cv.fillPoly(
@@ -43,6 +55,7 @@ def mask(image: Img[NBit_T], roi: ArrIntDef) -> Img[NBit_T]:
     return cv.add(image, mask)
 
 
+@cv_func
 def threshold(
     image: Img[NBit_T], block_size: int = 11, thresh_dist_from_mean: int = 2
 ) -> Img[NBit_T]:
@@ -57,13 +70,13 @@ def threshold(
     )
 
 
+@cv_func
 def find_contours(image: Img[NBit_T]) -> list[ArrIntDef]:
     """Find external contours of dark objects in an image."""
     # Invert the default of finding bright contours since bubble edges are dark
     image = ~image
-    image8: Img8 = image.astype(np.uint8)  # TODO: Generalize this to all OpenCV funcs
     contours, _hierarchy = cv.findContours(
-        image=image8,
+        image=image,
         mode=cv.RETR_EXTERNAL,  # No hierarchy needed because we keep external contours
         method=cv.CHAIN_APPROX_SIMPLE,  # Approximate the contours
     )
@@ -72,6 +85,7 @@ def find_contours(image: Img[NBit_T]) -> list[ArrIntDef]:
     return contours
 
 
+@cv_func
 def draw_contours(
     image: Img[NBit_T], contours: list[ArrIntDef], contour_index: int = -1, thickness=2
 ) -> Img[NBit_T]:
@@ -88,6 +102,7 @@ def draw_contours(
     )
 
 
+@cv_func
 def flood(image: Img[NBit_T], seed_point: tuple[int, int]) -> ImgBool8:
     """Flood the image, returning the resulting flood as a mask."""
     max_value = np.iinfo(image.dtype).max

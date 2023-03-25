@@ -67,6 +67,10 @@
     {
       "name": "pyqtgraph",
       "depth": 0
+    },
+    {
+      "name": "xarray",
+      "depth": 2
     }
   ],
 
