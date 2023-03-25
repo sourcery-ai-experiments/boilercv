@@ -67,13 +67,16 @@ def find_contours(image: Img[NBit_T]) -> list[ArrIntDef]:
         mode=cv.RETR_EXTERNAL,  # No hierarchy needed because we keep external contours
         method=cv.CHAIN_APPROX_SIMPLE,  # Approximate the contours
     )
-    return contours  # TODO: Reshape to 2D on output
+    # OpenCV returns contours as shape (N, 1, 2) instead of (N, 2)
+    contours = [contour.reshape(-1, 2) for contour in contours]
+    return contours
 
 
 def draw_contours(
     image: Img[NBit_T], contours: list[ArrIntDef], contour_index: int = -1, thickness=2
 ) -> Img[NBit_T]:
-    # TODO: Reshape contours to OpenCV's weird 3D expectation
+    # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
+    contours = [contour.reshape(-1, 1, 2) for contour in contours]
     # Need three-channel image to paint colored contours
     three_channel_gray = convert_image(image, cv.COLOR_GRAY2RGB)
     return cv.drawContours(

@@ -103,10 +103,6 @@ def edit_roi(
 
 def save_roi(roi_vertices: ArrIntDef, roi_path: Path):
     """Save an ROI represented by an ordered array of vertices."""
-    # TODO: Generalize contour shape to 2D
-    opencv_is_weird = 2
-    if len(roi_vertices.shape) > opencv_is_weird:
-        roi_vertices = roi_vertices.reshape(-1, 2)
     roi_path.write_text(
         encoding="utf-8", data=yaml.safe_dump(roi_vertices.tolist(), indent=2)
     )
