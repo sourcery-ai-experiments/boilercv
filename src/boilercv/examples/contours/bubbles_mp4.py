@@ -17,7 +17,9 @@ ESC_KEY = ord("\x1b")
 def main():
     images = (
         image[:, :, 0]
-        for image in capture_images(PARAMS.paths.examples / "2022-04-08T16-12-42.mp4")
+        for image in capture_images(
+            PARAMS.paths.examples / "2022-04-08T16-12-42_short.mp4"
+        )
     )
     roi = get_roi(next(images))
     for image in images:
