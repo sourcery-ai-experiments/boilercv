@@ -76,7 +76,7 @@ def edit_roi(
             """Allow ROI interaction."""
             window.key_signal.connect(keyPressEvent)
             button = QPushButton("Save ROI")
-            button.clicked.connect(save_roi)  # type: ignore
+            button.clicked.connect(save_roi_)  # type: ignore
             button_layout.addWidget(button)
             image_views[0].setImage(image)
             image_views[0].addItem(roi)
@@ -84,15 +84,13 @@ def edit_roi(
         def keyPressEvent(ev: QKeyEvent):  # noqa: N802
             """Save ROI or quit on key presses."""
             if ev.key() == Qt.Key.Key_S:
-                save_roi()
+                save_roi_()
                 ev.accept()
 
-        def save_roi():
+        def save_roi_():
             """Save the ROI."""
             vertices = get_roi_vertices()
-            roi_path.write_text(
-                encoding="utf-8", data=yaml.safe_dump(vertices.tolist(), indent=2)
-            )
+            save_roi(vertices, roi_path)
 
         def get_roi_vertices() -> ArrIntDef:
             """Get the vertices of the ROI."""
@@ -101,6 +99,17 @@ def edit_roi(
         main()
 
     return get_roi_vertices()
+
+
+def save_roi(roi_vertices: ArrIntDef, roi_path: Path):
+    """Save an ROI represented by an ordered array of vertices."""
+    # TODO: Generalize contour shape to 2D
+    opencv_is_weird = 2
+    if len(roi_vertices.shape) > opencv_is_weird:
+        roi_vertices = roi_vertices.reshape(-1, 2)
+    roi_path.write_text(
+        encoding="utf-8", data=yaml.safe_dump(roi_vertices.tolist(), indent=2)
+    )
 
 
 @contextmanager

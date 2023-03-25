@@ -58,20 +58,24 @@ def threshold(
 
 
 def find_contours(image: Img[NBit_T]) -> list[ArrIntDef]:
+    """Find external contours of dark objects in an image."""
+    # Invert the default of finding bright contours since bubble edges are dark
+    image = ~image
+    image8: Img8 = image.astype(np.uint8)  # TODO: Generalize this to all OpenCV funcs
     contours, _hierarchy = cv.findContours(
-        image=~image,  # OpenCV finds bright contours, bubble edges are dark
+        image=image8,
         mode=cv.RETR_EXTERNAL,  # No hierarchy needed because we keep external contours
         method=cv.CHAIN_APPROX_SIMPLE,  # Approximate the contours
     )
-    return contours
+    return contours  # TODO: Reshape to 2D on output
 
 
 def draw_contours(
     image: Img[NBit_T], contours: list[ArrIntDef], contour_index: int = -1, thickness=2
 ) -> Img[NBit_T]:
+    # TODO: Reshape contours to OpenCV's weird 3D expectation
     # Need three-channel image to paint colored contours
     three_channel_gray = convert_image(image, cv.COLOR_GRAY2RGB)
-    # ! Careful: cv.drawContours modifies in-place AND returns
     return cv.drawContours(
         image=three_channel_gray,
         contours=contours,

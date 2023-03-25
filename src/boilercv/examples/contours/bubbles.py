@@ -10,9 +10,11 @@ from boilercv.models.params import PARAMS
 from boilercv.types import ArrIntDef, Img8, ImgSeq8
 from boilercv.types.base import Img, NBit_T
 
+# TODO: Make a separate `bubbles_auto.py` example
+
 SOURCE = PARAMS.paths.examples / EXAMPLE_CINE
 NUM_FRAMES = 300
-ROI_FILE = PARAMS.paths.examples / "roi.yaml"
+ROI_FILE = PARAMS.paths.examples / "roi_auto.yaml"
 
 
 def main():
