@@ -2,8 +2,7 @@
 
 from pathlib import Path
 
-from boilercv import VIDEO
-from boilercv.data import prepare_dataset
+from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.images import binarize
 
 

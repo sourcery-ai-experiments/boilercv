@@ -10,8 +10,9 @@ from warnings import warn
 
 import cv2 as cv
 
-from boilercv import EXAMPLE_BIG_CINE, EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED, VIDEO
-from boilercv.data import (
+from boilercv import EXAMPLE_BIG_CINE, EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED
+from boilercv.data.dataset import (
+    VIDEO,
     assign_other_roi_to_dataset,
     assign_roi_to_dataset,
     prepare_dataset,

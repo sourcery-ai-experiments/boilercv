@@ -4,8 +4,8 @@ from collections.abc import Sequence
 
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv import EXAMPLE_CINE, VIDEO
-from boilercv.data import prepare_dataset
+from boilercv import EXAMPLE_CINE
+from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.gui import compare_images, edit_roi, load_roi
 from boilercv.images import (
     binarize,

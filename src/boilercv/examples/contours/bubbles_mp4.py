@@ -30,7 +30,7 @@ def main():
         cv.imshow(WINDOW_NAME, image_with_contours)
         if cv.waitKey(100) == ESC_KEY:
             break
-        cv.destroyAllWindows()
+    cv.destroyAllWindows()
 
 
 def get_roi(image: ArrInt) -> ArrInt:  # noqa: C901
