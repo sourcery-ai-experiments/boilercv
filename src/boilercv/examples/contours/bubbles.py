@@ -1,5 +1,7 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
+from collections.abc import Sequence
+
 from matplotlib.pyplot import subplot_mosaic
 
 from boilercv import EXAMPLE_CINE, VIDEO
@@ -12,7 +14,7 @@ from boilercv.images import (
     mask,
 )
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrInt
+from boilercv.types import ArrInt, Img
 
 # TODO: Make a separate `bubbles_auto.py` example
 
@@ -33,7 +35,7 @@ def main():
 
 
 def preview_contours(
-    images: list[ArrInt],
+    images: Sequence[Img],
     block_size: int,
     thresh_dist_from_mean: int,
     contour_index: int,
@@ -46,9 +48,9 @@ def preview_contours(
     else:
         roi = edit_roi(input_images[0], ROI_FILE)
     all_contours: list[list[ArrInt]] = []
-    all_masked: list[ArrInt] = []
-    all_thresholded: list[ArrInt] = []
-    contoured: list[ArrInt] = []
+    all_masked: list[Img] = []
+    all_thresholded: list[Img] = []
+    contoured: list[Img] = []
     to_preview = dict(
         input_images=input_images,
         all_masked=all_masked,

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pycine.raw import read_frames
 
-from boilercv.types import ArrDT, ArrInt
+from boilercv.types import ArrDT, Img
 from boilercv.video.cine.models import FlatHeader, FlatHeaderStudySpecific, Header
 
 MIN_VER = 691
@@ -25,7 +25,7 @@ def get_cine_images(
     cine_file: Path,
     num_frames: int | None = None,
     start_frame: int = 0,
-) -> Iterator[ArrInt]:
+) -> Iterator[Img]:
     """Get images from a CINE video file."""
     images, setup, bpp = read_frames(cine_file, start_frame=start_frame, count=num_frames)  # type: ignore
     if setup.SoftwareVersion < MIN_VER:

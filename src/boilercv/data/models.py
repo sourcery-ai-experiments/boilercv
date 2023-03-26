@@ -1,22 +1,21 @@
 """Models for image processing."""
 
 from dataclasses import dataclass
+from typing import Any
 
-import xarray as xr
-
-from boilercv.types import SupportsMul
+from boilercv.types import DA, SupportsMul
 
 
 @dataclass
-class UnitScale:
-    """A unit scale."""
+class Dimension:
+    """A dimension."""
 
     dim: str
-    """Coordinate dimension along which this scale applies."""
+    """Dimension."""
     long_name: str = ""
-    """Long name which will show up in axis labels."""
+    """Long name."""
 
-    coords: SupportsMul | None = None
+    coords: Any = None
     """Coordinate values."""
     units: str = ""
     """Units."""
@@ -29,7 +28,7 @@ class UnitScale:
     """Scale factor to multiply the original coordinates by."""
 
     parent_dim: str = ""
-    """Existing coordinate dimension to add these coordinates to."""
+    """Existing dimension to associate this dimension with."""
 
     @property
     def coordinate_units_match(self):
@@ -37,7 +36,7 @@ class UnitScale:
         return self.original_units == self.units
 
     def __post_init__(self):
-        """Assign original units to units, and long name to dim, if not specified."""
+        """Assign original units and long name if not specified."""
         if self.units and not self.original_units:
             self.original_units = self.units
         if not self.long_name:
@@ -45,13 +44,14 @@ class UnitScale:
         if not self.parent_dim:
             self.parent_dim = self.dim
 
-    def assign_to(self, da: xr.DataArray):
-        """Assign this scale to a coordinate."""
+    def assign_to(self, da: DA) -> DA:
+        """Assign this dimension and its coordinates."""
         if self.coords is None and self.dim == self.parent_dim:
             self.coords = da[self.parent_dim].values
         if not self.coordinate_units_match:
             self.convert()
-        da = da.assign_coords({self.dim: (self.parent_dim, self.coords)})
+        if self.coords is not None:
+            da = da.assign_coords({self.dim: (self.parent_dim, self.coords)})
         attrs = {"long_name": self.long_name}
         if self.units:
             attrs["units"] = self.units
@@ -64,3 +64,8 @@ class UnitScale:
             self.coords = self.original_coords * self.scale
         self.original_units = self.units
         self.original_coords = self.coords
+
+
+def get_dims(*dims: Dimension) -> tuple[str, ...]:
+    """Get a tuple of dimension names representing these dimensions."""
+    return tuple(dim.dim for dim in dims)

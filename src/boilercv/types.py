@@ -3,7 +3,11 @@
 from typing import Any, Protocol, TypeAlias, TypeVar
 
 import numpy as np
+import xarray as xr
 from numpy import typing as npt
+
+DA: TypeAlias = xr.DataArray
+DS: TypeAlias = xr.Dataset
 
 
 class SupportsMul(Protocol):

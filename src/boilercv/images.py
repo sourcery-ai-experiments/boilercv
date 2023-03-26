@@ -1,6 +1,8 @@
 """Image acquisition and processing."""
 
 
+from collections.abc import Sequence
+
 import cv2 as cv
 import numpy as np
 
@@ -89,7 +91,7 @@ def close_and_erode(image: Img) -> Img:
     return unpad(eroded, pad_width)
 
 
-def find_contours(image: Img) -> list[Img]:
+def find_contours(image: Img) -> list[ArrInt]:
     """Find external contours of dark objects in an image."""
     # Invert the default of finding bright contours since bubble edges are dark
     image = ~image
@@ -103,7 +105,7 @@ def find_contours(image: Img) -> list[Img]:
     return contours
 
 
-def mask(image: Img, rois: list[ArrInt]) -> Img:
+def mask(image: Img, rois: Sequence[ArrInt]) -> Img:
     """Mask an image bounded by one or more polygonal regions of interest."""
     blank = np.zeros_like(image)
     # Fill a polygon to make the ROI bright, invert this to make the ROI dark
@@ -117,7 +119,7 @@ def mask(image: Img, rois: list[ArrInt]) -> Img:
 
 
 def draw_contours(
-    image: Img, contours: list[Img], contour_index: int = -1, thickness=2
+    image: Img, contours: Sequence[ArrInt], contour_index: int = -1, thickness=2
 ) -> Img:
     # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
     contours = [contour.reshape(-1, 1, 2) for contour in contours]

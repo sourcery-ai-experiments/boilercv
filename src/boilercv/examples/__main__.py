@@ -9,7 +9,7 @@ from boilercv.examples.blobs.bubbles import main as main4
 from boilercv.examples.blobs.galaxy import main as main3
 from boilercv.examples.contours.bubbles import main as main6
 from boilercv.examples.contours.bubbles_mp4 import main as main5
-from boilercv.examples.flood import main as main7
+from boilercv.examples.process import main as main7
 from boilercv.examples.starry import main as main1
 
 

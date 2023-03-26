@@ -14,7 +14,7 @@ from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
 from boilercv.types import ArrInt, Img
 
-ArrIntOrSeq: TypeAlias = ArrInt | list[ArrInt]
+ArrIntOrSeq: TypeAlias = Img | Sequence[Img]
 
 
 def preview_images(result: Mapping[str, ArrIntOrSeq] | ArrIntOrSeq):
