@@ -5,19 +5,26 @@ from itertools import chain
 
 import numpy as np
 import xarray as xr
+from pytz import timezone
 
 from boilercv.data.models import Dimension, get_dims
-from boilercv.types import DA, DS, ArrLike, Img
+from boilercv.types import DS, ArrLike, Img
+
+TIMEZONE = timezone("US/Pacific")
+VIDEO = "video"
+HEADER = "header"
+LENGTH_DIMS = ["y", "x"]
+LENGTH_UNITS = "um"
+PRIMARY_LENGTH_UNITS = "px"
+PRIMARY_LENGTH_DIMS = [f"{dim}{PRIMARY_LENGTH_UNITS}" for dim in LENGTH_DIMS]
+ROI = "roi"
+OTHER_ROI = "roi_other"
+SAMPLE_DIAMETER_UM = 9_525_000
 
 
-def x(da: DA, dim: str, coord: str) -> DA:
-    """Return a coordinate from a DataArray."""
-    return da.where(da[dim] == coord, drop=True)
-
-
-def apply_da_frames(func: Callable[[Img], Img], images: xr.DataArray) -> xr.DataArray:
+def apply_to_frames(func: Callable[[Img], Img], images: xr.DataArray) -> xr.DataArray:
     """Apply functions to each frame of a data array."""
-    core_dims = [["ypx", "xpx"]]
+    core_dims = [PRIMARY_LENGTH_DIMS]
     return xr.apply_ufunc(
         func,
         images,

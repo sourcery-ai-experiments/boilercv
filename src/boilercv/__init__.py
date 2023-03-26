@@ -4,10 +4,14 @@ from os import environ
 from pathlib import Path
 from textwrap import dedent
 
+import numpy as np
 import pyqtgraph as pg
 from cv2 import version
 
 __version__ = "0.0.0"
+
+npa = np.array
+"""Alias for the commonly-used Numpy array constructor."""
 
 FRAMES_PER_SOURCE = 300
 

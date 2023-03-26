@@ -6,7 +6,7 @@ from collections.abc import Sequence
 import cv2 as cv
 import numpy as np
 
-from boilercv import MARKER_COLOR, WHITE
+from boilercv import MARKER_COLOR, WHITE, npa
 from boilercv.types import ArrFloat, ArrInt, Img
 
 
@@ -48,7 +48,7 @@ def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> 
 
 def flood(img: Img) -> Img:
     """Flood the image, returning the resulting flood as a mask."""
-    seed_point = np.array(img.shape) // 2
+    seed_point = npa(img.shape) // 2
     max_value = np.iinfo(img.dtype).max
     # OpenCV needs a masked array with a one-pixel pad
     pad_width = 1

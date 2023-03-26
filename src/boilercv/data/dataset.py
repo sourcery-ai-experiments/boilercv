@@ -1,30 +1,26 @@
 """Dataset model."""
 
-
 from dataclasses import asdict
 from pathlib import Path
 
 import xarray as xr
-from pytz import timezone
 from scipy.spatial.distance import euclidean
 
-from boilercv.data import assign_ds
+from boilercv.data import (
+    HEADER,
+    LENGTH_DIMS,
+    LENGTH_UNITS,
+    PRIMARY_LENGTH_DIMS,
+    SAMPLE_DIAMETER_UM,
+    TIMEZONE,
+    VIDEO,
+    assign_ds,
+)
 from boilercv.data.models import Dimension
 from boilercv.gui import load_roi
 from boilercv.models.params import PARAMS
-from boilercv.types import DA, DS, ArrInt
+from boilercv.types import DA, DS
 from boilercv.video.cine import get_cine_attributes, get_cine_images
-
-TIMEZONE = timezone("US/Pacific")
-VIDEO = "video"
-HEADER = "header"
-PRIMARY_LENGTH_UNITS = "px"
-POINT_COORDS = ["ypx", "xpx"]
-LINE_COORDS = ["ypx1", "xpx1", "ypx2", "xpx2"]
-ROI = "roi"
-OTHER_ROI = "roi_other"
-SECONDARY_LENGTH_UNITS = "um"
-SAMPLE_DIAMETER_UM = 9_525_000
 
 
 def prepare_dataset(
@@ -40,16 +36,16 @@ def prepare_dataset(
 
     # Dimensions
     frames = Dimension(
-        dim="frame",
+        dim="frames",
         long_name="Frame number",
     )
     ypx = Dimension(
-        dim="ypx",
+        dim=PRIMARY_LENGTH_DIMS[0],
         long_name="Height",
         units="px",
     )
     xpx = Dimension(
-        dim="xpx",
+        dim=PRIMARY_LENGTH_DIMS[1],
         long_name="Width",
         units="px",
     )
@@ -83,58 +79,6 @@ def prepare_dataset(
 
 
 # * -------------------------------------------------------------------------------- * #
-# * ROI
-
-
-def assign_roi_ds(ds: DS, roi_contour: ArrInt) -> DS:
-    """Pack a contour into a DataArray."""
-    return assign_ds(
-        ds=ds,
-        name=ROI,
-        long_name="Region of interest",
-        units=PRIMARY_LENGTH_UNITS,
-        dims=(
-            Dimension(
-                dim="roi_vertex",
-                long_name="ROI vertex",
-            ),
-            Dimension(
-                dim="roi_loc",
-                long_name="ROI vertex location",
-                coords=POINT_COORDS,
-            ),
-        ),
-        data=roi_contour,
-    )
-
-
-def assign_other_roi_ds(ds: DS, contours: list[ArrInt]) -> DS:
-    """Pack a contour into a DataArray."""
-    return assign_ds(
-        ds=ds,
-        name=OTHER_ROI,
-        long_name="Excess detected regions of interest",
-        units=PRIMARY_LENGTH_UNITS,
-        dims=(
-            Dimension(
-                dim="contour",
-                long_name="Extra contour",
-            ),
-            Dimension(
-                dim="contour_vertex",
-                long_name="Extra contour vertex",
-            ),
-            Dimension(
-                dim="contour_loc",
-                long_name="Contour vertex location",
-                coords=POINT_COORDS,
-            ),
-        ),
-        data=contours,
-    )
-
-
-# * -------------------------------------------------------------------------------- * #
 # * SECONDARY LENGTH DIMENSIONS
 
 
@@ -145,8 +89,8 @@ def assign_length_dims(dataset: DS) -> DS:
     roi = load_roi(images.data, PARAMS.paths.examples / "roi_line.yaml", "line")
     pixels = euclidean(*iter(roi))
     um_per_px = SAMPLE_DIAMETER_UM / pixels
-    y = get_length_dims(parent_dim_units, "y", "Height", um_per_px, images)
-    x = get_length_dims(parent_dim_units, "x", "Width", um_per_px, images)
+    y = get_length_dims(parent_dim_units, LENGTH_DIMS[0], "Height", um_per_px, images)
+    x = get_length_dims(parent_dim_units, LENGTH_DIMS[1], "Width", um_per_px, images)
     images = y.assign_to(images)
     images = x.assign_to(images)
     return dataset
@@ -161,7 +105,7 @@ def get_length_dims(
         parent_dim=f"{dim}{parent_dim_units}",
         dim=dim,
         long_name=long_name,
-        units=SECONDARY_LENGTH_UNITS,
+        units=LENGTH_UNITS,
         original_units=parent_dim_units,
         original_coords=images[parent_dim].values,
         scale=scale,

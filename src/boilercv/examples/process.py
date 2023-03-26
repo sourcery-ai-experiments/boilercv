@@ -4,18 +4,18 @@ Computing the median is a costly operation, so don't do it if we don't have to. 
 with OpenCV is faster than numpy padding.
 """
 
-
 from pathlib import Path
 from warnings import warn
 
+import numpy as np
+import pandas as pd
+
 from boilercv import EXAMPLE_BIG_CINE, EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED
-from boilercv.data.arrays import build_lines_da, build_points_da
 from boilercv.data.dataset import (
     VIDEO,
-    assign_other_roi_ds,
-    assign_roi_ds,
     prepare_dataset,
 )
+from boilercv.data.frames import df_points, frame_lines
 from boilercv.gui import compare_images, save_roi
 from boilercv.images import (
     binarize,
@@ -51,32 +51,30 @@ def main():
 def mask_roi(source: Path, roi_path: Path):
     ds = prepare_dataset(source, NUM_FRAMES)
     video = ds[VIDEO]
-    maximum: ArrInt = video.max("frame").data
+    maximum: ArrInt = video.max("frames").data
     flooded = flood(maximum)
     eroded = close_and_erode(flooded)
     contours = find_contours(~eroded)
     roi = contours.pop()
     if len(contours) > 1:
         warn("More than one contour found when searching for the ROI.")
-    first_image = video.isel(frame=0).values
+    first_image = video.isel(frames=0).values
     binarized_first = binarize(first_image)
     contoured = draw_contours(first_image, contours)
     save_roi(roi, roi_path)
-
-    lines_, lsd = find_line_segments(maximum)
-    lined = lsd.drawSegments(maximum, lines_)
-    lines = build_lines_da(line_segments=lines_)
-
-    def get_midpoint(line):
-        (y1, x1, y2, x2) = line
-        return [(y1 + y2) / 2, (x1 + x2) / 2]
-
-    midpoints = build_points_da([get_midpoint(line) for line in lines])
+    lines, lsd = find_line_segments(maximum)
+    lined = lsd.drawSegments(maximum, lines)
+    line = frame_lines(lines)
+    midpoint = df_points([line.ypx.T.mean(), line.xpx.T.mean()])
+    distance = df_points([line.ypx[1] - line.ypx[0], line.xpx[1] - line.xpx[0]])
+    # TODO: Calculate line length as well
+    angle = pd.Series(np.arctan2(distance.ypx, distance.xpx)).rename("deg")
+    line = pd.concat(
+        axis="columns",
+        keys=["midpoint", "angle"],
+        objs=[midpoint, distance, angle],
+    ).rename_axis(axis="columns", mapper=("metric", "dim"))
     masked = mask(binarized_first, [roi])
-
-    ds = assign_roi_ds(ds, roi)
-    ds = assign_other_roi_ds(ds, contours)
-
     compare_images(
         dict(
             first_image=first_image,

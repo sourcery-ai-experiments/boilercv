@@ -9,6 +9,7 @@ from typing import Any, Self
 import numpy as np
 from pycine.file import read_header
 
+from boilercv import npa
 from boilercv.types import ArrDT, ArrFloat
 
 BYTES_TYPE_FIELDS = {
@@ -512,7 +513,7 @@ class Header:
         )
         self.setup = Setup(**struct_to_dict(self.setup))
         self.pImage = list(self.pImage)
-        self.utc = np.array(
+        self.utc = npa(
             [
                 datetime.fromtimestamp(timestamp, timezone)
                 .astimezone(UTC)

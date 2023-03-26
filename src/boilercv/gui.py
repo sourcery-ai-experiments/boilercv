@@ -12,6 +12,7 @@ from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
+from boilercv import npa
 from boilercv.types import ArrInt, Img
 
 ArrIntOrSeq: TypeAlias = Img | Sequence[Img]
@@ -26,9 +27,9 @@ def preview_images(result: Mapping[str, ArrIntOrSeq] | ArrIntOrSeq):
 def compare_images(results: Mapping[str, ArrIntOrSeq] | Sequence[ArrIntOrSeq]):
     """Compare multiple sets of images or sets of timeseries of images."""
     results = (
-        {title: np.array(value) for title, value in results.items()}
+        {title: npa(value) for title, value in results.items()}
         if isinstance(results, Mapping)
-        else {f"_{i}": np.array(value) for i, value in enumerate(results)}
+        else {f"_{i}": npa(value) for i, value in enumerate(results)}
     )
     with image_viewer(len(list(results.keys()))) as (
         _app,
@@ -99,7 +100,7 @@ def edit_roi(
 
         def get_roi_vertices() -> ArrInt:
             """Get the vertices of the ROI."""
-            return np.array(roi.saveState()["points"], dtype=int)
+            return npa(roi.saveState()["points"], dtype=int)
 
         main()
 
@@ -123,7 +124,7 @@ def load_roi(
             if roi_type == "poly"
             else [(0, 0), (height, width)]
         )
-    return np.array(vertices, dtype=int)
+    return npa(vertices, dtype=int)
 
 
 # * -------------------------------------------------------------------------------- * #
@@ -142,6 +143,8 @@ def get_grid_shape(coords: list[Coord]) -> Shape:
     width = max(coords, key=lambda coord: coord[x])[x] + 1
     return (height, width)
 
+
+# TODO: Shorten this with Numpy indexing
 
 SIX_GRID: list[Coord] = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
 EIGHT_GRID: list[Coord] = [

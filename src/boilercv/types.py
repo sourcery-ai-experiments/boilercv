@@ -3,9 +3,11 @@
 from typing import Any, Protocol, TypeAlias, TypeVar
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 from numpy import typing as npt
 
+DF: TypeAlias = pd.DataFrame
 DA: TypeAlias = xr.DataArray
 DS: TypeAlias = xr.Dataset
 

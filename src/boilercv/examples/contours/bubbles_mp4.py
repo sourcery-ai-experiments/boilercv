@@ -1,10 +1,8 @@
 """Given an MP4, find ROI using `opencv` and find contours."""
-
 import cv2 as cv
-import numpy as np
 from scipy.spatial import ConvexHull
 
-from boilercv import MARKER_COLOR
+from boilercv import MARKER_COLOR, npa
 from boilercv.examples import capture_images
 from boilercv.images import binarize, convert_image, draw_contours, find_contours, mask
 from boilercv.models.params import PARAMS
@@ -59,7 +57,7 @@ def get_roi(image: ArrInt) -> ArrInt:  # noqa: C901
             clicks = default_clicks
         else:
             hull.close()
-        return np.array(clicks)[hull.vertices]
+        return npa(clicks)[hull.vertices]
 
     def handle_mouse_events(event: int, x: int, y: int, *_):
         """Handle all mouse events. Form a convex hull from left clicks."""
