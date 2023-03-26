@@ -107,12 +107,12 @@ def edit_roi(
 
 
 def load_roi(
-    image: Img,
+    img: Img,
     roi_path: Path,
     roi_type: Literal["poly", "line"] = "poly",
 ) -> ArrInt:
     """Load the region of interest for an image."""
-    (width, height) = image.shape[-2:]
+    (width, height) = img.shape[-2:]
     if roi_path.exists():
         vertices: list[tuple[int, int]] = yaml.safe_load(
             roi_path.read_text(encoding="utf-8")

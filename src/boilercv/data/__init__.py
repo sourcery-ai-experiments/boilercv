@@ -7,12 +7,15 @@ import numpy as np
 import xarray as xr
 
 from boilercv.data.models import Dimension, get_dims
-from boilercv.types import DS, ArrInt
+from boilercv.types import DA, DS, ArrLike, Img
 
 
-def apply_to_frames(
-    func: Callable[[ArrInt], ArrInt], images: xr.DataArray
-) -> xr.DataArray:
+def x(da: DA, dim: str, coord: str) -> DA:
+    """Return a coordinate from a DataArray."""
+    return da.where(da[dim] == coord, drop=True)
+
+
+def apply_da_frames(func: Callable[[Img], Img], images: xr.DataArray) -> xr.DataArray:
     """Apply functions to each frame of a data array."""
     core_dims = [["ypx", "xpx"]]
     return xr.apply_ufunc(
@@ -24,18 +27,32 @@ def apply_to_frames(
     )
 
 
-def assign_to_dataset(
+def assign_ds(
     name: str,
-    data: ArrInt | Sequence[ArrInt],
+    data: ArrLike,
     dims: list[Dimension] | tuple[Dimension, ...],
     ds: DS | None = None,
     secondary_dims: list[Dimension] | tuple[Dimension, ...] = (),
     long_name: str = "",
     units: str = "",
 ) -> DS:
-    """Build a DataArray."""
+    """Build a data array and assign it to a dataset."""
     if not ds:
         ds = xr.Dataset()
+    da = build_da(name, data, dims, secondary_dims, long_name, units)
+    ds[name] = da
+    return ds
+
+
+def build_da(
+    name: str,
+    data: ArrLike,
+    dims: list[Dimension] | tuple[Dimension, ...],
+    secondary_dims: list[Dimension] | tuple[Dimension, ...] = (),
+    long_name: str = "",
+    units: str = "",
+):
+    """Build a data array."""
     if not long_name:
         long_name = name.capitalize() if len(name) > 1 else name
     if isinstance(data, Sequence) and not len(data):
@@ -57,5 +74,4 @@ def assign_to_dataset(
     )
     for dim in chain(dims, secondary_dims):
         da = dim.assign_to(da)
-    ds[name] = da
-    return ds
+    return da

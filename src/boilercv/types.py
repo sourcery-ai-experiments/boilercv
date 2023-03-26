@@ -19,17 +19,22 @@ class SupportsMul(Protocol):
 
 SupportsMul_T = TypeVar("SupportsMul_T", bound=SupportsMul)
 
+ArrLike: TypeAlias = npt.ArrayLike
+
 NBit: TypeAlias = npt.NBitBase
 """A number with arbitrary precision."""
+
+Arr: TypeAlias = npt.NDArray[np.generic]
+"""Generic array type. Consistent with OpenCV's type annotations."""
+
+ArrNum: TypeAlias = npt.NDArray[np.number[NBit]]
+"""A number array."""
 
 ArrInt: TypeAlias = npt.NDArray[np.integer[NBit]]
 """An integer array."""
 
 ArrFloat: TypeAlias = npt.NDArray[np.floating[NBit]]
 """An integer array with arbitrary bit depth."""
-
-ArrGen: TypeAlias = npt.NDArray[np.generic]
-"""Generic array type. Consistent with OpenCV's type annotations."""
 
 ArrDT: TypeAlias = npt.NDArray[np.datetime64]
 """Datetime array type."""

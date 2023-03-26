@@ -8,7 +8,7 @@ import xarray as xr
 from pytz import timezone
 from scipy.spatial.distance import euclidean
 
-from boilercv.data import assign_to_dataset
+from boilercv.data import assign_ds
 from boilercv.data.models import Dimension
 from boilercv.gui import load_roi
 from boilercv.models.params import PARAMS
@@ -19,7 +19,8 @@ TIMEZONE = timezone("US/Pacific")
 VIDEO = "video"
 HEADER = "header"
 PRIMARY_LENGTH_UNITS = "px"
-XY_COORDS = ["xpx", "ypx"]
+POINT_COORDS = ["ypx", "xpx"]
+LINE_COORDS = ["ypx1", "xpx1", "ypx2", "xpx2"]
 ROI = "roi"
 OTHER_ROI = "roi_other"
 SECONDARY_LENGTH_UNITS = "um"
@@ -69,7 +70,7 @@ def prepare_dataset(
     )
 
     # Dataset
-    ds = assign_to_dataset(
+    ds = assign_ds(
         name=VIDEO,
         long_name="High-speed video data",
         units="Pixel intensity",
@@ -85,10 +86,9 @@ def prepare_dataset(
 # * ROI
 
 
-def assign_roi_to_dataset(ds: DS, roi_contour: ArrInt) -> DS:
+def assign_roi_ds(ds: DS, roi_contour: ArrInt) -> DS:
     """Pack a contour into a DataArray."""
-
-    return assign_to_dataset(
+    return assign_ds(
         ds=ds,
         name=ROI,
         long_name="Region of interest",
@@ -101,16 +101,16 @@ def assign_roi_to_dataset(ds: DS, roi_contour: ArrInt) -> DS:
             Dimension(
                 dim="roi_loc",
                 long_name="ROI vertex location",
-                coords=XY_COORDS,
+                coords=POINT_COORDS,
             ),
         ),
         data=roi_contour,
     )
 
 
-def assign_other_roi_to_dataset(ds: DS, contours: list[ArrInt]) -> DS:
+def assign_other_roi_ds(ds: DS, contours: list[ArrInt]) -> DS:
     """Pack a contour into a DataArray."""
-    return assign_to_dataset(
+    return assign_ds(
         ds=ds,
         name=OTHER_ROI,
         long_name="Excess detected regions of interest",
@@ -127,7 +127,7 @@ def assign_other_roi_to_dataset(ds: DS, contours: list[ArrInt]) -> DS:
             Dimension(
                 dim="contour_loc",
                 long_name="Contour vertex location",
-                coords=XY_COORDS,
+                coords=POINT_COORDS,
             ),
         ),
         data=contours,

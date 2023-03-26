@@ -8,13 +8,12 @@ with OpenCV is faster than numpy padding.
 from pathlib import Path
 from warnings import warn
 
-import cv2 as cv
-
 from boilercv import EXAMPLE_BIG_CINE, EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED
+from boilercv.data.arrays import build_lines_da, build_points_da
 from boilercv.data.dataset import (
     VIDEO,
-    assign_other_roi_to_dataset,
-    assign_roi_to_dataset,
+    assign_other_roi_ds,
+    assign_roi_ds,
     prepare_dataset,
 )
 from boilercv.gui import compare_images, save_roi
@@ -23,6 +22,7 @@ from boilercv.images import (
     close_and_erode,
     draw_contours,
     find_contours,
+    find_line_segments,
     flood,
     mask,
 )
@@ -50,27 +50,32 @@ def main():
 
 def mask_roi(source: Path, roi_path: Path):
     ds = prepare_dataset(source, NUM_FRAMES)
-    images = ds[VIDEO]
-    maximum: ArrInt = images.max("frame").data
+    video = ds[VIDEO]
+    maximum: ArrInt = video.max("frame").data
     flooded = flood(maximum)
     eroded = close_and_erode(flooded)
     contours = find_contours(~eroded)
     roi = contours.pop()
     if len(contours) > 1:
         warn("More than one contour found when searching for the ROI.")
-    first_image = images.isel(frame=0).values
+    first_image = video.isel(frame=0).values
     binarized_first = binarize(first_image)
     contoured = draw_contours(first_image, contours)
     save_roi(roi, roi_path)
 
-    lsd = cv.createLineSegmentDetector()
-    lines, *_ = lsd.detect(maximum)
-    lined = lsd.drawSegments(maximum, lines)
+    lines_, lsd = find_line_segments(maximum)
+    lined = lsd.drawSegments(maximum, lines_)
+    lines = build_lines_da(line_segments=lines_)
 
+    def get_midpoint(line):
+        (y1, x1, y2, x2) = line
+        return [(y1 + y2) / 2, (x1 + x2) / 2]
+
+    midpoints = build_points_da([get_midpoint(line) for line in lines])
     masked = mask(binarized_first, [roi])
 
-    ds = assign_roi_to_dataset(ds, roi)
-    ds = assign_other_roi_to_dataset(ds, contours)
+    ds = assign_roi_ds(ds, roi)
+    ds = assign_other_roi_ds(ds, contours)
 
     compare_images(
         dict(
