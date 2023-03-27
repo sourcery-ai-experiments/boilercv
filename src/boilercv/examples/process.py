@@ -62,31 +62,9 @@ def mask_roi(source: Path, roi_path: Path):
     binarized_first = binarize(first_image)
     contoured = draw_contours(first_image, contours)
     save_roi(roi, roi_path)
-    lines, lsd = find_line_segments(maximum)
-    lined = lsd.drawSegments(maximum, lines)
-    line = frame_lines(lines)
-    midpoint = df_points([line.ypx.T.mean(), line.xpx.T.mean()])
-    distance = df_points([line.ypx[1] - line.ypx[0], line.xpx[1] - line.xpx[0]])
-    length = distance.T.pow(2).sum().pow(1 / 2).rename("px")
-    angle = pd.Series(np.arctan2(distance.ypx, distance.xpx)).rename("deg")
-    line = (
-        pd.concat(
-            axis="columns",
-            objs=[
-                line.reorder_levels(axis="columns", order=[1, 0]),
-                pd.concat(
-                    axis="columns",
-                    keys=["midpoint", "length", "angle"],
-                    objs=[midpoint, length, angle],
-                ),
-            ],
-        )
-        .rename_axis(axis="index", mapper="line")
-        .rename_axis(axis="columns", mapper=["metric", "dim"])
-    )
-    # TODO: Is there a better way?
-    forty_lol = 40
-    filtered = line.loc[(line.length > forty_lol).values]
+    lined, line = detect_lines(maximum)
+    max_length = 40
+    filtered = line.loc[(line.length > max_length).squeeze()]
     masked = mask(binarized_first, [roi])
     compare_images(
         dict(
@@ -98,6 +76,32 @@ def mask_roi(source: Path, roi_path: Path):
             lined=lined,
         )
     )
+
+
+def detect_lines(image):
+    lines_, lsd = find_line_segments(image)
+    lined = lsd.drawSegments(image, lines_)
+    lines = frame_lines(lines_)
+    midpoints = df_points([lines.ypx.T.mean(), lines.xpx.T.mean()])
+    distances = df_points([lines.ypx[1] - lines.ypx[0], lines.xpx[1] - lines.xpx[0]])
+    lengths = distances.T.pow(2).sum().pow(1 / 2).rename("px")
+    angles = pd.Series(np.arctan2(distances.ypx, distances.xpx)).rename("deg")
+    lines = (
+        pd.concat(
+            axis="columns",
+            keys=["line", "midpoint", "length", "angle"],
+            objs=[
+                lines.set_axis(axis="columns", labels=["ypx0", "xpx0", "ypx1", "xpx1"]),
+                midpoints,
+                lengths,
+                angles,
+            ],
+        )
+        .rename_axis(axis="index", mapper="line")
+        .rename_axis(axis="columns", mapper=["metric", "dim"])
+    )
+
+    return lined, lines
 
 
 if __name__ == "__main__":

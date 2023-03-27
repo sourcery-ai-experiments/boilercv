@@ -22,7 +22,7 @@ def df_points(points: ArrLike) -> DF:
     return pd.DataFrame(
         columns=PRIMARY_LENGTH_DIMS,
         data=points,  # type: ignore
-    ).rename_axis("point")
+    ).rename_axis(axis="index", mapper="point")
 
 
 def frame_lines(lines: ArrLike) -> DF:
@@ -31,6 +31,6 @@ def frame_lines(lines: ArrLike) -> DF:
     return (
         pd.concat(axis="columns", keys=[0, 1], objs=ordered_pairs)
         .rename_axis(axis="index", mapper="line")
-        .reorder_levels(axis="columns", order=[1, 0])
-        .rename_axis(axis="columns", mapper=["dim", "point"])
+        .rename_axis(axis="columns", mapper=["point", "dim"])
+        .reorder_levels(axis="columns", order=["dim", "point"])
     )
