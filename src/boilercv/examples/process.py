@@ -67,13 +67,26 @@ def mask_roi(source: Path, roi_path: Path):
     line = frame_lines(lines)
     midpoint = df_points([line.ypx.T.mean(), line.xpx.T.mean()])
     distance = df_points([line.ypx[1] - line.ypx[0], line.xpx[1] - line.xpx[0]])
-    # TODO: Calculate line length as well
+    length = distance.T.pow(2).sum().pow(1 / 2).rename("px")
     angle = pd.Series(np.arctan2(distance.ypx, distance.xpx)).rename("deg")
-    line = pd.concat(
-        axis="columns",
-        keys=["midpoint", "angle"],
-        objs=[midpoint, distance, angle],
-    ).rename_axis(axis="columns", mapper=("metric", "dim"))
+    line = (
+        pd.concat(
+            axis="columns",
+            objs=[
+                line.reorder_levels(axis="columns", order=[1, 0]),
+                pd.concat(
+                    axis="columns",
+                    keys=["midpoint", "length", "angle"],
+                    objs=[midpoint, length, angle],
+                ),
+            ],
+        )
+        .rename_axis(axis="index", mapper="line")
+        .rename_axis(axis="columns", mapper=["metric", "dim"])
+    )
+    # TODO: Is there a better way?
+    forty_lol = 40
+    filtered = line.loc[(line.length > forty_lol).values]
     masked = mask(binarized_first, [roi])
     compare_images(
         dict(
