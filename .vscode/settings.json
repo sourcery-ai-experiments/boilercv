@@ -84,9 +84,12 @@
   },
   //* black
   "black-formatter.importStrategy": "fromEnvironment",
+  //? Ensure user setting args are cleared
   "black-formatter.args": [],
   //* ruff
   "ruff.importStrategy": "fromEnvironment",
+  //? Ensure user setting args are cleared
+  "ruff.args": [],
 
   //! GitHub Actions
   "github-actions.workflows.pinned.workflows": [".github/workflows/main.yml"],
