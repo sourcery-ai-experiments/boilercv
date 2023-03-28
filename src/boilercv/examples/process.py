@@ -3,6 +3,7 @@
 Computing the median is a costly operation, so don't do it if we don't have to. Padding
 with OpenCV is faster than numpy padding.
 """
+
 from pathlib import Path
 from warnings import warn
 
@@ -12,10 +13,7 @@ import pandas as pd
 
 from boilercv import EXAMPLE_BIG_CINE, EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED
 from boilercv.data import PRIMARY_LENGTH_DIMS, apply_to_frames
-from boilercv.data.dataset import (
-    VIDEO,
-    prepare_dataset,
-)
+from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.data.frames import df_points, frame_lines
 from boilercv.gui import compare_images, save_roi
 from boilercv.images import (
@@ -28,8 +26,9 @@ from boilercv.images import (
     morph,
 )
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrInt, Img
+from boilercv.types import DA, ArrInt, Img
 
+PREVIEW = True
 NUM_FRAMES = 200
 DRAWN_CONTOUR_THICKNESS = 2
 
@@ -38,24 +37,26 @@ def main():
     mask_roi(
         EXAMPLE_BIG_CINE,
         EXAMPLE_BIG_CINE.parent / f"{EXAMPLE_BIG_CINE.stem}.yaml",
+        PREVIEW,
     )
     mask_roi(
         PARAMS.paths.examples / EXAMPLE_CINE,
         PARAMS.paths.examples / f"{EXAMPLE_CINE.stem}.yaml",
+        PREVIEW,
     )
     mask_roi(
         PARAMS.paths.examples / EXAMPLE_CINE_ZOOMED,
         PARAMS.paths.examples / f"{EXAMPLE_CINE_ZOOMED.stem}.yaml",
+        PREVIEW,
     )
 
 
-def mask_roi(source: Path, roi_path: Path):
+def mask_roi(source: Path, roi_path: Path, preview: bool = False):
     ds = prepare_dataset(source, NUM_FRAMES)
     video = ds[VIDEO]
 
     # Get the ROI
     maximum: ArrInt = video.max("frames").values
-    (height, width) = maximum.shape
     flooded_max = apply_to_frames(flood, video.max("frames"))
     flooded_closed, roi, dilated = apply_to_frames(morph, flooded_max, returns=3)  # type: ignore
     boundary_roi = roi.values ^ dilated.values
@@ -64,17 +65,54 @@ def mask_roi(source: Path, roi_path: Path):
     first_image = video.isel(frames=0).values
     first_image_roi_only = apply_mask(first_image, roi.values)
 
-    # Find the surface
+    # Find the boiling surface
+    _boiling_surface = find_boiling_surface(flooded_closed, preview)
+
+    # Save and reconstruct the ROI
+    # TODO: Let find contours use CHAIN_APPROX_SIMPLE here, save the ROI to disk from DF
+    # TODO: Combine this ROI bounded by the surface ROI extended to the left/right edge
+    contours = find_contours(roi.values)
+    roi_poly_ = contours.pop()
+    _roi_poly = df_points(roi_poly_)
+    if contours:
+        warn("More than one contour found when searching for the ROI.")
+    save_roi(roi_poly_, roi_path)
+
+    if preview:
+        binarized_first = binarize(first_image)
+        roi2 = build_mask_from_polygons(binarized_first, [roi_poly_])
+        roi_diff = roi.values ^ roi2
+        compare_images(
+            dict(
+                # Get the ROI
+                maximum=maximum,
+                flooded_max=flooded_max.values,
+                roi=roi,
+                dilated_roi=dilated.values,
+                boundary_roi=boundary_roi,
+                # Mask the first image
+                first_image=first_image,
+                first_image_roi_only=first_image_roi_only,
+                # Find the surface
+                # Save and reconstruct the ROI
+                roi_diff=roi_diff,
+            )
+        )
+
+
+def find_boiling_surface(image: DA, preview: bool = False) -> ArrInt:
+    """Find the boiling surface."""
     # Find corners and set index to contour points for later concatenation
-    corns_ = apply_to_frames(get_corners, flooded_closed)
-    corns = df_points(np.nonzero(corns_.values))
+    (height, width) = image.shape
+    corns_ = apply_to_frames(get_corners, image)
+    corns = df_points(np.nonzero(corns_.values)[0])
     corns = (
         corns.set_index(pd.MultiIndex.from_frame(corns))
         .drop(axis="columns", labels=PRIMARY_LENGTH_DIMS)
         .assign(**dict(corner=True))
     )
     # Find the contour angles
-    contours = find_contours(flooded_closed.values)
+    contours = find_contours(image.values)
     roi_poly_ = contours.pop()
     roi_poly = df_points(roi_poly_)
     distances = roi_poly.diff()
@@ -121,47 +159,20 @@ def mask_roi(source: Path, roi_path: Path):
         .reset_index(drop=True)
         .loc[0:1, ["ypx", "xpx"]]
     )
+    if preview:
+        compare_images(dict(corn=corns_.values))
     # TODO: Save to disk, draw on an image for previewing
-    detected_surface = candidates.values.flatten()
-
-    # Save and reconstruct the ROI
-    # TODO: Let find contours use CHAIN_APPROX_SIMPLE here, save the ROI to disk from DF
-    # TODO: Combine this ROI bounded by the surface ROI extended to the left/right edge
-    # contours = find_contours(roi.values)
-    # roi_poly_ = contours.pop()
-    # roi_poly = df_points(roi_poly_)
-    if contours:
-        warn("More than one contour found when searching for the ROI.")
-    save_roi(roi_poly_, roi_path)
-    binarized_first = binarize(first_image)
-    roi2 = build_mask_from_polygons(binarized_first, [roi_poly_])
-    roi_diff = roi.values ^ roi2
-
-    compare_images(
-        dict(
-            # Get the ROI
-            maximum=maximum,
-            flooded_max=flooded_max.values,
-            roi=roi,
-            dilated_roi=dilated.values,
-            boundary_roi=boundary_roi,
-            corn=corns_.values,
-            # Mask the first image
-            first_image=first_image,
-            first_image_roi_only=first_image_roi_only,
-            # Find the surface
-            # Save and reconstruct the ROI
-            roi_diff=roi_diff,
-        )
-    )
+    return candidates.values.flatten()[:2]
 
 
 def get_corners(img: Img) -> Img:
+    """Get the corners of an image."""
     corners = cv.cornerHarris(img, 2, 3, 0.04)
     return (corners > 0.03 * corners.max()).astype(img.dtype) * np.iinfo(img.dtype).max
 
 
 def detect_lines(image):
+    """Detect line segments in an image."""
     lines_, lsd = find_line_segments(image)
     lined = lsd.drawSegments(image, lines_)
     lines = frame_lines(lines_)
@@ -183,7 +194,6 @@ def detect_lines(image):
         .rename_axis(axis="index", mapper="line")
         .rename_axis(axis="columns", mapper=["metric", "dim"])
     )
-
     return lined, lines
 
 

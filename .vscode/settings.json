@@ -53,6 +53,10 @@
   //? Zero out the depth for packages which slow down Pylance
   "python.analysis.packageIndexDepths": [
     {
+      "name": "boilercv",
+      "depth": 2
+    },
+    {
       "name": "matplotlib",
       "depth": 2
     },

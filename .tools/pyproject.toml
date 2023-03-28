@@ -84,7 +84,7 @@ unfixable = [
 
 # * ---------------------------------------------------------------------------- * #
 # * Changes below may be lost in significant template updates.
-split-on-trailing-comma = true
+split-on-trailing-comma = false
 
 
 [tool.ruff.per-file-ignores]
