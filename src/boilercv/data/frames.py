@@ -13,16 +13,20 @@ idx = pd.IndexSlice
 """Helper for slicing multi-index dataframes."""
 
 
-def df_points(points: ArrLike) -> DF:
+def df_points(points: ArrLike, dims=PRIMARY_LENGTH_DIMS) -> DF:
     """Build a dataframe from an array of points."""
     if isinstance(points, DF):
         points = points.to_numpy()
     if isinstance(points, Sequence):
         points = npa(points).T
-    return pd.DataFrame(
-        columns=PRIMARY_LENGTH_DIMS,
-        data=points,  # type: ignore
-    ).rename_axis(axis="index", mapper="point")
+    return (
+        pd.DataFrame(
+            columns=dims,
+            data=points,  # type: ignore
+        )
+        .rename_axis(axis="index", mapper="point")
+        .rename_axis(axis="columns", mapper="dim")
+    )
 
 
 def frame_lines(lines: ArrLike) -> DF:
@@ -31,6 +35,6 @@ def frame_lines(lines: ArrLike) -> DF:
     return (
         pd.concat(axis="columns", keys=[0, 1], objs=ordered_pairs)
         .rename_axis(axis="index", mapper="line")
-        .rename_axis(axis="columns", mapper=["point", "dim"])
-        .reorder_levels(axis="columns", order=["dim", "point"])
+        .rename_axis(axis="columns", mapper=["coord", "dim"])
+        .reorder_levels(axis="columns", order=["dim", "coord"])
     )

@@ -6,7 +6,7 @@ from boilercv import EXAMPLE_CINE, RED
 from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
 from boilercv.gui import compare_images, edit_roi
-from boilercv.images import convert_image, mask
+from boilercv.images import build_mask_from_polygons, convert_image
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
 
@@ -27,7 +27,7 @@ def main():
         results_doh,
     ]
     for input_image in input_images:
-        image = mask(input_image, [roi])
+        image = build_mask_from_polygons(input_image, [roi])
         image = ~image
         all_blobs = [
             # get_blobs_log(image),

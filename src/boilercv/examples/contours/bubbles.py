@@ -9,9 +9,9 @@ from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.gui import compare_images, edit_roi, load_roi
 from boilercv.images import (
     binarize,
+    build_mask_from_polygons,
     draw_contours,
     find_contours,
-    mask,
 )
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt, Img
@@ -83,7 +83,7 @@ def get_contours(
     block_size: int,
     thresh_dist_from_mean: int,
 ) -> tuple[list[ArrInt], ArrInt, ArrInt]:
-    masked = mask(input_image, [roi])
+    masked = build_mask_from_polygons(input_image, [roi])
     thresholded = binarize(masked, block_size, thresh_dist_from_mean)
     return find_contours(thresholded), masked, thresholded
 

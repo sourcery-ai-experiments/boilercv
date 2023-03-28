@@ -22,14 +22,16 @@ OTHER_ROI = "roi_other"
 SAMPLE_DIAMETER_UM = 9_525_000
 
 
-def apply_to_frames(func: Callable[[Img], Img], images: xr.DataArray) -> xr.DataArray:
+def apply_to_frames(
+    func: Callable[[Img], Img], images: xr.DataArray, returns: int = 1
+) -> xr.DataArray:
     """Apply functions to each frame of a data array."""
     core_dims = [PRIMARY_LENGTH_DIMS]
     return xr.apply_ufunc(
         func,
         images,
         input_core_dims=core_dims,
-        output_core_dims=core_dims,
+        output_core_dims=core_dims * returns,
         vectorize=True,
     )
 

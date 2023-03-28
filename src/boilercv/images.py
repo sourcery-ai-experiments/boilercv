@@ -15,6 +15,11 @@ def convert_image(img: Img, code: int | None = None) -> Img:
     return img if code is None else cv.cvtColor(img, code)  # type: ignore
 
 
+def apply_mask(img: Img, mask: Img) -> Img:
+    """Mask an image, keeping parts where the mask is bright."""
+    return cv.add(img, ~mask)
+
+
 def pad(img: Img, pad_width: int, value: int) -> Img:
     """Pad an image. Faster than np.pad()."""
     return cv.copyMakeBorder(
@@ -47,7 +52,7 @@ def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> 
 
 
 def flood(img: Img) -> Img:
-    """Flood the image, returning the resulting flood as a mask."""
+    """Flood the image, returning the resulting flood as a bright mask."""
     seed_point = npa(img.shape) // 2
     max_value = np.iinfo(img.dtype).max
     # OpenCV needs a masked array with a one-pixel pad
@@ -64,58 +69,48 @@ def flood(img: Img) -> Img:
     return unpad(mask, pad_width) * max_value
 
 
-def close_and_erode(img: Img) -> Img:
-    """Close small holes and erode the outer boundary of an ROI."""
+def morph(img: Img) -> tuple[Img, Img]:
+    """Close small holes and return the ROI both eroded and dilated as bright masks."""
 
     # Explicitly pad out the image since cv.morphologyEx boundary handling is weird
-    close_size = 4
-    erode_size = 9
-    pad_width = max(close_size, erode_size)
+    kernel_size = 9
+    close_kernel_size = 4
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [kernel_size] * 2)
+    close_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [close_kernel_size] * 2)
+    pad_width = max(close_kernel_size, kernel_size)
     padded = pad(img, pad_width, value=0)
 
-    # Close small holes inside the ROI
-    closed = cv.morphologyEx(
-        src=padded,
-        op=cv.MORPH_CLOSE,
-        kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE, (close_size, close_size)),
-    )
+    # Erode and dilate a bright region
+    closed = cv.morphologyEx(src=padded, op=cv.MORPH_CLOSE, kernel=close_kernel)
+    eroded = cv.morphologyEx(src=closed, op=cv.MORPH_ERODE, kernel=kernel)
+    dilated = cv.morphologyEx(src=closed, op=cv.MORPH_DILATE, kernel=kernel)
 
-    # Erode ROI boundaries
-    erode_size = 9
-    eroded = cv.morphologyEx(
-        src=closed,
-        op=cv.MORPH_ERODE,
-        kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE, (erode_size, erode_size)),
-    )
-
-    return unpad(eroded, pad_width)
+    return tuple(unpad(image, pad_width) for image in [closed, eroded, dilated])
 
 
 def find_contours(img: Img) -> list[ArrInt]:
-    """Find external contours of dark objects in an image."""
-    # Invert the default of finding bright contours since bubble edges are dark
-    img = ~img
+    """Find external contours of bright objects in an image."""
     contours, _hierarchy = cv.findContours(
         image=img,
         mode=cv.RETR_EXTERNAL,  # No hierarchy needed because we keep external contours
-        method=cv.CHAIN_APPROX_SIMPLE,  # Approximate the contours
+        method=cv.CHAIN_APPROX_NONE,  # Approximate the contours
     )
-    # OpenCV returns contours as shape (N, 1, 2) instead of (N, 2)
-    contours = [contour.reshape(-1, 2) for contour in contours]
+    # Despite images having dims (y, x) and shape (h, w), OpenCV returns contours with
+    # dims (point, 1, pair), where dim "pair" has coords (x, y).
+    contours = [np.fliplr(contour.squeeze()) for contour in contours]
     return contours
 
 
-def mask(img: Img, rois: Sequence[ArrInt]) -> Img:
-    """Mask an image bounded by one or more polygonal regions of interest."""
+def build_mask_from_polygons(img: Img, contours: Sequence[ArrInt]) -> Img:
+    """Build a mask from the intersection of a sequence of polygonal contours."""
+    # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
+    contours = [np.fliplr(contour).reshape(-1, 1, 2) for contour in contours]
     blank = np.zeros_like(img)
-    # Fill a polygon to make the ROI bright, invert this to make the ROI dark
-    mask: Img = ~cv.fillPoly(
+    return cv.fillPoly(
         img=blank,
-        pts=rois,  # Expects a list of coordinates, we have just one
+        pts=contours,  # Expects a list of coordinates, we have just one
         color=WHITE,
     )
-    # OpenCV saturates on addition, keeping only the ROI
-    return cv.add(img, mask)
 
 
 def draw_contours(
