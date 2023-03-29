@@ -29,6 +29,9 @@ NBit: TypeAlias = npt.NBitBase
 Arr: TypeAlias = npt.NDArray[np.generic]
 """Generic array type. Consistent with OpenCV's type annotations."""
 
+ArrBool: TypeAlias = npt.NDArray[np.bool_]
+"""A boolean array."""
+
 ArrNum: TypeAlias = npt.NDArray[np.number[NBit]]
 """A number array."""
 
@@ -43,6 +46,9 @@ ArrDT: TypeAlias = npt.NDArray[np.datetime64]
 
 ArrTD: TypeAlias = npt.NDArray[np.timedelta64]
 """Timedelta array type."""
+
+ImgBool: TypeAlias = ArrBool
+"""A boolean array representing an image mask."""
 
 Img: TypeAlias = ArrInt
 """An integer array representing an image."""

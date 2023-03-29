@@ -4,14 +4,10 @@ from os import environ
 from pathlib import Path
 from textwrap import dedent
 
-import numpy as np
 import pyqtgraph as pg
 from cv2 import version
 
 __version__ = "0.0.0"
-
-npa = np.array
-"""Alias for the commonly-used Numpy array constructor."""
 
 FRAMES_PER_SOURCE = 300
 
@@ -21,7 +17,7 @@ DATA_DIR = Path("data")
 CINE_SOURCES = Path("W:/selections")
 EXAMPLE_CINE = Path("2022-11-30T13-41-00_short.cine")
 EXAMPLE_CINE_ZOOMED = Path("2022-01-06T16-57-31_short.cine")
-EXAMPLE_BIG_CINE = Path("~").expanduser() / "Desktop/2022-11-30T13-41-00.cine"
+EXAMPLE_BIG_CINE = Path("~").expanduser() / "Desktop/video/2022-01-06T16-57-31.cine"
 
 # GUI
 WHITE = (255, 255, 255)

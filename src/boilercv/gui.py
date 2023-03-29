@@ -12,10 +12,10 @@ from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
-from boilercv import npa
-from boilercv.types import ArrInt, Img
+from boilercv.images import scale_bool
+from boilercv.types import ArrInt, ArrLike, Img
 
-ArrIntOrSeq: TypeAlias = Img | Sequence[Img]
+ArrIntOrSeq: TypeAlias = ArrLike | Sequence[ArrLike]
 
 
 def preview_images(result: Mapping[str, ArrIntOrSeq] | ArrIntOrSeq):
@@ -27,9 +27,9 @@ def preview_images(result: Mapping[str, ArrIntOrSeq] | ArrIntOrSeq):
 def compare_images(results: Mapping[str, ArrIntOrSeq] | Sequence[ArrIntOrSeq]):
     """Compare multiple sets of images or sets of timeseries of images."""
     results = (
-        {title: npa(value) for title, value in results.items()}
+        {title: np.array(value) for title, value in results.items()}
         if isinstance(results, Mapping)
-        else {f"_{i}": npa(value) for i, value in enumerate(results)}
+        else {f"_{i}": np.array(value) for i, value in enumerate(results)}
     )
     with image_viewer(len(list(results.keys()))) as (
         _app,
@@ -41,6 +41,8 @@ def compare_images(results: Mapping[str, ArrIntOrSeq] | Sequence[ArrIntOrSeq]):
         for (title, value), image_view in zip(
             results.items(), image_views, strict=False
         ):
+            if value.dtype == np.bool_:
+                value = scale_bool(value)
             image_view.setImage(value)
             if not title.startswith("_"):
                 image_view.addItem(pg.TextItem(title, fill=pg.mkBrush("black")))
@@ -100,7 +102,7 @@ def edit_roi(
 
         def get_roi_vertices() -> ArrInt:
             """Get the vertices of the ROI."""
-            return npa(roi.saveState()["points"], dtype=int)
+            return np.array(roi.saveState()["points"], dtype=int)
 
         main()
 
@@ -124,7 +126,7 @@ def load_roi(
             if roi_type == "poly"
             else [(0, 0), (height, width)]
         )
-    return npa(vertices, dtype=int)
+    return np.array(vertices, dtype=int)
 
 
 # * -------------------------------------------------------------------------------- * #

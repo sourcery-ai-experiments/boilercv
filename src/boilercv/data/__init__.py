@@ -2,38 +2,56 @@
 
 from collections.abc import Callable, Sequence
 from itertools import chain
+from typing import Any
 
 import numpy as np
 import xarray as xr
 from pytz import timezone
 
 from boilercv.data.models import Dimension, get_dims
-from boilercv.types import DS, ArrLike, Img
+from boilercv.types import DS, ArrLike
 
 TIMEZONE = timezone("US/Pacific")
 VIDEO = "video"
 HEADER = "header"
-LENGTH_DIMS = ["y", "x"]
-LENGTH_UNITS = "um"
-PRIMARY_LENGTH_UNITS = "px"
-PRIMARY_LENGTH_DIMS = [f"{dim}{PRIMARY_LENGTH_UNITS}" for dim in LENGTH_DIMS]
+DIMS = ["y", "x"]
+LENGTH = "um"
+PX = "px"
+PX_DIMS = [f"{dim}{PX}" for dim in DIMS]
 ROI = "roi"
 OTHER_ROI = "roi_other"
 SAMPLE_DIAMETER_UM = 9_525_000
 
 
-def apply_to_frames(
-    func: Callable[[Img], Img], images: xr.DataArray, returns: int = 1
+def apply_to_img_da(
+    func: Callable[..., Any],
+    images: xr.DataArray,
+    returns: int = 1,
+    vectorize: bool = False,
+    name: str = "",
+    kwargs: dict[str, Any] | None = None,
 ) -> xr.DataArray:
-    """Apply functions to each frame of a data array."""
-    core_dims = [PRIMARY_LENGTH_DIMS]
-    return xr.apply_ufunc(
-        func,
-        images,
+    """Apply functions that transform images to transform data arrays instead."""
+    core_dims = [PX_DIMS]
+    common_kwargs = dict(
         input_core_dims=core_dims,
-        output_core_dims=core_dims * returns,
-        vectorize=True,
+        vectorize=vectorize,
+        kwargs=kwargs,
     )
+    if returns:
+        result = xr.apply_ufunc(
+            func,
+            images,
+            **common_kwargs,
+            output_core_dims=core_dims * returns,
+        )
+    else:
+        result = xr.apply_ufunc(
+            func,
+            images,
+            **common_kwargs,
+        )
+    return result.rename(name) if name and returns == 1 else result
 
 
 def assign_ds(

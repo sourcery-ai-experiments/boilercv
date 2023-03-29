@@ -1,24 +1,17 @@
 """Dataframes."""
 
-from collections.abc import Sequence
-
 import numpy as np
 import pandas as pd
 
-from boilercv import npa
-from boilercv.data.dataset import PRIMARY_LENGTH_DIMS
+from boilercv.data.dataset import PX_DIMS
 from boilercv.types import DF, ArrLike
 
 idx = pd.IndexSlice
 """Helper for slicing multi-index dataframes."""
 
 
-def df_points(points: ArrLike, dims=PRIMARY_LENGTH_DIMS) -> DF:
+def df_points(points: ArrLike, dims=PX_DIMS) -> DF:
     """Build a dataframe from an array of points."""
-    if isinstance(points, DF):
-        points = points.to_numpy()
-    if isinstance(points, Sequence):
-        points = npa(points).T
     return (
         pd.DataFrame(
             columns=dims,

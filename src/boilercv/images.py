@@ -1,13 +1,30 @@
 """Image acquisition and processing."""
 
-
 from collections.abc import Sequence
 
 import cv2 as cv
 import numpy as np
+from numpy import typing as npt
 
-from boilercv import MARKER_COLOR, WHITE, npa
-from boilercv.types import ArrFloat, ArrInt, Img
+from boilercv import MARKER_COLOR, WHITE
+from boilercv.types import ArrFloat, ArrInt, Img, ImgBool
+
+
+def scale_float(img: ArrFloat, dtype: npt.DTypeLike = np.uint8) -> Img:
+    """Return the input as `dtype` multiplied by the max value of `dtype`.
+
+    Useful for scaling float-valued arrays to integer-valued images.
+    """
+    scaled = (img - img.min()) / (img.max() - img.min())
+    return scaled.astype(dtype) * np.iinfo(dtype).max
+
+
+def scale_bool(img: ImgBool, dtype: npt.DTypeLike = np.uint8) -> Img:
+    """Return the input as `dtype` multiplied by the max value of `dtype`.
+
+    Useful for functions (such as in OpenCV) which expect numeric bools.
+    """
+    return img.astype(dtype) * np.iinfo(dtype).max
 
 
 def convert_image(img: Img, code: int | None = None) -> Img:
@@ -48,12 +65,12 @@ def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> 
         thresholdType=cv.THRESH_BINARY,
         blockSize=block_size,
         C=thresh_dist_from_mean,
-    )
+    ).astype(bool)
 
 
 def flood(img: Img) -> Img:
     """Flood the image, returning the resulting flood as a bright mask."""
-    seed_point = npa(img.shape) // 2
+    seed_point = np.array(img.shape) // 2
     max_value = np.iinfo(img.dtype).max
     # OpenCV needs a masked array with a one-pixel pad
     pad_width = 1
@@ -85,15 +102,17 @@ def morph(img: Img) -> tuple[Img, Img]:
     eroded = cv.morphologyEx(src=closed, op=cv.MORPH_ERODE, kernel=kernel)
     dilated = cv.morphologyEx(src=closed, op=cv.MORPH_DILATE, kernel=kernel)
 
-    return tuple(unpad(image, pad_width) for image in [closed, eroded, dilated])
+    return tuple(
+        unpad(image, pad_width).astype(bool) for image in [closed, eroded, dilated]
+    )
 
 
-def find_contours(img: Img) -> list[ArrInt]:
+def find_contours(img: Img, method: int = cv.CHAIN_APPROX_NONE) -> list[ArrInt]:
     """Find external contours of bright objects in an image."""
     contours, _hierarchy = cv.findContours(
         image=img,
         mode=cv.RETR_EXTERNAL,  # No hierarchy needed because we keep external contours
-        method=cv.CHAIN_APPROX_NONE,  # Approximate the contours
+        method=method,
     )
     # Despite images having dims (y, x) and shape (h, w), OpenCV returns contours with
     # dims (point, 1, pair), where dim "pair" has coords (x, y).
