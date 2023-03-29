@@ -23,7 +23,7 @@ from boilercv.data import PX_DIMS, apply_to_img_da
 from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.data.frames import df_points, frame_lines
 from boilercv.data.models import Dimension
-from boilercv.gui import compare_images, save_roi
+from boilercv.gui import get_calling_scope_name, save_roi, view_images
 from boilercv.images import (
     apply_mask,
     binarize,
@@ -32,6 +32,7 @@ from boilercv.images import (
     find_line_segments,
     flood,
     morph,
+    scale_bool,
 )
 from boilercv.models.params import PARAMS
 from boilercv.types import DA, DS, ArrInt, Img
@@ -63,11 +64,6 @@ def process(source: Path, roi_path: Path, preview: bool = False):
     ds = prepare_dataset(source, NUM_FRAMES)
     video = ds[VIDEO]
 
-    # TODO: Refactor this logic out and see if dims can be reordered
-    bin_packed = apply_to_img_da(binarize, video, vectorize=True)
-    bin_unpacked = xr_apply_unpackbits(xr_apply_packbits(video), ds)
-    compare_images([bin_packed.values, bin_unpacked.values])
-
     # Get the ROI
     maximum = video.max("frames").rename("maximum")
     flooded_max = apply_to_img_da(flood, video.max("frames"), name="flooded_max")
@@ -83,48 +79,56 @@ def process(source: Path, roi_path: Path, preview: bool = False):
         output_core_dims=[PX_DIMS],
     ).rename("boundary_roi")
 
-    _packed_flooded_closed = xr_apply_packbits(flooded_closed)
-
     # Mask the first image
     first_image = video.isel(frames=0)
     first_image_roi_only = apply_to_img_da(
-        apply_mask, first_image, kwargs=dict(mask=roi.values)
+        apply_mask,
+        first_image,
+        kwargs=dict(mask=roi.values),
+        name="first_image_roi_only",
     )
 
     # Find the boiling surface
-    boiling_surface, _boiling_surface_coords = xr.apply_ufunc(
+    boiling_surface, boiling_surface_coords = xr.apply_ufunc(
         find_boiling_surface,
-        flooded_closed,
+        scale_bool(flooded_closed),
         input_core_dims=[PX_DIMS],
         output_core_dims=[PX_DIMS, ["test"]],
+        kwargs=dict(preview=False),
     )
+    boiling_surface = boiling_surface.rename("boiling_surface")
+    boiling_surface_coords = boiling_surface_coords.rename("boiling_surface_coords")
 
     # Save and reconstruct the ROI
-    contours = find_contours(roi.values, method=cv.CHAIN_APPROX_SIMPLE)
+    contours = find_contours(scale_bool(roi.values), method=cv.CHAIN_APPROX_SIMPLE)
     roi_poly_ = contours.pop()
     _roi_poly = df_points(roi_poly_)
     if contours:
         warn("More than one contour found when searching for the ROI.")
     save_roi(roi_poly_, roi_path)
 
+    # TODO: Refactor this logic out and see if dims can be reordered
+    binar = apply_to_img_da(binarize, video, vectorize=True)
+    binar_unpacked = xr_apply_unpackbits(xr_apply_packbits(binar), ds)
+    rgba = binar.values[0:4, :, :]
+    view_images([binar, binar_unpacked])
+
     if preview:
         binarized_first = binarize(first_image.values)
-        roi2 = build_mask_from_polygons(binarized_first, [roi_poly_])
+        roi2 = build_mask_from_polygons(scale_bool(binarized_first), [roi_poly_])
         roi_diff = roi.values ^ roi2
-        compare_images(
+        view_images(
             dict(
                 # Get the ROI
-                maximum=maximum.values,
-                flooded_max=flooded_max.values,
+                maximum=maximum,
+                flooded_max=flooded_max,
                 # Get the boiling surface
-                boiling_surface=boiling_surface.values,
+                boiling_surface=boiling_surface,
                 roi=roi,
-                dilated_roi=dilated.values,
-                boundary_roi=boundary_roi.values,
+                boundary_roi=boundary_roi,
                 # Mask the first image
                 first_image=first_image,
-                first_image_roi_only=first_image_roi_only.values,
-                # Find the surface
+                first_image_roi_only=first_image_roi_only,
                 # Save and reconstruct the ROI
                 roi_diff=roi_diff,
             )
@@ -235,8 +239,9 @@ def find_boiling_surface(img: Img, preview: bool = False) -> tuple[Img, ArrInt]:
     ).astype(int)
 
     if preview:
-        compare_images(
-            dict(
+        view_images(
+            name=get_calling_scope_name(),
+            images=dict(
                 img=img,
                 corners=corners,
                 lines=lines,
@@ -245,7 +250,7 @@ def find_boiling_surface(img: Img, preview: bool = False) -> tuple[Img, ArrInt]:
                 binarized=binarized,
                 labeled_img=labeled_img,
                 boiling_surface=boiling_surface,
-            )
+            ),
         )
     return boiling_surface, boiling_surface_coords
 

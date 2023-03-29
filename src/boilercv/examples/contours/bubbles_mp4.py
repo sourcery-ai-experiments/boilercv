@@ -12,6 +12,7 @@ from boilercv.images import (
     convert_image,
     draw_contours,
     find_contours,
+    scale_bool,
 )
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
@@ -31,7 +32,7 @@ def main():
     for image in images:
         masked = build_mask_from_polygons(image, [roi])
         thresholded = binarize(masked)
-        contours = find_contours(thresholded)
+        contours = find_contours(scale_bool(thresholded))
         image_with_contours = draw_contours(image, contours)
         cv.imshow(WINDOW_NAME, image_with_contours)
         if cv.waitKey(100) == ESC_KEY:

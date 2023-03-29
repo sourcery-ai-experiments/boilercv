@@ -1,9 +1,11 @@
 """Graphical user interface utilities."""
 
+import inspect
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 import numpy as np
 import pyqtgraph as pg
@@ -13,39 +15,18 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
 from boilercv.images import scale_bool
-from boilercv.types import ArrInt, ArrLike, Img
+from boilercv.types import ArrInt, Img
 
-ArrIntOrSeq: TypeAlias = ArrLike | Sequence[ArrLike]
-
-
-def preview_images(result: Mapping[str, ArrIntOrSeq] | ArrIntOrSeq):
-    """Preview a single image or timeseries of images."""
-    results = result if isinstance(result, Mapping) else [result]
-    compare_images(results)
+Viewable: TypeAlias = Any  # The true type is a complex union of lots of array types
+NamedViewable: TypeAlias = Mapping[str | int, Viewable]
+MultipleViewable: TypeAlias = Sequence[Viewable]
+AllViewable: TypeAlias = Viewable | NamedViewable | MultipleViewable
 
 
-def compare_images(results: Mapping[str, ArrIntOrSeq] | Sequence[ArrIntOrSeq]):
-    """Compare multiple sets of images or sets of timeseries of images."""
-    results = (
-        {title: np.array(value) for title, value in results.items()}
-        if isinstance(results, Mapping)
-        else {f"_{i}": np.array(value) for i, value in enumerate(results)}
-    )
-    with image_viewer(len(list(results.keys()))) as (
-        _app,
-        _window,
-        _layout,
-        _button_layout,
-        image_views,
-    ):
-        for (title, value), image_view in zip(
-            results.items(), image_views, strict=False
-        ):
-            if value.dtype == np.bool_:
-                value = scale_bool(value)
-            image_view.setImage(value)
-            if not title.startswith("_"):
-                image_view.addItem(pg.TextItem(title, fill=pg.mkBrush("black")))
+def view_images(images: AllViewable, name: str = ""):
+    """Compare multiple images or videos."""
+    with image_viewer(images, name):
+        pass
 
 
 # * -------------------------------------------------------------------------------- * #
@@ -63,7 +44,7 @@ def edit_roi(
 ) -> ArrInt:
     """Edit the region of interest for an image."""
 
-    with image_viewer() as (_app, window, _layout, button_layout, image_views):
+    with image_viewer(image) as (image_views, _app, window, _layout, button_layout):
         common_roi_args = dict(
             pen=pg.mkPen("red"),
             hoverPen=pg.mkPen("magenta"),
@@ -86,8 +67,8 @@ def edit_roi(
             button = QPushButton("Save ROI")
             button.clicked.connect(save_roi_)  # type: ignore
             button_layout.addWidget(button)
-            image_views[0].setImage(image)
-            image_views[0].addItem(roi)
+            image_views["_0"].setImage(image)
+            image_views["_0"].addItem(roi)
 
         def keyPressEvent(ev: QKeyEvent):  # noqa: N802
             """Save ROI or quit on key presses."""
@@ -131,110 +112,82 @@ def load_roi(
 
 # * -------------------------------------------------------------------------------- * #
 
-Coord: TypeAlias = tuple[int, int]
-Height: TypeAlias = int
-Width: TypeAlias = int
-Shape: TypeAlias = tuple[Height, Width]
+WINDOW_SIZE = (800, 600)
+WINDOW_NAME = "Image viewer"
 
 
-def get_grid_shape(coords: list[Coord]) -> Shape:
-    """Get the shape of a grid of coordinates."""
-    y = 0
-    height = max(coords, key=lambda coord: coord[y])[y] + 1
-    x = 1
-    width = max(coords, key=lambda coord: coord[x])[x] + 1
-    return (height, width)
+@dataclass
+class Grid:
+    """A grid of certain shape with coordinates to its cells."""
+
+    shape: tuple[int, int]
+    """The shape of the grid specified by (rows, columns)."""
+
+    @property
+    def coords(self) -> list[tuple[int, int]]:
+        """The coordinates of the grid."""
+        (y, x) = np.ones(self.shape).nonzero()
+        return list(zip(y, x, strict=True))
 
 
-# TODO: Shorten this with Numpy indexing
-
-SIX_GRID: list[Coord] = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
-EIGHT_GRID: list[Coord] = [
-    (0, 0),
-    (0, 1),
-    (0, 2),
-    (0, 3),
-    (1, 0),
-    (1, 1),
-    (1, 2),
-    (1, 3),
-]
-TEN_GRID: list[Coord] = [
-    (0, 0),
-    (0, 1),
-    (0, 2),
-    (0, 3),
-    (0, 4),
-    (1, 0),
-    (1, 1),
-    (1, 2),
-    (1, 3),
-    (1, 4),
-]
-TWELVE_GRID: list[Coord] = [
-    (0, 0),
-    (0, 1),
-    (0, 2),
-    (0, 3),
-    (0, 4),
-    (0, 5),
-    (1, 0),
-    (1, 1),
-    (1, 2),
-    (1, 3),
-    (1, 4),
-    (1, 5),
-]
-COORDINATES: dict[int, list[Coord]] = {
-    1: [(0, 0)],
-    2: [(0, 0), (0, 1)],
-    3: [(0, 0), (0, 1), (0, 2)],
-    4: [(0, 0), (0, 1), (1, 0), (1, 1)],
-    5: SIX_GRID,
-    6: SIX_GRID,
-    7: EIGHT_GRID,
-    8: EIGHT_GRID,
-    9: TEN_GRID,
-    10: TEN_GRID,
-    11: TWELVE_GRID,
-    12: TWELVE_GRID,
+GRIDS = {
+    num_views: Grid(shape)
+    for num_views, shape in {
+        1: (1, 1),
+        2: (1, 2),
+        3: (1, 3),
+        4: (2, 4),
+        5: (2, 3),
+        6: (2, 3),
+        7: (2, 4),
+        8: (2, 4),
+        9: (2, 5),
+        10: (2, 5),
+        11: (3, 4),
+        12: (3, 4),
+    }.items()
 }
 
 
 @contextmanager
-def image_viewer(num_views: int = 1):  # noqa: C901
+def image_viewer(images: AllViewable, name: str = ""):  # noqa: C901  # type: ignore
     """View and interact with images and video."""
     # Isolate pg.ImageView in a layout cell. It is complicated to directly modify the UI
     # of pg.ImageView. Can't use the convenient pg.LayoutWidget because
     # GraphicsLayoutWidget cannot contain it, and GraphicsLayoutWidget is convenient on
     # its own.
-    if num_views > len(COORDINATES):
+    images: NamedViewable = coerce_images(images)
+    num_views = len(images)
+    if num_views > len(GRIDS):
         square_length = int(np.ceil(np.sqrt(num_views)))
         (height, width) = (square_length, square_length)
     else:
-        (height, width) = get_grid_shape(COORDINATES[num_views])
+        (height, width) = GRIDS[num_views].shape
     app = pg.mkQApp()
     image_views: list[pg.ImageView] = []
     layout = QGridLayout()
     button_layout = QHBoxLayout()
-    window = GraphicsLayoutWidgetWithKeySignal(show=True, size=(800, 600))
+    window = GraphicsLayoutWidgetWithKeySignal(size=WINDOW_SIZE)
     window.setLayout(layout)
+    window.setWindowTitle(f"{WINDOW_NAME}: {name or get_calling_scope_name()}")
 
     def main():
         add_image_views()
         add_actions()
+        image_view_mapping = set_images(images, image_views)
         try:
-            yield app, window, layout, button_layout, image_views
+            yield image_view_mapping, app, window, layout, button_layout
         finally:
+            window.show()
             app.exec()
 
     def add_image_views():
-        coordinates = COORDINATES[num_views]
+        coords = GRIDS[num_views].coords
         for column in range(width):
             layout.setColumnStretch(column, 1)
-        for coordinate in coordinates:
+        for coord in coords:
             image_view = get_image_view()
-            layout.addWidget(image_view, *coordinate)
+            layout.addWidget(image_view, *coord)
             image_views.append(image_view)
 
     def add_actions():
@@ -260,6 +213,49 @@ def image_viewer(num_views: int = 1):  # noqa: C901
         )
 
     yield from main()
+
+
+# * -------------------------------------------------------------------------------- * #
+
+
+def coerce_images(images: AllViewable) -> NamedViewable:
+    """Coerce images to a mapping of title to image."""
+    if isinstance(images, Mapping):
+        images_ = images
+    elif isinstance(images, np.ndarray):
+        images_ = [images]
+    elif isinstance(images, Sequence):
+        # If given a sequence that could be a video or a set of images/videos to
+        # compare, assume it is a video if it is too long to be a set of comparisons.
+        largest_grid = 16
+        if len(images) > largest_grid:
+            try:
+                images_ = [np.array(images)]
+            except ValueError:
+                images_ = images
+        else:
+            images_ = images
+    else:
+        raise TypeError(f"Unsupported type for images: {type(images)}")
+
+    return (
+        {title: np.array(value) for title, value in images_.items()}
+        if isinstance(images_, Mapping)
+        else {i: np.array(value) for i, value in enumerate(images_)}
+    )
+
+
+def set_images(
+    images: NamedViewable, image_views: list[pg.ImageView]
+) -> dict[str | int, pg.ImageView]:
+    """Set images into the image views."""
+    for (title, value), image_view in zip(images.items(), image_views, strict=False):
+        if value.dtype == bool:
+            value = scale_bool(value)
+        image_view.setImage(value)
+        if isinstance(title, str):
+            image_view.addItem(pg.TextItem(title, fill=pg.mkBrush("black")))
+    return dict(zip(images.keys(), image_views, strict=True))
 
 
 class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):
@@ -293,3 +289,29 @@ def get_square_grid_coordinates(n: int) -> Iterator[ArrInt]:
     """Get the coordinates of a square grid."""
     x, y = np.indices((n, n))
     yield from np.column_stack((x.ravel(), y.ravel()))
+
+
+# * -------------------------------------------------------------------------------- * #
+
+
+def get_calling_scope_name():
+    """Get the name of the calling scope."""
+    current_frame = inspect.currentframe()
+    scope_name = current_frame.f_back.f_code.co_name  # type: ignore
+    while scope_name in {
+        "image_viewer",
+        "view_images",
+        "preview_images",
+        "__enter__",
+        "eval_in_context",
+        "evaluate_expression",
+        "_run_with_interrupt_thread",
+        "_run_with_unblock_threads",
+        "new_func",
+        "internal_evaluate_expression_json",
+        "do_it",
+        "process_internal_commands",
+    }:
+        current_frame = current_frame.f_back  # type: ignore
+        scope_name = current_frame.f_back.f_code.co_name  # type: ignore
+    return scope_name

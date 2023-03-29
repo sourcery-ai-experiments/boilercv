@@ -28,6 +28,12 @@
   "reportUnknownMemberType": "none",
   "reportUnknownParameterType": "none",
   "reportUnknownVariableType": "none",
+  "reportUnusedClass": "none",
+  "reportUnusedCoroutine": "none",
+  "reportUnusedExpression": "none",
+  "reportUnusedFunction": "none",
+  "reportUnusedImport": "none",
+  "reportUnusedVariable": "none",
   "reportUntypedBaseClass": "none",
 
   // Override these disabled diagnostics

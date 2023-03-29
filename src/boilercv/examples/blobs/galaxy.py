@@ -10,7 +10,7 @@ from boilercv.examples.blobs import (
     get_blobs_doh,
     get_blobs_log,
 )
-from boilercv.gui import compare_images
+from boilercv.gui import view_images
 from boilercv.types import ArrInt
 
 
@@ -28,7 +28,7 @@ def main():
         results[title] = image.copy()
         for blob in blobs_:
             draw_blobs(results[title], blob, color)
-    compare_images({"input": image} | results)
+    view_images({"input": image} | results)
 
 
 if __name__ == "__main__":

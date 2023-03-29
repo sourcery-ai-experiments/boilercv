@@ -32,14 +32,14 @@ Arr: TypeAlias = npt.NDArray[np.generic]
 ArrBool: TypeAlias = npt.NDArray[np.bool_]
 """A boolean array."""
 
-ArrNum: TypeAlias = npt.NDArray[np.number[NBit]]
-"""A number array."""
+ArrFloat: TypeAlias = npt.NDArray[np.floating[NBit]]
+"""An integer array with arbitrary bit depth."""
 
 ArrInt: TypeAlias = npt.NDArray[np.integer[NBit]]
 """An integer array."""
 
-ArrFloat: TypeAlias = npt.NDArray[np.floating[NBit]]
-"""An integer array with arbitrary bit depth."""
+ArrNum: TypeAlias = npt.NDArray[np.number[NBit]]
+"""A number array."""
 
 ArrDT: TypeAlias = npt.NDArray[np.datetime64]
 """Datetime array type."""
@@ -47,11 +47,11 @@ ArrDT: TypeAlias = npt.NDArray[np.datetime64]
 ArrTD: TypeAlias = npt.NDArray[np.timedelta64]
 """Timedelta array type."""
 
-ImgBool: TypeAlias = ArrBool
-"""A boolean array representing an image mask."""
-
 Img: TypeAlias = ArrInt
 """An integer array representing an image."""
 
-Vid: TypeAlias = ArrInt
-"""An integer array representing a video."""
+ImgBool: TypeAlias = ArrBool
+"""A boolean array representing an image mask."""
+
+ImgLike: TypeAlias = ArrLike
+"""An array-like object representable as an image."""

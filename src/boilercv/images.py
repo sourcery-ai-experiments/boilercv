@@ -32,9 +32,9 @@ def convert_image(img: Img, code: int | None = None) -> Img:
     return img if code is None else cv.cvtColor(img, code)  # type: ignore
 
 
-def apply_mask(img: Img, mask: Img) -> Img:
+def apply_mask(img: Img, mask: ImgBool) -> Img:
     """Mask an image, keeping parts where the mask is bright."""
-    return cv.add(img, ~mask)
+    return cv.add(img, cv.bitwise_not(scale_bool(mask)))
 
 
 def pad(img: Img, pad_width: int, value: int) -> Img:
@@ -55,7 +55,7 @@ def unpad(img: Img, pad_width: int) -> Img:
     return img[pad_width:-pad_width, pad_width:-pad_width]
 
 
-def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> Img:
+def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> ImgBool:
     """Binarize an image with an adaptive threshold."""
     block_size += 1 if block_size % 2 == 0 else 0
     return cv.adaptiveThreshold(
@@ -116,7 +116,7 @@ def find_contours(img: Img, method: int = cv.CHAIN_APPROX_NONE) -> list[ArrInt]:
     )
     # Despite images having dims (y, x) and shape (h, w), OpenCV returns contours with
     # dims (point, 1, pair), where dim "pair" has coords (x, y).
-    contours = [np.fliplr(contour.squeeze()) for contour in contours]
+    contours = [np.fliplr(contour.reshape(-1, 2)) for contour in contours]
     return contours
 
 

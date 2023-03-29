@@ -6,7 +6,7 @@ import pandas as pd
 from boilercv.data import PX_DIMS, apply_to_img_da
 from boilercv.data.frames import df_points
 from boilercv.examples.process import find_boiling_surface
-from boilercv.gui import compare_images
+from boilercv.gui import view_images
 from boilercv.images import find_contours
 from boilercv.types import DA, ArrInt
 
@@ -71,6 +71,6 @@ def find_boiling_surface2(image: DA, preview: bool = False) -> ArrInt:
         .loc[0:1, ["ypx", "xpx"]]
     )
     if preview:
-        compare_images(dict(corn=corns_.values))
+        view_images(dict(corn=corns_.values))
     # TODO: Save to disk, draw on an image for previewing
     return candidates.values.flatten()[:2]
