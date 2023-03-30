@@ -7,6 +7,8 @@ import pandas as pd
 import xarray as xr
 from numpy import typing as npt
 
+T = TypeVar("T")
+
 DF: TypeAlias = pd.DataFrame
 DA: TypeAlias = xr.DataArray
 DS: TypeAlias = xr.Dataset
@@ -55,3 +57,6 @@ ImgBool: TypeAlias = ArrBool
 
 ImgLike: TypeAlias = ArrLike
 """An array-like object representable as an image."""
+
+Vid: TypeAlias = Img
+"""An integer array represnting a video."""

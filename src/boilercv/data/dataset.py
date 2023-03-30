@@ -35,8 +35,8 @@ def prepare_dataset(
     header_da = xr.DataArray(name=HEADER, attrs=asdict(header))
 
     # Dimensions
-    frames = Dimension(
-        dim="frames",
+    frame = Dimension(
+        dim="frame",
         long_name="Frame number",
     )
     ypx = Dimension(
@@ -50,7 +50,7 @@ def prepare_dataset(
         units="px",
     )
     time = Dimension(
-        parent_dim=frames.dim,
+        parent_dim=frame.dim,
         dim="time",
         long_name="Time elapsed",
         units="s",
@@ -59,7 +59,7 @@ def prepare_dataset(
         scale=1e-9,
     )
     utc = Dimension(
-        parent_dim=frames.dim,
+        parent_dim=frame.dim,
         dim="utc",
         long_name="UTC time",
         coords=utc_arr,
@@ -70,7 +70,7 @@ def prepare_dataset(
         name=VIDEO,
         long_name="High-speed video data",
         units="Pixel intensity",
-        dims=(frames, ypx, xpx),
+        dims=(frame, ypx, xpx),
         secondary_dims=(time, utc),
         data=list(get_cine_images(cine_source, num_frames, start_frame)),
     )

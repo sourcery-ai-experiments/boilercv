@@ -7,12 +7,12 @@ from matplotlib.pyplot import subplot_mosaic
 from boilercv import EXAMPLE_CINE
 from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.gui import edit_roi, load_roi, view_images
-from boilercv.images import (
+from boilercv.images import scale_bool
+from boilercv.images.cv import (
     binarize,
     build_mask_from_polygons,
     draw_contours,
     find_contours,
-    scale_bool,
 )
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt, Img, ImgBool

@@ -6,13 +6,13 @@ from scipy.spatial import ConvexHull
 
 from boilercv import MARKER_COLOR
 from boilercv.examples import capture_images
-from boilercv.images import (
+from boilercv.images import scale_bool
+from boilercv.images.cv import (
     binarize,
     build_mask_from_polygons,
     convert_image,
     draw_contours,
     find_contours,
-    scale_bool,
 )
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt

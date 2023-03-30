@@ -1,30 +1,11 @@
-"""Image acquisition and processing."""
-
 from collections.abc import Sequence
 
 import cv2 as cv
 import numpy as np
-from numpy import typing as npt
 
 from boilercv import MARKER_COLOR, WHITE
+from boilercv.images import scale_bool, unpad
 from boilercv.types import ArrFloat, ArrInt, Img, ImgBool
-
-
-def scale_float(img: ArrFloat, dtype: npt.DTypeLike = np.uint8) -> Img:
-    """Return the input as `dtype` multiplied by the max value of `dtype`.
-
-    Useful for scaling float-valued arrays to integer-valued images.
-    """
-    scaled = (img - img.min()) / (img.max() - img.min())
-    return scaled.astype(dtype) * np.iinfo(dtype).max
-
-
-def scale_bool(img: ImgBool, dtype: npt.DTypeLike = np.uint8) -> Img:
-    """Return the input as `dtype` multiplied by the max value of `dtype`.
-
-    Useful for functions (such as in OpenCV) which expect numeric bools.
-    """
-    return img.astype(dtype) * np.iinfo(dtype).max
 
 
 def convert_image(img: Img, code: int | None = None) -> Img:
@@ -48,11 +29,6 @@ def pad(img: Img, pad_width: int, value: int) -> Img:
         borderType=cv.BORDER_CONSTANT,
         value=value,
     )
-
-
-def unpad(img: Img, pad_width: int) -> Img:
-    """Remove padding from an image."""
-    return img[pad_width:-pad_width, pad_width:-pad_width]
 
 
 def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> ImgBool:
@@ -107,6 +83,18 @@ def morph(img: Img) -> tuple[Img, Img]:
     )
 
 
+def build_mask_from_polygons(img: Img, contours: Sequence[ArrInt]) -> Img:
+    """Build a mask from the intersection of a sequence of polygonal contours."""
+    # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
+    contours = [np.fliplr(contour).reshape(-1, 1, 2) for contour in contours]
+    blank = np.zeros_like(img)
+    return cv.fillPoly(
+        img=blank,
+        pts=contours,  # Expects a list of coordinates, we have just one
+        color=WHITE,
+    )
+
+
 def find_contours(img: Img, method: int = cv.CHAIN_APPROX_NONE) -> list[ArrInt]:
     """Find external contours of bright objects in an image."""
     contours, _hierarchy = cv.findContours(
@@ -120,24 +108,12 @@ def find_contours(img: Img, method: int = cv.CHAIN_APPROX_NONE) -> list[ArrInt]:
     return contours
 
 
-def build_mask_from_polygons(img: Img, contours: Sequence[ArrInt]) -> Img:
-    """Build a mask from the intersection of a sequence of polygonal contours."""
-    # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
-    contours = [np.fliplr(contour).reshape(-1, 1, 2) for contour in contours]
-    blank = np.zeros_like(img)
-    return cv.fillPoly(
-        img=blank,
-        pts=contours,  # Expects a list of coordinates, we have just one
-        color=WHITE,
-    )
-
-
 def draw_contours(
     img: Img, contours: Sequence[ArrInt], contour_index: int = -1, thickness=2
 ) -> Img:
     """Draw contours on an image."""
     # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
-    contours = [contour.reshape(-1, 1, 2) for contour in contours]
+    contours = [np.fliplr(contour).reshape(-1, 1, 2) for contour in contours]
     # Need three-channel image to paint colored contours
     three_channel_gray = convert_image(img, cv.COLOR_GRAY2RGB)
     return cv.drawContours(

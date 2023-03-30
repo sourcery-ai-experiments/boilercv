@@ -7,7 +7,7 @@ import numpy as np
 
 from boilercv.examples import capture_images
 from boilercv.gui import view_images
-from boilercv.images import convert_image
+from boilercv.images.cv import convert_image
 
 
 def main():

@@ -25,33 +25,41 @@ SAMPLE_DIAMETER_UM = 9_525_000
 
 def apply_to_img_da(
     func: Callable[..., Any],
-    images: xr.DataArray,
-    returns: int = 1,
+    func_image_args: Any,
+    returns: int | None = 1,
     vectorize: bool = False,
-    name: str = "",
+    name: Sequence[str] | str = "",
     kwargs: dict[str, Any] | None = None,
-) -> xr.DataArray:
+) -> Any:
     """Apply functions that transform images to transform data arrays instead."""
     core_dims = [PX_DIMS]
+    if isinstance(func_image_args, xr.DataArray):
+        func_image_args = (func_image_args,)
     common_kwargs = dict(
-        input_core_dims=core_dims,
+        input_core_dims=core_dims * len(func_image_args),
         vectorize=vectorize,
         kwargs=kwargs,
     )
-    if returns:
+    if returns and returns > 0:
         result = xr.apply_ufunc(
             func,
-            images,
+            *func_image_args,
             **common_kwargs,
             output_core_dims=core_dims * returns,
         )
-    else:
-        result = xr.apply_ufunc(
+        if name and returns == 1:
+            result = result.rename(name)
+        if name and returns > 1:
+            result = tuple(
+                part.rename(name_) for name_, part in zip(name, result, strict=True)
+            )
+        return result
+    if not returns or returns == 0:
+        xr.apply_ufunc(
             func,
-            images,
+            *func_image_args,
             **common_kwargs,
         )
-    return result.rename(name) if name and returns == 1 else result
 
 
 def assign_ds(

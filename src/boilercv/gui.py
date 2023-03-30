@@ -15,7 +15,7 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QPushButton
 
 from boilercv.images import scale_bool
-from boilercv.types import ArrInt, Img
+from boilercv.types import DA, ArrInt, Img
 
 Viewable: TypeAlias = Any  # The true type is a complex union of lots of array types
 NamedViewable: TypeAlias = Mapping[str | int, Viewable]
@@ -222,7 +222,7 @@ def coerce_images(images: AllViewable) -> NamedViewable:
     """Coerce images to a mapping of title to image."""
     if isinstance(images, Mapping):
         images_ = images
-    elif isinstance(images, np.ndarray):
+    elif isinstance(images, np.ndarray | DA):
         images_ = [images]
     elif isinstance(images, Sequence):
         # If given a sequence that could be a video or a set of images/videos to
