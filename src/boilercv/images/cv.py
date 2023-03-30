@@ -3,7 +3,7 @@ from collections.abc import Sequence
 import cv2 as cv
 import numpy as np
 
-from boilercv import MARKER_COLOR, WHITE
+from boilercv.gui import BLUE_CV, WHITE3
 from boilercv.images import scale_bool, unpad
 from boilercv.types import ArrFloat, ArrInt, Img, ImgBool
 
@@ -91,7 +91,7 @@ def build_mask_from_polygons(img: Img, contours: Sequence[ArrInt]) -> Img:
     return cv.fillPoly(
         img=blank,
         pts=contours,  # Expects a list of coordinates, we have just one
-        color=WHITE,
+        color=WHITE3,
     )
 
 
@@ -120,7 +120,7 @@ def draw_contours(
         image=three_channel_gray,
         contours=contours,
         contourIdx=contour_index,
-        color=MARKER_COLOR,
+        color=BLUE_CV,
         thickness=thickness,
     )
 

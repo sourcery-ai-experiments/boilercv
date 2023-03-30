@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from boilercv.data.dataset import VIDEO, prepare_dataset
-from boilercv.images import binarize
+from boilercv.images.cv import binarize
 
 
 def main():

@@ -2,10 +2,10 @@
 
 import cv2 as cv
 
-from boilercv import EXAMPLE_CINE, RED
+from boilercv import EXAMPLE_CINE
 from boilercv.data.dataset import VIDEO, prepare_dataset
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
-from boilercv.gui import edit_roi, view_images
+from boilercv.gui import RED, edit_roi, view_images
 from boilercv.images.cv import build_mask_from_polygons, convert_image
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt

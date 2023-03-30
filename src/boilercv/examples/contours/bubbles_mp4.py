@@ -4,8 +4,8 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial import ConvexHull
 
-from boilercv import MARKER_COLOR
 from boilercv.examples import capture_images
+from boilercv.gui import BLUE_CV
 from boilercv.images import scale_bool
 from boilercv.images.cv import (
     binarize,
@@ -74,7 +74,7 @@ def get_roi(image: ArrInt) -> ArrInt:  # noqa: C901
         if event == cv.EVENT_LBUTTONDOWN:
             click += 1
             clicks.append((x, y))
-            image = cv.drawMarker(image, clicks[-1], MARKER_COLOR)
+            image = cv.drawMarker(image, clicks[-1], BLUE_CV)
             if click == hull_minimum_vertices:
                 hull = ConvexHull(clicks, incremental=True)
                 composite_image = draw_hull(hull, image)
@@ -88,7 +88,7 @@ def get_roi(image: ArrInt) -> ArrInt:  # noqa: C901
         image = image.copy()
         clicks = hull.points.astype(int)
         for simplex in hull.simplices:
-            image = cv.line(image, clicks[simplex[0]], clicks[simplex[1]], MARKER_COLOR)
+            image = cv.line(image, clicks[simplex[0]], clicks[simplex[1]], BLUE_CV)
         return image
 
     return main()

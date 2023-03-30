@@ -6,25 +6,25 @@ from textwrap import dedent
 
 import pyqtgraph as pg
 from cv2 import version
+from loguru import logger
 
 __version__ = "0.0.0"
 
-FRAMES_PER_SOURCE = 300
+# Debugging
+DEBUG = False
+if DEBUG:
+    logger.add(sink="boilercv.log")
+    FRAMES_PER_SOURCE = 800
+else:
+    FRAMES_PER_SOURCE = 0
 
 # Paths
 PACKAGE_DIR = Path("src") / "boilercv"
 DATA_DIR = Path("data")
-CINE_SOURCES = Path("W:/selections")
+CINE_SOURCES = Path("~").expanduser() / "Desktop/video"
+EXAMPLE_FULL_CINE = CINE_SOURCES / "2022-01-06T16-57-31.cine"
 EXAMPLE_CINE = Path("2022-11-30T13-41-00_short.cine")
 EXAMPLE_CINE_ZOOMED = Path("2022-01-06T16-57-31_short.cine")
-EXAMPLE_BIG_CINE = Path("~").expanduser() / "Desktop/video/2022-01-06T16-57-31.cine"
-
-# GUI
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-MARKER_COLOR = BLUE
 
 
 def init():

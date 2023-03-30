@@ -39,16 +39,6 @@ def prepare_dataset(
         dim="frame",
         long_name="Frame number",
     )
-    ypx = Dimension(
-        dim=PX_DIMS[0],
-        long_name="Height",
-        units="px",
-    )
-    xpx = Dimension(
-        dim=PX_DIMS[1],
-        long_name="Width",
-        units="px",
-    )
     time = Dimension(
         parent_dim=frame.dim,
         dim="time",
@@ -64,14 +54,25 @@ def prepare_dataset(
         long_name="UTC time",
         coords=utc_arr,
     )
+    ypx = Dimension(
+        dim=PX_DIMS[0],
+        long_name="Height",
+        units="px",
+    )
+    xpx = Dimension(
+        dim=PX_DIMS[1],
+        long_name="Width",
+        units="px",
+    )
 
     # Dataset
     ds = assign_ds(
         name=VIDEO,
         long_name="High-speed video data",
         units="Pixel intensity",
-        dims=(frame, ypx, xpx),
-        secondary_dims=(time, utc),
+        fixed_dims=(frame,),
+        dims=(ypx, xpx),
+        fixed_secondary_dims=(time, utc),
         data=list(get_cine_images(cine_source, num_frames, start_frame)),
     )
     ds[header_da.name] = header_da

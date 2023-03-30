@@ -65,16 +65,27 @@ def apply_to_img_da(
 def assign_ds(
     name: str,
     data: ArrLike,
-    dims: list[Dimension] | tuple[Dimension, ...],
+    dims: Sequence[Dimension],
+    secondary_dims: Sequence[Dimension] = (),
+    fixed_dims: Sequence[Dimension] = (),
+    fixed_secondary_dims: Sequence[Dimension] = (),
     ds: DS | None = None,
-    secondary_dims: list[Dimension] | tuple[Dimension, ...] = (),
     long_name: str = "",
     units: str = "",
 ) -> DS:
     """Build a data array and assign it to a dataset."""
     if not ds:
         ds = xr.Dataset()
-    da = build_da(name, data, dims, secondary_dims, long_name, units)
+    da = build_da(
+        name,
+        data,
+        dims,
+        secondary_dims,
+        fixed_dims,
+        fixed_secondary_dims,
+        long_name,
+        units,
+    )
     ds[name] = da
     return ds
 
@@ -82,17 +93,22 @@ def assign_ds(
 def build_da(
     name: str,
     data: ArrLike,
-    dims: list[Dimension] | tuple[Dimension, ...],
-    secondary_dims: list[Dimension] | tuple[Dimension, ...] = (),
+    dims: Sequence[Dimension],
+    secondary_dims: Sequence[Dimension] = (),
+    fixed_dims: Sequence[Dimension] = (),
+    fixed_secondary_dims: Sequence[Dimension] = (),
     long_name: str = "",
     units: str = "",
 ):
     """Build a data array."""
+    all_primary_dims = chain(fixed_dims, dims)
+    all_fixed_dims = chain(fixed_dims, fixed_secondary_dims)
+    all_variable_dims = chain(dims, secondary_dims)
     if not long_name:
         long_name = name.capitalize() if len(name) > 1 else name
     if isinstance(data, Sequence) and not len(data):
         shape: list[int] = []
-        for dim in dims:
+        for dim in all_primary_dims:
             if dim.coords is None:
                 shape.append(1)
             else:
@@ -103,10 +119,10 @@ def build_da(
         attrs["units"] = units
     da = xr.DataArray(
         name=name,
-        dims=get_dims(*dims),
+        dims=get_dims(*all_primary_dims),
         data=data,
         attrs=attrs,
     )
-    for dim in chain(dims, secondary_dims):
+    for dim in chain(all_fixed_dims, all_variable_dims):
         da = dim.assign_to(da)
     return da

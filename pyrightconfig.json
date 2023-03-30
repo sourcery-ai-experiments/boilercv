@@ -21,6 +21,7 @@
   "enableTypeIgnoreComments": true,
 
   // Override these errors
+  "reportConstantRedefinition": "none",
   "reportMissingParameterType": "none",
   "reportMissingTypeStubs": "none",
   "reportUnknownArgumentType": "none",

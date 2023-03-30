@@ -1,7 +1,7 @@
 """Example of converting CINE files to the NetCDF file format."""
 
 
-from boilercv import EXAMPLE_BIG_CINE
+from boilercv import EXAMPLE_FULL_CINE
 from boilercv.data.dataset import assign_length_dims, prepare_dataset
 from boilercv.models.params import PARAMS
 
@@ -9,7 +9,7 @@ NUM_FRAMES = 100
 
 
 def main():
-    source = EXAMPLE_BIG_CINE
+    source = EXAMPLE_FULL_CINE
     destination = PARAMS.paths.examples / f"{source.stem}.nc"
     dataset = prepare_dataset(source, num_frames=NUM_FRAMES)
     assign_length_dims(dataset)
