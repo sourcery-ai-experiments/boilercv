@@ -21,8 +21,10 @@ else:
 # Paths
 PACKAGE_DIR = Path("src") / "boilercv"
 DATA_DIR = Path("data")
-CINE_SOURCES = Path("~").expanduser() / "Desktop/video"
-EXAMPLE_FULL_CINE = CINE_SOURCES / "2022-01-06T16-57-31.cine"
+DESKTOP = Path("~").expanduser() / "Desktop"
+LARGE_SOURCES = DESKTOP / "large_sources"
+LARGE_EXAMPLES = DESKTOP / "large_examples"
+EXAMPLE_FULL_CINE = LARGE_SOURCES / "2022-01-06T16-57-31.cine"
 EXAMPLE_CINE = Path("2022-11-30T13-41-00_short.cine")
 EXAMPLE_CINE_ZOOMED = Path("2022-01-06T16-57-31_short.cine")
 

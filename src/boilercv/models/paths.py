@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import DirectoryPath, FilePath, validator
 
-from boilercv import CINE_SOURCES, DATA_DIR, PACKAGE_DIR
+from boilercv import DATA_DIR, LARGE_SOURCES, PACKAGE_DIR
 from boilercv.models import PARAMS_FILE, MyBaseModel
 
 
@@ -39,7 +39,7 @@ class Paths(MyBaseModel):
     samples: DirectoryPath = data / "samples"
     examples: DirectoryPath = data / "examples"
     sources: DirectoryPath = data / "sources"
-    cine_sources: Path = CINE_SOURCES
+    large_sources: Path = LARGE_SOURCES
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass

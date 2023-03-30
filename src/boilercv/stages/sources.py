@@ -10,7 +10,7 @@ from boilercv.models.params import PARAMS
 
 
 def main():
-    for cine in sorted(PARAMS.paths.cine_sources.glob("*.cine")):
+    for cine in sorted(PARAMS.paths.large_sources.glob("*.cine")):
         images = prepare_dataset(cine, FRAMES_PER_SOURCE)
         dataset = xr.Dataset({images.name: images})
         dataset.to_netcdf(PARAMS.paths.sources / f"{cine.stem}.nc")

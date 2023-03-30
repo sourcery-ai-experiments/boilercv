@@ -10,7 +10,7 @@ from boilercv.examples.blobs.galaxy import main as main3
 from boilercv.examples.contours.bubbles import main as main6
 from boilercv.examples.contours.bubbles_mp4 import main as main5
 from boilercv.examples.starry import main as main1
-from boilercv.stages.convert_cine import main as main7
+from boilercv.stages.convert import main as main7
 
 
 def run_example(func: Callable[[], None]):
