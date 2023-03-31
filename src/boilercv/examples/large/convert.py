@@ -1,7 +1,7 @@
-"""Example of converting CINE files to the NetCDF file format."""
+"""Convert CINE files to the NetCDF file format."""
 
 from boilercv import EXAMPLE_FULL_CINE
-from boilercv.data.dataset import prepare_dataset
+from boilercv.data.video import prepare_dataset
 
 NUM_FRAMES = 100
 

@@ -9,7 +9,7 @@ paths:
   samples: data/samples
   examples: data/examples
   sources: data/sources
-  cine_sources: W:/selections
+  large_sources: C:/Users/Blake/Desktop/large_sources
   project_schema: data/schema
   stage_setup: src/boilercv/stages/setup.py
   stage_schema: src/boilercv/stages/schema.py

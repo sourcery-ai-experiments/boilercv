@@ -3,7 +3,7 @@
 import xarray as xr
 
 from boilercv import FRAMES_PER_SOURCE
-from boilercv.data.dataset import prepare_dataset
+from boilercv.data.video import prepare_dataset
 from boilercv.models.params import PARAMS
 
 # from py7zr import SevenZipFile

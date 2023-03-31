@@ -50,7 +50,7 @@ def view_images(images: AllViewable, name: str = ""):
 
 WINDOW_SIZE = (800, 600)
 WINDOW_NAME = "Image viewer"
-PLAY_RATE = 30  # Frames per second
+PLAY_RATE = 60  # Frames per second
 SMALLER_GRIDS = {
     1: (1, 1),
     2: (1, 2),
@@ -235,6 +235,7 @@ def get_calling_scope_name():
         "image_viewer",
         "view_images",
         "preview_images",
+        "make_window",
         "__enter__",
         "eval_in_context",
         "evaluate_expression",

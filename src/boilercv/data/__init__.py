@@ -11,16 +11,34 @@ from pytz import timezone
 from boilercv.data.models import Dimension, get_dims
 from boilercv.types import DS, ArrLike
 
-TIMEZONE = timezone("US/Pacific")
 VIDEO = "video"
 HEADER = "header"
-DIMS = ["y", "x"]
-LENGTH = "um"
+TIMEZONE = timezone("US/Pacific")
+
+FRAME = "frame"
+TIME = "time"
+UTC_TIME = "utc"
+
+Y = "y"
+X = "x"
+YX = ["y", "x"]
+
 PX = "px"
-PX_DIMS = [f"{dim}{PX}" for dim in DIMS]
+YPX = f"{Y}{PX}"
+XPX = f"{X}{PX}"
+YX_PX = [YPX, XPX]
+
+DIMS = [FRAME, YPX, XPX]
+
+PACKED_DIM_INDEX = 2
+PACKED = "packed"
+XPX_PACKED = "xpx_packed"
+PACKED_DIMS = [FRAME, YPX, XPX_PACKED]
+
+LENGTH = "um"
+SAMPLE_DIAMETER_UM = 9_525_000
 ROI = "roi"
 OTHER_ROI = "roi_other"
-SAMPLE_DIAMETER_UM = 9_525_000
 
 
 def apply_to_img_da(
@@ -32,7 +50,7 @@ def apply_to_img_da(
     kwargs: dict[str, Any] | None = None,
 ) -> Any:
     """Apply functions that transform images to transform data arrays instead."""
-    core_dims = [PX_DIMS]
+    core_dims = [YX_PX]
     if isinstance(func_image_args, xr.DataArray):
         func_image_args = (func_image_args,)
     common_kwargs = dict(

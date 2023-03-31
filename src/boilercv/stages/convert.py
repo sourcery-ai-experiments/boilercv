@@ -1,7 +1,7 @@
 """Convert all CINEs to NetCDF."""
 
 from boilercv import LARGE_SOURCES
-from boilercv.data.dataset import prepare_dataset
+from boilercv.data.video import prepare_dataset
 
 
 def main():

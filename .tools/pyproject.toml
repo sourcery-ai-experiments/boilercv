@@ -78,6 +78,9 @@ unfixable = [
     "F601", # Don't fix duplicate mapping keys
 ]
 
+[tool.ruff.pydocstyle]
+convention = "google"
+
 [tool.ruff.isort]
 # * ---------------------------------------------------------------------------- * #
 # * Changes below should persist in significant template updates.

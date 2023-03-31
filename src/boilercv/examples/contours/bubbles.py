@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from matplotlib.pyplot import subplot_mosaic
 
 from boilercv import EXAMPLE_CINE
-from boilercv.data.dataset import VIDEO, prepare_dataset
+from boilercv.data.video import VIDEO, prepare_dataset
 from boilercv.gui import edit_roi, load_roi, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import (

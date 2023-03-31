@@ -1,4 +1,4 @@
-"""Dataset model."""
+"""Video dataset model."""
 
 from dataclasses import asdict
 from pathlib import Path
@@ -7,13 +7,17 @@ import xarray as xr
 from scipy.spatial.distance import euclidean
 
 from boilercv.data import (
-    DIMS,
+    FRAME,
     HEADER,
     LENGTH,
-    PX_DIMS,
     SAMPLE_DIAMETER_UM,
+    TIME,
     TIMEZONE,
+    UTC_TIME,
     VIDEO,
+    XPX,
+    YPX,
+    YX,
     assign_ds,
 )
 from boilercv.data.models import Dimension
@@ -36,12 +40,12 @@ def prepare_dataset(
 
     # Dimensions
     frame = Dimension(
-        dim="frame",
+        dim=FRAME,
         long_name="Frame number",
     )
     time = Dimension(
         parent_dim=frame.dim,
-        dim="time",
+        dim=TIME,
         long_name="Time elapsed",
         units="s",
         original_units="ns",
@@ -50,17 +54,17 @@ def prepare_dataset(
     )
     utc = Dimension(
         parent_dim=frame.dim,
-        dim="utc",
+        dim=UTC_TIME,
         long_name="UTC time",
         coords=utc_arr,
     )
     ypx = Dimension(
-        dim=PX_DIMS[0],
+        dim=YPX,
         long_name="Height",
         units="px",
     )
     xpx = Dimension(
-        dim=PX_DIMS[1],
+        dim=XPX,
         long_name="Width",
         units="px",
     )
@@ -90,8 +94,8 @@ def assign_length_dims(dataset: DS) -> DS:
     roi = load_roi(images.data, PARAMS.paths.examples / "roi_line.yaml", "line")
     pixels = euclidean(*iter(roi))
     um_per_px = SAMPLE_DIAMETER_UM / pixels
-    y = get_length_dims(parent_dim_units, DIMS[0], "Height", um_per_px, images)
-    x = get_length_dims(parent_dim_units, DIMS[1], "Width", um_per_px, images)
+    y = get_length_dims(parent_dim_units, YX[0], "Height", um_per_px, images)
+    x = get_length_dims(parent_dim_units, YX[1], "Width", um_per_px, images)
     images = y.assign_to(images)
     images = x.assign_to(images)
     return dataset

@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-from boilercv.data import PX_DIMS, apply_to_img_da
+from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
 from boilercv.examples.stage2 import find_boiling_surface
 from boilercv.gui import view_images
@@ -19,7 +19,7 @@ def find_boiling_surface2(image: DA, preview: bool = False) -> ArrInt:
     corns = df_points(np.nonzero(corns_.values))
     corns = (
         corns.set_index(pd.MultiIndex.from_frame(corns))
-        .drop(axis="columns", labels=PX_DIMS)
+        .drop(axis="columns", labels=YX_PX)
         .assign(**dict(corner=True))
     )
     # Find the contour angles
