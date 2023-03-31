@@ -1,56 +1,43 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TypeVar
 
 import yaml
 from pydantic import BaseModel, Extra, MissingError, ValidationError
 
 PARAMS_FILE = Path("params.yaml")
 
+BaseModel_T = TypeVar("BaseModel_T", bound=BaseModel)
+
 
 class MyBaseModel(BaseModel):
-    """Base model for all Pydantic models used in this project."""
+    """Base model and configuration for all models used in this project."""
 
     class Config:
-        """Model configuration.
-
-        Accessing enums yields their values, and allowing arbitrary types enables
-        using Numpy types in fields.
-        """
+        """Model configuration. Allow arbitrary types. Enables Numpy types in fields."""
 
         # Don't specify as class kwargs for easier overriding, and "extra" acted weird.
         extra = Extra.forbid  # To forbid extra fields
 
 
-# * -------------------------------------------------------------------------------- * #
-# * COMMON
-
-
 # Can't type annotate `model` for some reason
-def load_config(path: Path, model):
+def load_config(path: Path, model: type[BaseModel_T]) -> BaseModel_T:
     """Load a YAML file into a Pydantic model.
 
     Given a path to a YAML file, automatically unpack its fields into the provided
     Pydantic model.
 
-    Parameters
-    ----------
-    path: Path
-        The path to a YAML file.
-    model: type[pydantic.BaseModel]
-        The Pydantic model class to which the contents of the YAML file will be passed.
+    Args:
+        path: The path to a YAML file.
+        model: The model class to pass the contents of the YAML file.
 
-    Returns
-    -------
-    pydantic.BaseModel
-        An instance of the Pydantic model after validation.
+    Returns:
+        An instance of the model after validation.
 
-    Raises
-    ------
-    ValueError
-        If the path does not refer to a YAML file, or the YAML file is empty.
-    ValidationError
-        If the configuration file is missing a required field.
+    Raises:
+        ValueError: If an improper path is passed.
+        ValidationError: If a field is undefined in the configuration file.
     """
     if path.suffix != ".yaml":
         raise ValueError(f"The path '{path}' does not refer to a YAML file.")
@@ -68,19 +55,15 @@ def load_config(path: Path, model):
     return config
 
 
-# Can't type annotate `model` for some reason
-def dump_model(path: Path, model):
+def dump_model(path: Path, model: BaseModel):
     """Dump a Pydantic model to a YAML file.
 
     Given a path to a YAML file, write a Pydantic model to the file. Optionally add a
     schema directive at the top of the file. Create the file if it doesn't exist.
 
-    Parameters
-    ----------
-    path: Path
-        The path to a YAML file. Will create it if it doesn't exist.
-    model: type[pydantic.BaseModel]
-        An instance of the Pydantic model to dump.
+    Args:
+        path: The path to a YAML file. Will create it if it doesn't exist.
+        model: An instance of the Pydantic model to dump.
     """
     path = Path(path)
     # ensure one \n and no leading \n, Pydantic sometimes does more
@@ -96,12 +79,9 @@ def write_schema(path: Path, model: type[BaseModel]):
     Given a path to a JSON file, write a Pydantic model schema to the file. Create the
     file if it doesn't exist.
 
-    Parameters
-    ----------
-    path: Path
-        The path to a JSON file. Will create it if it doesn't exist.
-    model: type[pydantic.BaseModel]
-        The Pydantic model class to get the schema from.
+    Args:
+        path: The path to a JSON file. Will create it if it doesn't exist.
+        model: The Pydantic model class to get the schema from.
     """
     if path.suffix != ".json":
         raise ValueError(f"The path '{path}' does not refer to a JSON file.")

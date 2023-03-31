@@ -1,14 +1,16 @@
 """Convert CINE files to the NetCDF file format."""
 
-from boilercv import EXAMPLE_FULL_CINE
 from boilercv.data.video import prepare_dataset
+from boilercv.models.params import PARAMS
 
 NUM_FRAMES = 100
 
 
 def main():
-    destination = EXAMPLE_FULL_CINE.parent / f"{EXAMPLE_FULL_CINE.stem}.nc"
-    ds = prepare_dataset(EXAMPLE_FULL_CINE, num_frames=NUM_FRAMES)
+    destination = (
+        PARAMS.paths.large_examples / f"{PARAMS.paths.large_example_cine.stem}.nc"
+    )
+    ds = prepare_dataset(PARAMS.paths.large_example_cine, num_frames=NUM_FRAMES)
     ds.to_netcdf(path=destination)
 
 

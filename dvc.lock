@@ -4,14 +4,14 @@ stages:
     cmd: python -m boilercv.stages.schema
     deps:
     - path: src/boilercv/models
-      md5: cc1c396b00180ef48f2c5abe815c8432.dir
-      size: 23660
+      md5: 051137d8c616b17c175c5bf11938c6fe.dir
+      size: 25633
       nfiles: 8
     - path: src/boilercv/stages/schema.py
-      md5: 7d8efccd264f905deacc9c8ff797f605
-      size: 744
+      md5: 6eaac97ab24e94f410ccff1517f42d0e
+      size: 641
     outs:
     - path: data/schema
-      md5: fb051bf362a628fa0e60b057dc77845f.dir
-      size: 2581
+      md5: b25665d93342abbb1566b67a4fa6306e.dir
+      size: 3586
       nfiles: 1

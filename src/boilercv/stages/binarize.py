@@ -2,18 +2,18 @@
 
 import xarray as xr
 
-from boilercv import LARGE_SOURCES, SOURCES
 from boilercv.data import FRAME, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, binarize, flood, morph
+from boilercv.models.params import PARAMS
 from boilercv.types import DA
 
 
 def main():
-    sources = sorted(LARGE_SOURCES.glob("*.nc"))
+    sources = sorted(PARAMS.paths.large_sources.glob("*.nc"))
     for source in sources:
-        destination = SOURCES / source.name
+        destination = PARAMS.paths.sources / source.name
         with xr.open_dataset(source) as ds:
             video = ds[VIDEO]
             maximum = video.max(FRAME)

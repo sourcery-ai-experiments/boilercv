@@ -1,10 +1,10 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
 from collections.abc import Sequence
+from pathlib import Path
 
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv import EXAMPLE_CINE
 from boilercv.data.video import VIDEO, prepare_dataset
 from boilercv.gui import edit_roi, load_roi, view_images
 from boilercv.images import scale_bool
@@ -19,7 +19,7 @@ from boilercv.types import ArrInt, Img, ImgBool
 
 # TODO: Make a separate `bubbles_auto.py` example
 
-SOURCE = PARAMS.paths.examples / EXAMPLE_CINE
+SOURCE = PARAMS.paths.examples / Path("2022-11-30T13-41-00_short.cine")
 NUM_FRAMES = 300
 ROI_FILE = PARAMS.paths.examples / "roi_auto.yaml"
 

@@ -10,9 +10,11 @@ pydantic==1.10.6
 pyjanitor==0.24.0
 pyqtgraph==0.13.2
 PySide6==6.4.2
+pytz==2022.7.1
 PyYAML==6.0
 ruamel.yaml==0.17.21
 scikit-image==0.20.0
+scipy==1.10.1
 seaborn==0.12.2
 # xarray and its extra dependencies
 # See: https://docs.xarray.dev/en/stable/getting-started-guide/installing.html
@@ -20,7 +22,6 @@ seaborn==0.12.2
 xarray==2023.2.0
 Bottleneck==1.3.7
 netCDF4==1.6.3
-scipy==1.10.1
 ## The following requirements were added by pip freeze:
 accessible-pygments==0.0.3
 aiohttp==3.8.4
@@ -45,7 +46,9 @@ beautifulsoup4==4.11.2
 billiard==3.6.4.0
 black==23.1.0
 bleach==6.0.0
+blosc2==2.0.0
 bokeh==2.4.3
+Brotli==1.0.9
 cachetools==5.3.0
 celery==5.2.7
 certifi==2022.12.7
@@ -66,6 +69,7 @@ copier==7.0.1
 coverage==7.2.1
 cryptography==39.0.2
 cycler==0.11.0
+Cython==0.29.33
 dask==2023.3.1
 debugpy==1.6.6
 decorator==5.1.1
@@ -117,6 +121,7 @@ idna==3.4
 imageio==2.26.0
 imagesize==1.4.1
 importlib-metadata==6.0.0
+inflate64==0.3.1
 iniconfig==2.0.0
 ipykernel==6.21.3
 ipympl==0.9.3
@@ -158,6 +163,7 @@ more-itertools==9.1.0
 msgpack==1.0.5
 multidict==6.0.4
 multipledispatch==0.6.0
+multivolumefile==0.2.3
 mypy-extensions==1.0.0
 myst-parser==1.0.0
 nanotime==0.5.2
@@ -172,6 +178,7 @@ networkx==3.0
 nodeenv==1.7.0
 notebook==6.5.3
 notebook_shim==0.2.2
+numexpr==2.8.4
 numpy==1.24.2
 oauthlib==3.2.2
 omegaconf==2.3.0
@@ -193,17 +200,22 @@ prompt-toolkit==3.0.38
 protobuf==4.22.1
 psutil==5.9.4
 pure-eval==0.2.2
+py-cpuinfo==9.0.0
+py7zr==0.20.4
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pybcj==1.0.1
 pycine @ git+https://github.com/ottomatic-io/pycine@815cfca06cafc50745a43b2cd0168982225c6dca
 pycparser==2.21
+pycryptodomex==3.17
 pydata-sphinx-theme==0.13.1
 pydot==1.4.2
 pygit2==1.11.1
 Pygments==2.14.0
 pygtrie==2.5.0
 pyparsing==3.0.9
-pyright==1.1.299
+pyppmd==1.0.0
+pyright==1.1.300
 pyrsistent==0.19.3
 PySide6-Addons==6.4.2
 PySide6-Essentials==6.4.2
@@ -211,13 +223,13 @@ pytest==7.2.2
 pytest-cov==4.0.0
 python-dateutil==2.8.2
 python-json-logger==2.0.7
-pytz==2022.7.1
 PyWavelets==1.4.1
 pywin32==305
 pywin32-ctypes==0.2.0
 pywinpty==2.0.10
 pyyaml-include==1.3
 pyzmq==25.0.1
+pyzstd==0.15.4
 qtconsole==5.4.1
 QtPy==2.3.0
 questionary==1.10.0
@@ -254,9 +266,11 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 sqltrie==0.3.0
 stack-data==0.6.2
+tables==3.8.0
 tabulate==0.9.0
 tblib==1.7.0
 terminado==0.17.1
+texttable==1.6.7
 tifffile==2023.3.15
 tinycss2==1.2.1
 tokenize-rt==5.0.0

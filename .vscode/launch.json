@@ -53,6 +53,28 @@
         }
       ]
     },
+    {
+      "name": "Python: Current file with boilercv debugging",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "BOILERCV_DEBUG": "True"
+      }
+    },
+    {
+      "name": "Python: Current file with boilercv debugging, not just my code",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "BOILERCV_DEBUG": "True"
+      }
+    },
 
     // * -------------------------------------------------------------------------- * //
     // * Changes below may be lost in significant template updates.

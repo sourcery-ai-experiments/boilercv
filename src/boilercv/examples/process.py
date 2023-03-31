@@ -18,7 +18,6 @@ from scipy.ndimage import (
     labeled_comprehension,
 )
 
-from boilercv import EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED, EXAMPLE_FULL_CINE
 from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points, frame_lines
 from boilercv.data.packing import pack, unpack
@@ -40,22 +39,25 @@ from boilercv.types import DA, DF, ArrInt, Img, Vid
 PREVIEW = True
 NUM_FRAMES = 100
 DRAWN_CONTOUR_THICKNESS = 2
+EXAMPLE_CINE = PARAMS.paths.examples / Path("2022-11-30T13-41-00_short.cine")
+EXAMPLE_CINE_ZOOMED = PARAMS.paths.examples / Path("2022-01-06T16-57-31_short.cine")
 
 
 def main():
     process(
-        PARAMS.paths.examples / EXAMPLE_CINE,
+        EXAMPLE_CINE,
         PARAMS.paths.examples / f"{EXAMPLE_CINE.stem}.yaml",
         PREVIEW,
     )
     process(
-        PARAMS.paths.examples / EXAMPLE_CINE_ZOOMED,
+        EXAMPLE_CINE_ZOOMED,
         PARAMS.paths.examples / f"{EXAMPLE_CINE_ZOOMED.stem}.yaml",
         PREVIEW,
     )
     process(
-        EXAMPLE_FULL_CINE,
-        EXAMPLE_FULL_CINE.parent.parent / f"{EXAMPLE_FULL_CINE.stem}.yaml",
+        PARAMS.paths.large_example_cine,
+        PARAMS.paths.large_example_cine.parent.parent
+        / f"{PARAMS.paths.large_example_cine.stem}.yaml",
         PREVIEW,
     )
 
