@@ -7,7 +7,7 @@ from boilercv.images.cv import binarize
 
 def main():
     with example_dataset(destination="binarized") as ds:
-        ds[VIDEO] = apply_to_img_da(binarize, ds[VIDEO], vectorize=True, name=VIDEO)
+        ds[VIDEO] = apply_to_img_da(binarize, ds[VIDEO], vectorize=True)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import cv2 as cv
 import numpy as np
 
 from boilercv.gui import BLUE_CV, WHITE3
-from boilercv.images import scale_bool, unpad
+from boilercv.images import unpad
 from boilercv.types import ArrFloat, ArrInt, Img, ImgBool
 
 
@@ -13,9 +13,9 @@ def convert_image(img: Img, code: int | None = None) -> Img:
     return img if code is None else cv.cvtColor(img, code)  # type: ignore
 
 
-def apply_mask(img: Img, mask: ImgBool) -> Img:
+def apply_mask(img: Img, mask: Img) -> Img:
     """Mask an image, keeping parts where the mask is bright."""
-    return cv.add(img, cv.bitwise_not(scale_bool(mask)))
+    return cv.add(img, cv.bitwise_not(mask))
 
 
 def pad(img: Img, pad_width: int, value: int) -> Img:
@@ -44,7 +44,7 @@ def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> 
     ).astype(bool)
 
 
-def flood(img: Img) -> Img:
+def flood(img: Img) -> ImgBool:
     """Flood the image, returning the resulting flood as a bright mask."""
     seed_point = np.array(img.shape) // 2
     max_value = np.iinfo(img.dtype).max
@@ -58,8 +58,8 @@ def flood(img: Img) -> Img:
         newVal=None,  # Ignored in mask only mode
         flags=cv.FLOODFILL_MASK_ONLY,
     )
-    # Return the mask in original dimensions, maxing out the values
-    return unpad(mask, pad_width) * max_value
+    # Return the mask in original dimensions
+    return unpad(mask, pad_width).astype(bool)
 
 
 def morph(img: Img) -> tuple[Img, Img]:

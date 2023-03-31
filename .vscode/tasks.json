@@ -27,7 +27,6 @@
     {
       "label": "dvc: repro",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: setup"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro ${input:stage}"],
@@ -40,7 +39,6 @@
       "dependsOn": [
         "setup: Update project",
         "dvc: freeze",
-        "dvc: setup",
         "git: Stage all files",
         "pre-commit",
         "git: Stage all files"
@@ -59,14 +57,6 @@
         "-Command",
         "pip freeze --requirement requirements.txt --local --exclude-editable > frozen_requirements.txt"
       ],
-      "icon": { "id": "graph" },
-      "problemMatcher": []
-    },
-    {
-      "label": "dvc: setup",
-      "type": "process",
-      "command": "pwsh",
-      "args": ["-Command", "python -m boilercv.stages.setup"],
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

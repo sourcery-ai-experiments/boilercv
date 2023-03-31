@@ -196,7 +196,7 @@ def set_images(
         image_view.setImage(value)
         if isinstance(title, str):
             image_view.addItem(pg.TextItem(title, fill=pg.mkBrush("black")))
-    return dict(zip(images.keys(), image_views, strict=True))
+    return dict(zip(images.keys(), image_views, strict=False))
 
 
 class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):

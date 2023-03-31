@@ -43,7 +43,7 @@ OTHER_ROI = "roi_other"
 
 def apply_to_img_da(
     func: Callable[..., Any],
-    func_image_args: Any,
+    *args: Any,
     returns: int | None = 1,
     vectorize: bool = False,
     name: Sequence[str] | str = "",
@@ -51,17 +51,16 @@ def apply_to_img_da(
 ) -> Any:
     """Apply functions that transform images to transform data arrays instead."""
     core_dims = [YX_PX]
-    if isinstance(func_image_args, xr.DataArray):
-        func_image_args = (func_image_args,)
     common_kwargs = dict(
-        input_core_dims=core_dims * len(func_image_args),
+        input_core_dims=core_dims * len(args),
         vectorize=vectorize,
+        keep_attrs=True,
         kwargs=kwargs,
     )
     if returns and returns > 0:
         result = xr.apply_ufunc(
             func,
-            *func_image_args,
+            *args,
             **common_kwargs,
             output_core_dims=core_dims * returns,
         )
@@ -75,7 +74,7 @@ def apply_to_img_da(
     if not returns or returns == 0:
         xr.apply_ufunc(
             func,
-            *func_image_args,
+            *args,
             **common_kwargs,
         )
 
