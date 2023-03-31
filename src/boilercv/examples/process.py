@@ -18,13 +18,14 @@ from scipy.ndimage import (
     labeled_comprehension,
 )
 
-from boilercv import EXAMPLE_BIG_CINE, EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED
-from boilercv.data import PX_DIMS, apply_to_img_da
-from boilercv.data.dataset import VIDEO, prepare_dataset
+from boilercv import EXAMPLE_CINE, EXAMPLE_CINE_ZOOMED, EXAMPLE_FULL_CINE
+from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points, frame_lines
-from boilercv.data.models import Dimension
+from boilercv.data.packing import pack, unpack
+from boilercv.data.video import VIDEO, prepare_dataset
 from boilercv.gui import get_calling_scope_name, save_roi, view_images
-from boilercv.images import (
+from boilercv.images import scale_bool
+from boilercv.images.cv import (
     apply_mask,
     binarize,
     build_mask_from_polygons,
@@ -32,10 +33,9 @@ from boilercv.images import (
     find_line_segments,
     flood,
     morph,
-    scale_bool,
 )
 from boilercv.models.params import PARAMS
-from boilercv.types import DA, DS, ArrInt, Img
+from boilercv.types import DA, DF, ArrInt, Img, Vid
 
 PREVIEW = True
 NUM_FRAMES = 100
@@ -54,37 +54,31 @@ def main():
         PREVIEW,
     )
     process(
-        EXAMPLE_BIG_CINE,
-        EXAMPLE_BIG_CINE.parent.parent / f"{EXAMPLE_BIG_CINE.stem}.yaml",
+        EXAMPLE_FULL_CINE,
+        EXAMPLE_FULL_CINE.parent.parent / f"{EXAMPLE_FULL_CINE.stem}.yaml",
         PREVIEW,
     )
 
 
 def process(source: Path, roi_path: Path, preview: bool = False):
+    # Prepare the dataset
     ds = prepare_dataset(source, NUM_FRAMES)
     video = ds[VIDEO]
 
     # Get the ROI
-    maximum = video.max("frames").rename("maximum")
-    flooded_max = apply_to_img_da(flood, video.max("frames"), name="flooded_max")
-    flooded_closed, roi, dilated = apply_to_img_da(morph, flooded_max, returns=3)
-    flooded_closed = flooded_closed.rename("flooded_closed")
-    roi = roi.rename("roi")
-    dilated = dilated.rename("dilated")
-    boundary_roi = xr.apply_ufunc(
-        lambda img1, img2: img1 ^ img2,
-        roi,
-        dilated,
-        input_core_dims=[PX_DIMS] * 2,
-        output_core_dims=[PX_DIMS],
-    ).rename("boundary_roi")
+    maximum = video.max("frame").rename("maximum")
+    flooded_max: DA = apply_to_img_da(flood, video.max("frame"), name="flooded_max")
+    result: tuple[DA, ...] = apply_to_img_da(
+        morph, flooded_max, returns=3, name=["flooded_closed", "roi", "dilated"]
+    )
+    flooded_closed, roi, dilated = result
+    boundary_roi = roi ^ dilated
 
     # Mask the first image
-    first_image = video.isel(frames=0)
+    first_image = video.isel(frame=0)
     first_image_roi_only = apply_to_img_da(
         apply_mask,
-        first_image,
-        kwargs=dict(mask=roi.values),
+        args=(first_image, roi),
         name="first_image_roi_only",
     )
 
@@ -92,15 +86,33 @@ def process(source: Path, roi_path: Path, preview: bool = False):
     boiling_surface, boiling_surface_coords = xr.apply_ufunc(
         find_boiling_surface,
         scale_bool(flooded_closed),
-        input_core_dims=[PX_DIMS],
-        output_core_dims=[PX_DIMS, ["test"]],
-        kwargs=dict(preview=False),
+        input_core_dims=[YX_PX],
+        output_core_dims=[YX_PX, ["test"]],
+        kwargs=dict(preview=True),
     )
     boiling_surface = boiling_surface.rename("boiling_surface")
     boiling_surface_coords = boiling_surface_coords.rename("boiling_surface_coords")
 
+    masked_images = apply_to_img_da(
+        apply_mask,
+        args=(video, roi),
+        vectorize=True,
+        name="masked_images",
+    )
+
+    binarized_images = apply_to_img_da(
+        binarize,
+        args=masked_images,
+        vectorize=True,
+        name="binarized_images",
+    )
+
+    get_all_contours(masked_images.values, method=cv.CHAIN_APPROX_SIMPLE)
+
+    view_images([masked_images, drawn])
+
     # Save and reconstruct the ROI
-    contours = find_contours(scale_bool(roi.values), method=cv.CHAIN_APPROX_SIMPLE)
+    # TODO
     roi_poly_ = contours.pop()
     _roi_poly = df_points(roi_poly_)
     if contours:
@@ -109,7 +121,7 @@ def process(source: Path, roi_path: Path, preview: bool = False):
 
     # TODO: Refactor this logic out and see if dims can be reordered
     binar = apply_to_img_da(binarize, video, vectorize=True)
-    binar_unpacked = xr_apply_unpackbits(xr_apply_packbits(binar), ds)
+    binar_unpacked = unpack(pack(binar), ds)
     rgba = binar.values[0:4, :, :]
     view_images([binar, binar_unpacked])
 
@@ -135,40 +147,73 @@ def process(source: Path, roi_path: Path, preview: bool = False):
         )
 
 
-def xr_apply_packbits(da: DA):
-    """Pack the bits of the first image dimension of a data array."""
-    first_image_dim = 1 if "frames" in da.dims else 0
-    return xr.apply_ufunc(
-        np.packbits,
-        da,
-        input_core_dims=[PX_DIMS],
-        output_core_dims=[PX_DIMS],
-        exclude_dims={PX_DIMS[0]},
-        kwargs=dict(axis=first_image_dim),
-    ).rename(f"{da.name}_packed")
-
-
-def xr_apply_unpackbits(da: DA, ds: DS):
-    """Unpack the bits of the first image dimension of a data array."""
-    first_image_dim = 1 if "frames" in da.dims else 0
-    ypx = Dimension(
-        dim=PX_DIMS[0],
-        long_name="Height",
-        units="px",
-    )
-    da = (
-        xr.apply_ufunc(
-            lambda img: np.unpackbits(img, axis=first_image_dim).astype(bool),
-            da,
-            input_core_dims=[PX_DIMS],
-            output_core_dims=[PX_DIMS],
-            exclude_dims={PX_DIMS[0]},
+def get_all_contours(video: Vid, method: int = cv.CHAIN_APPROX_NONE):
+    """Get all contours."""
+    all_contours: list[DF] = []
+    contours_index = ["contour", "point"]
+    index = ["frame", *contours_index]
+    for image in ~video:
+        contours = pd.concat(
+            axis="index",
+            names=["contour", "point"],
+            objs={
+                contour_num: df_points(
+                    contour
+                )  # TODO: See if this can be done outside. 60% of the time is spent here.
+                # TODO: Compare binarized to non-binarized contour results. Binarized
+                # TODO: might be producing a lot more?
+                for contour_num, contour in enumerate(find_contours(image, method))
+            },
         )
-        .rename(str(da.name).removesuffix("_packed"))
-        .assign_coords(**ds[PX_DIMS])
+        all_contours.append(contours)
+    return pd.concat(
+        axis="index",
+        names=["frame", "contour", "point"],
+        objs=dict(enumerate(all_contours)),
     )
-    da = ypx.assign_to(da)
-    return da
+
+
+# TODO: Is this faster?
+
+
+def get_all_contours2(video: Vid, method: int = cv.CHAIN_APPROX_NONE):
+    """Get all contours."""
+    all_contours: list[DF] = []
+    contours_index = ["contour", "point"]
+    index = ["frame", *contours_index]
+    for image in ~video:
+        contours = pd.concat(
+            axis="index",
+            names=["contour", "point"],
+            objs={
+                contour_num: pd.DataFrame(contour)
+                for contour_num, contour in enumerate(find_contours(image, method))
+            },
+        )
+        all_contours.append(contours)
+    return pd.concat(
+        axis="index",
+        names=["frame", "contour", "point"],
+        objs=dict(enumerate(all_contours)),
+    )
+
+
+def later(all_contours):
+    with pd.HDFStore("store.h5", "w") as store:
+        for frame, contours in enumerate(all_contours):
+            for j, contour in enumerate(contours):
+                contour.to_hdf(store, f"c_{frame}_{j}")
+
+    all_contours2 = []
+    with pd.HDFStore("store.h5", "r") as store:
+        all_contours2.extend(
+            [pd.read_hdf(store, f"c_{frame}_{j}") for j, _ in enumerate(contours)]
+            for frame, contours in enumerate(all_contours)
+        )
+
+    for contours, contours2 in zip(all_contours, all_contours2, strict=True):
+        for contour, contour2 in zip(contours, contours2, strict=True):
+            assert contour.equals(contour2)
 
 
 def find_boiling_surface(img: Img, preview: bool = False) -> tuple[Img, ArrInt]:

@@ -5,7 +5,7 @@ import pandas as pd
 
 from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
-from boilercv.examples.stage2 import find_boiling_surface
+from boilercv.examples.process import find_boiling_surface
 from boilercv.gui import view_images
 from boilercv.images.cv import find_contours
 from boilercv.types import DA, ArrInt
