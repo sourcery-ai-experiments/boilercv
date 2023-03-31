@@ -77,9 +77,7 @@ def process(source: Path, roi_path: Path, preview: bool = False):
     # Mask the first image
     first_image = video.isel(frame=0)
     first_image_roi_only = apply_to_img_da(
-        apply_mask,
-        args=(first_image, roi),
-        name="first_image_roi_only",
+        apply_mask, first_image, roi, name="first_image_roi_only"
     )
 
     # Find the boiling surface
@@ -94,25 +92,18 @@ def process(source: Path, roi_path: Path, preview: bool = False):
     boiling_surface_coords = boiling_surface_coords.rename("boiling_surface_coords")
 
     masked_images = apply_to_img_da(
-        apply_mask,
-        args=(video, roi),
-        vectorize=True,
-        name="masked_images",
+        apply_mask, video, roi, vectorize=True, name="masked_images"
     )
 
     binarized_images = apply_to_img_da(
-        binarize,
-        args=masked_images,
-        vectorize=True,
-        name="binarized_images",
+        binarize, masked_images, vectorize=True, name="binarized_images"
     )
 
-    get_all_contours(masked_images.values, method=cv.CHAIN_APPROX_SIMPLE)
-
-    view_images([masked_images, drawn])
+    df = get_all_contours(masked_images.values, method=cv.CHAIN_APPROX_SIMPLE)
 
     # Save and reconstruct the ROI
     # TODO
+    contours = find_contours(flooded_closed.values, method=cv.CHAIN_APPROX_SIMPLE)
     roi_poly_ = contours.pop()
     _roi_poly = df_points(roi_poly_)
     if contours:
@@ -121,7 +112,7 @@ def process(source: Path, roi_path: Path, preview: bool = False):
 
     # TODO: Refactor this logic out and see if dims can be reordered
     binar = apply_to_img_da(binarize, video, vectorize=True)
-    binar_unpacked = unpack(pack(binar), ds)
+    binar_unpacked = unpack(pack(binar))
     rgba = binar.values[0:4, :, :]
     view_images([binar, binar_unpacked])
 
@@ -147,7 +138,7 @@ def process(source: Path, roi_path: Path, preview: bool = False):
         )
 
 
-def get_all_contours(video: Vid, method: int = cv.CHAIN_APPROX_NONE):
+def get_all_contours(video: Vid, method: int = cv.CHAIN_APPROX_NONE) -> DF:
     """Get all contours."""
     all_contours: list[DF] = []
     contours_index = ["contour", "point"]
