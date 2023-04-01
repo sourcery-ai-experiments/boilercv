@@ -1,0 +1,5 @@
+outs:
+- md5: 823e46352db64bfe7e2d8d3215188bbf.dir
+  size: 45522447
+  nfiles: 81
+  path: rois

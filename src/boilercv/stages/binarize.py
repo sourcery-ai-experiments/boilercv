@@ -1,8 +1,8 @@
-"""Binarize all videos in NetCDF."""
+"""Binarize all videos and export their ROIs."""
 
 import xarray as xr
 
-from boilercv.data import FRAME, VIDEO, apply_to_img_da
+from boilercv.data import FRAME, ROI, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, binarize, flood, morph
@@ -13,7 +13,6 @@ from boilercv.types import DA
 def main():
     sources = sorted(PARAMS.paths.large_sources.glob("*.nc"))
     for source in sources:
-        destination = PARAMS.paths.sources / source.name
         with xr.open_dataset(source) as ds:
             video = ds[VIDEO]
             maximum = video.max(FRAME)
@@ -24,7 +23,13 @@ def main():
             )
             binarized: DA = apply_to_img_da(binarize, masked, vectorize=True)
             ds[VIDEO] = pack(binarized)
-            ds.to_netcdf(path=destination, encoding={VIDEO: {"zlib": True}})
+            ds.to_netcdf(
+                path=PARAMS.paths.sources / source.name,
+                encoding={VIDEO: {"zlib": True}},
+            )
+            ds[ROI] = roi
+            ds = ds.drop_vars(VIDEO)
+            ds.to_netcdf(path=PARAMS.paths.rois / source.name)
 
 
 if __name__ == "__main__":

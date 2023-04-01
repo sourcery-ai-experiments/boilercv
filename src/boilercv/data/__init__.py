@@ -12,6 +12,7 @@ from boilercv.data.models import Dimension, get_dims
 from boilercv.types import DS, ArrLike
 
 VIDEO = "video"
+ROI = "roi"
 HEADER = "header"
 TIMEZONE = timezone("US/Pacific")
 

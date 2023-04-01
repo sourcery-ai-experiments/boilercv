@@ -52,14 +52,16 @@ class Paths(MyBaseModel):
     # ! DATA
     data: DirectoryPath = Path("data")
     examples: DirectoryPath = data / "examples"
+    rois: DirectoryPath = data / "rois"
     samples: DirectoryPath = data / "samples"
     sources: DirectoryPath = data / "sources"
 
     # ! LOCAL DATA
     local_data: Path = Path("~").expanduser() / ".local/boilercv"
+    cines: Path = local_data / "cines"
     large_examples: Path = local_data / "large_examples"
     large_sources: Path = local_data / "large_sources"
-    large_example_cine: Path = large_sources / "2022-01-06T16-57-31.cine"
+    large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass
