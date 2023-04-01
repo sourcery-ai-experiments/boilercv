@@ -171,9 +171,11 @@ def coerce_images(images: AllViewable) -> NamedViewable:
         largest_grid = 16
         if len(images) > largest_grid:
             try:
+                # Pack the sequences of images into an array for placing in one view
                 images_ = [np.array(images)]
             except ValueError:
-                images_ = images
+                # The sequence consists of images of varying shape
+                images_ = map_shapes(images)
         else:
             images_ = images
     else:
@@ -184,6 +186,15 @@ def coerce_images(images: AllViewable) -> NamedViewable:
         if isinstance(images_, Mapping)
         else {i: np.array(value) for i, value in enumerate(images_)}
     )
+
+
+def map_shapes(images):
+    """Separate images by shape."""
+    shapes = {image.shape for image in images}
+    images_ = {str(shape): [] for shape in shapes}
+    for image in images:
+        images_[str(image.shape)].append(image)
+    return images_
 
 
 def set_images(
