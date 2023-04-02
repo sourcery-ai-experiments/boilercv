@@ -8,25 +8,33 @@ from boilercv.types import DA, SupportsMul
 
 @dataclass
 class Dimension:
-    """A dimension."""
+    """A dimension.
+
+    Args:
+        dim: Dimension.
+        long_name: Long name.
+        coords: Coordinate values.
+        units: Units.
+        original_units: Original units to be converted from.
+        original_coords: Original coordinate values to be converted from.
+        scale: Scale factor to multiply the original coordinates by.
+        parent_dim: Existing dimension to associate this dimension with.
+    """
 
     dim: str
     """Dimension."""
     long_name: str = ""
     """Long name."""
-
     coords: Any = None
     """Coordinate values."""
     units: str = ""
     """Units."""
-
     original_units: str = ""
     """Original units to be converted from."""
     original_coords: SupportsMul | None = None
     """Original coordinate values to be converted from."""
     scale: float = 1
     """Scale factor to multiply the original coordinates by."""
-
     parent_dim: str = ""
     """Existing dimension to associate this dimension with."""
 
