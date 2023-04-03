@@ -11,8 +11,8 @@ stages:
       size: 641
     outs:
     - path: data/schema
-      md5: d49ab1f68be69cf5a284c65e3ab98706.dir
-      size: 4739
+      md5: f97a91286c4aef9f3ea81c77ed118d6f.dir
+      size: 4939
       nfiles: 1
   update_binarized_preview:
     cmd: python -m boilercv.stages.update_binarized_preview
@@ -30,8 +30,8 @@ stages:
       size: 1169
     outs:
     - path: data/previews/binarized.nc
-      md5: 312b51939f1ac4ae21bffd45ad91f854
-      size: 38903364
+      md5: 6c8168c3fde405547be3839db439183d
+      size: 78268772
   preview_binarized:
     cmd: python -m boilercv.stages.preview_binarized
     deps:
