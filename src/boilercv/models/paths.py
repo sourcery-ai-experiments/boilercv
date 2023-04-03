@@ -71,6 +71,8 @@ class Paths(MyBaseModel):
     local_data: Path = Path("~").expanduser() / ".local/boilercv"
     local_hierarchical_data = local_data / "data"
     cines: Path = local_data / "cines"
+    sheets: Path = local_data / "sheets"
+    notes: Path = local_data / "notes"
     large_examples: Path = local_data / "large_examples"
     large_sources: Path = local_data / "large_sources"
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"

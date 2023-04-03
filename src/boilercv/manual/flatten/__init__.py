@@ -1,0 +1,1 @@
+"""Flatten nested directory structures."""

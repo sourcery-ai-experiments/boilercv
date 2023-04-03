@@ -15,6 +15,8 @@ paths:
   sources: data/sources
   local_data: C:/Users/Blake/.local/boilercv
   cines: C:/Users/Blake/.local/boilercv/cines
+  sheets: C:/Users/Blake/.local/boilercv/sheets
+  notes: C:/Users/Blake/.local/boilercv/notes
   large_examples: C:/Users/Blake/.local/boilercv/large_examples
   large_sources: C:/Users/Blake/.local/boilercv/large_sources
   large_example_cine: C:/Users/Blake/.local/boilercv/cines/2022-01-06T16-57-31.cine
