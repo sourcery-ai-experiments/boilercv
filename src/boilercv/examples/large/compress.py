@@ -8,7 +8,7 @@ from boilercv.data import VIDEO
 from boilercv.examples.large import example_dataset
 
 
-@example_dataset(
+@example_dataset(  # type: ignore
     destination="compressed", preview=False, encoding={VIDEO: {"zlib": True}}
 )
 def main():
