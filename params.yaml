@@ -13,11 +13,12 @@ paths:
   rois: data/rois
   samples: data/samples
   sources: data/sources
-  local_data: C:/Users/naccara5/.local/boilercv
-  cines: C:/Users/naccara5/.local/boilercv/cines
-  large_examples: C:/Users/naccara5/.local/boilercv/large_examples
-  large_sources: C:/Users/naccara5/.local/boilercv/large_sources
-  large_example_cine: C:/Users/naccara5/.local/boilercv/cines/2022-01-06T16-57-31.cine
+  local_data: C:/Users/Blake/.local/boilercv
+  cines: C:/Users/Blake/.local/boilercv/cines
+  large_examples: C:/Users/Blake/.local/boilercv/large_examples
+  large_sources: C:/Users/Blake/.local/boilercv/large_sources
+  large_example_cine: C:/Users/Blake/.local/boilercv/cines/2022-01-06T16-57-31.cine
   project_schema: data/schema
   stage_schema: src/boilercv/stages/schema.py
   stage_update_binarized_preview: src/boilercv/stages/update_binarized_preview.py
+  local_hierarchical_data: C:/Users/Blake/.local/boilercv/data

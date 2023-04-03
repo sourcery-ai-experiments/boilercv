@@ -2,10 +2,11 @@
 
 from boilercv.data.video import prepare_dataset
 from boilercv.models.params import PARAMS
+from boilercv.models.paths import iter_sorted
 
 
 def main():
-    sources = sorted(PARAMS.paths.large_sources.glob("*.cine"))
+    sources = iter_sorted(PARAMS.paths.cines)
     for source in sources:
         destination = PARAMS.paths.large_sources / f"{source.stem}.nc"
         if destination.exists():

@@ -69,6 +69,7 @@ class Paths(MyBaseModel):
 
     # ! LOCAL DATA
     local_data: Path = Path("~").expanduser() / ".local/boilercv"
+    local_hierarchical_data = local_data / "data"
     cines: Path = local_data / "cines"
     large_examples: Path = local_data / "large_examples"
     large_sources: Path = local_data / "large_sources"

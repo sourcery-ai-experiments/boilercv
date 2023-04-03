@@ -7,11 +7,12 @@ from boilercv.data.packing import pack
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, binarize, flood, morph
 from boilercv.models.params import PARAMS
+from boilercv.models.paths import iter_sorted
 from boilercv.types import DA
 
 
 def main():
-    sources = sorted(PARAMS.paths.large_sources.glob("*.nc"))
+    sources = iter_sorted(PARAMS.paths.large_sources)
     for source in sources:
         with xr.open_dataset(source) as ds:
             video = ds[VIDEO]

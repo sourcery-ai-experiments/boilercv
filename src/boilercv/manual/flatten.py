@@ -2,7 +2,7 @@
 
 The directory structure looks like
 
-    C:/Users/Blake/Desktop/Results
+    ~/.local/boilercv/data
     └───YYYY-MM-DD
         └───video
             └───*.cine
@@ -10,16 +10,17 @@ The directory structure looks like
 """
 
 from itertools import chain
-from pathlib import Path
+
+from boilercv.models.params import PARAMS
 
 
 def main():
-    source = Path("C:/Users/Blake/Desktop/Results")
-    destination = Path("C:/Users/Blake/Desktop/Video")
+    source = PARAMS.paths.local_hierarchical_data
+    destination = PARAMS.paths.cines
     trials = [trial / "video" for trial in source.iterdir() if trial.is_dir()]
     videos = chain.from_iterable(trial.glob("*.cine") for trial in trials)
     for video in videos:
-        video.rename(destination / video.name)
+        video.rename(destination / video.name.removeprefix("results_"))
 
 
 if __name__ == "__main__":
