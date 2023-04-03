@@ -1,12 +1,13 @@
 """Graphical user interface utilities."""
 
 import inspect
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Mapping, MutableSequence, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Literal, TypeAlias
 
 import numpy as np
+import pandas as pd
 import pyqtgraph as pg
 import yaml
 from PySide6.QtCore import QEvent, Qt, Signal
@@ -19,6 +20,7 @@ from boilercv.types import DA, ArrInt, Img
 Viewable: TypeAlias = Any  # The true type is a complex union of lots of array types
 NamedViewable: TypeAlias = Mapping[str | int, Viewable]
 MultipleViewable: TypeAlias = Sequence[Viewable]
+MutableViewable: TypeAlias = MutableSequence[Viewable]
 AllViewable: TypeAlias = Viewable | NamedViewable | MultipleViewable
 
 
@@ -37,12 +39,6 @@ BLACK = 0
 BLACK3 = (BLACK,) * 3
 WHITE = 255
 WHITE3 = (WHITE,) * 3
-
-
-def view_images(images: AllViewable, name: str = ""):
-    """Compare multiple images or videos."""
-    with image_viewer(images, name):
-        pass
 
 
 # * -------------------------------------------------------------------------------- * #
@@ -68,8 +64,14 @@ SMALLER_GRIDS = {
 """Rectangular grid sizes for up to twelve views. Use square grids beyond that."""
 
 
+def view_images(images: AllViewable, name: str = "", play_rate: int = PLAY_RATE):
+    """Compare multiple images or videos."""
+    with image_viewer(images, name, play_rate):
+        pass
+
+
 @contextmanager
-def image_viewer(images: AllViewable, name: str = ""):  # type: ignore  # noqa: C901
+def image_viewer(images: AllViewable, name: str = "", play_rate: int = PLAY_RATE):  # type: ignore  # noqa: C901
     """View and interact with images and video."""
 
     images: NamedViewable = coerce_images(images)
@@ -95,7 +97,7 @@ def image_viewer(images: AllViewable, name: str = ""):  # type: ignore  # noqa: 
         for column in range(width):
             layout.setColumnStretch(column, 1)
         for coord in coords:
-            image_view = get_image_view()
+            image_view = get_image_view(play_rate)
             layout.addWidget(image_view, *coord)
             image_views.append(image_view)
 
@@ -170,31 +172,33 @@ def coerce_images(images: AllViewable) -> NamedViewable:
         # compare, assume it is a video if it is too long to be a set of comparisons.
         largest_grid = 16
         if len(images) > largest_grid:
-            try:
-                # Pack the sequences of images into an array for placing in one view
-                images_ = [np.array(images)]
-            except ValueError:
-                # The sequence consists of images of varying shape
-                images_ = map_shapes(images)
+            images_ = [np.array(pad_images(images))]
         else:
             images_ = images
     else:
         raise TypeError(f"Unsupported type for images: {type(images)}")
 
     return (
-        {title: np.array(value) for title, value in images_.items()}
+        {title: np.array(pad_images(viewable)) for title, viewable in images_.items()}
         if isinstance(images_, Mapping)
-        else {i: np.array(value) for i, value in enumerate(images_)}
+        else {i: np.array(pad_images(viewable)) for i, viewable in enumerate(images_)}
     )
 
 
-def map_shapes(images):
-    """Separate images by shape."""
-    shapes = {image.shape for image in images}
-    images_ = {str(shape): [] for shape in shapes}
-    for image in images:
-        images_[str(image.shape)].append(image)
-    return images_
+def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore
+    """Pad images to a common size and pack into an array."""
+    images: MutableViewable = list(images)
+    shapes = pd.DataFrame(
+        columns=["height", "width"], data=list({image.shape for image in images})
+    ).set_index(["height", "width"], drop=False)
+    pads = (
+        (shapes[["height", "width"]].max() - shapes[["height", "width"]]) // 2
+    ).set_axis(axis="columns", labels=["hpad", "wpad"])
+    for i, image in enumerate(images):
+        pad: tuple[int, int] = pads.loc[image.shape, :]  # type: ignore
+        hpad, wpad = pad
+        images[i] = np.pad(array=image, pad_width=((hpad, hpad), (wpad, wpad)))
+    return images
 
 
 def set_images(
@@ -228,10 +232,10 @@ def add_button(layout: QLayout, label: str, func: Callable[..., Any]) -> QPushBu
     return button
 
 
-def get_image_view() -> pg.ImageView:
+def get_image_view(play_rate: int = PLAY_RATE) -> pg.ImageView:
     """Get an image view suitable for previewing images."""
     image_view = pg.ImageView()
-    image_view.playRate = PLAY_RATE
+    image_view.playRate = play_rate
     image_view.ui.histogram.hide()
     image_view.ui.roiBtn.hide()
     image_view.ui.menuBtn.hide()

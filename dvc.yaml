@@ -3,6 +3,14 @@ stages:
     cmd: "python -m boilercv.stages.schema"
     deps:
       - "${paths.stage_schema}"
-      - "${paths.models}"
+      - "${paths.paths_module}"
     outs:
       - "${paths.project_schema}"
+  update_binarized_preview:
+    cmd: "python -m boilercv.stages.update_binarized_preview"
+    deps:
+      - "${paths.stage_update_binarized_preview}"
+      - "${paths.rois}"
+      - "${paths.sources}"
+    outs:
+      - "${paths.binarized_preview}"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +27,11 @@ def repl_path(dirs_dict: dict[str, Path]):
     return {k: str(v).replace("\\", "/") for k, v in dirs_dict.items()}
 
 
+def iter_sorted(path: Path) -> Iterator[Path]:
+    """Iterate over a sorted directory."""
+    yield from sorted(path.iterdir())
+
+
 class Paths(MyBaseModel):
     """Directories relevant to the project."""
 
@@ -48,10 +54,15 @@ class Paths(MyBaseModel):
     package: DirectoryPath = Path("src") / "boilercv"
     stages: DirectoryPath = package / "stages"
     models: DirectoryPath = package / "models"
+    paths_module: FilePath = models / "paths.py"
 
     # ! DATA
     data: DirectoryPath = Path("data")
     examples: DirectoryPath = data / "examples"
+
+    previews: DirectoryPath = data / "previews"
+    binarized_preview: Path = previews / "binarized.nc"
+
     rois: DirectoryPath = data / "rois"
     samples: DirectoryPath = data / "samples"
     sources: DirectoryPath = data / "sources"
@@ -69,6 +80,7 @@ class Paths(MyBaseModel):
 
     # ! STAGES
     stage_schema: FilePath = stages / "schema.py"
+    stage_update_binarized_preview: FilePath = stages / "update_binarized_preview.py"
 
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation

@@ -26,6 +26,21 @@ from boilercv.models.params import PARAMS
 from boilercv.types import DA, DS
 from boilercv.video.cine import get_cine_attributes, get_cine_images
 
+FRAME_DIM = Dimension(
+    dim=FRAME,
+    long_name="Frame number",
+)
+YPX_DIM = Dimension(
+    dim=YPX,
+    long_name="Height",
+    units="px",
+)
+XPX_DIM = Dimension(
+    dim=XPX,
+    long_name="Width",
+    units="px",
+)
+
 
 def prepare_dataset(
     cine_source: Path, num_frames: int | None = None, start_frame: int = 0
@@ -39,12 +54,8 @@ def prepare_dataset(
     header_da = xr.DataArray(name=HEADER, attrs=asdict(header))
 
     # Dimensions
-    frame = Dimension(
-        dim=FRAME,
-        long_name="Frame number",
-    )
     time = Dimension(
-        parent_dim=frame.dim,
+        parent_dim=FRAME_DIM.dim,
         dim=TIME,
         long_name="Time elapsed",
         units="s",
@@ -53,20 +64,10 @@ def prepare_dataset(
         scale=1e-9,
     )
     utc = Dimension(
-        parent_dim=frame.dim,
+        parent_dim=FRAME_DIM.dim,
         dim=UTC_TIME,
         long_name="UTC time",
         coords=utc_arr,
-    )
-    ypx = Dimension(
-        dim=YPX,
-        long_name="Height",
-        units="px",
-    )
-    xpx = Dimension(
-        dim=XPX,
-        long_name="Width",
-        units="px",
     )
 
     # Dataset
@@ -74,8 +75,8 @@ def prepare_dataset(
         name=VIDEO,
         long_name="High-speed video data",
         units="Pixel intensity",
-        fixed_dims=(frame,),
-        dims=(ypx, xpx),
+        fixed_dims=(FRAME_DIM,),
+        dims=(YPX_DIM, XPX_DIM),
         fixed_secondary_dims=(time, utc),
         data=list(get_cine_images(cine_source, num_frames, start_frame)),
     )

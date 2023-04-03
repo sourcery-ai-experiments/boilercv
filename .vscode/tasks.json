@@ -10,7 +10,20 @@
       "type": "pickString",
       "description": "stage",
       "default": "",
-      "options": ["", "-f", "schema"]
+      "options": [
+        "",
+        "-f",
+        "schema",
+        "update_binarized_preview",
+        "preview_binarized"
+      ]
+    },
+    {
+      "id": "preview",
+      "type": "pickString",
+      "description": "preview",
+      "default": "",
+      "options": ["binarized"]
     }
   ],
   "tasks": [
@@ -25,8 +38,33 @@
       "problemMatcher": []
     },
     {
+      "label": "proj: preview",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python -m boilercv.previews.${input:preview}"],
+      "icon": { "id": "graph" },
+      "options": {
+        "env": { "BOILERCV_DEBUG": "True" }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "dvc: repro (debug)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dvc: synchronize paths"],
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "dvc repro ${input:stage}"],
+      "icon": { "id": "graph" },
+      "options": {
+        "env": { "BOILERCV_DEBUG": "True" }
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "dvc: repro",
       "dependsOrder": "sequence",
+      "dependsOn": ["dvc: synchronize paths"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro ${input:stage}"],
@@ -38,6 +76,7 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "setup: Update project",
+        "dvc: synchronize paths",
         "dvc: freeze",
         "git: Stage all files",
         "pre-commit",
@@ -46,6 +85,14 @@
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro"],
+      "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
+    {
+      "label": "dvc: synchronize paths",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python -m boilercv.models.paths"],
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

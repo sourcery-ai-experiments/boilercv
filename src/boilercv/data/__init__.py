@@ -1,6 +1,6 @@
 """Tools for datasets."""
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from itertools import chain
 from typing import Any
 
@@ -9,6 +9,8 @@ import xarray as xr
 from pytz import timezone
 
 from boilercv.data.models import Dimension, get_dims
+from boilercv.models.params import PARAMS
+from boilercv.models.paths import iter_sorted
 from boilercv.types import DS, ArrLike
 
 VIDEO = "video"
@@ -40,6 +42,21 @@ LENGTH = "um"
 SAMPLE_DIAMETER_UM = 9_525_000
 ROI = "roi"
 OTHER_ROI = "roi_other"
+
+
+def img_datasets() -> Iterator[tuple[DS, str]]:
+    """Yield image datasets in order."""
+    datasets = zip(
+        *(
+            iter_sorted(directory)
+            for directory in [PARAMS.paths.rois, PARAMS.paths.sources]
+        ),
+        strict=True,
+    )
+    for files in datasets:
+        with xr.open_mfdataset(files) as ds:
+            video = files[0].stem
+            yield ds, video
 
 
 def apply_to_img_da(
