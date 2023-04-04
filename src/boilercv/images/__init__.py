@@ -6,9 +6,12 @@
 from typing import Any
 
 import numpy as np
+from matplotlib.font_manager import FontProperties, findfont
 from numpy import typing as npt
+from PIL import Image, ImageDraw, ImageFont
 
-from boilercv.types import T
+from boilercv.colors import BLACK, WHITE
+from boilercv.types import ImgLike, T
 
 # * -------------------------------------------------------------------------------- * #
 # * PURE NUMPY - TYPE PRESERVING
@@ -38,3 +41,28 @@ def scale_bool(img: Any, dtype: npt.DTypeLike = np.uint8) -> Any:
     Useful for functions (such as in OpenCV) which expect numeric bools.
     """
     return img.astype(dtype) * np.iinfo(dtype).max
+
+
+# * -------------------------------------------------------------------------------- * #
+# * OTHER - NOT ALWAYS TYPE PRESERVING
+
+FONT = ImageFont.truetype(findfont(FontProperties(family="dejavu sans")), 24)
+PAD = 10
+
+
+def draw_text(image: ImgLike, text: str = "") -> ImgLike:
+    """Draw text in the top-right corner of an image.
+
+    Args:
+        image: Image.
+        text: Text to draw.
+    """
+    pil_image = Image.fromarray(image)
+    _, _, right, bottom = FONT.getbbox(text)
+    text_p0 = (PAD,) * 2
+    p0 = (text_p0[0] - PAD, text_p0[1] - PAD)
+    p1 = (text_p0[0] + PAD + right, text_p0[1] + PAD + bottom)
+    draw = ImageDraw.Draw(pil_image)
+    draw.rectangle((p0, p1), fill=BLACK)
+    draw.text(text_p0, text, font=FONT, fill=WHITE)
+    return np.asarray(pil_image)

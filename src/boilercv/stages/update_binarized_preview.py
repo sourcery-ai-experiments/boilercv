@@ -3,7 +3,7 @@
 import numpy as np
 
 from boilercv import DEBUG
-from boilercv.data import FRAME, ROI, VIDEO, assign_ds, img_datasets
+from boilercv.data import FRAME, ROI, VIDEO, VIDEO_NAME, assign_ds, img_datasets
 from boilercv.data.models import Dimension
 from boilercv.data.video import XPX_DIM, YPX_DIM
 from boilercv.gui import MultipleViewable, pad_images, view_images
@@ -19,7 +19,7 @@ def main():
         video_names.append(video_name)
     preview = pad_images(preview)
     video_name_dim = Dimension(
-        dim="video_name",
+        dim=VIDEO_NAME,
         long_name="Video name",
         coords=video_names,
     )

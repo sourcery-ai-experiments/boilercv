@@ -4,8 +4,8 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial import ConvexHull
 
+from boilercv.colors import BLUE_CV
 from boilercv.examples import capture_images
-from boilercv.gui import BLUE_CV
 from boilercv.images import scale_bool
 from boilercv.images.cv import (
     binarize,

@@ -11,7 +11,7 @@ from pytz import timezone
 from boilercv.data.models import Dimension, get_dims
 from boilercv.models.params import PARAMS
 from boilercv.models.paths import iter_sorted
-from boilercv.types import DS, ArrLike
+from boilercv.types import DA, DS, ArrLike
 
 VIDEO = "video"
 ROI = "roi"
@@ -38,6 +38,8 @@ PACKED = "packed"
 XPX_PACKED = "xpx_packed"
 PACKED_DIMS = [FRAME, YPX, XPX_PACKED]
 
+VIDEO_NAME = "video_name"
+
 LENGTH = "um"
 SAMPLE_DIAMETER_UM = 9_525_000
 ROI = "roi"
@@ -57,6 +59,22 @@ def img_datasets() -> Iterator[tuple[DS, str]]:
         with xr.open_mfdataset(files) as ds:
             video = files[0].stem
             yield ds, video
+
+
+def identity_da(da: DA, dim: str):
+    """Construct a data array that maps a dimension's coordinates to itself.
+
+    Useful to apply `xr.apply_ufunc` along coordinate values.
+
+    Args:
+        da: Data array.
+        dim: The dimension to extract.
+    """
+    return xr.DataArray(
+        dims=(dim),
+        coords={dim: da[dim].values},
+        data=da[dim],
+    )
 
 
 def apply_to_img_da(

@@ -3,13 +3,14 @@
 from skimage import data
 from skimage.color import rgb2gray
 
+from boilercv.colors import BLUE, GREEN, RED
 from boilercv.examples.blobs import (
     draw_blobs,
     get_blobs_dog,
     get_blobs_doh,
     get_blobs_log,
 )
-from boilercv.gui import BLUE, GREEN, RED, view_images
+from boilercv.gui import view_images
 from boilercv.types import ArrInt
 
 

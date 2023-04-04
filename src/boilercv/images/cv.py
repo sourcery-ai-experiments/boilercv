@@ -3,7 +3,7 @@ from collections.abc import Sequence
 import cv2 as cv
 import numpy as np
 
-from boilercv.gui import BLUE_CV, WHITE3
+from boilercv.colors import BLUE_CV, WHITE3
 from boilercv.images import unpad
 from boilercv.types import ArrFloat, ArrInt, Img, ImgBool
 
