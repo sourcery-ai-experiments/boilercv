@@ -46,19 +46,28 @@ ROI = "roi"
 OTHER_ROI = "roi_other"
 
 
-def img_datasets() -> Iterator[tuple[DS, str]]:
-    """Yield image datasets in order."""
-    datasets = zip(
-        *(
-            iter_sorted(directory)
-            for directory in [PARAMS.paths.rois, PARAMS.paths.sources]
-        ),
-        strict=True,
-    )
-    for files in datasets:
-        with xr.open_mfdataset(files) as ds:
-            video = files[0].stem
-            yield ds, video
+def all_datasets() -> Iterator[tuple[DS, str]]:
+    """Yield datasets in order."""
+    videos = [source.stem for source in iter_sorted(PARAMS.paths.sources)]
+    for video in videos:
+        yield dataset(video), video
+
+
+def dataset(video: str) -> DS:
+    """Load a video dataset."""
+    # Can't use `xr.open_mfdataset` because it requires dask
+    # Downstream computations (e.g. unpack) are incompatible with dask
+    source = PARAMS.paths.sources / f"{video}.nc"
+    roi = PARAMS.paths.rois / f"{video}.nc"
+    with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
+        ds[ROI] = roi_ds[ROI]
+        return ds
+
+
+def large_dataset(video: str) -> DS:
+    """Load a large video dataset."""
+    with xr.open_dataset(PARAMS.paths.large_sources / f"{video}.nc") as ds:
+        return ds
 
 
 def identity_da(da: DA, dim: str):

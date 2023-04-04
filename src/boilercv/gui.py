@@ -33,7 +33,7 @@ SMALLER_GRIDS = {
     1: (1, 1),
     2: (1, 2),
     3: (1, 3),
-    4: (2, 4),
+    4: (2, 2),
     5: (2, 3),
     6: (2, 3),
     7: (2, 4),
@@ -169,17 +169,29 @@ def coerce_images(images: AllViewable) -> NamedViewable:
 
 def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore
     """Pad images to a common size and pack into an array."""
-    images: MutableViewable = list(images)
+    flat_image = isinstance(images, np.ndarray | DA) and (
+        # One-channel
+        images.ndim == 2
+        # Up to four-channel
+        or images.ndim == 3
+        and images.shape[-1] <= 4
+    )
+    images: MutableViewable = [images] if flat_image else list(images)
     shapes = pd.DataFrame(
-        columns=["height", "width"], data=list({image.shape for image in images})
+        columns=["height", "width"], data=list({image.shape[:2] for image in images})
     ).set_index(["height", "width"], drop=False)
+    if len(shapes) == 1:
+        return images
+
     pads = (
         (shapes[["height", "width"]].max() - shapes[["height", "width"]]) // 2
     ).set_axis(axis="columns", labels=["hpad", "wpad"])
     for i, image in enumerate(images):
-        pad: tuple[int, int] = pads.loc[image.shape, :]  # type: ignore
+        pad: tuple[int, int] = pads.loc[image.shape[:2], :]  # type: ignore
         hpad, wpad = pad
-        images[i] = np.pad(array=image, pad_width=((hpad, hpad), (wpad, wpad)))
+        zero_pad_for_additional_dims = ((0, 0),) * (image.ndim - 2)
+        pad_width = ((hpad, hpad), (wpad, wpad), *zero_pad_for_additional_dims)
+        images[i] = np.pad(image, pad_width)
     return images
 
 
@@ -269,7 +281,7 @@ def edit_roi(
             hoverPen=pg.mkPen("magenta"),
             handlePen=pg.mkPen("blue"),
             handleHoverPen=pg.mkPen("magenta"),
-            positions=load_roi(image, roi_path, roi_type),
+            positions=np.fliplr(load_roi(image, roi_path, roi_type)),
         )
         roi = (
             pg.PolyLineROI(
@@ -286,8 +298,8 @@ def edit_roi(
             button = QPushButton("Save ROI")
             button.clicked.connect(save_roi_)  # type: ignore
             button_layout.addWidget(button)
-            image_views["_0"].setImage(image)
-            image_views["_0"].addItem(roi)
+            image_views[0].setImage(image)
+            image_views[0].addItem(roi)
 
         def keyPressEvent(ev: QKeyEvent):  # noqa: N802
             """Save ROI or quit on key presses."""
@@ -302,7 +314,7 @@ def edit_roi(
 
         def get_roi_vertices() -> ArrInt:
             """Get the vertices of the ROI."""
-            return np.array(roi.saveState()["points"], dtype=int)
+            return np.fliplr(np.array(roi.saveState()["points"], dtype=int))
 
         main()
 

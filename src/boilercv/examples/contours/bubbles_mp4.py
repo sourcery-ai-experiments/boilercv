@@ -8,6 +8,7 @@ from boilercv.colors import BLUE_CV
 from boilercv.examples import capture_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import (
+    apply_mask,
     binarize,
     build_mask_from_polygons,
     convert_image,
@@ -28,11 +29,11 @@ def main():
             PARAMS.paths.examples / "2022-04-08T16-12-42_short.mp4"
         )
     )
-    roi = get_roi(next(images))
+    roi = np.fliplr(get_roi(next(images)))
     for image in images:
-        masked = build_mask_from_polygons(image, [roi])
+        masked = apply_mask(image, build_mask_from_polygons(image, [roi]))
         thresholded = binarize(masked)
-        contours = find_contours(scale_bool(thresholded))
+        contours = find_contours(scale_bool(~thresholded))
         image_with_contours = draw_contours(image, contours)
         cv.imshow(WINDOW_NAME, image_with_contours)
         if cv.waitKey(100) == ESC_KEY:

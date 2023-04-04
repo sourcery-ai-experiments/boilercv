@@ -1,14 +1,16 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
 from collections.abc import Sequence
-from pathlib import Path
 
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv.data.video import VIDEO, prepare_dataset
+from boilercv.data import large_dataset
+from boilercv.data.packing import unpack
+from boilercv.data.video import VIDEO
 from boilercv.gui import edit_roi, load_roi, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import (
+    apply_mask,
     binarize,
     build_mask_from_polygons,
     draw_contours,
@@ -19,7 +21,7 @@ from boilercv.types import ArrInt, Img, ImgBool
 
 # TODO: Make a separate `bubbles_auto.py` example
 
-SOURCE = PARAMS.paths.examples / Path("2022-11-30T13-41-00_short.cine")
+SOURCE = "2022-11-30T13-41-00"
 NUM_FRAMES = 300
 ROI_FILE = PARAMS.paths.examples / "roi_auto.yaml"
 
@@ -74,8 +76,9 @@ def preview_contours(
 
 
 def get_images():
-    images = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[VIDEO]
-    return list(images.values)
+    # TODO: Dedicate a NetCDF example dataset
+    images = large_dataset(SOURCE)[VIDEO]
+    return list(unpack(images).values)
 
 
 def get_contours(
@@ -84,9 +87,9 @@ def get_contours(
     block_size: int,
     thresh_dist_from_mean: int,
 ) -> tuple[list[ArrInt], ArrInt, ImgBool]:
-    masked = build_mask_from_polygons(input_image, [roi])
+    masked = apply_mask(input_image, build_mask_from_polygons(input_image, [roi]))
     thresholded = binarize(masked, block_size, thresh_dist_from_mean)
-    return find_contours(scale_bool(thresholded)), masked, thresholded
+    return find_contours(scale_bool(~thresholded)), masked, thresholded
 
 
 def interact_with_images(_input_image, _masked, thresholded, contoured):
