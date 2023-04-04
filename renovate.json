@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Establish base config, schedule, and manager defaults.",
   "extends": ["config:base", ":enablePreCommit", ":preserveSemverRanges"],
   "schedule": ["on the 8th day of the month"],
   "git-submodules": { "enabled": true },
@@ -10,7 +11,7 @@
     "pre-commit"
   ],
   "pip_requirements": {
-    "description": "Additionally monitor these files",
+    "description": "Additionally monitor these files.",
     "fileMatch": ["^\\.tools/requirements/*"],
     "ignorePaths": ["frozen_requirements.txt"]
   },
@@ -21,25 +22,6 @@
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
       "excludeDepNames": ["pyright"]
-    },
-    {
-      "description": "Check for typings updates all the time.",
-      "matchManagers": ["git-submodules"],
-      "matchDepNames": ["typings"],
-      "schedule": ["at any time"]
-    },
-    {
-      "description": "Don't automerge pyright. It should be manually synced with typings.",
-      "matchManagers": ["pip_requirements"],
-      "matchDepNames": ["pyright"],
-      "schedule": ["at any time"],
-      "automerge": false
-    },
-    {
-      "description": "Don't automerge template updates.",
-      "matchManagers": ["git-submodules"],
-      "matchDepNames": ["template"],
-      "automerge": false
     },
     {
       "description": "Ignore dependencies managed by the template. Do manage pyright.",

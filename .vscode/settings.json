@@ -227,6 +227,10 @@
   "[ipynb]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
+  //* IPYNB
+  "[ipynb]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
   //* TXT
   "[plaintext]": {
     "editor.wordWrap": "wordWrapColumn"
