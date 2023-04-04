@@ -3,8 +3,9 @@
 import numpy as np
 
 from boilercv import DEBUG
-from boilercv.data import FRAME, ROI, VIDEO, VIDEO_NAME, all_datasets, assign_ds
+from boilercv.data import FRAME, ROI, VIDEO, VIDEO_NAME, assign_ds
 from boilercv.data.models import Dimension
+from boilercv.data.sets import get_all_datasets
 from boilercv.data.video import XPX_DIM, YPX_DIM
 from boilercv.gui import MultipleViewable, pad_images, view_images
 from boilercv.models.params import PARAMS
@@ -13,7 +14,7 @@ from boilercv.models.params import PARAMS
 def main():
     preview: MultipleViewable = []
     video_names: list[str] = []
-    for ds, video_name in all_datasets():
+    for ds, video_name in get_all_datasets():
         vid = np.unpackbits(ds[VIDEO].isel({FRAME: 0}).values, axis=1)
         preview.append(vid & ds[ROI].values)
         video_names.append(video_name)

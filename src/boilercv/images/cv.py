@@ -62,25 +62,29 @@ def flood(img: Img) -> ImgBool:
     return unpad(mask, pad_width).astype(bool)
 
 
-def morph(img: Img) -> tuple[Img, Img, Img]:
-    """Close small holes and return the ROI both eroded and dilated as bright masks."""
-
-    # Explicitly pad out the image since cv.morphologyEx boundary handling is weird
+def get_roi(wall: Img) -> Img:
+    """Erode the wall to get the ROI."""
     kernel_size = 9
     close_kernel_size = 4
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [kernel_size] * 2)
     close_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [close_kernel_size] * 2)
+    # Explicitly pad out the image since cv.morphologyEx boundary handling is weird
     pad_width = max(close_kernel_size, kernel_size)
-    padded = pad(img, pad_width, value=0)
+    padded = pad(wall, pad_width, value=0)
+    wall = cv.morphologyEx(src=padded, op=cv.MORPH_CLOSE, kernel=close_kernel)
+    roi = cv.morphologyEx(src=wall, op=cv.MORPH_ERODE, kernel=kernel)
+    return unpad(roi, pad_width).astype(bool)
 
-    # Erode and dilate a bright region
-    closed = cv.morphologyEx(src=padded, op=cv.MORPH_CLOSE, kernel=close_kernel)
-    eroded = cv.morphologyEx(src=closed, op=cv.MORPH_ERODE, kernel=kernel)
-    dilated = cv.morphologyEx(src=closed, op=cv.MORPH_DILATE, kernel=kernel)
 
-    return tuple(
-        unpad(image, pad_width).astype(bool) for image in [closed, eroded, dilated]
-    )
+def get_wall(roi: Img) -> Img:
+    """Dilate the ROI to get the wall."""
+    # Explicitly pad out the image since cv.morphologyEx boundary handling is weird
+    kernel_size = 9
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [kernel_size] * 2)
+    pad_width = kernel_size
+    padded = pad(roi, pad_width, value=0)
+    wall = cv.morphologyEx(src=padded, op=cv.MORPH_DILATE, kernel=kernel)
+    return unpad(wall, pad_width).astype(bool)
 
 
 def build_mask_from_polygons(img: Img, contours: Sequence[ArrInt]) -> Img:

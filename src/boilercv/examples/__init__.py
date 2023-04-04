@@ -10,10 +10,11 @@ from boilercv.data import VIDEO
 from boilercv.models.params import PARAMS
 from boilercv.types import DA, Img
 
-SOURCE = PARAMS.paths.examples / "2022-11-30T13-41-00.nc"
+EXAMPLE_VIDEO_NAME = "2022-11-30T13-41-00"
+SOURCE = PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}.nc"
 NUM_FRAMES = 300
 # TODO: Source the ROI from the dataset.
-EXAMPLE_ROI = PARAMS.paths.examples / "2022-11-30T13-41-00_roi.yaml"
+EXAMPLE_ROI = PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}_roi.yaml"
 
 
 def get_images() -> DA:

@@ -4,12 +4,13 @@ Compression is slow for grayscale files of ~2GB size, but may work better for bi
 files.
 """
 
+from boilercv import DEBUG
 from boilercv.data import VIDEO
 from boilercv.examples.large import example_dataset
 
 
 @example_dataset(  # type: ignore
-    destination="compressed", preview=False, encoding={VIDEO: {"zlib": True}}
+    destination="compressed", preview=DEBUG, encoding={VIDEO: {"zlib": True}}
 )
 def main():
     pass

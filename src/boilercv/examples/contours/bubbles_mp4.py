@@ -29,7 +29,7 @@ def main():
             PARAMS.paths.examples / "2022-04-08T16-12-42_short.mp4"
         )
     )
-    roi = np.fliplr(get_roi(next(images)))
+    roi = np.fliplr(get_roi2(next(images)))
     for image in images:
         masked = apply_mask(image, build_mask_from_polygons(image, [roi]))
         thresholded = binarize(masked)
@@ -41,7 +41,7 @@ def main():
     cv.destroyAllWindows()
 
 
-def get_roi(image: ArrInt) -> ArrInt:
+def get_roi2(image: ArrInt) -> ArrInt:
     """Get the region of interest of an image.
 
     See: https://docs.opencv.org/4.6.0/db/d5b/tutorial_py_mouse_handling.html

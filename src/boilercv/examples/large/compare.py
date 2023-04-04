@@ -1,8 +1,9 @@
 """Compare the original binarized dataset with the round-tripped dataset."""
 
+from boilercv import DEBUG
 from boilercv.examples.large import example_dataset as ex_ds
 
-KW = dict(preview=False, save=False)
+KW = dict(preview=DEBUG, save=False)
 
 
 def main():

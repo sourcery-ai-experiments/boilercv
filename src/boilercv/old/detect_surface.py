@@ -1,17 +1,18 @@
-"""Bits and pieces I'm not using anymore."""
+"""Old approach to detecting the boiling surface."""
 
 import numpy as np
 import pandas as pd
 
+from boilercv import DEBUG
 from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
-from boilercv.examples.process import find_boiling_surface
+from boilercv.examples.detect_surface import find_boiling_surface
 from boilercv.gui import view_images
 from boilercv.images.cv import find_contours
 from boilercv.types import DA, ArrInt
 
 
-def find_boiling_surface2(image: DA, preview: bool = False) -> ArrInt:
+def find_boiling_surface2(image: DA, preview: bool = DEBUG) -> ArrInt:
     """Find the boiling surface."""
     # Find corners and set index to contour points for later concatenation
     (height, width) = image.shape
