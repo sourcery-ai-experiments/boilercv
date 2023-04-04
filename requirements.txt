@@ -11,7 +11,7 @@ pydantic==1.10.7
 pyjanitor==0.24.0
 pyqtgraph==0.13.2
 pyside6==6.5.0
-pytz==2022.7.1
+pytz==2023.3
 pyyaml==6.0
 ruamel.yaml==0.17.21
 scikit-image==0.20.0
