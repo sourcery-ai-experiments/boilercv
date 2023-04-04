@@ -59,4 +59,4 @@ ImgLike: TypeAlias = ArrLike
 """An array-like object representable as an image."""
 
 Vid: TypeAlias = Img
-"""An integer array represnting a video."""
+"""An integer array representing a video."""

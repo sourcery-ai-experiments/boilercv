@@ -4,6 +4,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 import xarray as xr
+from boilercine import get_cine_attributes, get_cine_images
 from scipy.spatial.distance import euclidean
 
 from boilercv.data import (
@@ -24,7 +25,6 @@ from boilercv.data.models import Dimension
 from boilercv.gui import load_roi
 from boilercv.models.params import PARAMS
 from boilercv.types import DA, DS
-from boilercv.video.cine import get_cine_attributes, get_cine_images
 
 FRAME_DIM = Dimension(
     dim=FRAME,

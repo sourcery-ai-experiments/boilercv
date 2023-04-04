@@ -1,6 +1,8 @@
 # * -------------------------------------------------------------------------------- * #
 # * Changes below should persist in significant template updates.
 
+git+https://github.com/blakeNaccarato/boilercine@main
+
 # * -------------------------------------------------------------------------------- * #
 # * Changes below may be lost in significant template updates.
 
