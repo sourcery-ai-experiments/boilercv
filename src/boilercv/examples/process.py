@@ -4,7 +4,6 @@ Computing the median is a costly operation, so don't do it if we don't have to. 
 with OpenCV is faster than numpy padding.
 """
 
-from pathlib import Path
 from warnings import warn
 
 import cv2 as cv
@@ -21,7 +20,7 @@ from scipy.ndimage import (
 from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points, frame_lines
 from boilercv.data.packing import pack, unpack
-from boilercv.data.video import VIDEO, prepare_dataset
+from boilercv.examples import EXAMPLE_ROI, EXAMPLE_VIDEO
 from boilercv.gui import get_calling_scope_name, save_roi, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import (
@@ -33,53 +32,31 @@ from boilercv.images.cv import (
     flood,
     morph,
 )
-from boilercv.models.params import PARAMS
 from boilercv.types import DA, DF, ArrInt, Img, Vid
 
 PREVIEW = True
-NUM_FRAMES = 100
 DRAWN_CONTOUR_THICKNESS = 2
-EXAMPLE_CINE = PARAMS.paths.examples / Path("2022-11-30T13-41-00_short.cine")
-EXAMPLE_CINE_ZOOMED = PARAMS.paths.examples / Path("2022-01-06T16-57-31_short.cine")
 
 
 def main():
-    process(
-        EXAMPLE_CINE,
-        PARAMS.paths.examples / f"{EXAMPLE_CINE.stem}.yaml",
-        PREVIEW,
-    )
-    process(
-        EXAMPLE_CINE_ZOOMED,
-        PARAMS.paths.examples / f"{EXAMPLE_CINE_ZOOMED.stem}.yaml",
-        PREVIEW,
-    )
-    process(
-        PARAMS.paths.large_example_cine,
-        PARAMS.paths.large_example_cine.parent.parent
-        / f"{PARAMS.paths.large_example_cine.stem}.yaml",
-        PREVIEW,
-    )
-
-
-def process(source: Path, roi_path: Path, preview: bool = False):
-    # Prepare the dataset
-    ds = prepare_dataset(source, NUM_FRAMES)
-    video = ds[VIDEO]
-
     # Get the ROI
-    maximum = video.max("frame").rename("maximum")
-    flooded_max: DA = apply_to_img_da(flood, video.max("frame"), name="flooded_max")
+    maximum = EXAMPLE_VIDEO.max("frame").rename("maximum")
+    flooded_max: DA = apply_to_img_da(
+        flood, EXAMPLE_VIDEO.max("frame"), name="flooded_max"
+    )
     result: tuple[DA, ...] = apply_to_img_da(
-        morph, flooded_max, returns=3, name=["flooded_closed", "roi", "dilated"]
+        morph,
+        scale_bool(flooded_max),
+        returns=3,
+        name=["flooded_closed", "roi", "dilated"],
     )
     flooded_closed, roi, dilated = result
     boundary_roi = roi ^ dilated
 
     # Mask the first image
-    first_image = video.isel(frame=0)
+    first_image = EXAMPLE_VIDEO.isel(frame=0)
     first_image_roi_only = apply_to_img_da(
-        apply_mask, first_image, roi, name="first_image_roi_only"
+        apply_mask, first_image, scale_bool(roi), name="first_image_roi_only"
     )
 
     # Find the boiling surface
@@ -88,13 +65,12 @@ def process(source: Path, roi_path: Path, preview: bool = False):
         scale_bool(flooded_closed),
         input_core_dims=[YX_PX],
         output_core_dims=[YX_PX, ["test"]],
-        kwargs=dict(preview=True),
     )
     boiling_surface = boiling_surface.rename("boiling_surface")
     boiling_surface_coords = boiling_surface_coords.rename("boiling_surface_coords")
 
     masked_images = apply_to_img_da(
-        apply_mask, video, roi, vectorize=True, name="masked_images"
+        apply_mask, EXAMPLE_VIDEO, scale_bool(roi), vectorize=True, name="masked_images"
     )
 
     binarized_images = apply_to_img_da(
@@ -105,20 +81,22 @@ def process(source: Path, roi_path: Path, preview: bool = False):
 
     # Save and reconstruct the ROI
     # TODO
-    contours = find_contours(flooded_closed.values, method=cv.CHAIN_APPROX_SIMPLE)
+    contours = find_contours(
+        scale_bool(flooded_closed.values), method=cv.CHAIN_APPROX_SIMPLE
+    )
     roi_poly_ = contours.pop()
     _roi_poly = df_points(roi_poly_)
     if contours:
         warn("More than one contour found when searching for the ROI.", stacklevel=1)
-    save_roi(roi_poly_, roi_path)
+    save_roi(roi_poly_, EXAMPLE_ROI)
 
     # TODO: Refactor this logic out and see if dims can be reordered
-    binar = apply_to_img_da(binarize, video, vectorize=True)
+    binar = apply_to_img_da(binarize, EXAMPLE_VIDEO, vectorize=True)
     binar_unpacked = unpack(pack(binar))
     rgba = binar.values[0:4, :, :]
     view_images([binar, binar_unpacked])
 
-    if preview:
+    if PREVIEW:
         binarized_first = binarize(first_image.values)
         roi2 = build_mask_from_polygons(scale_bool(binarized_first), [roi_poly_])
         roi_diff = roi.values ^ roi2
@@ -209,7 +187,7 @@ def later(all_contours):
             assert contour.equals(contour2)
 
 
-def find_boiling_surface(img: Img, preview: bool = False) -> tuple[Img, ArrInt]:
+def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     """Find the boiling surface."""
 
     # Parameters for finding prominent horizontal lines
@@ -276,7 +254,7 @@ def find_boiling_surface(img: Img, preview: bool = False) -> tuple[Img, ArrInt]:
         [ypx_horizontal, xpx_left, ypx_horizontal, xpx_right]
     ).astype(int)
 
-    if preview:
+    if PREVIEW:
         view_images(
             name=get_calling_scope_name(),
             images=dict(

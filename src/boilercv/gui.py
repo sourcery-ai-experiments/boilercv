@@ -298,7 +298,6 @@ def edit_roi(
             button = QPushButton("Save ROI")
             button.clicked.connect(save_roi_)  # type: ignore
             button_layout.addWidget(button)
-            image_views[0].setImage(image)
             image_views[0].addItem(roi)
 
         def keyPressEvent(ev: QKeyEvent):  # noqa: N802

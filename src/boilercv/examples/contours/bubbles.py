@@ -1,12 +1,9 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
-from collections.abc import Sequence
 
 from matplotlib.pyplot import subplot_mosaic
 
-from boilercv.data import large_dataset
-from boilercv.data.packing import unpack
-from boilercv.data.video import VIDEO
+from boilercv.examples import EXAMPLE_FRAME_LIST, EXAMPLE_ROI
 from boilercv.gui import edit_roi, load_roi, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import (
@@ -16,20 +13,11 @@ from boilercv.images.cv import (
     draw_contours,
     find_contours,
 )
-from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt, Img, ImgBool
-
-# TODO: Make a separate `bubbles_auto.py` example
-
-SOURCE = "2022-11-30T13-41-00"
-NUM_FRAMES = 300
-ROI_FILE = PARAMS.paths.examples / "roi_auto.yaml"
 
 
 def main():
-    images = get_images()
     preview_contours(
-        images=images,
         block_size=11,
         thresh_dist_from_mean=2,
         contour_index=-1,
@@ -38,18 +26,17 @@ def main():
 
 
 def preview_contours(
-    images: Sequence[Img],
     block_size: int,
     thresh_dist_from_mean: int,
     contour_index: int,
     thickness: int,
     interact: bool = False,
 ) -> list[list[ArrInt]] | None:
-    input_images = [images[0]] if interact else images
+    input_images = [EXAMPLE_FRAME_LIST[0]] if interact else EXAMPLE_FRAME_LIST
     if interact:
-        roi = load_roi(input_images[0], ROI_FILE)
+        roi = load_roi(input_images[0], EXAMPLE_ROI)
     else:
-        roi = edit_roi(input_images[0], ROI_FILE)
+        roi = edit_roi(input_images[0], EXAMPLE_ROI)
     all_contours: list[list[ArrInt]] = []
     all_masked: list[Img] = []
     all_thresholded: list[ImgBool] = []
@@ -69,16 +56,10 @@ def preview_contours(
         all_thresholded.append(thresholded)
         contoured.append(draw_contours(image, contours, contour_index, thickness))
     if interact:
-        interact_with_images(*[image[0] for image in to_preview])
+        interact_with_images(*[image[0] for image in to_preview.values()])
     else:
         view_images(to_preview)
         return all_contours
-
-
-def get_images():
-    # TODO: Dedicate a NetCDF example dataset
-    images = large_dataset(SOURCE)[VIDEO]
-    return list(unpack(images).values)
 
 
 def get_contours(

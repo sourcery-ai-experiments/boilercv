@@ -1,25 +1,21 @@
 """Find bubbles as blobs."""
 
-from pathlib import Path
 
 import cv2 as cv
 
 from boilercv.colors import RED
-from boilercv.data.video import VIDEO, prepare_dataset
+from boilercv.examples import EXAMPLE_FRAME_LIST, EXAMPLE_ROI
 from boilercv.examples.blobs import draw_blobs, get_blobs_doh
 from boilercv.gui import edit_roi, view_images
 from boilercv.images.cv import apply_mask, build_mask_from_polygons, convert_image
-from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
 
-SOURCE = PARAMS.paths.examples / Path("2022-11-30T13-41-00_short.cine")
-ROI = SOURCE.parent / f"{SOURCE.stem}.yaml"
 NUM_FRAMES = 10
+SHORTER_FRAME_LIST = EXAMPLE_FRAME_LIST[:NUM_FRAMES]
 
 
 def main():
-    input_images = list(get_images())[:NUM_FRAMES]
-    roi = edit_roi(input_images[0], ROI)
+    roi = edit_roi(SHORTER_FRAME_LIST[0], EXAMPLE_ROI)
     # results_log: list[ArrInt] = []
     # results_dog: list[ArrInt] = []
     results_doh: list[ArrInt] = []
@@ -28,7 +24,7 @@ def main():
         # results_dog,
         results_doh,
     ]
-    for input_image in input_images:
+    for input_image in SHORTER_FRAME_LIST:
         image = apply_mask(input_image, build_mask_from_polygons(input_image, [roi]))
         all_blobs = [
             # get_blobs_log(image),
@@ -41,12 +37,7 @@ def main():
             for blob in blobs:
                 draw_blobs(result, blob, RED)
             results.append(result)
-    view_images([input_images, *all_results])
-
-
-def get_images():
-    images = prepare_dataset(SOURCE, num_frames=NUM_FRAMES)[VIDEO]
-    return list(images.values)
+    view_images([SHORTER_FRAME_LIST, *all_results])
 
 
 if __name__ == "__main__":

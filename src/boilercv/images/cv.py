@@ -62,7 +62,7 @@ def flood(img: Img) -> ImgBool:
     return unpad(mask, pad_width).astype(bool)
 
 
-def morph(img: Img) -> tuple[Img, Img]:
+def morph(img: Img) -> tuple[Img, Img, Img]:
     """Close small holes and return the ROI both eroded and dilated as bright masks."""
 
     # Explicitly pad out the image since cv.morphologyEx boundary handling is weird

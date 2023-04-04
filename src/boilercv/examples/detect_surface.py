@@ -1,8 +1,6 @@
 """Example of automated boiling surface detection."""
 
 
-from pathlib import Path
-
 import cv2 as cv
 import numpy as np
 import xarray as xr
@@ -15,37 +13,34 @@ from scipy.ndimage import (
 
 from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
-from boilercv.data.video import VIDEO, prepare_dataset
+from boilercv.examples import EXAMPLE_VIDEO
 from boilercv.gui import get_calling_scope_name, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, flood, morph
-from boilercv.models.params import PARAMS
 from boilercv.types import DA, ArrInt, Img
 
 PREVIEW = True
-NUM_FRAMES = 100
 DRAWN_CONTOUR_THICKNESS = 2
-EXAMPLE_CINE = PARAMS.paths.examples / Path("2022-11-30T13-41-00_short.cine")
-EXAMPLE_CINE_ZOOMED = PARAMS.paths.examples / Path("2022-01-06T16-57-31_short.cine")
 
 
 def main():
-    source = EXAMPLE_CINE
-    ds = prepare_dataset(source, NUM_FRAMES)
-    video = ds[VIDEO]
-
     # Get the ROI
-    flooded_max: DA = apply_to_img_da(flood, video.max("frame"), name="flooded_max")
+    flooded_max: DA = apply_to_img_da(
+        flood, EXAMPLE_VIDEO.max("frame"), name="flooded_max"
+    )
     result: tuple[DA, ...] = apply_to_img_da(
-        morph, flooded_max, returns=3, name=["flooded_closed", "roi", "dilated"]
+        morph,
+        scale_bool(flooded_max),
+        returns=3,
+        name=["flooded_closed", "roi", "dilated"],
     )
     flooded_closed, roi, dilated = result
     boundary_roi = roi ^ dilated
 
     # Mask the first image
-    first_image = video.isel(frame=0)
+    first_image = EXAMPLE_VIDEO.isel(frame=0)
     first_image_roi_only = apply_to_img_da(
-        apply_mask, first_image, roi, name="first_image_roi_only"
+        apply_mask, first_image, scale_bool(roi), name="first_image_roi_only"
     )
     # Find the boiling surface
     boiling_surface, boiling_surface_coords = xr.apply_ufunc(
@@ -57,10 +52,6 @@ def main():
     )
     boiling_surface = boiling_surface.rename("boiling_surface")
     boiling_surface_coords = boiling_surface_coords.rename("boiling_surface_coords")
-
-
-if __name__ == "__main__":
-    main()
 
 
 def find_boiling_surface(img: Img, preview: bool = False) -> tuple[Img, ArrInt]:
@@ -145,3 +136,7 @@ def find_boiling_surface(img: Img, preview: bool = False) -> tuple[Img, ArrInt]:
             ),
         )
     return boiling_surface, boiling_surface_coords
+
+
+if __name__ == "__main__":
+    main()
