@@ -109,7 +109,7 @@ def process(source: Path, roi_path: Path, preview: bool = False):
     roi_poly_ = contours.pop()
     _roi_poly = df_points(roi_poly_)
     if contours:
-        warn("More than one contour found when searching for the ROI.")
+        warn("More than one contour found when searching for the ROI.", stacklevel=1)
     save_roi(roi_poly_, roi_path)
 
     # TODO: Refactor this logic out and see if dims can be reordered
