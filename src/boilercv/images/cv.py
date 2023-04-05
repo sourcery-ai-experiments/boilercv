@@ -113,11 +113,11 @@ def find_contours(img: Img, method: int = cv.CHAIN_APPROX_NONE) -> list[ArrInt]:
 
 
 def draw_contours(
-    img: Img, contours: Sequence[ArrInt], contour_index: int = -1, thickness=2
+    img: Img, contours: ArrInt, contour_index: int = -1, thickness=2
 ) -> Img:
     """Draw contours on an image."""
     # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
-    contours = [np.fliplr(contour).reshape(-1, 1, 2) for contour in contours]
+    contours = np.fliplr(contours).reshape(-1, 1, 2)
     # Need three-channel image to paint colored contours
     three_channel_gray = convert_image(img, cv.COLOR_GRAY2RGB)
     return cv.drawContours(

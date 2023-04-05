@@ -5,10 +5,10 @@ import pandas as pd
 
 from boilercv import DEBUG
 from boilercv.data import YX_PX, apply_to_img_da
-from boilercv.data.frames import df_points
+from boilercv.data.frames import df_points, frame_lines
 from boilercv.examples.detect_surface import find_boiling_surface
 from boilercv.gui import view_images
-from boilercv.images.cv import find_contours
+from boilercv.images.cv import find_contours, find_line_segments
 from boilercv.types import DA, ArrInt
 
 
@@ -75,3 +75,29 @@ def find_boiling_surface2(image: DA, preview: bool = DEBUG) -> ArrInt:
         view_images(dict(corn=corns_.values))
     # TODO: Save to disk, draw on an image for previewing
     return candidates.values.flatten()[:2]
+
+
+def find_boiling_surface3(image):
+    """Get line segments in an image."""
+    lines_, lsd = find_line_segments(image)
+    lined = lsd.drawSegments(image, lines_)
+    lines = frame_lines(lines_)
+    midpoints = df_points([lines.ypx.T.mean(), lines.xpx.T.mean()])
+    distances = df_points([lines.ypx[1] - lines.ypx[0], lines.xpx[1] - lines.xpx[0]])
+    lengths = distances.T.pow(2).sum().pow(1 / 2).rename("px")
+    angles = pd.Series(np.arctan2(distances.ypx, distances.xpx)).rename("deg")
+    lines = (
+        pd.concat(
+            axis="columns",
+            keys=["line", "midpoint", "length", "angle"],
+            objs=[
+                lines.set_axis(axis="columns", labels=["ypx0", "xpx0", "ypx1", "xpx1"]),
+                midpoints,
+                lengths,
+                angles,
+            ],
+        )
+        .rename_axis(axis="index", mapper="line")
+        .rename_axis(axis="columns", mapper=["metric", "dim"])
+    )
+    return lined, lines
