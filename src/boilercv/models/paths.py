@@ -76,15 +76,15 @@ class Paths(MyBaseModel):
 
     # ! DATA
     data: DirectoryPath = Path("data")
-    examples: DirectoryPath = data / "examples"
-
-    previews: DirectoryPath = data / "previews"
-    binarized_preview: Path = previews / "binarized.nc"
 
     contours: DirectoryPath = data / "contours"
+    examples: DirectoryPath = data / "examples"
     rois: DirectoryPath = data / "rois"
     samples: DirectoryPath = data / "samples"
     sources: DirectoryPath = data / "sources"
+
+    previews: DirectoryPath = data / "previews"
+    binarized_preview: Path = previews / "binarized.nc"
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass

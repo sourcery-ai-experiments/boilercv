@@ -1,6 +1,5 @@
 """Given a CINE, find ROI using `pyqtgraph` and find contours."""
 
-
 from matplotlib.pyplot import subplot_mosaic
 
 from boilercv.examples import EXAMPLE_FRAME_LIST, EXAMPLE_ROI
@@ -48,7 +47,7 @@ def preview_contours(
         contoured=contoured,
     )
     for image in input_images:
-        contours, masked, thresholded = get_contours(
+        contours, masked, thresholded = _get_contours(
             image, roi, block_size, thresh_dist_from_mean
         )
         all_contours.append(contours)
@@ -62,7 +61,7 @@ def preview_contours(
         return all_contours
 
 
-def get_contours(
+def _get_contours(
     input_image: ArrInt,
     roi: ArrInt,
     block_size: int,

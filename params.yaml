@@ -7,13 +7,13 @@ paths:
   models: src/boilercv/models
   paths_module: src/boilercv/models/paths.py
   data: data
-  examples: data/examples
-  previews: data/previews
-  binarized_preview: data/previews/binarized.nc
   contours: data/contours
+  examples: data/examples
   rois: data/rois
   samples: data/samples
   sources: data/sources
+  previews: data/previews
+  binarized_preview: data/previews/binarized.nc
   project_schema: data/schema
   stage_contours: src/boilercv/stages/contours.py
   stage_schema: src/boilercv/stages/schema.py

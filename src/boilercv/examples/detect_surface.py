@@ -16,17 +16,15 @@ from boilercv import DEBUG
 from boilercv.data import VIDEO, YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
 from boilercv.data.sets import get_dataset
-from boilercv.examples import EXAMPLE_ROI, EXAMPLE_VIDEO_NAME
+from boilercv.examples import EXAMPLE_NUM_FRAMES, EXAMPLE_ROI, EXAMPLE_VIDEO_NAME
 from boilercv.gui import get_calling_scope_name, save_roi, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import find_contours, get_wall
 from boilercv.types import DA, ArrInt, Img
 
-NUM_FRAMES = 1000
-
 
 def main():
-    ds = get_dataset(EXAMPLE_VIDEO_NAME, NUM_FRAMES)
+    ds = get_dataset(EXAMPLE_VIDEO_NAME, EXAMPLE_NUM_FRAMES)
     video = ds[VIDEO]
     roi = ds["roi"]
     wall: DA = apply_to_img_da(get_wall, scale_bool(roi), name="wall")
@@ -40,9 +38,7 @@ def main():
     if len(contours) > 1:
         warn("More than one contour found when searching for the ROI.", stacklevel=1)
     save_roi(contours[0], EXAMPLE_ROI)
-    # df = get_all_contours(video.values, method=cv.CHAIN_APPROX_SIMPLE)
-    if DEBUG:
-        view_images(dict(boiling_surface=boiling_surface, roi=roi))
+    view_images(dict(boiling_surface=boiling_surface, roi=roi))
 
 
 def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:

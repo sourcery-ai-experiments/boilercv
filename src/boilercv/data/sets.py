@@ -37,7 +37,9 @@ def get_dataset(name: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> DS
     roi = PARAMS.paths.rois / f"{name}.nc"
     with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
         if not unc_source.exists():
-            xr.Dataset({VIDEO: ds[VIDEO]}).to_netcdf(path=unc_source)
+            xr.Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(
+                path=unc_source
+            )
         return xr.Dataset(
             {
                 VIDEO: unpack(ds[VIDEO].sel(frame=frame)),
@@ -47,7 +49,7 @@ def get_dataset(name: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> DS
         )
 
 
-def get_large_dataset(video: str) -> DS:
+def get_large_dataset(name: str) -> DS:
     """Load a large video dataset."""
-    with xr.open_dataset(LOCAL_PATHS.large_sources / f"{video}.nc") as ds:
+    with xr.open_dataset(LOCAL_PATHS.large_sources / f"{name}.nc") as ds:
         return ds

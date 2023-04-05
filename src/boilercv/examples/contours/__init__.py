@@ -1,1 +1,0 @@
-"""Contour-finding examples."""

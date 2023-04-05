@@ -15,10 +15,8 @@ from boilercv.types import DF, Vid
 
 def main():
     logger.info("start contours")
-    destinations = [
-        PARAMS.paths.contours / f"{video_name}.h5" for video_name in ALL_NAMES
-    ]
-    for source_name, destination in zip(ALL_NAMES, destinations, strict=True):
+    for source_name in ALL_NAMES:
+        destination = PARAMS.paths.contours / f"{source_name}.h5"
         if destination.exists():
             continue
         video = cv.bitwise_not(scale_bool(get_dataset(source_name)[VIDEO].values))
