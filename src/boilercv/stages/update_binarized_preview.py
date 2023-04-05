@@ -1,11 +1,10 @@
 """Update previews for the binarization stage."""
 
-from boilercv import DEBUG
 from boilercv.data import FRAME, ROI, VIDEO, VIDEO_NAME, assign_ds
 from boilercv.data.models import Dimension
 from boilercv.data.sets import get_all_datasets
 from boilercv.data.video import XPX_DIM, YPX_DIM
-from boilercv.gui import MultipleViewable, pad_images, view_images
+from boilercv.gui import MultipleViewable, pad_images
 from boilercv.models.params import PARAMS
 
 
@@ -33,8 +32,6 @@ def main():
         data=preview,
     )
     ds.to_netcdf(path=PARAMS.paths.binarized_preview)
-    if DEBUG:
-        view_images(ds, play_rate=2)
 
 
 if __name__ == "__main__":
