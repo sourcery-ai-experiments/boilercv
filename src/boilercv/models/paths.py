@@ -75,6 +75,7 @@ class Paths(MyBaseModel):
     notes: Path = local_data / "notes"
     large_examples: Path = local_data / "large_examples"
     large_sources: Path = local_data / "large_sources"
+    uncompressed_sources: Path = local_data / "uncompressed_sources"
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
     # ! SCHEMA
