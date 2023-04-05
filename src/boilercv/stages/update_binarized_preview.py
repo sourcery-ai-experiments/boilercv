@@ -1,7 +1,5 @@
 """Update previews for the binarization stage."""
 
-import numpy as np
-
 from boilercv import DEBUG
 from boilercv.data import FRAME, ROI, VIDEO, VIDEO_NAME, assign_ds
 from boilercv.data.models import Dimension
@@ -14,21 +12,24 @@ from boilercv.models.params import PARAMS
 def main():
     preview: MultipleViewable = []
     video_names: list[str] = []
-    for ds, video_name in get_all_datasets():
-        vid = np.unpackbits(ds[VIDEO].isel({FRAME: 0}).values, axis=1)
-        preview.append(vid & ds[ROI].values)
+    for ds, video_name in get_all_datasets(num_frames=1):
+        first_frame = ds[VIDEO].isel({FRAME: 0}).values
+        preview.append(first_frame & ds[ROI].values)
         video_names.append(video_name)
     preview = pad_images(preview)
-    video_name_dim = Dimension(
-        dim=VIDEO_NAME,
-        long_name="Video name",
-        coords=video_names,
-    )
     ds = assign_ds(
         name=VIDEO,
         long_name="Video preview",
         units="Pixel state",
-        dims=(video_name_dim, YPX_DIM, XPX_DIM),
+        dims=(
+            Dimension(
+                dim=VIDEO_NAME,
+                long_name="Video name",
+                coords=video_names,
+            ),
+            YPX_DIM,
+            XPX_DIM,
+        ),
         data=preview,
     )
     ds.to_netcdf(path=PARAMS.paths.binarized_preview)

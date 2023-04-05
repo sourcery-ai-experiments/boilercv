@@ -13,11 +13,13 @@ from boilercv.types import DS
 ALL_FRAMES = slice(None)
 
 
-def get_all_datasets() -> Iterator[tuple[DS, str]]:
+def get_all_datasets(
+    num_frames: int = 0, frame: slice = ALL_FRAMES
+) -> Iterator[tuple[DS, str]]:
     """Yield datasets in order."""
     videos = [source.stem for source in iter_sorted(PARAMS.paths.sources)]
     for video in videos:
-        yield get_dataset(video), video
+        yield get_dataset(video, num_frames, frame), video
 
 
 def get_dataset(video: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> DS:

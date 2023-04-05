@@ -11,7 +11,7 @@ stages:
       size: 641
     outs:
     - path: data/schema
-      md5: d2f12b9dd3f8850c1de5bc4dc33b4bab.dir
+      md5: fd9f681686f1f681f381c5b0f6b68cea.dir
       size: 5301
       nfiles: 1
   update_binarized_preview:
