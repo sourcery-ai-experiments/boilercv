@@ -12,7 +12,7 @@ requirements = REQUIREMENTS.read_text(encoding="utf-8").splitlines()
 dependencies = [
     line.rstrip().replace("==", ">=")
     for line in requirements
-    if line != "\n" and not line.startswith("#")
+    if line and not line.startswith("#")
 ]
 source = toml.loads(SOURCE.read_text(encoding="utf-8"))
 source["project"]["dependencies"] = dependencies

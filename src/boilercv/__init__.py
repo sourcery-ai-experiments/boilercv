@@ -4,6 +4,7 @@ from os import environ
 from pathlib import Path
 from textwrap import dedent
 
+import pandas as pd
 import pyqtgraph as pg
 from cv2 import version
 from loguru import logger
@@ -26,6 +27,9 @@ def init():
     check_contrib()
     check_samples_env_var()
     pg.setConfigOption("imageAxisOrder", "row-major")
+    pd.set_option("mode.copy_on_write", True)
+    pd.set_option("mode.chained_assignment", "raise")
+    pd.set_option("mode.string_storage", "pyarrow")
 
 
 def check_contrib():
