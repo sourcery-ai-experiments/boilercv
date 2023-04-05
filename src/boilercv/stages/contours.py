@@ -32,22 +32,28 @@ def main():
 
 def get_all_contours(video: Vid, method) -> DF:
     """Get all contours."""
-    all_contours = np.vstack(
-        [
-            np.insert(
-                np.vstack(
-                    [
-                        np.insert(contour, 0, cont_num, axis=1)
-                        for cont_num, contour in enumerate(find_contours(image, method))
-                    ]
-                ),
-                0,
-                image_num,
-                axis=1,
-            )
-            for image_num, image in enumerate(video)
-        ]
-    )
+    try:
+        all_contours = np.vstack(
+            [
+                np.insert(
+                    np.vstack(
+                        [
+                            np.insert(contour, 0, cont_num, axis=1)
+                            for cont_num, contour in enumerate(
+                                find_contours(image, method)
+                            )
+                        ]
+                    ),
+                    0,
+                    image_num,
+                    axis=1,
+                )
+                for image_num, image in enumerate(video)
+            ]
+        )
+    except ValueError:
+        logger.exception("no contours found")
+        all_contours = np.empty((0, 4))
     return pd.DataFrame(
         all_contours, columns=["frame", "contour", "ypx", "xpx"]
     ).set_index(["frame", "contour"])
