@@ -49,8 +49,8 @@ stages:
       size: 7424602696
       nfiles: 308
     - path: src/boilercv/stages/contours.py
-      md5: b7593ad6e44a8f0301462d72ae46f1ae
-      size: 1726
+      md5: 18eb0aa2dad3880b985e9c2739531dc9
+      size: 1639
     outs:
     - path: data/contours
       md5: 1c4d2e65a480a5fe014266730896b9f0.dir
