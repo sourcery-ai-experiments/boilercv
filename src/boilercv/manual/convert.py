@@ -7,6 +7,7 @@ from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
 
 
 def main():
+    logger.info("start convert")
     for source in get_sorted_paths(LOCAL_PATHS.cines):
         destination = LOCAL_PATHS.large_sources / f"{source.stem}.nc"
         if destination.exists():
@@ -16,6 +17,7 @@ def main():
         except Exception:
             logger.exception(source.stem)
             continue
+    logger.info("finish convert")
 
 
 if __name__ == "__main__":

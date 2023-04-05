@@ -13,30 +13,29 @@ from boilercv.types import DA
 
 
 def main():
+    logger.info("start binarize")
     for source in get_sorted_paths(LOCAL_PATHS.large_sources):
-        try:
-            loop(source)
-        except Exception:
-            logger.exception(source.stem)
+        destination = PARAMS.paths.sources / f"{source.stem}.nc"
+        if destination.exists():
             continue
-
-
-def loop(source):
-    with xr.open_dataset(source) as ds:
-        video = ds[VIDEO]
-        maximum = video.max(FRAME)
-        flooded: DA = apply_to_img_da(flood, maximum)
-        roi = apply_to_img_da(get_roi, scale_bool(flooded))
-        masked: DA = apply_to_img_da(apply_mask, video, scale_bool(roi), vectorize=True)
-        binarized: DA = apply_to_img_da(binarize, masked, vectorize=True)
-        ds[VIDEO] = pack(binarized)
-        ds.to_netcdf(
-            path=PARAMS.paths.sources / source.name,
-            encoding={VIDEO: {"zlib": True}},
-        )
-        ds[ROI] = roi
-        ds = ds.drop_vars(VIDEO)
-        ds.to_netcdf(path=PARAMS.paths.rois / source.name)
+        with xr.open_dataset(source) as ds:
+            video = ds[VIDEO]
+            maximum = video.max(FRAME)
+            flooded: DA = apply_to_img_da(flood, maximum)
+            roi: DA = apply_to_img_da(get_roi, scale_bool(flooded))
+            masked: DA = apply_to_img_da(
+                apply_mask, video, scale_bool(roi), vectorize=True
+            )
+            binarized: DA = apply_to_img_da(binarize, masked, vectorize=True)
+            ds[VIDEO] = pack(binarized)
+            ds.to_netcdf(
+                path=PARAMS.paths.sources / source.name,
+                encoding={VIDEO: {"zlib": True}},
+            )
+            ds[ROI] = roi
+            ds = ds.drop_vars(VIDEO)
+            ds.to_netcdf(path=PARAMS.paths.rois / source.name)
+    logger.info("finish binarize")
 
 
 if __name__ == "__main__":
