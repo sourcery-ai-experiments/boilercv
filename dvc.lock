@@ -41,3 +41,18 @@ stages:
     - path: src/boilercv/stages/preview_binarized.py
       md5: aa0adbd6d0409460b55b55ce0a1a5b96
       size: 349
+  contours:
+    cmd: python -m boilercv.stages.contours
+    deps:
+    - path: data/sources
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/contours.py
+      md5: b7593ad6e44a8f0301462d72ae46f1ae
+      size: 1726
+    outs:
+    - path: data/contours
+      md5: 1c4d2e65a480a5fe014266730896b9f0.dir
+      size: 2077566
+      nfiles: 1
