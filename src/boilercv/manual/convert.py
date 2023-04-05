@@ -3,14 +3,12 @@
 from loguru import logger
 
 from boilercv.data.video import prepare_dataset
-from boilercv.models.params import PARAMS
-from boilercv.models.paths import iter_sorted
+from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
 
 
 def main():
-    sources = iter_sorted(PARAMS.paths.cines)
-    for source in sources:
-        destination = PARAMS.paths.large_sources / f"{source.stem}.nc"
+    for source in get_sorted_paths(LOCAL_PATHS.cines):
+        destination = LOCAL_PATHS.large_sources / f"{source.stem}.nc"
         if destination.exists():
             continue
         try:

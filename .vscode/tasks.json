@@ -10,13 +10,7 @@
       "type": "pickString",
       "description": "stage",
       "default": "",
-      "options": [
-        "",
-        "-f",
-        "schema",
-        "update_binarized_preview",
-        "preview_binarized"
-      ]
+      "options": ["", "-f", "schema", "update_binarized_preview", "contours"]
     },
     {
       "id": "preview",

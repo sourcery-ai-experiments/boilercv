@@ -8,13 +8,12 @@ from boilercv.data.packing import pack
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, binarize, flood, get_roi
 from boilercv.models.params import PARAMS
-from boilercv.models.paths import iter_sorted
+from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
 from boilercv.types import DA
 
 
 def main():
-    sources = iter_sorted(PARAMS.paths.large_sources)
-    for source in sources:
+    for source in get_sorted_paths(LOCAL_PATHS.large_sources):
         try:
             loop(source)
         except Exception:

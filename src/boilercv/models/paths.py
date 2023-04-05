@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -27,9 +27,27 @@ def repl_path(dirs_dict: dict[str, Path]):
     return {k: str(v).replace("\\", "/") for k, v in dirs_dict.items()}
 
 
-def iter_sorted(path: Path) -> Iterator[Path]:
+def get_sorted_paths(path: Path) -> list[Path]:
     """Iterate over a sorted directory."""
-    yield from sorted(path.iterdir())
+    return sorted(path.iterdir())
+
+
+@dataclass
+class LocalPaths:
+    """Local paths for larger files not stored in the cloud."""
+
+    data: Path = Path("~").expanduser() / ".local/boilercv"
+    hierarchical_data: Path = data / "data"
+    cines: Path = data / "cines"
+    sheets: Path = data / "sheets"
+    notes: Path = data / "notes"
+    large_examples: Path = data / "large_examples"
+    large_sources: Path = data / "large_sources"
+    uncompressed_sources: Path = data / "uncompressed_sources"
+    large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
+
+
+LOCAL_PATHS = LocalPaths()
 
 
 class Paths(MyBaseModel):
@@ -63,32 +81,23 @@ class Paths(MyBaseModel):
     previews: DirectoryPath = data / "previews"
     binarized_preview: Path = previews / "binarized.nc"
 
+    contours: DirectoryPath = data / "contours"
     rois: DirectoryPath = data / "rois"
     samples: DirectoryPath = data / "samples"
     sources: DirectoryPath = data / "sources"
-
-    # ! LOCAL DATA
-    local_data: Path = Path("~").expanduser() / ".local/boilercv"
-    local_hierarchical_data: Path = local_data / "data"
-    cines: Path = local_data / "cines"
-    sheets: Path = local_data / "sheets"
-    notes: Path = local_data / "notes"
-    large_examples: Path = local_data / "large_examples"
-    large_sources: Path = local_data / "large_sources"
-    uncompressed_sources: Path = local_data / "uncompressed_sources"
-    large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass
     project_schema: DirectoryPath = data / "schema"
 
     # ! STAGES
+    stage_contours: FilePath = stages / "contours.py"
     stage_schema: FilePath = stages / "schema.py"
     stage_update_binarized_preview: FilePath = stages / "update_binarized_preview.py"
 
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation
-    @validator("project_schema", always=True, pre=True)
+    @validator("contours", "project_schema", always=True, pre=True)
     def validate_output_directories(cls, directory: Path):
         """Re-create designated output directories each run, for reproducibility."""
         directory = Path(directory)

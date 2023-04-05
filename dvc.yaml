@@ -14,3 +14,11 @@ stages:
       - "${paths.sources}"
     outs:
       - "${paths.binarized_preview}"
+  contours:
+    cmd: "python -m boilercv.stages.contours"
+    deps:
+      - "${paths.stage_contours}"
+      - "${paths.sources}"
+    outs:
+      - "${paths.contours}":
+          persist: true

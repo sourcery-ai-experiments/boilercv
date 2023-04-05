@@ -7,10 +7,10 @@ import xarray as xr
 
 from boilercv.data import VIDEO
 from boilercv.gui import view_images
-from boilercv.models.params import PARAMS
+from boilercv.models.paths import LOCAL_PATHS
 from boilercv.types import DS
 
-EXAMPLE = PARAMS.paths.large_sources / "2022-09-14T13-20-54.nc"
+EXAMPLE = LOCAL_PATHS.large_sources / "2022-09-14T13-20-54.nc"
 
 
 @contextmanager
@@ -31,11 +31,11 @@ def example_dataset(
         save: Whether to save the file.
     """
     _source = (
-        PARAMS.paths.large_examples / f"{EXAMPLE.stem}_{source}.nc"
+        LOCAL_PATHS.large_examples / f"{EXAMPLE.stem}_{source}.nc"
         if source
         else EXAMPLE
     )
-    _destination = PARAMS.paths.large_examples / f"{EXAMPLE.stem}_{destination}.nc"
+    _destination = LOCAL_PATHS.large_examples / f"{EXAMPLE.stem}_{destination}.nc"
     with xr.open_dataset(_source) as ds:
         original = ds[VIDEO]
         try:

@@ -7,22 +7,23 @@ import xarray as xr
 from boilercv.data import HEADER, ROI, VIDEO
 from boilercv.data.packing import unpack
 from boilercv.models.params import PARAMS
-from boilercv.models.paths import iter_sorted
+from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
 from boilercv.types import DS
 
 ALL_FRAMES = slice(None)
+ALL_SOURCES = get_sorted_paths(PARAMS.paths.sources)
+ALL_NAMES = [source.stem for source in ALL_SOURCES]
 
 
 def get_all_datasets(
     num_frames: int = 0, frame: slice = ALL_FRAMES
 ) -> Iterator[tuple[DS, str]]:
     """Yield datasets in order."""
-    videos = [source.stem for source in iter_sorted(PARAMS.paths.sources)]
-    for video in videos:
-        yield get_dataset(video, num_frames, frame), video
+    for name in ALL_NAMES:
+        yield get_dataset(name, num_frames, frame), name
 
 
-def get_dataset(video: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> DS:
+def get_dataset(name: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> DS:
     """Load a video dataset."""
     # Can't use `xr.open_mfdataset` because it requires dask
     # Unpacking is incompatible with dask
@@ -31,9 +32,9 @@ def get_dataset(video: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> D
             frame = slice(None, num_frames - 1)
         else:
             raise ValueError("Don't specify both `num_frames` and `frame`.")
-    unc_source = PARAMS.paths.uncompressed_sources / f"{video}.nc"
-    source = unc_source if unc_source.exists() else PARAMS.paths.sources / f"{video}.nc"
-    roi = PARAMS.paths.rois / f"{video}.nc"
+    unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
+    source = unc_source if unc_source.exists() else PARAMS.paths.sources / f"{name}.nc"
+    roi = PARAMS.paths.rois / f"{name}.nc"
     with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
         if not unc_source.exists():
             xr.Dataset({VIDEO: ds[VIDEO]}).to_netcdf(path=unc_source)
@@ -48,5 +49,5 @@ def get_dataset(video: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> D
 
 def get_large_dataset(video: str) -> DS:
     """Load a large video dataset."""
-    with xr.open_dataset(PARAMS.paths.large_sources / f"{video}.nc") as ds:
+    with xr.open_dataset(LOCAL_PATHS.large_sources / f"{video}.nc") as ds:
         return ds

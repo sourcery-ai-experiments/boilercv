@@ -10,18 +10,11 @@ paths:
   examples: data/examples
   previews: data/previews
   binarized_preview: data/previews/binarized.nc
+  contours: data/contours
   rois: data/rois
   samples: data/samples
   sources: data/sources
-  local_data: C:/Users/Blake/.local/boilercv
-  local_hierarchical_data: C:/Users/Blake/.local/boilercv/data
-  cines: C:/Users/Blake/.local/boilercv/cines
-  sheets: C:/Users/Blake/.local/boilercv/sheets
-  notes: C:/Users/Blake/.local/boilercv/notes
-  large_examples: C:/Users/Blake/.local/boilercv/large_examples
-  large_sources: C:/Users/Blake/.local/boilercv/large_sources
-  uncompressed_sources: C:/Users/Blake/.local/boilercv/uncompressed_sources
-  large_example_cine: C:/Users/Blake/.local/boilercv/cines/2022-01-06T16-57-31.cine
   project_schema: data/schema
+  stage_contours: src/boilercv/stages/contours.py
   stage_schema: src/boilercv/stages/schema.py
   stage_update_binarized_preview: src/boilercv/stages/update_binarized_preview.py

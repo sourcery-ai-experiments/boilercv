@@ -9,8 +9,7 @@ successful conversion each time.
 from loguru import logger
 
 from boilercv.data.video import prepare_dataset
-from boilercv.models.params import PARAMS
-from boilercv.models.paths import iter_sorted
+from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
 
 FRAMES = {
     "2021-06-21T17-06-43": 3089,
@@ -28,10 +27,10 @@ FRAMES = {
 
 
 def main():
-    sources = iter_sorted(PARAMS.paths.local_data / "weird")
+    sources = get_sorted_paths(LOCAL_PATHS.data / "weird")
     for source in sources:
         num_frames = FRAMES[source.stem] - 1
-        destination = PARAMS.paths.large_sources / f"{source.stem}.nc"
+        destination = LOCAL_PATHS.large_sources / f"{source.stem}.nc"
         if destination.exists():
             continue
         try:

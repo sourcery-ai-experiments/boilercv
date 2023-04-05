@@ -17,7 +17,7 @@ DEBUG = str(_debug).casefold() == "true" if _debug else False
 
 if DEBUG:
     logger.add(sink="boilercv.log")
-    NUM_FRAMES = 500
+    NUM_FRAMES = 1000
 else:
     NUM_FRAMES = 0
 
