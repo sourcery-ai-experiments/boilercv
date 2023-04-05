@@ -5,8 +5,8 @@ from pathlib import Path
 import cv2 as cv
 import numpy as np
 
-from boilercv.examples import capture_images
 from boilercv.gui import view_images
+from boilercv.images import capture_images
 from boilercv.images.cv import convert_image
 
 

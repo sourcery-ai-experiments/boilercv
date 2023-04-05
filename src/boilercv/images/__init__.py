@@ -1,17 +1,20 @@
 """Image acquisition and processing."""
 
-# Pure numpy image processing functions take lots of types, including DataArrays.
+# * Pure numpy image processing functions take lots of types, including DataArrays.
 # pyright: reportGeneralTypeIssues=none
 
+from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
+import cv2 as cv
 import numpy as np
 from matplotlib.font_manager import FontProperties, findfont
 from numpy import typing as npt
 from PIL import Image, ImageDraw, ImageFont
 
 from boilercv.colors import BLACK, WHITE
-from boilercv.types import ImgLike, T
+from boilercv.types import Img, ImgLike, T
 
 # * -------------------------------------------------------------------------------- * #
 # * PURE NUMPY - TYPE PRESERVING
@@ -66,3 +69,17 @@ def draw_text(image: ImgLike, text: str = "") -> ImgLike:
     draw.rectangle((p0, p1), fill=BLACK)
     draw.text(text_p0, text, font=FONT, fill=WHITE)
     return np.asarray(pil_image)
+
+
+# * -------------------------------------------------------------------------------- * #
+# * VIDEO CAPTURE FUNCTIONS
+
+
+def capture_images(path: Path) -> Iterator[Img]:
+    """Load images from a video file."""
+    video_capture = cv.VideoCapture(str(path))
+    while True:
+        read_is_successful, image = video_capture.read()
+        if not read_is_successful:
+            break
+        yield image

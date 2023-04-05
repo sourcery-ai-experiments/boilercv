@@ -1,14 +1,12 @@
 """Given an MP4, find ROI using `opencv` and find contours."""
 
-from collections.abc import Iterator
-from pathlib import Path
 
 import cv2 as cv
 import numpy as np
 from scipy.spatial import ConvexHull
 
 from boilercv.colors import BLUE_CV
-from boilercv.images import scale_bool
+from boilercv.images import capture_images, scale_bool
 from boilercv.images.cv import (
     apply_mask,
     binarize,
@@ -18,7 +16,7 @@ from boilercv.images.cv import (
     find_contours,
 )
 from boilercv.models.params import PARAMS
-from boilercv.types import ArrInt, Img
+from boilercv.types import ArrInt
 
 WINDOW_NAME = "image"
 ESC_KEY = ord("\x1b")
@@ -95,16 +93,6 @@ def get_roi2(image: ArrInt) -> ArrInt:
         return image
 
     return main()
-
-
-def capture_images(path: Path) -> Iterator[Img]:
-    """Images from a video file."""
-    video_capture = cv.VideoCapture(str(path))
-    while True:
-        read_is_successful, image = video_capture.read()
-        if not read_is_successful:
-            break
-        yield image
 
 
 if __name__ == "__main__":
