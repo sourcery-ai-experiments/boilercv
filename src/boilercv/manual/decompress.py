@@ -1,4 +1,4 @@
-"""Unpack sources to local storage."""
+"""Decompress sources to local storage."""
 
 
 from pathlib import Path
