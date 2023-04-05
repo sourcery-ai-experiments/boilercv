@@ -40,9 +40,7 @@ def main():
     if len(contours) > 1:
         warn("More than one contour found when searching for the ROI.", stacklevel=1)
     save_roi(contours[0], EXAMPLE_ROI)
-    # df = get_all_contours(video.values, method=cv.CHAIN_APPROX_SIMPLE)
-    if DEBUG:
-        view_images(dict(boiling_surface=boiling_surface, roi=roi))
+    view_images(dict(boiling_surface=boiling_surface, roi=roi))
 
 
 def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:

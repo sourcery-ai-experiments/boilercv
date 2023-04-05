@@ -2,7 +2,6 @@
 
 import cv2 as cv
 
-from boilercv import DEBUG
 from boilercv.data import VIDEO
 from boilercv.data.frames import idx
 from boilercv.data.sets import get_dataset
@@ -29,16 +28,15 @@ def main():
         complib="zlib",
         complevel=9,
     )
-    if DEBUG:
-        result: list[Img] = []
-        for frame_num, frame in enumerate(video):
-            contours: list[ArrInt] = list(  # type: ignore
-                df.loc[idx[frame_num], :]  # type: ignore
-                .groupby("contour")
-                .apply(lambda grp: grp.values)  # type: ignore
-            )
-            result.append(draw_contours(scale_bool(frame.values), contours))
-        view_images(result)
+    result: list[Img] = []
+    for frame_num, frame in enumerate(video):
+        contours: list[ArrInt] = list(  # type: ignore
+            df.loc[idx[frame_num], :]  # type: ignore
+            .groupby("contour")
+            .apply(lambda grp: grp.values)  # type: ignore
+        )
+        result.append(draw_contours(scale_bool(frame.values), contours))
+    view_images(result)
 
 
 if __name__ == "__main__":

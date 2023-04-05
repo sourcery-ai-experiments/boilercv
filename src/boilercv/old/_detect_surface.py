@@ -12,7 +12,7 @@ from boilercv.images.cv import find_contours, find_line_segments
 from boilercv.types import DA, ArrInt
 
 
-def find_boiling_surface2(image: DA, preview: bool = DEBUG) -> ArrInt:
+def _find_boiling_surface(image: DA, preview: bool = DEBUG) -> ArrInt:
     """Find the boiling surface."""
     # Find corners and set index to contour points for later concatenation
     (height, width) = image.shape
@@ -77,7 +77,7 @@ def find_boiling_surface2(image: DA, preview: bool = DEBUG) -> ArrInt:
     return candidates.values.flatten()[:2]
 
 
-def find_boiling_surface3(image):
+def _find_boiling_surface2(image):
     """Get line segments in an image."""
     lines_, lsd = find_line_segments(image)
     lined = lsd.drawSegments(image, lines_)
