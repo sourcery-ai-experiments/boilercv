@@ -1,6 +1,5 @@
 """Find bubbles as blobs."""
 
-
 import cv2 as cv
 
 from boilercv.colors import RED
@@ -10,8 +9,8 @@ from boilercv.gui import edit_roi, view_images
 from boilercv.images.cv import apply_mask, build_mask_from_polygons, convert_image
 from boilercv.types import ArrInt
 
-NUM_FRAMES = 10
-SHORTER_FRAME_LIST = EXAMPLE_FRAME_LIST[:NUM_FRAMES]
+_NUM_FRAMES = 10
+SHORTER_FRAME_LIST = EXAMPLE_FRAME_LIST[:_NUM_FRAMES]
 
 
 def main():
