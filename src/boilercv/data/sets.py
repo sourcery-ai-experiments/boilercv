@@ -1,6 +1,7 @@
 """Datasets."""
 
 from collections.abc import Iterator
+from typing import Literal
 
 import pandas as pd
 import xarray as xr
@@ -23,20 +24,38 @@ def get_shape(ds: DS) -> tuple[int, int, int]:
 
 
 def get_all_datasets(
-    num_frames: int = 0, frame: slice = ALL_FRAMES
+    num_frames: int = 0,
+    frame: slice = ALL_FRAMES,
+    stage: Literal["sources", "filled"] = "sources",
 ) -> Iterator[tuple[DS, str]]:
     """Yield datasets in order."""
     for name in ALL_NAMES:
-        yield get_dataset(name, num_frames, frame), name
+        yield get_dataset(name, num_frames, frame, stage), name
 
 
-def get_dataset(name: str, num_frames: int = 0, frame: slice = ALL_FRAMES) -> DS:
+def get_dataset(
+    name: str,
+    num_frames: int = 0,
+    frame: slice = ALL_FRAMES,
+    stage: Literal["sources", "filled"] = "sources",
+) -> DS:
     """Load a video dataset."""
     # Can't use `xr.open_mfdataset` because it requires dask
     # Unpacking is incompatible with dask
     frame = slice_frames(num_frames, frame)
-    unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
-    source = unc_source if unc_source.exists() else PARAMS.paths.sources / f"{name}.nc"
+    if stage == "sources":
+        unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
+        source = (
+            unc_source if unc_source.exists() else PARAMS.paths.sources / f"{name}.nc"
+        )
+
+    elif stage == "filled":
+        unc_source = LOCAL_PATHS.uncompressed_filled / f"{name}.nc"
+        source = (
+            unc_source if unc_source.exists() else PARAMS.paths.filled / f"{name}.nc"
+        )
+    else:
+        raise ValueError(f"Unknown stage: {stage}")
     roi = PARAMS.paths.rois / f"{name}.nc"
     with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
         if not unc_source.exists():

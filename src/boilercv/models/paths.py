@@ -44,6 +44,7 @@ class LocalPaths:
     large_examples: Path = data / "large_examples"
     large_sources: Path = data / "large_sources"
     uncompressed_contours: Path = data / "uncompressed_contours"
+    uncompressed_filled: Path = data / "uncompressed_filled"
     uncompressed_sources: Path = data / "uncompressed_sources"
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
@@ -87,6 +88,7 @@ class Paths(MyBaseModel):
 
     previews: DirectoryPath = data / "previews"
     binarized_preview: Path = previews / "binarized.nc"
+    filled_preview: Path = previews / "filled.nc"
 
     # ! SCHEMA
     # Can't be "schema", which is a special member of BaseClass
@@ -97,6 +99,7 @@ class Paths(MyBaseModel):
     stage_fill: FilePath = stages / "fill.py"
     stage_schema: FilePath = stages / "schema.py"
     stage_update_binarized_preview: FilePath = stages / "update_binarized_preview.py"
+    stage_update_filled_preview: FilePath = stages / "update_filled_preview.py"
 
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation

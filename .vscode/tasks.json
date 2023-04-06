@@ -16,7 +16,8 @@
         "schema",
         "update_binarized_preview",
         "contours",
-        "fill"
+        "fill",
+        "update_filled_preview"
       ]
     },
     {
@@ -90,6 +91,19 @@
       "problemMatcher": []
     },
     {
+      "label": "dvc: dag",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dvc: synchronize paths"],
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-Command",
+        "(dvc dag --md) -Replace 'mermaid', '{mermaid}' > docs/dag.md && . '~/.local/nodeenvs/markdownlint/Scripts/Activate.ps1' && markdownlint --fix docs/dag.md"
+      ],
+      "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
+    {
       "label": "dvc: synchronize paths",
       "type": "process",
       "command": "pwsh",
@@ -104,19 +118,6 @@
       "args": [
         "-Command",
         "pip freeze --requirement requirements.txt --local --exclude-editable > frozen_requirements.txt"
-      ],
-      "icon": { "id": "graph" },
-      "problemMatcher": []
-    },
-    // * -------------------------------------------------------------------------- * //
-    // * DVC DAG * //
-    {
-      "label": "dvc: dag",
-      "type": "process",
-      "command": "pwsh",
-      "args": [
-        "-Command",
-        "(dvc dag --md) -Replace 'mermaid', '{mermaid}' > docs/dag.md && . '~/.local/nodeenvs/markdownlint/Scripts/Activate.ps1' && markdownlint --fix docs/dag.md"
       ],
       "icon": { "id": "graph" },
       "problemMatcher": []

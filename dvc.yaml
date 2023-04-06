@@ -31,3 +31,10 @@ stages:
     outs:
       - "${paths.filled}":
           persist: true
+  update_filled_preview:
+    cmd: "python -m boilercv.stages.update_filled_preview"
+    deps:
+      - "${paths.stage_update_filled_preview}"
+      - "${paths.filled}"
+    outs:
+      - "${paths.filled_preview}"
