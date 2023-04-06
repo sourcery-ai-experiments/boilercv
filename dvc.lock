@@ -56,3 +56,22 @@ stages:
       md5: d43be95333c9df0e76d570f8b11aada2.dir
       size: 4279876062
       nfiles: 308
+  fill:
+    cmd: python -m boilercv.stages.fill
+    deps:
+    - path: data/contours
+      md5: d43be95333c9df0e76d570f8b11aada2.dir
+      size: 4279876062
+      nfiles: 308
+    - path: data/sources
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/fill.py
+      md5: d6e9e5582c2f4f24d8e80b7a5c917e27
+      size: 1583
+    outs:
+    - path: data/filled
+      md5: 9d9b406833ae3911940fd4d717bb20e1.dir
+      size: 3482532424
+      nfiles: 308

@@ -29,9 +29,10 @@ def main():
                     video[frame_num, :, :] = loop(df, frame_num, frame)
                 except Exception:
                     logger.exception("Failed to fill contours")
+                    continue
         ds[VIDEO] = pack(video)
         ds = ds.drop_vars(ROI)
-        ds.to_netcdf(path=destination)
+        ds.to_netcdf(path=destination, encoding={VIDEO: {"zlib": True}})
 
 
 def loop(df, frame_num, frame):
