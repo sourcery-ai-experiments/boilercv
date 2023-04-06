@@ -1,6 +1,9 @@
 """Computer vision routines suitable for nucleate pool boiling bubble analysis."""
 
 from os import environ
+
+environ["PYQTGRAPH_QT_LIB"] = "PySide6"
+
 from pathlib import Path
 from textwrap import dedent
 
