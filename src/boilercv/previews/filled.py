@@ -9,9 +9,9 @@ from boilercv.previews import draw_text_da
 
 
 def main():
-    with xr.open_dataset(PARAMS.paths.binarized_preview) as ds:
+    with xr.open_dataset(PARAMS.paths.filled_preview) as ds:
         da = draw_text_da(ds[VIDEO])
-        view_images(da)
+        view_images(da, play_rate=3)
 
 
 if __name__ == "__main__":

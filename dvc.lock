@@ -75,3 +75,17 @@ stages:
       md5: 9d9b406833ae3911940fd4d717bb20e1.dir
       size: 3482532424
       nfiles: 308
+  update_filled_preview:
+    cmd: python -m boilercv.stages.update_filled_preview
+    deps:
+    - path: data/filled
+      md5: 9d9b406833ae3911940fd4d717bb20e1.dir
+      size: 3482532424
+      nfiles: 308
+    - path: src/boilercv/stages/update_filled_preview.py
+      md5: 2b467aa2304c045ab9acd4a3c429dd39
+      size: 1273
+    outs:
+    - path: data/previews/filled.nc
+      md5: 913c0dca978f8f3ff088adb765bf8029
+      size: 147879321

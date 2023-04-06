@@ -1,12 +1,13 @@
 """Datasets."""
 
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Literal
 
 import pandas as pd
 import xarray as xr
 
-from boilercv.data import DIMS, HEADER, ROI, VIDEO
+from boilercv.data import HEADER, ROI, VIDEO
 from boilercv.data.packing import unpack
 from boilercv.models.params import PARAMS
 from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
@@ -15,12 +16,6 @@ from boilercv.types import DF, DS
 ALL_FRAMES = slice(None)
 ALL_SOURCES = get_sorted_paths(PARAMS.paths.sources)
 ALL_NAMES = [source.stem for source in ALL_SOURCES]
-
-
-def get_shape(ds: DS) -> tuple[int, int, int]:
-    """Get the shape of the video."""
-    shape_keys = [f"source_{dim}" for dim in DIMS]
-    return tuple(ds.attrs[key] for key in shape_keys)
 
 
 def get_all_datasets(
@@ -33,6 +28,14 @@ def get_all_datasets(
         yield get_dataset(name, num_frames, frame, stage), name
 
 
+def inspect_dataset(name: str, stage: Literal["sources", "filled"] = "sources") -> DS:
+    """Inspect a video dataset."""
+    cmp_source, unc_source = get_stage(name, stage)
+    source = unc_source if unc_source.exists() else cmp_source
+    with xr.open_dataset(source) as ds:
+        return ds
+
+
 def get_dataset(
     name: str,
     num_frames: int = 0,
@@ -43,33 +46,35 @@ def get_dataset(
     # Can't use `xr.open_mfdataset` because it requires dask
     # Unpacking is incompatible with dask
     frame = slice_frames(num_frames, frame)
-    if stage == "sources":
-        unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
-        source = (
-            unc_source if unc_source.exists() else PARAMS.paths.sources / f"{name}.nc"
-        )
-
-    elif stage == "filled":
-        unc_source = LOCAL_PATHS.uncompressed_filled / f"{name}.nc"
-        source = (
-            unc_source if unc_source.exists() else PARAMS.paths.filled / f"{name}.nc"
-        )
-    else:
-        raise ValueError(f"Unknown stage: {stage}")
+    cmp_source, unc_source = get_stage(name, stage)
+    source = unc_source if unc_source.exists() else cmp_source
     roi = PARAMS.paths.rois / f"{name}.nc"
     with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
         if not unc_source.exists():
             xr.Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(
-                path=unc_source
+                path=unc_source, encoding={VIDEO: {"zlib": False}}
             )
         return xr.Dataset(
             {
                 VIDEO: unpack(ds[VIDEO].sel(frame=frame)),
                 ROI: roi_ds[ROI],
                 HEADER: ds[HEADER],
-            },
-            attrs={f"source_{dim}": length for dim, length in ds.dims.items()},
+            }
         )
+
+
+def get_stage(
+    name: str, stage: Literal["sources", "filled"] = "sources"
+) -> tuple[Path, Path]:
+    """Get the paths associated with a particular video name and pipeline stage."""
+    if stage == "sources":
+        unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
+        return PARAMS.paths.sources / f"{name}.nc", unc_source
+    elif stage == "filled":
+        unc_source = LOCAL_PATHS.uncompressed_filled / f"{name}.nc"
+        return PARAMS.paths.filled / f"{name}.nc", unc_source
+    else:
+        raise ValueError(f"Unknown stage: {stage}")
 
 
 def get_large_dataset(name: str) -> DS:

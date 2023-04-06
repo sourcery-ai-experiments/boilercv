@@ -12,7 +12,6 @@
       "default": "",
       "options": [
         "",
-        "-f",
         "schema",
         "update_binarized_preview",
         "contours",
@@ -25,7 +24,7 @@
       "type": "pickString",
       "description": "preview",
       "default": "",
-      "options": ["binarized"]
+      "options": ["binarized", "filled"]
     }
   ],
   "tasks": [
@@ -51,6 +50,19 @@
       "problemMatcher": []
     },
     {
+      "label": "dvc: repro force downstream (debug)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dvc: synchronize paths"],
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "dvc repro --force --downstream ${input:stage}"],
+      "icon": { "id": "graph" },
+      "options": {
+        "env": { "BOILERCV_DEBUG": "True" }
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "dvc: repro (debug)",
       "dependsOrder": "sequence",
       "dependsOn": ["dvc: synchronize paths"],
@@ -64,12 +76,39 @@
       "problemMatcher": []
     },
     {
+      "label": "dvc: repro force downstream",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dvc: synchronize paths"],
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "dvc repro --force --downstream ${input:stage}"],
+      "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
+    {
       "label": "dvc: repro",
       "dependsOrder": "sequence",
       "dependsOn": ["dvc: synchronize paths"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro ${input:stage}"],
+      "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
+    {
+      "label": "dvc: repro force all",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "setup: Update project",
+        "dvc: synchronize paths",
+        "dvc: freeze",
+        "git: Stage all files",
+        "pre-commit",
+        "git: Stage all files"
+      ],
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "dvc repro --force"],
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

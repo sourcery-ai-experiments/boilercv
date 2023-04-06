@@ -54,7 +54,7 @@ PAD = 10
 
 
 def draw_text(image: ImgLike, text: str = "") -> ImgLike:
-    """Draw text in the top-right corner of an image.
+    """Draw text in the top-left corner of an image.
 
     Args:
         image: Image.
