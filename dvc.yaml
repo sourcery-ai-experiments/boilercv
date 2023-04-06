@@ -6,6 +6,11 @@ stages:
       - "${paths.paths_module}"
     outs:
       - "${paths.project_schema}"
+  check_cv:
+    cmd: "python -m boilercv.stages.check_cv"
+    deps:
+      - "${paths.stage_check_cv}"
+      - "${paths.samples}"
   update_binarized_preview:
     cmd: "python -m boilercv.stages.update_binarized_preview"
     deps:

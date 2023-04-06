@@ -6,7 +6,8 @@ import numpy as np
 from scipy.spatial import ConvexHull
 
 from boilercv.colors import BLUE_CV
-from boilercv.images import capture_images, scale_bool
+from boilercv.examples.cv import capture_images
+from boilercv.images import scale_bool
 from boilercv.images.cv import (
     apply_mask,
     binarize,

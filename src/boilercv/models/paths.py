@@ -76,6 +76,14 @@ class Paths(MyBaseModel):
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"
 
+    # ! STAGES
+    stage_check_cv: FilePath = stages / "check_cv.py"
+    stage_contours: FilePath = stages / "contours.py"
+    stage_fill: FilePath = stages / "fill.py"
+    stage_schema: FilePath = stages / "schema.py"
+    stage_update_binarized_preview: FilePath = stages / "update_binarized_preview.py"
+    stage_update_filled_preview: FilePath = stages / "update_filled_preview.py"
+
     # ! DATA
     data: DirectoryPath = Path("data")
 
@@ -94,21 +102,27 @@ class Paths(MyBaseModel):
     # Can't be "schema", which is a special member of BaseClass
     project_schema: DirectoryPath = data / "schema"
 
-    # ! STAGES
-    stage_contours: FilePath = stages / "contours.py"
-    stage_fill: FilePath = stages / "fill.py"
-    stage_schema: FilePath = stages / "schema.py"
-    stage_update_binarized_preview: FilePath = stages / "update_binarized_preview.py"
-    stage_update_filled_preview: FilePath = stages / "update_filled_preview.py"
-
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation
-    @validator("contours", "filled", "project_schema", always=True, pre=True)
+    @validator(
+        "contours",
+        "examples",
+        "filled",
+        "rois",
+        "samples",
+        "sources",
+        "previews",
+        "project_schema",
+        always=True,
+        pre=True,
+    )
     def validate_output_directories(cls, directory: Path):
         """Re-create designated output directories each run, for reproducibility."""
         directory = Path(directory)
         directory.mkdir(parents=True, exist_ok=True)
         return directory
 
+
+# * -------------------------------------------------------------------------------- * #
 
 init()

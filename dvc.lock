@@ -89,3 +89,13 @@ stages:
     - path: data/previews/filled.nc
       md5: 913c0dca978f8f3ff088adb765bf8029
       size: 147879321
+  check_cv:
+    cmd: python -m boilercv.stages.check_cv
+    deps:
+    - path: data/samples
+      md5: 2039f3ac1b4df1e9059cfb4d74b8c1db.dir
+      size: 22147287
+      nfiles: 113
+    - path: src/boilercv/stages/check_cv.py
+      md5: fb029ebceb5076c48f032c9b2ae3da1e
+      size: 97

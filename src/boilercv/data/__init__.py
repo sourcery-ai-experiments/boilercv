@@ -44,7 +44,7 @@ ROI = "roi"
 OTHER_ROI = "roi_other"
 
 
-def identity_da(da: DA, dim: str):
+def identity_da(da: DA, dim: str) -> DA:
     """Construct a data array that maps a dimension's coordinates to itself.
 
     Useful to apply `xr.apply_ufunc` along coordinate values.

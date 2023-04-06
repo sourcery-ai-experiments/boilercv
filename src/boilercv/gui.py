@@ -17,6 +17,12 @@ from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLayout, QPushButton
 from boilercv.images import scale_bool
 from boilercv.types import DA, ArrInt, Img
 
+
+def init():
+    """Initialize `boilercv.gui`."""
+    pg.setConfigOption("imageAxisOrder", "row-major")
+
+
 Viewable: TypeAlias = Any  # The true type is a complex union of lots of array types
 NamedViewable: TypeAlias = Mapping[str | int, Viewable]
 MultipleViewable: TypeAlias = Sequence[Viewable]
@@ -338,3 +344,8 @@ def load_roi(
             else [(0, 0), (height, width)]
         )
     return np.array(vertices, dtype=int)
+
+
+# * -------------------------------------------------------------------------------- * #
+
+init()

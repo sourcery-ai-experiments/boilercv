@@ -13,6 +13,7 @@
       "options": [
         "",
         "schema",
+        "check_cv",
         "update_binarized_preview",
         "contours",
         "fill",
