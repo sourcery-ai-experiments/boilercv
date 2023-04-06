@@ -24,6 +24,23 @@ jobs:
         with:
           python-version: "3.11"
       - run: "pip install --no-deps --requirement .tools/requirements/requirements_nodeps.txt"
+      - run: |
+          # Install PySide6 system dependencies
+          # https://github.com/Nuitka/Nuitka/issues/2138#issuecomment-1498994385
+          sudo apt update
+          sudo apt install -y \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libx11-dev \
+            libx11-xcb-dev \
+            libxext-dev \
+            libxfixes-dev \
+            libxi-dev \
+            libxrender-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-dev \
+            libatspi2.0-dev \
+            '^libxcb.*-dev'
       # - uses: "google-github-actions/auth@v1.0.0"
       #   with:
       #     workload_identity_provider: "projects/326920613558/locations/global/workloadIdentityPools/github-com/providers/github-com-oidc"
