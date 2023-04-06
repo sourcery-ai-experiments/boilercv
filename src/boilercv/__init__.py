@@ -12,8 +12,11 @@ from loguru import logger
 __version__ = "0.0.0"
 
 _debug = environ.get("BOILERCV_DEBUG")
+_preview = environ.get("BOILERCV_PREVIEW")
 DEBUG = str(_debug).casefold() == "true" if _debug else False
 """Whether to run in debug mode. Log to `boilercv.log` and grab fewer frames."""
+PREVIEW = str(_preview).casefold() == "true" if _preview else False
+"""Whether to run interactive previews."""
 
 if DEBUG:
     logger.add(sink="boilercv.log")

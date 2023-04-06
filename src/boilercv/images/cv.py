@@ -3,7 +3,7 @@ from collections.abc import Sequence
 import cv2 as cv
 import numpy as np
 
-from boilercv.colors import BLUE_CV, WHITE3
+from boilercv.colors import WHITE, WHITE3
 from boilercv.images import unpad
 from boilercv.types import ArrFloat, ArrInt, Img, ImgBool
 
@@ -113,18 +113,22 @@ def find_contours(img: Img, method: int = cv.CHAIN_APPROX_NONE) -> list[ArrInt]:
 
 
 def draw_contours(
-    img: Img, contours: Sequence[ArrInt], contour_index: int = -1, thickness=2
+    img: Img,
+    contours: Sequence[ArrInt],
+    contour_index: int = -1,
+    thickness: int = 2,
+    color: int | tuple[int, ...] = WHITE,
 ) -> Img:
     """Draw contours on an image."""
     # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
     contours = [np.fliplr(contour).reshape(-1, 1, 2) for contour in contours]
-    # Need three-channel image to paint colored contours
-    three_channel_gray = convert_image(img, cv.COLOR_GRAY2RGB)
+    if isinstance(color, tuple):
+        img = convert_image(img, cv.COLOR_GRAY2RGB) if len(color) == 3 else img
     return cv.drawContours(
-        image=three_channel_gray,
+        image=img,
         contours=contours,
         contourIdx=contour_index,
-        color=BLUE_CV,
+        color=color,
         thickness=thickness,
     )
 

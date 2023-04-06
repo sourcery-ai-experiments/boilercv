@@ -54,7 +54,7 @@
       ]
     },
     {
-      "name": "Python: Current file with boilercv debugging",
+      "name": "Python: BOILERCV_DEBUG",
       "type": "python",
       "request": "launch",
       "program": "${file}",
@@ -65,7 +65,7 @@
       }
     },
     {
-      "name": "Python: Current file with boilercv debugging, not just my code",
+      "name": "Python: BOILERCV_DEBUG, not just my code",
       "type": "python",
       "request": "launch",
       "program": "${file}",
@@ -73,6 +73,28 @@
       "justMyCode": false,
       "env": {
         "BOILERCV_DEBUG": "True"
+      }
+    },
+    {
+      "name": "Python: BOILERCV_PREVIEW",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "BOILERCV_PREVIEW": "True"
+      }
+    },
+    {
+      "name": "Python: BOILERCV_PREVIEW, not just my code",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "BOILERCV_PREVIEW": "True"
       }
     },
 

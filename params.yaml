@@ -9,6 +9,7 @@ paths:
   data: data
   contours: data/contours
   examples: data/examples
+  filled: data/filled
   rois: data/rois
   samples: data/samples
   sources: data/sources
@@ -16,5 +17,6 @@ paths:
   binarized_preview: data/previews/binarized.nc
   project_schema: data/schema
   stage_contours: src/boilercv/stages/contours.py
+  stage_fill: src/boilercv/stages/fill.py
   stage_schema: src/boilercv/stages/schema.py
   stage_update_binarized_preview: src/boilercv/stages/update_binarized_preview.py

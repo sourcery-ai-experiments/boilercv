@@ -22,3 +22,12 @@ stages:
     outs:
       - "${paths.contours}":
           persist: true
+  fill:
+    cmd: "python -m boilercv.stages.fill"
+    deps:
+      - "${paths.stage_fill}"
+      - "${paths.sources}"
+      - "${paths.contours}"
+    outs:
+      - "${paths.filled}":
+          persist: true
