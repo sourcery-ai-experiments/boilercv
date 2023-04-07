@@ -79,16 +79,23 @@ def draw_text(image: ImgLike, text: str = "") -> ImgLike:
     return np.asarray(pil_image)
 
 
-def overlay(image: ImgLike, overlay: ImgLike) -> ImgLike:
+def overlay(
+    image: ImgLike,
+    overlay: ImgLike,
+    color: tuple[int, int, int] = RED,
+    alpha: float = 0.3,
+) -> ImgLike:
     """Color an image given an overlay.
 
     Args:
         image: Image.
         overlay: Overlay image.
+        color: Color for the overlay.
+        alpha: Alpha value for the overlay. Range: 0-1
     """
     background = Image.fromarray(image).convert("RGBA")
     objects = Image.fromarray(overlay)
-    mask = Image.fromarray(~(overlay // 2))
-    objects = ImageOps.colorize(objects, WHITE3, RED)
+    mask = Image.fromarray(~(overlay * alpha).astype(np.uint8))
+    objects = ImageOps.colorize(objects, WHITE3, color)
     composite = Image.composite(background, objects, mask)
     return np.asarray(composite)
