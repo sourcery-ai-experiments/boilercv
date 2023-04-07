@@ -100,7 +100,7 @@ stages:
       md5: fb029ebceb5076c48f032c9b2ae3da1e
       size: 97
   binarized_preview:
-    cmd: python -m boilercv.stages.update_preview.binarized
+    cmd: python -m boilercv.stages.update_previews.binarized
     deps:
     - path: data/rois
       md5: 1300e5dce1774bdc91feb6365369c7d8.dir
@@ -118,7 +118,7 @@ stages:
       md5: a254f85beabe041bf6c4b0820024465d
       size: 3446443
   gray_preview:
-    cmd: python -m boilercv.stages.update_preview.gray
+    cmd: python -m boilercv.stages.update_previews.gray
     deps:
     - path: data/sources
       md5: a409ab9bcababc1baaea4dc53e312bda.dir
@@ -128,11 +128,11 @@ stages:
       md5: 0cac8fed82eb1b1ceeeac211ac0c099b
       size: 767
     outs:
-    - path: data/previews/binarized.nc
-      md5: a254f85beabe041bf6c4b0820024465d
-      size: 3446443
+    - path: data/previews/gray.nc
+      md5: bbbc70048f3cf5ebe684bf0a393a71cd
+      size: 22708062
   filled_preview:
-    cmd: python -m boilercv.stages.update_preview.filled
+    cmd: python -m boilercv.stages.update_previews.filled
     deps:
     - path: data/filled
       md5: 9d9b406833ae3911940fd4d717bb20e1.dir

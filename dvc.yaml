@@ -13,7 +13,7 @@ stages:
       - "${paths.samples}"
 
   binarized_preview:
-    cmd: "python -m boilercv.stages.update_preview.binarized"
+    cmd: "python -m boilercv.stages.update_previews.binarized"
     deps:
       - "${paths.stage_binarized_preview}"
       - "${paths.rois}"
@@ -22,12 +22,12 @@ stages:
       - "${paths.binarized_preview}":
           persist: true
   gray_preview:
-    cmd: "python -m boilercv.stages.update_preview.gray"
+    cmd: "python -m boilercv.stages.update_previews.gray"
     deps:
       - "${paths.stage_gray_preview}"
       - "${paths.sources}"
     outs:
-      - "${paths.binarized_preview}"
+      - "${paths.gray_preview}"
 
   contours:
     cmd: "python -m boilercv.stages.contours"
@@ -48,7 +48,7 @@ stages:
       - "${paths.filled}":
           persist: true
   filled_preview:
-    cmd: "python -m boilercv.stages.update_preview.filled"
+    cmd: "python -m boilercv.stages.update_previews.filled"
     deps:
       - "${paths.stage_filled_preview}"
       - "${paths.sources}"
