@@ -22,8 +22,19 @@ def main():
         source[VIDEO], scale_bool(bubbles[VIDEO])
     ).transpose("frame", "ypx", "xpx", "channel")
     if PREVIEW:
+        view_images(bubbles[VIDEO].isel(frame=0))
         view_images(highlighted_bubbles, play_rate=FRAMERATE)
     if WRITE:
+        vwrite(
+            LOCAL_PATHS.media / "binarized.mp4",
+            scale_bool(source[VIDEO]),
+            inputdict={"-r": str(FRAMERATE)},
+        )
+        vwrite(
+            LOCAL_PATHS.media / "bubbles.mp4",
+            scale_bool(bubbles[VIDEO]),
+            inputdict={"-r": str(FRAMERATE)},
+        )
         vwrite(
             LOCAL_PATHS.media / "binar_highlighted.mp4",
             highlighted_bubbles,
