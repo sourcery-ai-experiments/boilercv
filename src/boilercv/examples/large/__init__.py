@@ -7,7 +7,7 @@ import xarray as xr
 
 from boilercv.data import VIDEO
 from boilercv.gui import view_images
-from boilercv.models.paths import LOCAL_PATHS
+from boilercv.models.params import LOCAL_PATHS
 from boilercv.types import DS
 
 EXAMPLE = LOCAL_PATHS.large_sources / "2022-09-14T13-20-54.nc"

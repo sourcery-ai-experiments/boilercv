@@ -1,8 +1,5 @@
 """Paths for this project."""
 
-from __future__ import annotations
-
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -32,24 +29,45 @@ def get_sorted_paths(path: Path) -> list[Path]:
     return sorted(path.iterdir())
 
 
-@dataclass
-class LocalPaths:
+class LocalPaths(MyBaseModel):
     """Local paths for larger files not stored in the cloud."""
 
-    data: Path = Path("~").expanduser() / ".local/boilercv"
-    hierarchical_data: Path = data / "data"
-    cines: Path = data / "cines"
-    sheets: Path = data / "sheets"
-    notes: Path = data / "notes"
-    large_examples: Path = data / "large_examples"
-    large_sources: Path = data / "large_sources"
-    uncompressed_contours: Path = data / "uncompressed_contours"
-    uncompressed_filled: Path = data / "uncompressed_filled"
-    uncompressed_sources: Path = data / "uncompressed_sources"
+    data: DirectoryPath = Path("~").expanduser() / ".local/boilercv"
+    hierarchical_data: DirectoryPath = data / "data"
+
+    large_examples: DirectoryPath = data / "large_examples"
+    large_sources: DirectoryPath = data / "large_sources"
+    notes: DirectoryPath = data / "notes"
+    sheets: DirectoryPath = data / "sheets"
+    uncompressed_contours: DirectoryPath = data / "uncompressed_contours"
+    uncompressed_filled: DirectoryPath = data / "uncompressed_filled"
+    uncompressed_sources: DirectoryPath = data / "uncompressed_sources"
+
+    cines: DirectoryPath = data / "cines"
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
+    media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")
 
-LOCAL_PATHS = LocalPaths()
+    # "always" so it'll run even if not in YAML
+    # "pre" because dir must exist pre-validation
+    @validator(
+        "hierarchical_data",
+        "large_examples",
+        "large_sources",
+        "notes",
+        "sheets",
+        "uncompressed_contours",
+        "uncompressed_filled",
+        "uncompressed_sources",
+        "cines",
+        always=True,
+        pre=True,
+    )
+    def validate_output_directories(cls, directory: Path) -> Path:
+        """Re-create designated output directories each run, for reproducibility."""
+        directory = Path(directory)
+        directory.mkdir(parents=True, exist_ok=True)
+        return directory
 
 
 class Paths(MyBaseModel):
@@ -121,7 +139,7 @@ class Paths(MyBaseModel):
         always=True,
         pre=True,
     )
-    def validate_output_directories(cls, directory: Path):
+    def validate_output_directories(cls, directory: Path) -> Path:
         """Re-create designated output directories each run, for reproducibility."""
         directory = Path(directory)
         directory.mkdir(parents=True, exist_ok=True)

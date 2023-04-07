@@ -5,7 +5,7 @@ from typing import Self
 from pydantic import Field
 
 from boilercv.models import PARAMS_FILE, MyBaseModel, load_config
-from boilercv.models.paths import Paths
+from boilercv.models.paths import LocalPaths, Paths
 
 
 class Params(MyBaseModel):
@@ -19,3 +19,4 @@ class Params(MyBaseModel):
 
 
 PARAMS = Params.get_params()
+LOCAL_PATHS = LocalPaths()

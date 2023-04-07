@@ -11,7 +11,7 @@ The directory structure looks like:
 
 from itertools import chain
 
-from boilercv.models.paths import LOCAL_PATHS
+from boilercv.models.params import LOCAL_PATHS
 
 
 def main():

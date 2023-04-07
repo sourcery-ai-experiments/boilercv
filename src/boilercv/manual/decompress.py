@@ -6,8 +6,7 @@ from loguru import logger
 
 from boilercv.data import HEADER, VIDEO
 from boilercv.data.sets import ALL_NAMES
-from boilercv.models.params import PARAMS
-from boilercv.models.paths import LOCAL_PATHS
+from boilercv.models.params import LOCAL_PATHS, PARAMS
 
 
 def main():

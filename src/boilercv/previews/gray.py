@@ -11,7 +11,7 @@ from boilercv.previews import draw_text_da
 def main():
     with xr.open_dataset(PARAMS.paths.gray_preview) as ds:
         da = draw_text_da(ds[VIDEO])
-        view_images(da, play_rate=3)
+        view_images(da, play_rate=6)
 
 
 if __name__ == "__main__":

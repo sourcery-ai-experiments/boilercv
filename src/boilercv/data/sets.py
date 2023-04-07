@@ -9,8 +9,8 @@ import xarray as xr
 
 from boilercv.data import HEADER, ROI, VIDEO
 from boilercv.data.packing import unpack
-from boilercv.models.params import PARAMS
-from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
+from boilercv.models.params import LOCAL_PATHS, PARAMS
+from boilercv.models.paths import get_sorted_paths
 from boilercv.types import DF, DS
 
 ALL_FRAMES = slice(None)
@@ -93,7 +93,7 @@ def get_contours_df(name: str) -> DF:
     return contour_df
 
 
-def slice_frames(num_frames: int, frame: slice) -> slice:
+def slice_frames(num_frames: int = 0, frame: slice = ALL_FRAMES) -> slice:
     """Returns a slice suitable for getting frames from datasets."""
     if num_frames:
         if frame == ALL_FRAMES:

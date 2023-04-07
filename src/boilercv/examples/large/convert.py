@@ -2,7 +2,7 @@
 
 from boilercv.data.video import prepare_dataset
 from boilercv.examples import EXAMPLE_NUM_FRAMES
-from boilercv.models.paths import LOCAL_PATHS
+from boilercv.models.params import LOCAL_PATHS
 
 
 def main():

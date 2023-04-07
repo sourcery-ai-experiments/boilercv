@@ -1,10 +1,27 @@
 """Preview results."""
 
+from pathlib import Path
+
 import xarray as xr
 
-from boilercv.data import VIDEO_NAME, YX_PX, identity_da
+from boilercv import DEBUG
+from boilercv.data import VIDEO, VIDEO_NAME, YX_PX, identity_da
+from boilercv.data.sets import slice_frames
 from boilercv.images import draw_text, overlay
-from boilercv.types import DA
+from boilercv.types import DA, DS
+
+NUM_FRAMES = 100 if DEBUG else 0
+FRAMERATE = 3
+
+
+def get_preview(path: Path) -> DS:
+    """Get a preview dataset.
+
+    Args:
+        path: Path to dataset.
+    """
+    with xr.open_dataset(path) as ds:
+        return xr.Dataset({VIDEO: ds[VIDEO][slice_frames(NUM_FRAMES)]})
 
 
 def draw_text_da(da: DA) -> DA:
@@ -34,7 +51,7 @@ def draw_text_da(da: DA) -> DA:
         )
 
 
-def overlay_da(da_image: DA, da_overlay: DA) -> DA:
+def compose_da(da_image: DA, da_overlay: DA) -> DA:
     """Draw text on images in a data array.
 
     Args:

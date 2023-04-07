@@ -10,10 +10,13 @@ __version__ = "0.0.0"
 
 _debug = environ.get("BOILERCV_DEBUG")
 _preview = environ.get("BOILERCV_PREVIEW")
+_write = environ.get("BOILERCV_WRITE")
 DEBUG = str(_debug).casefold() == "true" if _debug else False
 """Whether to run in debug mode. Log to `boilercv.log`."""
 PREVIEW = str(_preview).casefold() == "true" if _preview else False
 """Whether to run interactive previews."""
+WRITE = str(_write).casefold() == "true" if _write else False
+"""Whether to write to the local media folder."""
 
 
 def init():

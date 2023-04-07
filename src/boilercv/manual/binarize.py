@@ -7,8 +7,8 @@ from boilercv.data import FRAME, ROI, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, binarize, flood, get_roi
-from boilercv.models.params import PARAMS
-from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
+from boilercv.models.params import LOCAL_PATHS, PARAMS
+from boilercv.models.paths import get_sorted_paths
 from boilercv.types import DA
 
 

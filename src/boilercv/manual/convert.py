@@ -3,7 +3,8 @@
 from loguru import logger
 
 from boilercv.data.video import prepare_dataset
-from boilercv.models.paths import LOCAL_PATHS, get_sorted_paths
+from boilercv.models.params import LOCAL_PATHS
+from boilercv.models.paths import get_sorted_paths
 
 
 def main():
