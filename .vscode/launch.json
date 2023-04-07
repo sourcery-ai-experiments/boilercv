@@ -58,7 +58,7 @@
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "integratedTerminal",
+      "console": "internalConsole",
       "justMyCode": true,
       "env": {
         "BOILERCV_DEBUG": "True"
@@ -69,7 +69,7 @@
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "integratedTerminal",
+      "console": "internalConsole",
       "justMyCode": false,
       "env": {
         "BOILERCV_DEBUG": "True"
@@ -80,7 +80,7 @@
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "integratedTerminal",
+      "console": "internalConsole",
       "justMyCode": true,
       "env": {
         "BOILERCV_PREVIEW": "True"
@@ -91,7 +91,7 @@
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "integratedTerminal",
+      "console": "internalConsole",
       "justMyCode": false,
       "env": {
         "BOILERCV_PREVIEW": "True"

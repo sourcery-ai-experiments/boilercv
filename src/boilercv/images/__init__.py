@@ -8,10 +8,14 @@ from typing import Any
 import numpy as np
 from matplotlib.font_manager import FontProperties, findfont
 from numpy import typing as npt
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-from boilercv.colors import BLACK, WHITE
+from boilercv import DEBUG
+from boilercv.colors import BLACK, BLACK3, RED, WHITE, WHITE3
 from boilercv.types import ImgLike, T
+
+if DEBUG:
+    from PIL import ImageShow  # noqa: F401
 
 # * -------------------------------------------------------------------------------- * #
 # * PURE NUMPY - TYPE PRESERVING
@@ -51,18 +55,40 @@ PAD = 10
 
 
 def draw_text(image: ImgLike, text: str = "") -> ImgLike:
-    """Draw text in the top-left corner of an image.
+    """Draw text in the top-right corner of an image.
 
     Args:
         image: Image.
         text: Text to draw.
     """
+    if image.ndim == 3:
+        rectangle_fill = BLACK3
+        font_fill = WHITE3
+    else:
+        rectangle_fill = BLACK
+        font_fill = WHITE
+    _, image_width = image.shape[:2]
     pil_image = Image.fromarray(image)
-    _, _, right, bottom = FONT.getbbox(text)
-    text_p0 = (PAD,) * 2
+    _, _, font_bbox_width, font_bbox_height = FONT.getbbox(text)
+    text_p0 = (image_width - PAD - font_bbox_width, PAD)
     p0 = (text_p0[0] - PAD, text_p0[1] - PAD)
-    p1 = (text_p0[0] + PAD + right, text_p0[1] + PAD + bottom)
+    p1 = (text_p0[0] + PAD + font_bbox_width, text_p0[1] + PAD + font_bbox_height)
     draw = ImageDraw.Draw(pil_image)
-    draw.rectangle((p0, p1), fill=BLACK)
-    draw.text(text_p0, text, font=FONT, fill=WHITE)
+    draw.rectangle((p0, p1), fill=rectangle_fill)
+    draw.text(text_p0, text, font=FONT, fill=font_fill)
     return np.asarray(pil_image)
+
+
+def overlay(image: ImgLike, overlay: ImgLike) -> ImgLike:
+    """Color an image given an overlay.
+
+    Args:
+        image: Image.
+        overlay: Overlay image.
+    """
+    background = Image.fromarray(image).convert("RGBA")
+    objects = Image.fromarray(overlay)
+    mask = Image.fromarray(~(overlay // 2))
+    objects = ImageOps.colorize(objects, WHITE3, RED)
+    composite = Image.composite(background, objects, mask)
+    return np.asarray(composite)

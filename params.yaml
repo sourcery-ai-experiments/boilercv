@@ -10,8 +10,10 @@ paths:
   stage_contours: src/boilercv/stages/contours.py
   stage_fill: src/boilercv/stages/fill.py
   stage_schema: src/boilercv/stages/schema.py
-  stage_update_binarized_preview: src/boilercv/stages/update_binarized_preview.py
-  stage_update_filled_preview: src/boilercv/stages/update_filled_preview.py
+  update_previews: src/boilercv/stages/update_previews
+  stage_binarized_preview: src/boilercv/stages/update_previews/binarized.py
+  stage_gray_preview: src/boilercv/stages/update_previews/gray.py
+  stage_filled_preview: src/boilercv/stages/update_previews/filled.py
   data: data
   contours: data/contours
   examples: data/examples
@@ -21,5 +23,6 @@ paths:
   sources: data/sources
   previews: data/previews
   binarized_preview: data/previews/binarized.nc
+  gray_preview: data/previews/gray.nc
   filled_preview: data/previews/filled.nc
   project_schema: data/schema

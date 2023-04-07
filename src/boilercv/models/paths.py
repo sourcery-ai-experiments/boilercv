@@ -81,12 +81,15 @@ class Paths(MyBaseModel):
     stage_contours: FilePath = stages / "contours.py"
     stage_fill: FilePath = stages / "fill.py"
     stage_schema: FilePath = stages / "schema.py"
-    stage_update_binarized_preview: FilePath = stages / "update_binarized_preview.py"
-    stage_update_filled_preview: FilePath = stages / "update_filled_preview.py"
+
+    # ! PREVIEW STAGES
+    update_previews: DirectoryPath = stages / "update_previews"
+    stage_binarized_preview: FilePath = update_previews / "binarized.py"
+    stage_gray_preview: FilePath = update_previews / "gray.py"
+    stage_filled_preview: FilePath = update_previews / "filled.py"
 
     # ! DATA
     data: DirectoryPath = Path("data")
-
     contours: DirectoryPath = data / "contours"
     examples: DirectoryPath = data / "examples"
     filled: DirectoryPath = data / "filled"
@@ -94,8 +97,10 @@ class Paths(MyBaseModel):
     samples: DirectoryPath = data / "samples"
     sources: DirectoryPath = data / "sources"
 
+    # ! PREVIEW DATA
     previews: DirectoryPath = data / "previews"
     binarized_preview: Path = previews / "binarized.nc"
+    gray_preview: Path = previews / "gray.nc"
     filled_preview: Path = previews / "filled.nc"
 
     # ! SCHEMA

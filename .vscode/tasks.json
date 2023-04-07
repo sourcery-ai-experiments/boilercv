@@ -25,7 +25,7 @@
       "type": "pickString",
       "description": "preview",
       "default": "",
-      "options": ["binarized", "filled"]
+      "options": ["binarized", "filled", "overlaid"]
     }
   ],
   "tasks": [

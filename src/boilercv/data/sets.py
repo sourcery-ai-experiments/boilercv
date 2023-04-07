@@ -2,7 +2,7 @@
 
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TypeAlias
 
 import pandas as pd
 import xarray as xr
@@ -17,21 +17,24 @@ ALL_FRAMES = slice(None)
 ALL_SOURCES = get_sorted_paths(PARAMS.paths.sources)
 ALL_NAMES = [source.stem for source in ALL_SOURCES]
 
+Stage: TypeAlias = Literal["large_source", "sources", "filled"]
+stage_default = "sources"
+
 
 def get_all_datasets(
-    num_frames: int = 0,
-    frame: slice = ALL_FRAMES,
-    stage: Literal["sources", "filled"] = "sources",
+    num_frames: int = 0, frame: slice = ALL_FRAMES, stage: Stage = stage_default
 ) -> Iterator[tuple[DS, str]]:
     """Yield datasets in order."""
     for name in ALL_NAMES:
         yield get_dataset(name, num_frames, frame, stage), name
 
 
-def inspect_dataset(name: str, stage: Literal["sources", "filled"] = "sources") -> DS:
+def inspect_dataset(name: str, stage: Stage = stage_default) -> DS:
     """Inspect a video dataset."""
     cmp_source, unc_source = get_stage(name, stage)
     source = unc_source if unc_source.exists() else cmp_source
+    if stage == "large_source":
+        return xr.open_dataset(source) if source.exists() else xr.Dataset()
     with xr.open_dataset(source) as ds:
         return ds
 
@@ -40,7 +43,7 @@ def get_dataset(
     name: str,
     num_frames: int = 0,
     frame: slice = ALL_FRAMES,
-    stage: Literal["sources", "filled"] = "sources",
+    stage: Stage = stage_default,
 ) -> DS:
     """Load a video dataset."""
     # Can't use `xr.open_mfdataset` because it requires dask
@@ -48,6 +51,8 @@ def get_dataset(
     frame = slice_frames(num_frames, frame)
     cmp_source, unc_source = get_stage(name, stage)
     source = unc_source if unc_source.exists() else cmp_source
+    if stage == "large_source":
+        return xr.open_dataset(source) if source.exists() else xr.Dataset()
     roi = PARAMS.paths.rois / f"{name}.nc"
     with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
         if not unc_source.exists():
@@ -63,24 +68,19 @@ def get_dataset(
         )
 
 
-def get_stage(
-    name: str, stage: Literal["sources", "filled"] = "sources"
-) -> tuple[Path, Path]:
+def get_stage(name: str, stage: Stage = stage_default) -> tuple[Path, Path]:
     """Get the paths associated with a particular video name and pipeline stage."""
     if stage == "sources":
         unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
         return PARAMS.paths.sources / f"{name}.nc", unc_source
+    elif stage == "large_source":
+        source = unc_source = LOCAL_PATHS.large_sources / f"{name}.nc"
+        return source, unc_source
     elif stage == "filled":
         unc_source = LOCAL_PATHS.uncompressed_filled / f"{name}.nc"
         return PARAMS.paths.filled / f"{name}.nc", unc_source
     else:
         raise ValueError(f"Unknown stage: {stage}")
-
-
-def get_large_dataset(name: str) -> DS:
-    """Load a large video dataset."""
-    with xr.open_dataset(LOCAL_PATHS.large_sources / f"{name}.nc") as ds:
-        return ds
 
 
 def get_contours_df(name: str) -> DF:
