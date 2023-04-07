@@ -29,15 +29,15 @@ jobs:
           # https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
           sudo apt update
           sudo apt install libegl1
-      - uses: "google-github-actions/auth@v1.0.0"
-        with:
-          workload_identity_provider: "projects/326920613558/locations/global/workloadIdentityPools/github-com/providers/github-com-oidc"
-          service_account: "iterative-studio@secure-garden-355020.iam.gserviceaccount.com"
-      - uses: "google-github-actions/setup-gcloud@v1.1.0"
+      # - uses: "google-github-actions/auth@v1.0.0"
+      #   with:
+      #     workload_identity_provider: "projects/326920613558/locations/global/workloadIdentityPools/github-com/providers/github-com-oidc"
+      #     service_account: "iterative-studio@secure-garden-355020.iam.gserviceaccount.com"
+      # - uses: "google-github-actions/setup-gcloud@v1.1.0"
       - run: "pytest --cov"
         env:
-          GH_TOKEN: ${{ github.token }}
           OPENCV_SAMPLES_DATA_PATH: data/samples
+          # GH_TOKEN: ${{ github.token }}
       - uses: "codecov/codecov-action@v3.1.1"
   bump_project:
     needs: ["pyright", "pytest-cov"]
