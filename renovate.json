@@ -17,9 +17,8 @@
   },
   "packageRules": [
     {
-      "description": "Ignore dependencies managed by the template. Do manage pyright.",
+      "description": "Ignore dependencies with issues specific to this project.",
       "matchManagers": ["pip_requirements"],
-      "matchPaths": [".tools/requirements/*"],
       "ignoreDeps": ["pyside6"]
     },
     {
