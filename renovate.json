@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Establish base config, schedule, and manager defaults.",
   "extends": ["config:base", ":enablePreCommit", ":preserveSemverRanges"],
-  "schedule": ["on the 8th day of the month"],
+  "schedule": ["on the 16th day of the month"],
   "git-submodules": { "enabled": true },
   "enabledManagers": [
     "git-submodules",
@@ -10,6 +10,7 @@
     "pip_requirements",
     "pre-commit"
   ],
+  "rangeStrategy": "in-range-only",
   "pip_requirements": {
     "description": "Additionally monitor these files.",
     "fileMatch": ["^\\.tools/requirements/*"],
