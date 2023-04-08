@@ -23,6 +23,13 @@
       "ignoreDeps": ["pyside6"]
     },
     {
+      "groupName": "pyright and type stubs",
+      "groupSlug": "pyright-and-type-stubs",
+      "matchPackagePatterns": ["*"],
+      "matchManagers": ["pip_requirements", "git-submodules"],
+      "matchPackageNames": ["pyright", "typings"]
+    },
+    {
       "groupName": "all non-major dependencies except pyright",
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": ["*"],
