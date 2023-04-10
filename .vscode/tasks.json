@@ -244,7 +244,7 @@
     // * -------------------------------------------------------------------------- * //
     // * PRE-COMMIT * //
     {
-      "label": "pre-commit: all",
+      "label": "pre-commit",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "pre-commit"],
