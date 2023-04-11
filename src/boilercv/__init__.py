@@ -55,15 +55,16 @@ def check_contrib():
         raise ImportError(_CONTRIB_MSG)
 
 
-def run_example(func: Callable[..., Any]) -> tuple[str, Any]:
+def run_example(func: Callable[..., Any], preview: bool = False) -> tuple[str, Any]:
     """Run an example file, logging the module name containing the function.
 
     Args:
         func: The example function to run.
+        preview: Preview results from the function. Default: False.
     """
     module_name = func.__module__
     logger.info(f'Running example "{module_name}"')
-    result = func(preview=False)
+    result = func(preview=preview)
     return module_name, result
 
 

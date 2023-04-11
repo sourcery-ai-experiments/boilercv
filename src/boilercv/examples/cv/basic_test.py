@@ -9,13 +9,15 @@ from boilercv import PREVIEW
 from boilercv.captivate.previews import view_images
 from boilercv.examples.cv import capture_images
 from boilercv.images.cv import convert_image
+from boilercv.types import Vid
 
 
-def main():
+def main(preview: bool = PREVIEW) -> Vid:
     images = capture_images(Path(cv.samples.findFile("vtest.avi")))
     video = np.stack([convert_image(image, cv.COLOR_BGR2RGB) for image in images])
-    if PREVIEW:
+    if preview:
         view_images(video)
+    return video
 
 
 if __name__ == "__main__":
