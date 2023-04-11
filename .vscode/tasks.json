@@ -32,12 +32,55 @@
     // * -------------------------------------------------------------------------- * //
     // * Changes below should persist in significant template updates.
     {
-      "label": "proj: run examples",
+      "label": "proj: Run file w/ BOILERCV_PREVIEW_WRITE",
       "type": "process",
       "command": "pwsh",
-      "args": ["-Command", "python -m boilercv.examples"],
+      "args": ["-Command", "python ${file}"],
       "icon": { "id": "repo" },
-      "problemMatcher": []
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "BOILERCV_PREVIEW": "True",
+          "BOILERCV_WRITE": "True"
+        }
+      }
+    },
+    {
+      "label": "proj: Run file w/ BOILERCV_DEBUG_PREVIEW_WRITE",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python ${file}"],
+      "icon": { "id": "repo" },
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "BOILERCV_DEBUG": "True",
+          "BOILERCV_PREVIEW": "True",
+          "BOILERCV_WRITE": "True"
+        }
+      }
+    },
+    {
+      "label": "proj: Run file w/ BOILERCV_PREVIEW",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python ${file}"],
+      "icon": { "id": "repo" },
+      "problemMatcher": [],
+      "options": {
+        "env": { "BOILERCV_PREVIEW": "True" }
+      }
+    },
+    {
+      "label": "proj: Run file w/ BOILERCV_WRITE",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python ${file}"],
+      "icon": { "id": "repo" },
+      "problemMatcher": [],
+      "options": {
+        "env": { "BOILERCV_WRITE": "True" }
+      }
     },
     {
       "label": "proj: preview",

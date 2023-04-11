@@ -1,4 +1,4 @@
-"""Overlay detected bubbles on the binarized stage."""
+"""Overlay detected bubbles on the gray stage."""
 
 from boilercv import FRAMERATE_CONT, PREVIEW, WRITE
 from boilercv.data import VIDEO
@@ -12,18 +12,15 @@ from boilercv.write import write_video
 
 
 def main():
-    source = get_dataset(_EXAMPLE, _NUM_FRAMES, stage="sources")[VIDEO]
+    gray_source = get_dataset(_EXAMPLE, _NUM_FRAMES, stage="large_sources")[VIDEO]
     bubbles = get_dataset(_EXAMPLE, _NUM_FRAMES, stage="filled")[VIDEO]
-    highlighted_bubbles = compose_da(source, scale_bool(bubbles)).transpose(
+    highlighted_bubbles = compose_da(gray_source, scale_bool(bubbles)).transpose(
         "frame", "ypx", "xpx", "channel"
     )
     if PREVIEW:
-        view_images(bubbles.isel(frame=0))
         view_images(highlighted_bubbles, framerate=FRAMERATE_CONT)
     if WRITE:
-        write_video(LOCAL_PATHS.media / "binarized", source)
-        write_video(LOCAL_PATHS.media / "bubbles", bubbles, preview_frame=True)
-        write_video(LOCAL_PATHS.media / "binarized_highlighted", highlighted_bubbles)
+        write_video(LOCAL_PATHS.media / "gray_highlighted", highlighted_bubbles)
 
 
 if __name__ == "__main__":

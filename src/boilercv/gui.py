@@ -14,6 +14,7 @@ from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLayout, QPushButton
 
+from boilercv import FRAMERATE_CONT
 from boilercv.images import scale_bool
 from boilercv.types import DA, ArrInt, Img
 
@@ -34,7 +35,6 @@ AllViewable: TypeAlias = Viewable | NamedViewable | MultipleViewable
 
 WINDOW_SIZE = (800, 600)
 WINDOW_NAME = "Image viewer"
-PLAY_RATE = 60  # Frames per second
 SMALLER_GRIDS = {
     1: (1, 1),
     2: (1, 2),
@@ -52,14 +52,14 @@ SMALLER_GRIDS = {
 """Rectangular grid sizes for up to twelve views. Use square grids beyond that."""
 
 
-def view_images(images: AllViewable, name: str = "", play_rate: int = PLAY_RATE):
+def view_images(images: AllViewable, name: str = "", framerate: int = FRAMERATE_CONT):
     """Compare multiple images or videos."""
-    with image_viewer(images, name, play_rate):
+    with image_viewer(images, name, framerate):
         pass
 
 
 @contextmanager
-def image_viewer(images: AllViewable, name: str = "", play_rate: int = PLAY_RATE):  # type: ignore  # noqa: C901
+def image_viewer(images: AllViewable, name: str = "", framerate: int = FRAMERATE_CONT):  # type: ignore  # noqa: C901
     """View and interact with images and video."""
 
     images: NamedViewable = coerce_images(images)
@@ -85,7 +85,7 @@ def image_viewer(images: AllViewable, name: str = "", play_rate: int = PLAY_RATE
         for column in range(width):
             layout.setColumnStretch(column, 1)
         for coord in coords:
-            image_view = get_image_view(play_rate)
+            image_view = get_image_view(framerate)
             layout.addWidget(image_view, *coord)
             image_views.append(image_view)
 
@@ -205,10 +205,10 @@ def set_images(
     images: NamedViewable, image_views: list[pg.ImageView]
 ) -> dict[str | int, pg.ImageView]:
     """Set images into the image views."""
-    for (title, value), image_view in zip(images.items(), image_views, strict=False):
-        if value.dtype == bool:
-            value = scale_bool(value)
-        image_view.setImage(value)
+    for (title, viewable), image_view in zip(images.items(), image_views, strict=False):
+        if viewable.dtype == bool:
+            viewable = scale_bool(viewable)
+        image_view.setImage(viewable.squeeze())
         if isinstance(title, str):
             image_view.addItem(pg.TextItem(title, fill=pg.mkBrush("black")))
     return dict(zip(images.keys(), image_views, strict=False))
@@ -232,10 +232,10 @@ def add_button(layout: QLayout, label: str, func: Callable[..., Any]) -> QPushBu
     return button
 
 
-def get_image_view(play_rate: int = PLAY_RATE) -> pg.ImageView:
+def get_image_view(framerate: int = FRAMERATE_CONT) -> pg.ImageView:
     """Get an image view suitable for previewing images."""
     image_view = pg.ImageView()
-    image_view.playRate = play_rate
+    image_view.playRate = framerate
     image_view.ui.histogram.hide()
     image_view.ui.roiBtn.hide()
     image_view.ui.menuBtn.hide()

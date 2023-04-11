@@ -11,8 +11,7 @@ from boilercv.data.sets import slice_frames
 from boilercv.images import draw_text, overlay
 from boilercv.types import DA, DS
 
-NUM_FRAMES = 100 if DEBUG else 0
-FRAMERATE = 3
+_NUM_FRAMES = 100 if DEBUG else 0
 
 
 def get_preview(path: Path) -> DS:
@@ -22,7 +21,7 @@ def get_preview(path: Path) -> DS:
         path: Path to dataset.
     """
     with xr.open_dataset(path) as ds:
-        return xr.Dataset({VIDEO: ds[VIDEO][slice_frames(NUM_FRAMES)]})
+        return xr.Dataset({VIDEO: ds[VIDEO][slice_frames(_NUM_FRAMES)]})
 
 
 def draw_text_da(da: DA) -> DA:

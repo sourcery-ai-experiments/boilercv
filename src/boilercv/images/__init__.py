@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from boilercv import DEBUG
 from boilercv.colors import BLACK, BLACK3, RED, WHITE, WHITE3
-from boilercv.types import ImgLike, T
+from boilercv.types import Img, ImgLike, T
 
 if DEBUG:
     from PIL import ImageShow  # noqa: F401
@@ -84,7 +84,7 @@ def overlay(
     overlay: ImgLike,
     color: tuple[int, int, int] = RED,
     alpha: float = 0.3,
-) -> ImgLike:
+) -> Img:
     """Color an image given an overlay.
 
     Args:

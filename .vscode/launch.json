@@ -54,25 +54,53 @@
       ]
     },
     {
-      "name": "Python: BOILERCV_DEBUG",
+      "name": "Python: BOILERCV_WRITE_PREVIEW",
       "type": "python",
       "request": "launch",
       "program": "${file}",
       "console": "internalConsole",
       "justMyCode": true,
       "env": {
-        "BOILERCV_DEBUG": "True"
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_WRITE": "True",
+        "BOILERCV_PREVIEW": "True"
       }
     },
     {
-      "name": "Python: BOILERCV_DEBUG, not just my code",
+      "name": "Python: BOILERCV_WRITE_PREVIEW, not just my code",
       "type": "python",
       "request": "launch",
       "program": "${file}",
       "console": "internalConsole",
       "justMyCode": false,
       "env": {
-        "BOILERCV_DEBUG": "True"
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_WRITE": "True",
+        "BOILERCV_PREVIEW": "True"
+      }
+    },
+    {
+      "name": "Python: BOILERCV_WRITE",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "internalConsole",
+      "justMyCode": true,
+      "env": {
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_WRITE": "True"
+      }
+    },
+    {
+      "name": "Python: BOILERCV_WRITE, not just my code",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "internalConsole",
+      "justMyCode": false,
+      "env": {
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_WRITE": "True"
       }
     },
     {
@@ -83,6 +111,7 @@
       "console": "internalConsole",
       "justMyCode": true,
       "env": {
+        "BOILERCV_DEBUG": "True",
         "BOILERCV_PREVIEW": "True"
       }
     },
@@ -94,6 +123,7 @@
       "console": "internalConsole",
       "justMyCode": false,
       "env": {
+        "BOILERCV_DEBUG": "True",
         "BOILERCV_PREVIEW": "True"
       }
     },
@@ -105,7 +135,10 @@
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "internalConsole"
+      "console": "internalConsole",
+      "env": {
+        "BOILERCV_DEBUG": "True"
+      }
     },
     {
       "name": "Python: Current file, not just my code",
@@ -114,7 +147,10 @@
       "program": "${file}",
       "justMyCode": false,
       // "purpose": ["debug-test"], // Uncomment to debug tests more deeply.
-      "console": "internalConsole"
+      "console": "internalConsole",
+      "env": {
+        "BOILERCV_DEBUG": "True"
+      }
     }
   ]
 }

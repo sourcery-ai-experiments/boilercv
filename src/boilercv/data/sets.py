@@ -17,23 +17,23 @@ ALL_FRAMES = slice(None)
 ALL_SOURCES = get_sorted_paths(PARAMS.paths.sources)
 ALL_NAMES = [source.stem for source in ALL_SOURCES]
 
-Stage: TypeAlias = Literal["large_source", "sources", "filled"]
-stage_default = "sources"
+Stage: TypeAlias = Literal["large_sources", "sources", "filled"]
+STAGE_DEFAULT = "sources"
 
 
 def get_all_datasets(
-    num_frames: int = 0, frame: slice = ALL_FRAMES, stage: Stage = stage_default
+    num_frames: int = 0, frame: slice = ALL_FRAMES, stage: Stage = STAGE_DEFAULT
 ) -> Iterator[tuple[DS, str]]:
     """Yield datasets in order."""
     for name in ALL_NAMES:
         yield get_dataset(name, num_frames, frame, stage), name
 
 
-def inspect_dataset(name: str, stage: Stage = stage_default) -> DS:
+def inspect_dataset(name: str, stage: Stage = STAGE_DEFAULT) -> DS:
     """Inspect a video dataset."""
     cmp_source, unc_source = get_stage(name, stage)
     source = unc_source if unc_source.exists() else cmp_source
-    if stage == "large_source":
+    if stage == "large_sources":
         return xr.open_dataset(source) if source.exists() else xr.Dataset()
     with xr.open_dataset(source) as ds:
         return ds
@@ -43,7 +43,7 @@ def get_dataset(
     name: str,
     num_frames: int = 0,
     frame: slice = ALL_FRAMES,
-    stage: Stage = stage_default,
+    stage: Stage = STAGE_DEFAULT,
 ) -> DS:
     """Load a video dataset."""
     # Can't use `xr.open_mfdataset` because it requires dask
@@ -51,8 +51,13 @@ def get_dataset(
     frame = slice_frames(num_frames, frame)
     cmp_source, unc_source = get_stage(name, stage)
     source = unc_source if unc_source.exists() else cmp_source
-    if stage == "large_source":
-        return xr.open_dataset(source) if source.exists() else xr.Dataset()
+    if stage == "large_sources":
+        ds = xr.open_dataset(source)
+        return (
+            xr.Dataset({VIDEO: ds[VIDEO].sel(frame=frame), HEADER: ds[HEADER]})
+            if source.exists()
+            else xr.Dataset()
+        )
     roi = PARAMS.paths.rois / f"{name}.nc"
     with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
         if not unc_source.exists():
@@ -68,12 +73,12 @@ def get_dataset(
         )
 
 
-def get_stage(name: str, stage: Stage = stage_default) -> tuple[Path, Path]:
+def get_stage(name: str, stage: Stage = STAGE_DEFAULT) -> tuple[Path, Path]:
     """Get the paths associated with a particular video name and pipeline stage."""
     if stage == "sources":
         unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
         return PARAMS.paths.sources / f"{name}.nc", unc_source
-    elif stage == "large_source":
+    elif stage == "large_sources":
         source = unc_source = LOCAL_PATHS.large_sources / f"{name}.nc"
         return source, unc_source
     elif stage == "filled":

@@ -60,3 +60,6 @@ ImgLike: TypeAlias = ArrLike
 
 Vid: TypeAlias = Img
 """An integer array representing a video."""
+
+VidBool: TypeAlias = ImgBool
+"""A boolean array representing a video mask."""

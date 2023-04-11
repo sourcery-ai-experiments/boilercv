@@ -1,5 +1,6 @@
 # List project dependencies here. A workflow ports them to `pyproject.toml`
 dvc[gs]==2.53.0
+imageio[ffmpeg,pyav]==2.27.0
 loguru==0.6.0
 matplotlib==3.7.1
 numpy==1.24.2
@@ -13,7 +14,6 @@ pytz==2023.3
 pyyaml==6.0
 ruamel.yaml==0.17.21
 scikit-image==0.20.0
-scikit-video==1.1.11
 scipy==1.10.1
 seaborn==0.12.2
 

@@ -73,10 +73,6 @@
       "depth": 0
     },
     {
-      "name": "skvideo",
-      "depth": 3
-    },
-    {
       "name": "xarray",
       "depth": 2
     }
