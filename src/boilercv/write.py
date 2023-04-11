@@ -15,7 +15,7 @@ def write_video(
     path: Path,
     video: Vid | VidBool | DA,
     timestamp: str | None = None,
-    framerate: int | None = None,
+    framerate: int = FRAMERATE_CONT,
     preview_frame: bool = False,
 ):
     """Write a video to disk with the default filetype and timestamp.
@@ -29,7 +29,6 @@ def write_video(
     """
     video = coerce_input(video)
     timestamp = timestamp or get_timestamp()
-    framerate = framerate or FRAMERATE_CONT
     if path.suffix and path.suffix != ".mp4":
         logger.warning(f"Changing extesion of {path}  to '.mp4'.")
     path = path.with_name(f"{path.stem}_{timestamp}").with_suffix(".mp4")
