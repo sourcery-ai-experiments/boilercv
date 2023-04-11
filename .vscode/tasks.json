@@ -32,7 +32,7 @@
     // * -------------------------------------------------------------------------- * //
     // * Changes below should persist in significant template updates.
     {
-      "label": "proj: Run file w/ BOILERCV_PREVIEW_WRITE",
+      "label": "proj: Run file PREVIEW/WRITE",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "python ${file}"],
@@ -46,7 +46,7 @@
       }
     },
     {
-      "label": "proj: Run file w/ BOILERCV_DEBUG_PREVIEW_WRITE",
+      "label": "proj: Run file DEBUG/PREVIEW/WRITE",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "python ${file}"],
@@ -61,7 +61,7 @@
       }
     },
     {
-      "label": "proj: Run file w/ BOILERCV_PREVIEW",
+      "label": "proj: Run file PREVIEW",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "python ${file}"],
@@ -72,7 +72,7 @@
       }
     },
     {
-      "label": "proj: Run file w/ BOILERCV_WRITE",
+      "label": "proj: Run file WRITE",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "python ${file}"],

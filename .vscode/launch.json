@@ -54,7 +54,7 @@
       ]
     },
     {
-      "name": "Python: BOILERCV_WRITE_PREVIEW",
+      "name": "Python: WRITE/PREVIEW",
       "type": "python",
       "request": "launch",
       "program": "${file}",
@@ -67,7 +67,7 @@
       }
     },
     {
-      "name": "Python: BOILERCV_WRITE_PREVIEW, not just my code",
+      "name": "Python: WRITE/PREVIEW, not just my code",
       "type": "python",
       "request": "launch",
       "program": "${file}",
@@ -80,7 +80,7 @@
       }
     },
     {
-      "name": "Python: BOILERCV_WRITE",
+      "name": "Python: WRITE",
       "type": "python",
       "request": "launch",
       "program": "${file}",
@@ -92,7 +92,7 @@
       }
     },
     {
-      "name": "Python: BOILERCV_WRITE, not just my code",
+      "name": "Python: WRITE, not just my code",
       "type": "python",
       "request": "launch",
       "program": "${file}",
@@ -104,7 +104,7 @@
       }
     },
     {
-      "name": "Python: BOILERCV_PREVIEW",
+      "name": "Python: PREVIEW",
       "type": "python",
       "request": "launch",
       "program": "${file}",
@@ -116,7 +116,7 @@
       }
     },
     {
-      "name": "Python: BOILERCV_PREVIEW, not just my code",
+      "name": "Python: PREVIEW, not just my code",
       "type": "python",
       "request": "launch",
       "program": "${file}",

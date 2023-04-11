@@ -1,6 +1,8 @@
 """Computer vision routines suitable for nucleate pool boiling bubble analysis."""
 
+from collections.abc import Callable
 from os import environ
+from typing import Any
 
 import pandas as pd
 from cv2 import version
@@ -51,6 +53,18 @@ def check_contrib():
     """
     if not version.contrib:
         raise ImportError(_CONTRIB_MSG)
+
+
+def run_example(func: Callable[..., Any]) -> tuple[str, Any]:
+    """Run an example file, logging the module name containing the function.
+
+    Args:
+        func: The example function to run.
+    """
+    module_name = func.__module__
+    logger.info(f'Running example "{module_name}"')
+    result = func(preview=False)
+    return module_name, result
 
 
 init()

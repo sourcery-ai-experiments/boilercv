@@ -7,9 +7,10 @@ from boilercv.data import VIDEO
 from boilercv.images import scale_bool
 from boilercv.models.params import LOCAL_PATHS, PARAMS
 from boilercv.previews import compose_da, draw_text_da, get_preview
+from boilercv.types import DA
 
 
-def main():
+def main(preview: bool = PREVIEW) -> DA:
     gray = get_preview(PARAMS.paths.gray_preview)
     filled = get_preview(PARAMS.paths.filled_preview)
     composed = draw_text_da(
@@ -17,10 +18,13 @@ def main():
             "video_name", "ypx", "xpx", "channel"
         )
     )
-    if PREVIEW:
+    if preview:
         view_images(composed, framerate=FRAMERATE_PREV)
     if WRITE:
-        write_video(LOCAL_PATHS.media / "composite", composed, framerate=FRAMERATE_PREV)
+        write_video(
+            LOCAL_PATHS.media / "examples/composite", composed, framerate=FRAMERATE_PREV
+        )
+    return composed
 
 
 if __name__ == "__main__":

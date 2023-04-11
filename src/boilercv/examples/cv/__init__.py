@@ -1,11 +1,10 @@
 """Basic examples using OpenCV sample files."""
 
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from os import environ
 from pathlib import Path
 
 import cv2 as cv
-from loguru import logger
 
 from boilercv.types import Img
 
@@ -25,12 +24,6 @@ def check_samples_env_var():
         raise RuntimeError(
             f"{samples_env_var} not set or specified directory does not exist."
         )
-
-
-def run_example(func: Callable[[], None]):
-    """Run an example file, logging the function name."""
-    logger.info(f'Running example "{func.__module__}"')
-    func()
 
 
 def capture_images(path: Path) -> Iterator[Img]:

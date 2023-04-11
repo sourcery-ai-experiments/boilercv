@@ -125,12 +125,12 @@ stages:
       size: 7424602696
       nfiles: 308
     - path: src/boilercv/stages/update_previews/gray.py
-      md5: 0cac8fed82eb1b1ceeeac211ac0c099b
-      size: 767
+      md5: 089e35a18791e628d5bcd75e7fdca100
+      size: 768
     outs:
     - path: data/previews/gray.nc
-      md5: bbbc70048f3cf5ebe684bf0a393a71cd
-      size: 22708062
+      md5: bca01dd9d72e5a7c25db766c5522652e
+      size: 18686615
   filled_preview:
     cmd: python -m boilercv.stages.update_previews.filled
     deps:
