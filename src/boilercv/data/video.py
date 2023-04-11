@@ -7,6 +7,7 @@ import xarray as xr
 from boilercine import get_cine_attributes, get_cine_images
 from scipy.spatial.distance import euclidean
 
+from boilercv.captivate.previews import load_roi
 from boilercv.data import (
     FRAME,
     HEADER,
@@ -22,7 +23,6 @@ from boilercv.data import (
     assign_ds,
 )
 from boilercv.data.models import Dimension
-from boilercv.gui import load_roi
 from boilercv.models.params import PARAMS
 from boilercv.types import DA, DS
 

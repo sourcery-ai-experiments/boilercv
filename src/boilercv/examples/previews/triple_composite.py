@@ -3,15 +3,15 @@
 import xarray as xr
 
 from boilercv import PREVIEW, WRITE
+from boilercv.captivate.captures import write_image
+from boilercv.captivate.previews import view_images
 from boilercv.colors import BLUE, GREEN, RED
 from boilercv.data import ROI, VIDEO
 from boilercv.data.sets import get_dataset
 from boilercv.examples.detect_surface import find_boiling_surface
 from boilercv.examples.previews import _EXAMPLE
-from boilercv.gui import view_images
 from boilercv.images import overlay, scale_bool
 from boilercv.models.params import LOCAL_PATHS, PARAMS
-from boilercv.write import write_image
 
 
 def main():

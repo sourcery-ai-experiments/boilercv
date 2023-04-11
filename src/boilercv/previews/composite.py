@@ -1,12 +1,12 @@
 """Overlay detected bubbles on the image."""
 
 from boilercv import FRAMERATE_PREV, PREVIEW, WRITE
+from boilercv.captivate.captures import write_video
+from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
-from boilercv.gui import view_images
 from boilercv.images import scale_bool
 from boilercv.models.params import LOCAL_PATHS, PARAMS
 from boilercv.previews import compose_da, draw_text_da, get_preview
-from boilercv.write import write_video
 
 
 def main():

@@ -5,8 +5,8 @@ from contextlib import contextmanager
 
 import xarray as xr
 
+from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
-from boilercv.gui import view_images
 from boilercv.models.params import LOCAL_PATHS
 from boilercv.types import DS
 

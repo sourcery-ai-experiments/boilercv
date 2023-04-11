@@ -1,10 +1,10 @@
 """Perform all of the steps."""
 
 from boilercv import DEBUG
+from boilercv.captivate.previews import view_images
 from boilercv.data import FRAME, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
 from boilercv.examples.large import example_dataset
-from boilercv.gui import view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, binarize, flood, get_roi
 from boilercv.types import DA

@@ -9,7 +9,7 @@ from boilercv.stages.update_previews import new_videos_to_preview
 
 
 def main():
-    stage = "large_source"
+    stage = "large_sources"
     destination = PARAMS.paths.gray_preview
     with new_videos_to_preview(destination) as videos_to_preview:
         for video_name in videos_to_preview:

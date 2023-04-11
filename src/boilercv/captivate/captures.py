@@ -1,4 +1,4 @@
-"""Output writing."""
+"""Image and video capturing."""
 
 from datetime import datetime
 from pathlib import Path
@@ -58,13 +58,19 @@ def write_image(path: Path, image: Img | ImgBool | DA, timestamp: str | None = N
     imageio.imwrite(path, image)
 
 
-def coerce_input(img_or_vid: Img | ImgBool | DA):
-    """Coerce input image or video to the appropriate type."""
+def coerce_input(img_or_vid: Img | ImgBool | DA) -> Img:
+    """Coerce input image or video to the appropriate type.
+
+    Args:
+        img_or_vid: Image or video to coerce.
+    """
     if img_or_vid.dtype == bool:
-        img_or_vid = scale_bool(img_or_vid)
+        viewable: Img = scale_bool(img_or_vid)
     if isinstance(img_or_vid, DA):
-        img_or_vid = img_or_vid.values
-    return img_or_vid
+        viewable: Img = img_or_vid.values
+    else:
+        raise TypeError(f"Cannot coerce {type(img_or_vid)} to a viewable type.")
+    return viewable
 
 
 def get_timestamp():

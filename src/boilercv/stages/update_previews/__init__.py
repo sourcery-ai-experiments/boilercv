@@ -7,10 +7,10 @@ from typing import Any
 
 import xarray as xr
 
+from boilercv.captivate.previews import pad_images
 from boilercv.data import VIDEO, VIDEO_NAME, XPX, YPX, assign_ds
 from boilercv.data.models import Dimension
 from boilercv.data.sets import ALL_NAMES
-from boilercv.gui import pad_images
 from boilercv.types import DS
 
 

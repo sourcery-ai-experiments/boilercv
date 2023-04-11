@@ -2,11 +2,11 @@
 
 import cv2 as cv
 
+from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
 from boilercv.data.frames import idx
 from boilercv.data.sets import get_dataset
 from boilercv.examples import EXAMPLE_CONTOURS, EXAMPLE_NUM_FRAMES, EXAMPLE_VIDEO_NAME
-from boilercv.gui import view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import draw_contours
 from boilercv.stages.contours import get_all_contours

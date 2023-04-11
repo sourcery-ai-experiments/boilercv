@@ -2,8 +2,8 @@
 
 from matplotlib.pyplot import subplot_mosaic
 
+from boilercv.captivate.previews import edit_roi, load_roi, view_images
 from boilercv.examples import EXAMPLE_FRAME_LIST, EXAMPLE_ROI
-from boilercv.gui import edit_roi, load_roi, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import (
     apply_mask,

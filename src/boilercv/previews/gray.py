@@ -3,8 +3,8 @@
 import xarray as xr
 
 from boilercv import FRAMERATE_PREV
+from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
-from boilercv.gui import view_images
 from boilercv.models.params import PARAMS
 from boilercv.previews import draw_text_da
 

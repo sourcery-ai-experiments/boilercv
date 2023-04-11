@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 
 from boilercv import DEBUG
+from boilercv.captivate.previews import view_images
 from boilercv.data import YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points, frame_lines
 from boilercv.examples.detect_surface import find_boiling_surface
-from boilercv.gui import view_images
 from boilercv.images.cv import find_contours, find_line_segments
 from boilercv.types import DA, ArrInt
 

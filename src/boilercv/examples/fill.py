@@ -7,12 +7,12 @@ import xarray as xr
 from loguru import logger
 
 from boilercv import PREVIEW
+from boilercv.captivate.previews import view_images
 from boilercv.data import ROI, VIDEO
 from boilercv.data.frames import idx
 from boilercv.data.packing import pack, unpack
 from boilercv.data.sets import get_contours_df, get_dataset
 from boilercv.examples import EXAMPLE_NUM_FRAMES, EXAMPLE_VIDEO_NAME
-from boilercv.gui import view_images
 from boilercv.images.cv import draw_contours
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt

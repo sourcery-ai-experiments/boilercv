@@ -6,8 +6,8 @@ import cv2 as cv
 import numpy as np
 
 from boilercv import PREVIEW
+from boilercv.captivate.previews import view_images
 from boilercv.examples.cv import capture_images
-from boilercv.gui import view_images
 from boilercv.images.cv import convert_image
 
 

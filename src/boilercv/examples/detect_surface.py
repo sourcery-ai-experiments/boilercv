@@ -13,11 +13,11 @@ from scipy.ndimage import (
 )
 
 from boilercv import DEBUG
+from boilercv.captivate.previews import get_calling_scope_name, save_roi, view_images
 from boilercv.data import VIDEO, YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
 from boilercv.data.sets import get_dataset
 from boilercv.examples import EXAMPLE_NUM_FRAMES, EXAMPLE_ROI, EXAMPLE_VIDEO_NAME
-from boilercv.gui import get_calling_scope_name, save_roi, view_images
 from boilercv.images import scale_bool
 from boilercv.images.cv import find_contours, get_wall
 from boilercv.types import DA, ArrInt, Img

@@ -1,4 +1,4 @@
-"""Graphical user interface utilities."""
+"""Image and video previews."""
 
 import inspect
 from collections.abc import Callable, Mapping, MutableSequence, Sequence

@@ -4,10 +4,10 @@ from warnings import warn
 
 import cv2 as cv
 
+from boilercv.captivate.previews import save_roi
 from boilercv.data import apply_to_img_da
 from boilercv.data.sets import get_dataset
 from boilercv.examples import EXAMPLE_ROI, EXAMPLE_VIDEO_NAME
-from boilercv.gui import save_roi
 from boilercv.images import scale_bool
 from boilercv.images.cv import find_contours, get_wall
 from boilercv.types import DA
