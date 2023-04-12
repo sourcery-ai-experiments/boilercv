@@ -10,7 +10,7 @@ from boilercv.types import ArrFloat, ArrInt, Img, ImgBool
 
 def convert_image(img: Img, code: int | None = None) -> Img:
     """Convert image format, handling inconsistent type annotations."""
-    return img if code is None else cv.cvtColor(img, code)  # type: ignore
+    return cv.cvtColor(img, code)  # type: ignore
 
 
 def apply_mask(img: Img, mask: Img) -> Img:
@@ -116,14 +116,12 @@ def draw_contours(
     img: Img,
     contours: Sequence[ArrInt],
     contour_index: int = -1,
-    thickness: int = 2,
+    thickness: int = -1,
     color: int | tuple[int, ...] = WHITE,
 ) -> Img:
     """Draw contours on an image."""
     # OpenCV expects contours as shape (N, 1, 2) instead of (N, 2)
     contours = [np.fliplr(contour).reshape(-1, 1, 2) for contour in contours]
-    if isinstance(color, tuple):
-        img = convert_image(img, cv.COLOR_GRAY2RGB) if len(color) == 3 else img
     return cv.drawContours(
         image=img,
         contours=contours,

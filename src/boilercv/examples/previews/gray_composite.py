@@ -20,7 +20,9 @@ def main():
     if PREVIEW:
         view_images(highlighted_bubbles, framerate=FRAMERATE_CONT)
     if WRITE:
-        write_video(LOCAL_PATHS.media / "gray_highlighted", highlighted_bubbles)
+        path = LOCAL_PATHS.media / "examples" / _EXAMPLE / "gray_highlighted"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_video(path, highlighted_bubbles, preview_frame=True)
 
 
 if __name__ == "__main__":

@@ -6,9 +6,6 @@ import pandas as pd
 from boilercv.data import YX_PX
 from boilercv.types import DF, ArrLike
 
-idx = pd.IndexSlice
-"""Helper for slicing multi-index dataframes."""
-
 
 def df_points(points: ArrLike, dims=YX_PX) -> DF:
     """Build a dataframe from an array of points."""

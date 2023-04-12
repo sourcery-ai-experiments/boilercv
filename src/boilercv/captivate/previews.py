@@ -206,7 +206,7 @@ def set_images(
 ) -> dict[str | int, pg.ImageView]:
     """Set images into the image views."""
     for (title, viewable), image_view in zip(images.items(), image_views, strict=False):
-        if viewable.dtype == bool:
+        if np.issubdtype(viewable.dtype, bool):
             viewable = scale_bool(viewable)
         image_view.setImage(viewable.squeeze())
         if isinstance(title, str):

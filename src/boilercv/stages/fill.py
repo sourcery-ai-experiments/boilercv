@@ -5,8 +5,7 @@ import numpy as np
 import xarray as xr
 from loguru import logger
 
-from boilercv.data import ROI, VIDEO
-from boilercv.data.frames import idx
+from boilercv.data import IDX, ROI, VIDEO
 from boilercv.data.packing import pack
 from boilercv.data.sets import get_all_datasets, get_contours_df
 from boilercv.images.cv import draw_contours
@@ -37,7 +36,7 @@ def main():
 
 def loop(df, frame_num, frame):
     contours: list[ArrInt] = list(  # type: ignore
-        df.loc[idx[frame_num], :]  # type: ignore
+        df.loc[IDX[frame_num], :]  # type: ignore
         .groupby("contour")
         .apply(lambda grp: grp.values)  # type: ignore
     )

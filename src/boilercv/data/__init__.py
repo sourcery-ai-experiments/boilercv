@@ -5,6 +5,7 @@ from itertools import chain
 from typing import Any
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 from pytz import timezone
 
@@ -42,6 +43,9 @@ LENGTH = "um"
 SAMPLE_DIAMETER_UM = 9_525_000
 ROI = "roi"
 OTHER_ROI = "roi_other"
+
+IDX = pd.IndexSlice
+"""Helper for slicing multi-index dataframes."""
 
 
 def identity_da(da: DA, dim: str) -> DA:
