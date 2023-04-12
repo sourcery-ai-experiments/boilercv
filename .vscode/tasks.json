@@ -89,7 +89,7 @@
       "args": ["-Command", "python -m boilercv.previews.${input:preview}"],
       "icon": { "id": "graph" },
       "options": {
-        "env": { "BOILERCV_DEBUG": "True" }
+        "env": { "BOILERCV_PREVIEW": "True" }
       },
       "problemMatcher": []
     },
