@@ -12,17 +12,12 @@
 # (https://github.com/microsoft/vscode-python/issues/10165)
 
 ci:
-  # * ------------------------------------------------------------------------------ * #
-  # * Changes below should persist in significant template updates.
-
   skip:
+    - "pytest"
+    - "pyright"
     - "dvc-pre-commit"
     - "dvc-post-checkout"
     - "dvc-pre-push"
-
-  # * ------------------------------------------------------------------------------ * #
-  # * Changes below may be lost in significant template updates.
-
   autoupdate_schedule: "quarterly"
 
 repos:
@@ -40,6 +35,18 @@ repos:
   # * ------------------------------------------------------------------------------ * #
   # * Changes below may be lost in significant template updates.
 
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        language: system
+        entry: pwsh -Command pytest
+        pass_filenames: false
+        always_run: true
+      - id: pyright
+        name: pyright
+        language: system
+        entry: pwsh -Command pyright
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.4.0"
     hooks:

@@ -8,8 +8,6 @@ import pandas as pd
 from cv2 import version
 from loguru import logger
 
-__version__ = "0.0.0"
-
 _debug = environ.get("BOILERCV_DEBUG")
 _preview = environ.get("BOILERCV_PREVIEW")
 _write = environ.get("BOILERCV_WRITE")

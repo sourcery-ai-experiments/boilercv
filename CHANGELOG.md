@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.0]
 
-- No features yet
+- Initial release
 
 [Unreleased]: https://github.com/blakeNaccarato/boilercv/compare/0.0.0...HEAD
 [0.0.0]: https://github.com/blakeNaccarato/boilercv/releases/tag/0.0.0

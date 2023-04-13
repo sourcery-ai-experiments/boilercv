@@ -20,3 +20,8 @@ Overlay of the external contours corresponding to bubbles in one frame of a high
 :width: 360px
 :align: center
 ```
+
+```{toctree}
+:hidden:
+changelog
+```
