@@ -36,10 +36,8 @@
     "source.unusedImports"
   ],
   "python.analysis.completeFunctionParens": false, // Buggy
-  "python.analysis.refactoring.allowMovingSymbols": true,
   //? Auto imports
   "python.analysis.importFormat": "absolute",
-  "python.analysis.autoImportUserSymbols": true,
   "python.analysis.autoImportCompletions": true,
   "python.analysis.extraCommitChars": true,
   "python.analysis.addImport.exactMatchOnly": false,
