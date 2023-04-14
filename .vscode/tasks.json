@@ -25,6 +25,12 @@
       "description": "preview",
       "default": "",
       "options": ["gray", "binarized", "filled", "composite"]
+    },
+    {
+      "id": "version",
+      "type": "promptString",
+      "description": "version",
+      "default": "0.0.1"
     }
   ],
   "tasks": [
@@ -304,6 +310,27 @@
 
     // * -------------------------------------------------------------------------- * //
     // * GIT * //
+    {
+      "label": "git: Push with tags",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "git push; git push --tags"],
+      "icon": { "id": "git-branch" },
+      "problemMatcher": []
+    },
+    {
+      "label": "git: Prepare to release new version",
+      "dependsOrder": "sequence",
+      "dependsOn": ["setup: Compose pyproject.toml", "git: Stage all files"],
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-Command",
+        "git commit -m 'Release ${input:version}'; git tag ${input:version}"
+      ],
+      "icon": { "id": "git-branch" },
+      "problemMatcher": []
+    },
     {
       "label": "git: Rebase back to fork",
       "type": "process",
