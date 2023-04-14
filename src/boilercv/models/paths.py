@@ -95,7 +95,6 @@ class Paths(MyBaseModel):
     paths_module: FilePath = models / "paths.py"
 
     # ! STAGES
-    stage_check_cv: FilePath = stages / "check_cv.py"
     stage_contours: FilePath = stages / "contours.py"
     stage_fill: FilePath = stages / "fill.py"
     stage_schema: FilePath = stages / "schema.py"

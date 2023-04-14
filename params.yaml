@@ -6,7 +6,6 @@ paths:
   stages: src/boilercv/stages
   models: src/boilercv/models
   paths_module: src/boilercv/models/paths.py
-  stage_check_cv: src/boilercv/stages/check_cv.py
   stage_contours: src/boilercv/stages/contours.py
   stage_fill: src/boilercv/stages/fill.py
   stage_schema: src/boilercv/stages/schema.py
