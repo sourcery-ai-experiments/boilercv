@@ -1,8 +1,9 @@
 """Datasets."""
 
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 import pandas as pd
 import xarray as xr
@@ -21,12 +22,58 @@ Stage: TypeAlias = Literal["large_sources", "sources", "filled"]
 STAGE_DEFAULT = "sources"
 
 
-def get_all_datasets(
-    num_frames: int = 0, frame: slice = ALL_FRAMES, stage: Stage = STAGE_DEFAULT
-) -> Iterator[tuple[DS, str]]:
-    """Yield datasets in order."""
+@contextmanager
+def process_datasets(
+    destination_dir: Path, reprocess: bool = False
+) -> Iterator[dict[str, Any]]:
+    """Get unprocessed dataset names and write them to disk.
+
+    Use as a context manager. Given a destination directory, yield a mapping with
+    unprocessed dataset names as its keys. Upon exiting the context, datasets assigned
+    to the values of the mapping will be written to disk in the destination directory.
+
+    If no values are assigned to the yielded mapping, no datasets will be written. This
+    is useful for processes which take input datasets but handle their own output,
+    perhaps to a different file format.
+
+    Args:
+        destination_dir: The directory to write datasets to.
+        reprocess: Whether to reprocess all datasets.
+    """
+    unprocessed_destinations = get_unprocessed_destinations(
+        destination_dir, reprocess=reprocess
+    )
+    datasets_to_process = dict.fromkeys(unprocessed_destinations)
+    yield datasets_to_process
+    for name, ds in datasets_to_process.items():
+        if ds is None:
+            continue
+        ds.to_netcdf(
+            path=unprocessed_destinations[name], encoding={VIDEO: {"zlib": True}}
+        )
+
+
+def get_unprocessed_destinations(
+    destination_dir: Path, ext: str = "nc", reprocess: bool = False
+) -> dict[str, Path]:
+    """Get destination paths for unprocessed datasets.
+
+    Given a destination directory, yield a mapping of unprocessed dataset names to
+    destinations with a given file extension. A dataset is considered unprocessed if a
+    file sharing its name is not found in the destination directory.
+
+    Args:
+        destination_dir: The desired destination directory.
+        ext: The desired file extension. Default: nc
+        reprocess: Whether to reprocess all datasets. Default: False.
+    """
+    unprocessed_destinations: dict[str, Path] = {}
+    ext = ext.lstrip(".")
     for name in ALL_NAMES:
-        yield get_dataset(name, num_frames, frame, stage), name
+        destination = destination_dir / f"{name}.{ext}"
+        if reprocess or not destination.exists():
+            unprocessed_destinations[name] = destination
+    return unprocessed_destinations
 
 
 def inspect_dataset(name: str, stage: Stage = STAGE_DEFAULT) -> DS:

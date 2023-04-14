@@ -6,7 +6,7 @@ import pandas as pd
 from loguru import logger
 
 from boilercv.data import VIDEO
-from boilercv.data.sets import ALL_NAMES, get_dataset
+from boilercv.data.sets import get_dataset, get_unprocessed_destinations
 from boilercv.images import scale_bool
 from boilercv.images.cv import find_contours
 from boilercv.models.params import PARAMS
@@ -14,11 +14,8 @@ from boilercv.types import DF, Vid
 
 
 def main():
-    logger.info("start contours")
-    for source_name in ALL_NAMES:
-        destination = PARAMS.paths.contours / f"{source_name}.h5"
-        if destination.exists():
-            continue
+    destinations = get_unprocessed_destinations(PARAMS.paths.contours, ext="h5")
+    for source_name, destination in destinations.items():
         video = cv.bitwise_not(scale_bool(get_dataset(source_name)[VIDEO].values))
         df = get_all_contours(video, method=cv.CHAIN_APPROX_SIMPLE)
         df.to_hdf(
@@ -27,7 +24,6 @@ def main():
             complib="zlib",
             complevel=9,
         )
-    logger.info("finish contours")
 
 
 def get_all_contours(video: Vid, method) -> DF:
@@ -60,4 +56,6 @@ def get_all_contours(video: Vid, method) -> DF:
 
 
 if __name__ == "__main__":
+    logger.info("start finding contours")
     main()
+    logger.info("finish finding contours")

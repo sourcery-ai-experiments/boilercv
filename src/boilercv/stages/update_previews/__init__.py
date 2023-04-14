@@ -16,12 +16,12 @@ from boilercv.types import DS
 
 @contextmanager
 def new_videos_to_preview(
-    destination: Path, rebuild: bool = False
+    destination: Path, reprocess: bool = False
 ) -> Iterator[dict[str, Any]]:
-    """Get an empty mapping of new videos to preview and write to disk."""
+    """An empty mapping of new videos to preview and write to disk."""
 
     # Yield a mapping of new video names to previews, to be populated by the user
-    if rebuild:
+    if reprocess:
         new_video_names = ALL_NAMES
     else:
         existing_names: list[str] = []
