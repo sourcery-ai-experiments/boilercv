@@ -34,6 +34,8 @@ repos:
         name: pyright
         language: system
         entry: pwsh -Command pyright
+        pass_filenames: false
+        always_run: true
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.4.0"
     hooks:

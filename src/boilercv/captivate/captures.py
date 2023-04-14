@@ -63,7 +63,7 @@ def coerce_input(imgs: Img | ImgBool | DA) -> Img:
         viewable: Img = imgs.values if isinstance(imgs, DA) else imgs  # type: ignore
     elif np.issubdtype(imgs.dtype, bool):
         viewable: Img = (
-            scale_bool(imgs.values) if isinstance(imgs, DA) else scale_bool(imgs)  # type: ignore
+            scale_bool(imgs.values) if isinstance(imgs, DA) else scale_bool(imgs)
         )
     else:
         raise TypeError(f"Cannot coerce {type(imgs)} to a viewable type.")

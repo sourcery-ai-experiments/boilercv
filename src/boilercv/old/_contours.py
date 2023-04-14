@@ -83,10 +83,10 @@ def interact_with_images(_input_image, _masked, thresholded, contoured):
             ]
         ]
     )
-    for ax_ in ax.values():  # type: ignore
+    for ax_ in ax.values():
         ax_.axis("off")
-    # ax["input"].imshow(input_image, cmap="gray")  # type: ignore
-    # ax["masked"].imshow(masked, cmap="gray")  # type: ignore
+    # ax["input"].imshow(input_image, cmap="gray")
+    # ax["masked"].imshow(masked, cmap="gray")
     ax["thresholded"].imshow(thresholded, cmap="gray")  # type: ignore
     ax["contoured"].imshow(contoured, cmap="gray")  # type: ignore
 

@@ -12,7 +12,7 @@
   // Project-specific overrides
   "reportPrivateUsage": "none",
 
-  // Type inference helps with untyped upstream, but can be unpredictable
+  // Projects that use OpenCV simply cannot have this enabled for now. See: https://github.com/opencv/opencv/issues/14590
   "useLibraryCodeForTypes": false,
 
   // Sets most checks to "error". See overrides below

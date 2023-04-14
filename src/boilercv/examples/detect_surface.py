@@ -68,7 +68,7 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     # ? cv.connectedComponents and cv.moments could also be used
     # ? Consider re-implementing if slow
     find_diag_conns = generate_binary_structure(rank=2, connectivity=2)
-    labeled_img, num_objects = label(input=binarized, structure=find_diag_conns)
+    labeled_img, num_objects = label(input=binarized, structure=find_diag_conns)  # type: ignore
     labels = range(1, num_objects + 1)  # Exclude 0-labeled background
     sizes_px = labeled_comprehension(
         input=binarized,

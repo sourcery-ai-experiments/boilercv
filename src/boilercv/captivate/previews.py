@@ -177,10 +177,10 @@ def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore
     """Pad images to a common size and pack into an array."""
     flat_image = isinstance(images, np.ndarray | DA) and (
         # One-channel
-        images.ndim == 2  # type: ignore
+        images.ndim == 2
         # Up to four-channel
-        or images.ndim == 3  # type: ignore
-        and images.shape[-1] <= 4  # type: ignore
+        or images.ndim == 3
+        and images.shape[-1] <= 4
     )
     images: MutableViewable = [images] if flat_image else list(images)
     shapes = pd.DataFrame(
@@ -227,7 +227,7 @@ class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):
 def add_button(layout: QLayout, label: str, func: Callable[..., Any]) -> QPushButton:
     """Add a named button to a layout and connect it to a callback."""
     button = QPushButton(label)
-    button.clicked.connect(func)  # type: ignore
+    button.clicked.connect(func)
     layout.addWidget(button)
     return button
 
@@ -302,7 +302,7 @@ def edit_roi(
             """Allow ROI interaction."""
             window.key_signal.connect(keyPressEvent)
             button = QPushButton("Save ROI")
-            button.clicked.connect(save_roi_)  # type: ignore
+            button.clicked.connect(save_roi_)
             button_layout.addWidget(button)
             image_views[0].addItem(roi)
 
