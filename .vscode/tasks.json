@@ -13,7 +13,6 @@
       "options": [
         "",
         "schema",
-        "check_cv",
         "update_binarized_preview",
         "contours",
         "fill",
@@ -25,7 +24,7 @@
       "type": "pickString",
       "description": "preview",
       "default": "",
-      "options": ["binarized", "filled", "overlaid"]
+      "options": ["gray", "binarized", "filled", "composite"]
     }
   ],
   "tasks": [

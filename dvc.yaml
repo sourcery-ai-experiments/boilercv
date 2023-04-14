@@ -22,7 +22,8 @@ stages:
       - "${paths.stage_gray_preview}"
       - "${paths.sources}"
     outs:
-      - "${paths.gray_preview}"
+      - "${paths.gray_preview}":
+          persist: true
 
   contours:
     cmd: "python -m boilercv.stages.contours"

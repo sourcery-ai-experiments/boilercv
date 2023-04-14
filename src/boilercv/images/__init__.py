@@ -95,10 +95,12 @@ def overlay(
     """
     background = Image.fromarray(image).convert("RGBA")
     objects = Image.fromarray(overlay)
-    if overlay.ndim == 1:
+    if overlay.ndim == 2:
         objects = ImageOps.colorize(objects, WHITE3, color)
         mask = Image.fromarray(~(overlay * alpha).astype(np.uint8))
     else:
-        mask = Image.fromarray(~(np.mean(overlay, axis=-1) * alpha).astype(np.uint8))
+        mask = Image.fromarray(
+            ~(bool(np.mean(overlay, axis=-1)) * alpha).astype(np.uint8)
+        )
     composite = Image.composite(background, objects, mask)
     return np.asarray(composite)
