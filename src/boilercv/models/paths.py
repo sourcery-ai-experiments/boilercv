@@ -8,6 +8,8 @@ from ruamel.yaml import YAML
 
 from boilercv.models import PARAMS_FILE, MyBaseModel
 
+LOCAL_MEDIA = "G:/My Drive/Blake/School/Grad/Reports/Content/boilercv"
+
 
 def init():
     """Synchronize project paths. Run on initial import of this module."""
@@ -46,7 +48,7 @@ class LocalPaths(MyBaseModel):
     cines: DirectoryPath = data / "cines"
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
-    media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")
+    media: Path = Path(LOCAL_MEDIA)
 
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation

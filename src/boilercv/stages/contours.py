@@ -18,44 +18,58 @@ def main():
     for source_name, destination in destinations.items():
         video = cv.bitwise_not(scale_bool(get_dataset(source_name)[VIDEO].values))
         df = get_all_contours(video, method=cv.CHAIN_APPROX_SIMPLE)
-        df.to_hdf(
-            destination,
-            "contours",
-            complib="zlib",
-            complevel=9,
-        )
+        df.to_hdf(destination, "contours", complib="zlib", complevel=9)
 
 
 def get_all_contours(video: Vid, method) -> DF:
-    """Get all contours."""
+    """Get all contours in a video.
+
+    Produces a dataframe with a multi-index of the video frame and contour number, and
+    two columns indicating the "y" and "x" pixel locations of contour vertices.
+
+    Args:
+        video: Video to get contours from.
+        method: The contour approximation method to use.
+    """
+    # This nested, pure-numpy approach is a bit hard to follow, but it is much faster
+    # than the more readable approach of building and concatenating dataframes. The
+    # overhead of dataframe creation over ~6000 frames is significant.
     try:
+        # Vertically stack the contours detected in each frame
         all_contours = np.vstack(
+            # For each frame in the video...
             [
+                # Compose two columns, the frame number and the contours
                 np.insert(
-                    np.vstack(
+                    axis=1,  # Insert column-wise
+                    obj=0,  # Insert at the beginning, e.g. prepend
+                    values=frame_num,
+                    # Vertically stack the pixel locations of each contour
+                    arr=np.vstack(
+                        # For each contour in the frame...
                         [
-                            np.insert(contour, 0, cont_num, axis=1)
+                            # Prepend the contour number to the contour locations
+                            np.insert(axis=1, obj=0, values=cont_num, arr=contour)
                             for cont_num, contour in enumerate(
                                 find_contours(image, method)
                             )
                         ]
                     ),
-                    0,
-                    image_num,
-                    axis=1,
                 )
-                for image_num, image in enumerate(video)
+                for frame_num, image in enumerate(video)
             ]
         )
     except ValueError:
-        logger.exception("no contours found")
+        # Some frames may have no contours. Signal this with an empty array
+        logger.warning("No contours found in this frame.")
         all_contours = np.empty((0, 4))
+    # Build the dataframe at the very end to avoid the overhead
     return pd.DataFrame(
         all_contours, columns=["frame", "contour", "ypx", "xpx"]
     ).set_index(["frame", "contour"])
 
 
 if __name__ == "__main__":
-    logger.info("start finding contours")
+    logger.info("Start finding contours")
     main()
-    logger.info("finish finding contours")
+    logger.info("Finish finding contours")

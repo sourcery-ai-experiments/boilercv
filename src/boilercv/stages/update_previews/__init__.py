@@ -22,8 +22,10 @@ def new_videos_to_preview(
 
     # Yield a mapping of new video names to previews, to be populated by the user
     if reprocess:
+        # Reprocess all names
         new_video_names = ALL_NAMES
     else:
+        # Get the names missing from the destination
         existing_names: list[str] = []
         if destination.exists():
             with xr.open_dataset(destination) as existing_ds:
@@ -49,7 +51,7 @@ def new_videos_to_preview(
                     # Combine datasets if they're the same shape
                     new_ds = xr.combine_by_coords([existing_ds, new_ds])
                 else:
-                    # Otherwise, destructure, pad, and rebuild them together
+                    # Otherwise: destructure, pad, and rebuild them together
                     existing_names = list(existing_ds[VIDEO_NAME].values)
                     new_ds = get_preview_ds(
                         existing_names + received_video_names,
@@ -65,6 +67,7 @@ def get_preview_ds(preview_names: list[str], previews: list[Any]) -> DS:
         name=VIDEO,
         long_name="Video preview",
         units="Pixel state",
+        data=pad_images(previews),
         dims=(
             Dimension(
                 dim=VIDEO_NAME,
@@ -82,5 +85,4 @@ def get_preview_ds(preview_names: list[str], previews: list[Any]) -> DS:
                 units="px",
             ),
         ),
-        data=pad_images(previews),
     )

@@ -1,23 +1,21 @@
 ```{mermaid}
 flowchart TD
  node1["schema"]
- node2["check_cv"]
- node3["data\samples.dvc"]
- node3-->node2
- node4["binarized_preview"]
- node5["contours"]
- node6["data\rois.dvc"]
- node7["data\sources.dvc"]
- node8["fill"]
- node9["filled_preview"]
- node10["gray_preview"]
+ node2["binarized_preview"]
+ node3["contours"]
+ node4["data\rois.dvc"]
+ node5["data\sources.dvc"]
+ node6["fill"]
+ node7["filled_preview"]
+ node8["gray_preview"]
+ node3-->node6
+ node4-->node2
+ node5-->node2
+ node5-->node3
+ node5-->node6
+ node5-->node7
  node5-->node8
- node6-->node4
- node7-->node4
- node7-->node5
- node7-->node8
- node7-->node9
- node7-->node10
- node8-->node9
- node11["data\examples.dvc"]
+ node6-->node7
+ node9["data\examples.dvc"]
+ node10["data\samples.dvc"]
 ```

@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Nothing yet
+- Remove `check_cv` stage
+- Make stages aware of unprocessed datasets
+- Document contour finding
 
 ## [0.0.0]
 
