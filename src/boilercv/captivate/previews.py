@@ -177,10 +177,10 @@ def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore
     """Pad images to a common size and pack into an array."""
     flat_image = isinstance(images, np.ndarray | DA) and (
         # One-channel
-        images.ndim == 2
+        images.ndim == 2  # type: ignore  # CI
         # Up to four-channel
-        or images.ndim == 3
-        and images.shape[-1] <= 4
+        or images.ndim == 3  # type: ignore  # CI
+        and images.shape[-1] <= 4  # type: ignore  # CI
     )
     images: MutableViewable = [images] if flat_image else list(images)
     shapes = pd.DataFrame(

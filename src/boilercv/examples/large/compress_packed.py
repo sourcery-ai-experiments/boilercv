@@ -8,7 +8,7 @@ from boilercv.data import VIDEO
 from boilercv.examples.large import example_dataset
 
 
-@example_dataset(
+@example_dataset(  # type: ignore  # CI
     source="packed",
     destination="packed_compressed",
     preview=DEBUG,
