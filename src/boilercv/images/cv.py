@@ -116,7 +116,7 @@ def draw_contours(
     img: Img,
     contours: Sequence[ArrInt],
     contour_index: int = -1,
-    thickness: int = -1,
+    thickness: int = cv.FILLED,
     color: int | tuple[int, ...] = WHITE,
 ) -> Img:
     """Draw contours on an image."""

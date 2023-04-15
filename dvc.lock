@@ -68,8 +68,8 @@ stages:
       size: 7424602696
       nfiles: 308
     - path: src/boilercv/stages/fill.py
-      md5: ed95bf998ce5a00102bf753660cb3215
-      size: 1429
+      md5: 06f921e3627e9b7766f97bcddd5253a4
+      size: 1342
     outs:
     - path: data/filled
       md5: 9d9b406833ae3911940fd4d717bb20e1.dir

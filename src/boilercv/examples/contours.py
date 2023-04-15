@@ -1,8 +1,10 @@
 """Get bubble contours."""
 
 import cv2 as cv
+import numpy as np
 
 from boilercv.captivate.previews import view_images
+from boilercv.colors import BLUE
 from boilercv.data import IDX, VIDEO
 from boilercv.data.sets import get_dataset
 from boilercv.examples import EXAMPLE_CONTOURS, EXAMPLE_NUM_FRAMES, EXAMPLE_VIDEO_NAME
@@ -26,7 +28,8 @@ def main():
             .groupby("contour")
             .apply(lambda grp: grp.values)  # type: ignore
         )
-        result.append(draw_contours(scale_bool(frame.values), contours))
+        frame_color = np.repeat(scale_bool(frame.values)[:, :, np.newaxis], 3, axis=-1)
+        result.append(draw_contours(frame_color, contours, thickness=2, color=BLUE))
     view_images(result)
 
 

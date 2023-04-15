@@ -12,7 +12,7 @@ from scipy.ndimage import (
     labeled_comprehension,
 )
 
-from boilercv import DEBUG
+from boilercv import PREVIEW
 from boilercv.captivate.previews import get_calling_scope_name, save_roi, view_images
 from boilercv.data import VIDEO, YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
@@ -108,7 +108,7 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
         [ypx_horizontal, xpx_left, ypx_horizontal, xpx_right]
     ).astype(int)
 
-    if DEBUG:
+    if PREVIEW:
         view_images(
             name=get_calling_scope_name(),
             images=dict(

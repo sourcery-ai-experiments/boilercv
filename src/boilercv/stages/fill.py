@@ -1,6 +1,5 @@
 """Fill bubble contours."""
 
-import cv2 as cv
 import xarray as xr
 from loguru import logger
 
@@ -27,9 +26,7 @@ def main():
                         .groupby("contour")
                         .apply(lambda grp: grp.values)
                     )
-                    video[frame_num, :, :] = draw_contours(
-                        frame.values, contours, thickness=cv.FILLED
-                    )
+                    video[frame_num, :, :] = draw_contours(frame.values, contours)
             ds[VIDEO] = pack(video)
             ds = ds.drop_vars(ROI)
             videos_to_process[name] = ds

@@ -1,6 +1,5 @@
 """Fill bubble contours."""
 
-import cv2 as cv
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -38,9 +37,7 @@ def main():
                 .groupby("contour")
                 .apply(lambda grp: grp.values)  # type: ignore
             )
-            video[frame_num, :, :] = draw_contours(
-                frame.values, contours, thickness=cv.FILLED
-            )
+            video[frame_num, :, :] = draw_contours(frame.values, contours)
     ds[VIDEO] = pack(video)
     ds = ds.drop_vars(ROI)
     destination = PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}_filled.nc"
