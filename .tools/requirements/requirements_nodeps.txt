@@ -1,2 +1,1 @@
 git+https://github.com/ottomatic-io/pycine@815cfca06cafc50745a43b2cd0168982225c6dca
-xarray==2023.3.0

@@ -6,7 +6,7 @@ from boilercv.data import VIDEO
 from boilercv.models.params import PARAMS
 from boilercv.types import DA
 
-EXAMPLE_NUM_FRAMES = 100
+EXAMPLE_NUM_FRAMES = 500
 EXAMPLE_VIDEO_NAME = "2022-11-30T13-41-00"
 EXAMPLE_CONTOURS = PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}.h5"
 # TODO: Source the ROI from the dataset.

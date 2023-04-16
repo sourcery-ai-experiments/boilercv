@@ -1,7 +1,7 @@
 # List project dependencies here. A workflow ports them to `pyproject.toml`
-dvc[gs]==2.53.0
+dvc[gs]==2.54.0
 imageio[pyav]==2.27.0
-loguru==0.6.0
+loguru==0.7.0
 matplotlib==3.7.1
 numpy==1.24.2
 opencv-contrib-python==4.7.0.72
@@ -28,15 +28,11 @@ pandas[hdf5,parquet]==2.0.0
 numexpr==2.8.4
 
 # * pyqtgraph and its extra dependencies
-pyqtgraph==0.13.2
+pyqtgraph==0.13.3
 # ? https://github.com/pyqtgraph/pyqtgraph/issues/2672
 pyside6==6.4.3,<6.5
 
 # * xarray and its extra dependencies
 # ? Can't specify `accel` extras until Numba supports Python 3.11
-# ! Install xarray with nodeps until Pandas 2 is allowed
-# TODO: Take xarray out of nodeps when reverting
-# xarray==2023.3.0
+xarray==2023.4.0
 netcdf4==1.6.3
-# ! Once Pandas 2 is allowed, remove these manually-specified deps
-python-dateutil==2.8.2

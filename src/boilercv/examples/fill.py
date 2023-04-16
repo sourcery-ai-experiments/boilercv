@@ -7,12 +7,10 @@ from loguru import logger
 
 from boilercv import PREVIEW
 from boilercv.captivate.previews import view_images
-from boilercv.data import IDX, ROI, VIDEO
-from boilercv.data.packing import pack, unpack
+from boilercv.data import VIDEO
 from boilercv.data.sets import get_contours_df, get_dataset
 from boilercv.examples import EXAMPLE_NUM_FRAMES, EXAMPLE_VIDEO_NAME
 from boilercv.images.cv import draw_contours
-from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
 
 TRY_EMPTY = False
@@ -33,18 +31,13 @@ def main():
     if not df.empty:
         for frame_num, frame in enumerate(video):
             contours: list[ArrInt] = list(  # type: ignore
-                df.loc[IDX[frame_num], :]  # type: ignore
+                df.loc[frame_num, :]  # type: ignore
                 .groupby("contour")
                 .apply(lambda grp: grp.values)  # type: ignore
             )
             video[frame_num, :, :] = draw_contours(frame.values, contours)
-    ds[VIDEO] = pack(video)
-    ds = ds.drop_vars(ROI)
-    destination = PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}_filled.nc"
-    ds.to_netcdf(path=destination)
     if PREVIEW:
-        with xr.open_dataset(destination) as ds2:
-            view_images([unpack(ds[VIDEO]), unpack(ds2[VIDEO])])
+        view_images(video)
 
 
 if __name__ == "__main__":
