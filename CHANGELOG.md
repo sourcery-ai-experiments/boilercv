@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Nothing yet
+- Add `xarray` back to main requirements now that Pandas 2.0 is supported
 
 ## [0.0.1]
 

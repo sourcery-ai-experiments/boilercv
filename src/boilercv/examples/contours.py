@@ -3,6 +3,7 @@
 import cv2 as cv
 import numpy as np
 
+from boilercv import PREVIEW
 from boilercv.captivate.previews import view_images
 from boilercv.colors import BLUE
 from boilercv.data import IDX, VIDEO
@@ -30,7 +31,8 @@ def main():
         )
         frame_color = np.repeat(scale_bool(frame.values)[:, :, np.newaxis], 3, axis=-1)
         result.append(draw_contours(frame_color, contours, thickness=2, color=BLUE))
-    view_images(result)
+    if PREVIEW:
+        view_images(result)
 
 
 if __name__ == "__main__":
