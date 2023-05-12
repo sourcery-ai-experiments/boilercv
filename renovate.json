@@ -2,7 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Establish base config, schedule, and manager defaults.",
   "extends": ["config:base", ":enablePreCommit", ":disableRateLimiting"],
-  "schedule": ["on the 16th day of the month"],
   "git-submodules": { "enabled": true },
   "enabledManagers": [
     "git-submodules",
