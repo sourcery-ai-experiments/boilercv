@@ -8,7 +8,6 @@
 requires = ["flit_core >=3.3,<4"]
 build-backend = "flit_core.buildapi"
 
-
 [project]
 name = "boilercv"
 version = "0.0.1"
@@ -24,8 +23,8 @@ email = "blake.naccarato+boilercv@gmail.com"
 name = "Kwang Jin Kim"
 
 [project.urls]
-changes = "https://blakenaccarato.github.io/boilercv/changelog.html"
-docs = "https://blakenaccarato.github.io/boilercv/"
+changes = "https://blakeNaccarato.github.io/boilercv/changelog.html"
+docs = "https://blakeNaccarato.github.io/boilercv/"
 home = "https://github.com/blakeNaccarato/boilercv"
 tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 

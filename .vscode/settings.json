@@ -16,6 +16,34 @@
     "/home/user/opencv-python/opencv"
   ],
 
+  //? Zero out the depth for packages which slow down Pylance
+  "python.analysis.packageIndexDepths": [
+    {
+      "name": "boilercine",
+      "depth": 0
+    },
+    {
+      "name": "matplotlib",
+      "depth": 2
+    },
+    {
+      "name": "cv2",
+      "depth": 0
+    },
+    {
+      "name": "PySide6",
+      "depth": 0
+    },
+    {
+      "name": "pyqtgraph",
+      "depth": 0
+    },
+    {
+      "name": "xarray",
+      "depth": 2
+    }
+  ],
+
   // * ---------------------------------------------------------------------------- * //
   // * Changes below may be lost in significant template updates.
 
@@ -48,33 +76,6 @@
   "python.analysis.inlayHints.pytestParameters": true,
   //? See "include" and "extrapaths" in pyrightconfig.json
   "python.analysis.autoSearchPaths": false,
-  //? Zero out the depth for packages which slow down Pylance
-  "python.analysis.packageIndexDepths": [
-    {
-      "name": "boilercine",
-      "depth": 0
-    },
-    {
-      "name": "matplotlib",
-      "depth": 2
-    },
-    {
-      "name": "cv2",
-      "depth": 0
-    },
-    {
-      "name": "PySide6",
-      "depth": 0
-    },
-    {
-      "name": "pyqtgraph",
-      "depth": 0
-    },
-    {
-      "name": "xarray",
-      "depth": 2
-    }
-  ],
 
   //! Lint, test, format
   //* pytest

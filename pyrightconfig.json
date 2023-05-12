@@ -2,18 +2,18 @@
   // * ----------------------------------------------------------------------------- * #
   // * Changes below should persist in significant template updates.
 
+  // Project-specific overrides
+  "reportPrivateUsage": "none",
+
+  // Projects that use OpenCV simply cannot have this enabled for now. See: https://github.com/opencv/opencv/issues/14590
+  "useLibraryCodeForTypes": false,
+
   // * ----------------------------------------------------------------------------- * #
   // * Changes below may be lost in significant template updates.
 
   // Paths
   "include": ["src"],
   "extraPaths": ["tests"],
-
-  // Project-specific overrides
-  "reportPrivateUsage": "none",
-
-  // Projects that use OpenCV simply cannot have this enabled for now. See: https://github.com/opencv/opencv/issues/14590
-  "useLibraryCodeForTypes": false,
 
   // Sets most checks to "error". See overrides below
   "typeCheckingMode": "strict",
