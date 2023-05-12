@@ -21,8 +21,8 @@ name = "Kwang Jin Kim"
 file = "LICENSE"
 
 [project.urls]
-changes = "https://blakenaccarato.github.io/boilercv/changelog.html"
-docs = "https://blakenaccarato.github.io/boilercv/"
+changes = "https://blakeNaccarato.github.io/boilercv/changelog.html"
+docs = "https://blakeNaccarato.github.io/boilercv/"
 home = "https://github.com/blakeNaccarato/boilercv"
 tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 
