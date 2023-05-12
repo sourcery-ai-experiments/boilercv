@@ -111,9 +111,6 @@ split-on-trailing-comma = false
     "ARG001", # Allow unused arguments in tests
     "S101",   # Allow assert in tests
 ]
-"src/boilercv/video/cine/**" = [
-    "N815", # Allow camelCase in cine metadata models, which map to C structures
-]
 
 [tool.ruff.flake8-bugbear]
 extend-immutable-calls = ["typer.Argument", "typer.Option"]
