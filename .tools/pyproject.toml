@@ -11,22 +11,21 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "boilercv"
 version = "0.0.1"
-description = "Computer vision routines suitable for nucleate pool boiling bubble analysis"
+description = "Computer vision routines suitable for nucleate pool boiling bubble analysis."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 [[project.authors]]
 name = "Blake Naccarato"
-email = "blake.naccarato+boilercv@gmail.com"
+email = "blake.naccarato@gmail.com"
 [[project.authors]]
 name = "Kwang Jin Kim"
-
 [project.urls]
-changes = "https://blakeNaccarato.github.io/boilercv/changelog.html"
-docs = "https://blakeNaccarato.github.io/boilercv/"
-home = "https://github.com/blakeNaccarato/boilercv"
-tracker = "https://github.com/blakeNaccarato/boilercv/issues"
+Changes = "https://github.com/blakeNaccarato/boilercv/changelog.html"
+Docs = "https://blakeNaccarato.github.io/boilercv/"
+Home = "https://github.com/blakeNaccarato/boilercv"
+Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 
 [tool.ruff]
 fix = true

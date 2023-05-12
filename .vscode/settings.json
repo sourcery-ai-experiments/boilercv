@@ -63,6 +63,10 @@
     "source.convertImportFormat",
     "source.unusedImports"
   ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": false,
+    "source.organizeImports": false
+  },
   "python.analysis.completeFunctionParens": false, // Buggy
   //? Auto imports
   "python.analysis.importFormat": "absolute",
@@ -162,10 +166,6 @@
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
   "python.formatting.provider": "black",
-  "editor.codeActionsOnSave": {
-    "source.fixAll": false,
-    "source.organizeImports": false
-  },
   //* Enforce whitespace and newlines.
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
