@@ -27,7 +27,7 @@
       "matchPackageNames": ["pyright", "typings"]
     },
     {
-      "groupName": "all non-major dependencies except pyright",
+      "groupName": "all non-major dependencies except pyright (edit)",
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
