@@ -27,11 +27,11 @@
       "matchPackageNames": ["pyright", "typings"]
     },
     {
-      "groupName": "all non-major dependencies except pyright (edit)",
+      "groupName": "all non-major dependencies except pyright",
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
-      "excludeDepNames": ["pyright", "xarray"]
+      "excludeDepNames": ["pyright"]
     },
     {
       "description": "Ignore github-actions dependencies managed by the template.",
