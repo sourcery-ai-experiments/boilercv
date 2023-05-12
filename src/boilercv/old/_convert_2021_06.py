@@ -36,7 +36,7 @@ def main():
             continue
         try:
             prepare_dataset(source, num_frames).to_netcdf(path=destination)
-        except Exception:
+        except Exception:  # noqa: BLE001  # Logging all exceptions
             logger.exception(source.stem)
             continue
 

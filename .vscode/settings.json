@@ -92,7 +92,6 @@
   //* black
   "black-formatter.importStrategy": "fromEnvironment",
   //? Ensure user setting args are cleared
-  "black-formatter.logLevel": "warn",
   "black-formatter.args": [],
   //* ruff
   "ruff.importStrategy": "fromEnvironment",

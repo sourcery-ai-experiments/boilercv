@@ -17,7 +17,7 @@ flit==3.8.0
 pyright==1.1.303
 
 # Lint
-ruff==0.0.260
+ruff==0.0.263
 
 # Test
 pytest==7.3.1
