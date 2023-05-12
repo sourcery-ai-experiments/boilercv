@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 7d2238c
+_commit: 8332b33
 _src_path: gh:blakeNaccarato/copier-python
 actions_runner: ubuntu-latest
 github_repo_name: boilercv
