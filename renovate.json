@@ -31,7 +31,7 @@
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
-      "excludeDepNames": ["pyright"]
+      "excludeDepNames": ["pyright", "xarray"]
     },
     {
       "description": "Ignore github-actions dependencies managed by the template.",
