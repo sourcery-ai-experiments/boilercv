@@ -6,19 +6,20 @@ from typing import Any
 from pydantic import DirectoryPath, FilePath, validator
 from ruamel.yaml import YAML
 
-from boilercv.models import PARAMS_FILE, MyBaseModel
-
-LOCAL_MEDIA = "G:/My Drive/Blake/School/Grad/Reports/Content/boilercv"
+from boilercv.models import DATA_DIR, LOCAL_DATA, LOCAL_MEDIA, MyBaseModel
 
 
 def init():
-    """Synchronize project paths. Run on initial import of this module."""
+    """Synchronize project paths. Run on initial import of `paths` module."""
+    from boilercv.models import PARAMS_FILE
+    from boilercv.models.paths import Paths, repl_path
+
     yaml = YAML()
     yaml.indent(offset=2)
+    params = yaml.load(PARAMS_FILE) if PARAMS_FILE.exists() else {}
     paths = Paths()
-    params = yaml.load(paths.file_params) or {}
     params["paths"] = repl_path(paths.dict(exclude_none=True))
-    yaml.dump(params, paths.file_params)
+    yaml.dump(params, PARAMS_FILE)
 
 
 def repl_path(dirs_dict: dict[str, Path]):
@@ -34,7 +35,7 @@ def get_sorted_paths(path: Path) -> list[Path]:
 class LocalPaths(MyBaseModel):
     """Local paths for larger files not stored in the cloud."""
 
-    data: DirectoryPath = Path("~").expanduser() / ".local/boilercv"
+    data: DirectoryPath = LOCAL_DATA
     hierarchical_data: DirectoryPath = data / "data"
 
     large_examples: DirectoryPath = data / "large_examples"
@@ -83,9 +84,6 @@ class Paths(MyBaseModel):
                 if isinstance(default, str):
                     prop["default"] = default.replace("\\", "/")
 
-    # ! PARAMS FILE
-    file_params: FilePath = PARAMS_FILE
-
     # ! REQUIREMENTS
     requirements: FilePath = Path("requirements.txt")
     dev_requirements: DirectoryPath = Path(".tools/requirements")
@@ -108,7 +106,7 @@ class Paths(MyBaseModel):
     stage_filled_preview: FilePath = update_previews / "filled.py"
 
     # ! DATA
-    data: DirectoryPath = Path("data")
+    data: DirectoryPath = DATA_DIR
     contours: DirectoryPath = data / "contours"
     examples: DirectoryPath = data / "examples"
     filled: DirectoryPath = data / "filled"
@@ -146,7 +144,5 @@ class Paths(MyBaseModel):
         directory.mkdir(parents=True, exist_ok=True)
         return directory
 
-
-# * -------------------------------------------------------------------------------- * #
 
 init()

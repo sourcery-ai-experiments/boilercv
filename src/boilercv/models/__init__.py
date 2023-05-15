@@ -5,6 +5,9 @@ import yaml
 from pydantic import BaseModel, Extra, MissingError, ValidationError
 
 PARAMS_FILE = Path("params.yaml")
+DATA_DIR = Path("data")
+LOCAL_MEDIA = "G:/My Drive/Blake/School/Grad/Reports/Content/boilercv"
+LOCAL_DATA = Path("~").expanduser() / ".local/boilercv"
 
 BaseModel_T = TypeVar("BaseModel_T", bound=BaseModel)
 
