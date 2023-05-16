@@ -6,6 +6,7 @@ from loguru import logger
 from boilercv.data import ROI, VIDEO
 from boilercv.data.packing import pack
 from boilercv.data.sets import get_contours_df, get_dataset, process_datasets
+from boilercv.images import scale_bool
 from boilercv.images.cv import draw_contours
 from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
@@ -26,7 +27,9 @@ def main():
                         .groupby("contour")
                         .apply(lambda grp: grp.values)
                     )
-                    video[frame_num, :, :] = draw_contours(frame.values, contours)
+                    video[frame_num, :, :] = draw_contours(
+                        scale_bool(frame.values), contours
+                    )
             ds[VIDEO] = pack(video)
             ds = ds.drop_vars(ROI)
             videos_to_process[name] = ds

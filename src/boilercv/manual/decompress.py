@@ -17,7 +17,9 @@ def main():
             continue
         source = PARAMS.paths.sources / f"{source_name}.nc"
         with xr.open_dataset(source) as ds:
-            xr.Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(destination)
+            xr.Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(
+                path=destination, encoding={VIDEO: {"zlib": False}}
+            )
     logger.info("finish decompress")
 
 

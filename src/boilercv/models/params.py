@@ -12,6 +12,7 @@ class Params(MyBaseModel):
     """Project parameters."""
 
     paths: Paths = Field(default_factory=Paths)
+    local_paths: LocalPaths = Field(default_factory=LocalPaths)
 
     @classmethod
     def get_params(cls: type[Self]) -> Self:

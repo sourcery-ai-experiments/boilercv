@@ -22,7 +22,9 @@ def main(preview: bool = PREVIEW) -> DA:
         view_images(composed, framerate=FRAMERATE_PREV)
     if WRITE:
         write_video(
-            LOCAL_PATHS.media / "examples/composite", composed, framerate=FRAMERATE_PREV
+            LOCAL_PATHS.media / "examples" / "composite",
+            composed,
+            framerate=FRAMERATE_PREV,
         )
     return composed
 

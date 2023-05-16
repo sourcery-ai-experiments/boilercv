@@ -6,7 +6,7 @@ from typing import Any
 from pydantic import DirectoryPath, FilePath, validator
 from ruamel.yaml import YAML
 
-from boilercv.models import DATA_DIR, LOCAL_DATA, LOCAL_MEDIA, MyBaseModel
+from boilercv.models import DATA_DIR, LOCAL_DATA, MyBaseModel
 
 
 def init():
@@ -49,7 +49,7 @@ class LocalPaths(MyBaseModel):
     cines: DirectoryPath = data / "cines"
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
-    media: Path = Path(LOCAL_MEDIA)
+    media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")
 
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation
