@@ -2,7 +2,6 @@ ci:
   skip:
     - "pytest"
     - "pyright"
-    - "dvc-pre-commit"
     - "dvc-post-checkout"
     - "dvc-pre-push"
   autoupdate_schedule: "quarterly"
@@ -14,7 +13,6 @@ repos:
   - repo: "https://github.com/iterative/dvc"
     rev: "2.56.0"
     hooks:
-      - id: "dvc-pre-commit"
       - id: "dvc-post-checkout"
       - id: "dvc-pre-push"
         additional_dependencies: ["dvc[gs]"]
@@ -22,36 +20,21 @@ repos:
   # * ------------------------------------------------------------------------------ * #
   # * Changes below may be lost in significant template updates.
 
-  - repo: local
+  - repo: "local"
     hooks:
-      - id: pytest
-        name: pytest
-        language: system
-        entry: pwsh -Command pytest
+      - id: "pytest"
+        name: "pytest"
+        language: "system"
+        entry: "pwsh -Command pytest --run_skips false"
         pass_filenames: false
-        files: '^((tests\/)|(src\/)).*$'
-      - id: pyright
-        name: pyright
-        language: system
-        entry: pwsh -Command pyright
+        files: "^((tests\/)|(src\/)).*$"
+        verbose: true
+      - id: "pyright"
+        name: "pyright"
+        language: "system"
+        entry: "pwsh -Command pyright"
         pass_filenames: false
-        files: '^((tests\/)|(src\/)).*$'
-
-  - repo: local
-    hooks:
-      - id: pytest
-        name: pytest
-        language: system
-        entry: pwsh -Command pytest
-        pass_filenames: false
-        files: '^((tests\/)|(src\/)).*$'
-      - id: pyright
-        name: pyright
-        language: system
-        entry: pwsh -Command pyright
-        pass_filenames: false
-        files: '^((tests\/)|(src\/)).*$'
-
+        files: "^((tests\/)|(src\/)).*$"
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.4.0"
     hooks:

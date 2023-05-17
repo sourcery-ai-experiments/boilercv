@@ -2,11 +2,13 @@ from pathlib import Path
 from shutil import copytree
 
 import pandas as pd
+import pytest
 import xarray as xr
 
 import boilercv
 
 
+@pytest.mark.slow()
 def test_pipeline(monkeypatch, tmp_path):
     """Test the pipeline."""
 
