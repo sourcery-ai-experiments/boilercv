@@ -1,5 +1,6 @@
 ci:
   skip:
+    - "compose-pyproject"
     - "pytest"
     - "pyright"
     - "dvc-post-checkout"
@@ -22,19 +23,22 @@ repos:
 
   - repo: "local"
     hooks:
+      - id: "compose-pyproject"
+        name: "compose-pyproject"
+        language: "system"
+        entry: "pwsh -Command python .tools/scripts/compose_pyproject.py"
+        pass_filenames: false
       - id: "pytest"
         name: "pytest"
         language: "system"
         entry: "pwsh -Command pytest --run_skips false"
         pass_filenames: false
-        files: "^((tests\\/)|(src\\/)).*$"
         verbose: true
       - id: "pyright"
         name: "pyright"
         language: "system"
         entry: "pwsh -Command pyright"
         pass_filenames: false
-        files: "^((tests\\/)|(src\\/)).*$"
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.4.0"
     hooks:
