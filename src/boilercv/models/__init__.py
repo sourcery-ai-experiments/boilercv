@@ -4,10 +4,6 @@ from typing import TypeVar
 import yaml
 from pydantic import BaseModel, Extra, MissingError, ValidationError
 
-PARAMS_FILE = Path("params.yaml")
-DATA_DIR = Path("data")
-LOCAL_DATA = Path("~").expanduser() / ".local/boilercv"
-
 BaseModel_T = TypeVar("BaseModel_T", bound=BaseModel)
 
 

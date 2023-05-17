@@ -10,6 +10,7 @@ import xarray as xr
 from pytz import timezone
 
 from boilercv.data.models import Dimension, get_dims
+from boilercv.models.params import PARAMS
 from boilercv.types import DA, DS, ArrLike
 
 VIDEO = "video"
@@ -46,6 +47,10 @@ OTHER_ROI = "roi_other"
 
 IDX = pd.IndexSlice
 """Helper for slicing multi-index dataframes."""
+
+# Monkeypatch this when testing.
+SOURCES_TO_ENUMERATE = PARAMS.paths.sources
+"""Sources directory to enumerate datasets from."""
 
 
 def identity_da(da: DA, dim: str) -> DA:

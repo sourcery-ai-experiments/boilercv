@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from os import environ
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -24,6 +25,14 @@ FRAMERATE_CONT = 60
 """Framerate for continuous video output."""
 FRAMERATE_PREV = 3
 """Framerate for previews from multiple results, as in a slideshow."""
+
+# Only these variables need monkeypatching for testing.
+PARAMS_FILE = Path("params.yaml")
+"""Location of the parameters file."""
+DATA_DIR = Path("data")
+"""Data directory."""
+LOCAL_DATA = Path("~").expanduser() / ".local/boilercv"
+"""Local data directory."""
 
 
 def init():

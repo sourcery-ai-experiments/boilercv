@@ -97,73 +97,73 @@
         },
         "data": {
           "title": "Data",
-          "default": "tests/data/expected/cloud",
+          "default": "tests/data/cloud",
           "format": "directory-path",
           "type": "string"
         },
         "contours": {
           "title": "Contours",
-          "default": "tests/data/expected/cloud/contours",
+          "default": "tests/data/cloud/contours",
           "format": "directory-path",
           "type": "string"
         },
         "examples": {
           "title": "Examples",
-          "default": "tests/data/expected/cloud/examples",
+          "default": "tests/data/cloud/examples",
           "format": "directory-path",
           "type": "string"
         },
         "filled": {
           "title": "Filled",
-          "default": "tests/data/expected/cloud/filled",
+          "default": "tests/data/cloud/filled",
           "format": "directory-path",
           "type": "string"
         },
         "rois": {
           "title": "Rois",
-          "default": "tests/data/expected/cloud/rois",
+          "default": "tests/data/cloud/rois",
           "format": "directory-path",
           "type": "string"
         },
         "samples": {
           "title": "Samples",
-          "default": "tests/data/expected/cloud/samples",
+          "default": "tests/data/cloud/samples",
           "format": "directory-path",
           "type": "string"
         },
         "sources": {
           "title": "Sources",
-          "default": "tests/data/expected/cloud/sources",
+          "default": "tests/data/cloud/sources",
           "format": "directory-path",
           "type": "string"
         },
         "previews": {
           "title": "Previews",
-          "default": "tests/data/expected/cloud/previews",
+          "default": "tests/data/cloud/previews",
           "format": "directory-path",
           "type": "string"
         },
         "binarized_preview": {
           "title": "Binarized Preview",
-          "default": "tests/data/expected/cloud/previews/binarized.nc",
+          "default": "tests/data/cloud/previews/binarized.nc",
           "type": "string",
           "format": "path"
         },
         "gray_preview": {
           "title": "Gray Preview",
-          "default": "tests/data/expected/cloud/previews/gray.nc",
+          "default": "tests/data/cloud/previews/gray.nc",
           "type": "string",
           "format": "path"
         },
         "filled_preview": {
           "title": "Filled Preview",
-          "default": "tests/data/expected/cloud/previews/filled.nc",
+          "default": "tests/data/cloud/previews/filled.nc",
           "type": "string",
           "format": "path"
         },
         "project_schema": {
           "title": "Project Schema",
-          "default": "tests/data/expected/cloud/schema",
+          "default": "tests/data/cloud/schema",
           "format": "directory-path",
           "type": "string"
         }
@@ -177,67 +177,67 @@
       "properties": {
         "data": {
           "title": "Data",
-          "default": "tests\\data\\expected\\local",
+          "default": "tests\\data\\local",
           "format": "directory-path",
           "type": "string"
         },
         "hierarchical_data": {
           "title": "Hierarchical Data",
-          "default": "tests\\data\\expected\\local\\data",
+          "default": "tests\\data\\local\\data",
           "format": "directory-path",
           "type": "string"
         },
         "large_examples": {
           "title": "Large Examples",
-          "default": "tests\\data\\expected\\local\\large_examples",
+          "default": "tests\\data\\local\\large_examples",
           "format": "directory-path",
           "type": "string"
         },
         "large_sources": {
           "title": "Large Sources",
-          "default": "tests\\data\\expected\\local\\large_sources",
+          "default": "tests\\data\\local\\large_sources",
           "format": "directory-path",
           "type": "string"
         },
         "notes": {
           "title": "Notes",
-          "default": "tests\\data\\expected\\local\\notes",
+          "default": "tests\\data\\local\\notes",
           "format": "directory-path",
           "type": "string"
         },
         "sheets": {
           "title": "Sheets",
-          "default": "tests\\data\\expected\\local\\sheets",
+          "default": "tests\\data\\local\\sheets",
           "format": "directory-path",
           "type": "string"
         },
         "uncompressed_contours": {
           "title": "Uncompressed Contours",
-          "default": "tests\\data\\expected\\local\\uncompressed_contours",
+          "default": "tests\\data\\local\\uncompressed_contours",
           "format": "directory-path",
           "type": "string"
         },
         "uncompressed_filled": {
           "title": "Uncompressed Filled",
-          "default": "tests\\data\\expected\\local\\uncompressed_filled",
+          "default": "tests\\data\\local\\uncompressed_filled",
           "format": "directory-path",
           "type": "string"
         },
         "uncompressed_sources": {
           "title": "Uncompressed Sources",
-          "default": "tests\\data\\expected\\local\\uncompressed_sources",
+          "default": "tests\\data\\local\\uncompressed_sources",
           "format": "directory-path",
           "type": "string"
         },
         "cines": {
           "title": "Cines",
-          "default": "tests\\data\\expected\\local\\cines",
+          "default": "tests\\data\\local\\cines",
           "format": "directory-path",
           "type": "string"
         },
         "large_example_cine": {
           "title": "Large Example Cine",
-          "default": "tests\\data\\expected\\local\\cines\\2022-01-06T16-57-31.cine",
+          "default": "tests\\data\\local\\cines\\2022-01-06T16-57-31.cine",
           "type": "string",
           "format": "path"
         },

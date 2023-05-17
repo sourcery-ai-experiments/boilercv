@@ -13,11 +13,7 @@ def main():
         destination = LOCAL_PATHS.large_sources / f"{source.stem}.nc"
         if destination.exists():
             continue
-        try:
-            prepare_dataset(source).to_netcdf(path=destination)
-        except Exception:  # noqa: BLE001  # Logging all exceptions
-            logger.exception(source.stem)
-            continue
+        prepare_dataset(source).to_netcdf(path=destination)
     logger.info("finish convert")
 
 

@@ -5,13 +5,13 @@ import xarray as xr
 from loguru import logger
 
 from boilercv.data import HEADER, VIDEO
-from boilercv.data.sets import ALL_NAMES
+from boilercv.data.sets import ALL_STEMS
 from boilercv.models.params import LOCAL_PATHS, PARAMS
 
 
 def main():
     logger.info("start decompress")
-    for source_name in ALL_NAMES:
+    for source_name in ALL_STEMS:
         destination = LOCAL_PATHS.uncompressed_sources / f"{source_name}.nc"
         if destination.exists():
             continue

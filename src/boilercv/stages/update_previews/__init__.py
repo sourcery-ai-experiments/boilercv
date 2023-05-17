@@ -10,7 +10,7 @@ import xarray as xr
 from boilercv.captivate.previews import pad_images
 from boilercv.data import VIDEO, VIDEO_NAME, XPX, YPX, assign_ds
 from boilercv.data.models import Dimension
-from boilercv.data.sets import ALL_NAMES
+from boilercv.data.sets import ALL_STEMS
 from boilercv.types import DS
 
 
@@ -23,14 +23,14 @@ def new_videos_to_preview(
     # Yield a mapping of new video names to previews, to be populated by the user
     if reprocess:
         # Reprocess all names
-        new_video_names = ALL_NAMES
+        new_video_names = ALL_STEMS
     else:
         # Get the names missing from the destination
         existing_names: list[str] = []
         if destination.exists():
             with xr.open_dataset(destination) as existing_ds:
                 existing_names.extend(list(existing_ds[VIDEO_NAME].values))
-        new_video_names = [name for name in ALL_NAMES if name not in existing_names]
+        new_video_names = [name for name in ALL_STEMS if name not in existing_names]
     videos_to_preview = dict.fromkeys(new_video_names)
 
     yield videos_to_preview

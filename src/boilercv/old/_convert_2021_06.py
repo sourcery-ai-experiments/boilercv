@@ -28,17 +28,15 @@ FRAMES = {
 
 
 def main():
+    logger.info("start convert")
     sources = get_sorted_paths(LOCAL_PATHS.data / "weird")
     for source in sources:
         num_frames = FRAMES[source.stem] - 1
         destination = LOCAL_PATHS.large_sources / f"{source.stem}.nc"
         if destination.exists():
             continue
-        try:
-            prepare_dataset(source, num_frames).to_netcdf(path=destination)
-        except Exception:  # noqa: BLE001  # Logging all exceptions
-            logger.exception(source.stem)
-            continue
+        prepare_dataset(source, num_frames).to_netcdf(path=destination)
+    logger.info("finish convert")
 
 
 if __name__ == "__main__":

@@ -6,12 +6,13 @@ from typing import Any
 from pydantic import DirectoryPath, FilePath, validator
 from ruamel.yaml import YAML
 
-from boilercv.models import DATA_DIR, LOCAL_DATA, MyBaseModel
+from boilercv import DATA_DIR, LOCAL_DATA
+from boilercv.models import MyBaseModel
 
 
 def init():
     """Synchronize project paths. Run on initial import of `paths` module."""
-    from boilercv.models import PARAMS_FILE
+    from boilercv import PARAMS_FILE
     from boilercv.models.paths import Paths, repl_path
 
     yaml = YAML()
@@ -54,6 +55,7 @@ class LocalPaths(MyBaseModel):
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation
     @validator(
+        "data",
         "hierarchical_data",
         "large_examples",
         "large_sources",
@@ -127,6 +129,7 @@ class Paths(MyBaseModel):
     # "always" so it'll run even if not in YAML
     # "pre" because dir must exist pre-validation
     @validator(
+        "data",
         "contours",
         "examples",
         "filled",

@@ -3,23 +3,22 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from boilercv import models
+import boilercv
 
 
 def main():
     """Generate expected results."""
     with TemporaryDirectory() as tmpdir:
-        models.PARAMS_FILE = Path(tmpdir) / "params.yaml"
-        models.DATA_DIR = Path("tests/data/cloud")
-        models.LOCAL_DATA = Path("tests/data/local")
-        from boilercv.manual import binarize, convert, decompress
+        boilercv.PARAMS_FILE = Path(tmpdir) / "params.yaml"
+        boilercv.DATA_DIR = Path("tests/data/cloud")
+        boilercv.LOCAL_DATA = Path("tests/data/local")
+        from boilercv.manual import binarize, convert
         from boilercv.stages import contours, fill, schema
         from boilercv.stages.update_previews import binarized, filled, gray
 
         for module in (
             schema,
             convert,
-            decompress,
             binarize,
             contours,
             fill,

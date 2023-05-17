@@ -4,7 +4,8 @@ from typing import Self
 
 from pydantic import Field
 
-from boilercv.models import PARAMS_FILE, MyBaseModel, load_config
+from boilercv import PARAMS_FILE
+from boilercv.models import MyBaseModel, load_config
 from boilercv.models.paths import LocalPaths, Paths
 
 

@@ -8,18 +8,20 @@ from typing import Any, Literal, TypeAlias
 import pandas as pd
 import xarray as xr
 
-from boilercv.data import HEADER, ROI, VIDEO
+from boilercv.data import HEADER, ROI, SOURCES_TO_ENUMERATE, VIDEO
 from boilercv.data.packing import unpack
 from boilercv.models.params import LOCAL_PATHS, PARAMS
 from boilercv.models.paths import get_sorted_paths
 from boilercv.types import DF, DS
 
 ALL_FRAMES = slice(None)
-ALL_SOURCES = get_sorted_paths(PARAMS.paths.sources)
-ALL_NAMES = [source.stem for source in ALL_SOURCES]
+"""Slice that gets all frames."""
+ALL_STEMS = [source.stem for source in get_sorted_paths(SOURCES_TO_ENUMERATE)]
+"""The stems of all dataset sources."""
+STAGE_DEFAULT = "sources"
+"""Default stage to work on."""
 
 Stage: TypeAlias = Literal["large_sources", "sources", "filled"]
-STAGE_DEFAULT = "sources"
 
 
 @contextmanager
@@ -69,7 +71,7 @@ def get_unprocessed_destinations(
     """
     unprocessed_destinations: dict[str, Path] = {}
     ext = ext.lstrip(".")
-    for name in ALL_NAMES:
+    for name in ALL_STEMS:
         destination = destination_dir / f"{name}.{ext}"
         if reprocess or not destination.exists():
             unprocessed_destinations[name] = destination
