@@ -10,47 +10,64 @@ import xarray as xr
 from pytz import timezone
 
 from boilercv.data.models import Dimension, get_dims
-from boilercv.models.params import PARAMS
 from boilercv.types import DA, DS, ArrLike
 
 VIDEO = "video"
+"""Name of the video array in a dataset."""
 ROI = "roi"
+"""Name of the ROI array in a dataset."""
 HEADER = "header"
+"""Name of the header metadata (attache to an empty array) in a dataset."""
 TIMEZONE = timezone("US/Pacific")
+"""Timezone for all data."""
 
 FRAME = "frame"
+"""Frame dimension name."""
 TIME = "time"
+"""Time dimension name."""
 UTC_TIME = "utc"
+"""UTC time dimension name."""
 
 Y = "y"
+"""Y dimension name."""
 X = "x"
+"""X dimension name."""
 YX = ["y", "x"]
+"""Lenth dimension names."""
 
 PX = "px"
+"""Pixel length dimension suffix."""
 YPX = f"{Y}{PX}"
+"""Y pixel length dimension name."""
 XPX = f"{X}{PX}"
+"""X pixel length dimension name."""
 YX_PX = [YPX, XPX]
+"""Pixel length dimension names."""
 
 DIMS = [FRAME, YPX, XPX]
+"""Initial dimensions in a dataset."""
 
 PACKED_DIM_INDEX = 2
+"""Index of the packed dimension in the dimensions list. Corresponds to X."""
 PACKED = "packed"
-XPX_PACKED = "xpx_packed"
+"""Packed suffix."""
+XPX_PACKED = f"xpx_{PACKED}"
+"""X pixel length dimension name when bit-packed."""
 PACKED_DIMS = [FRAME, YPX, XPX_PACKED]
+"""Initial dimensions in a dataset when bit-packed."""
 
 VIDEO_NAME = "video_name"
+"""Dimension for the video name, for datasets with frames from multiple videos."""
 
 LENGTH = "um"
+"""Length dimension units."""
 SAMPLE_DIAMETER_UM = 9_525_000
+"""Sample diameter in micrometers."""
 ROI = "roi"
-OTHER_ROI = "roi_other"
+"""ROI dimension name."""
 
 IDX = pd.IndexSlice
 """Helper for slicing multi-index dataframes."""
-
-# Monkeypatch this when testing.
-SOURCES_TO_ENUMERATE = PARAMS.paths.sources
-"""Sources directory to enumerate datasets from."""
 
 
 def identity_da(da: DA, dim: str) -> DA:

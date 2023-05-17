@@ -14,7 +14,7 @@ from scipy.ndimage import (
 
 from boilercv import PREVIEW
 from boilercv.captivate.previews import get_calling_scope_name, save_roi, view_images
-from boilercv.data import VIDEO, YX_PX, apply_to_img_da
+from boilercv.data import ROI, VIDEO, YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
 from boilercv.data.sets import get_dataset
 from boilercv.examples import EXAMPLE_NUM_FRAMES, EXAMPLE_ROI, EXAMPLE_VIDEO_NAME
@@ -26,7 +26,7 @@ from boilercv.types import DA, ArrInt, Img
 def main():
     ds = get_dataset(EXAMPLE_VIDEO_NAME, EXAMPLE_NUM_FRAMES)
     video = ds[VIDEO]
-    roi = ds["roi"]
+    roi = ds[ROI]
     wall: DA = apply_to_img_da(get_wall, scale_bool(roi), name="wall")
     boiling_surface, boiling_surface_coords = xr.apply_ufunc(
         find_boiling_surface,

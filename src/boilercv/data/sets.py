@@ -8,9 +8,9 @@ from typing import Any, Literal, TypeAlias
 import pandas as pd
 import xarray as xr
 
-from boilercv.data import HEADER, ROI, SOURCES_TO_ENUMERATE, VIDEO
+from boilercv.data import HEADER, ROI, VIDEO
 from boilercv.data.packing import unpack
-from boilercv.models.params import LOCAL_PATHS, PARAMS
+from boilercv.models.params import LOCAL_PATHS, PARAMS, SOURCES_TO_ENUMERATE
 from boilercv.models.paths import get_sorted_paths
 from boilercv.types import DF, DS
 
@@ -68,6 +68,9 @@ def get_unprocessed_destinations(
         destination_dir: The desired destination directory.
         ext: The desired file extension. Default: nc
         reprocess: Whether to reprocess all datasets. Default: False.
+
+    Returns:
+        A mapping of unprocessed dataset names to destinations with the given file
     """
     unprocessed_destinations: dict[str, Path] = {}
     ext = ext.lstrip(".")

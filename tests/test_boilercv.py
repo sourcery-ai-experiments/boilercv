@@ -14,13 +14,13 @@ def test_pipeline(monkeypatch, tmp_path):
     monkeypatch.setattr(boilercv, "DATA_DIR", tmp_path / "cloud")
     monkeypatch.setattr(boilercv, "LOCAL_DATA", tmp_path / "local")
 
-    from boilercv import data
+    from boilercv.models import params
     from boilercv.models.params import PARAMS
 
+    monkeypatch.setattr(params, "SOURCES_TO_ENUMERATE", PARAMS.local_paths.cines)
     copytree(
         Path("tests/data/local/cines"), PARAMS.local_paths.cines, dirs_exist_ok=True
     )
-    monkeypatch.setattr(data, "SOURCES_TO_ENUMERATE", PARAMS.local_paths.cines)
 
     from boilercv.manual import binarize, convert
     from boilercv.stages import contours, fill, schema

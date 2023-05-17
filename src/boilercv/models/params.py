@@ -21,4 +21,10 @@ class Params(MyBaseModel):
 
 
 PARAMS = Params.get_params()
+"""All project parameters, including paths."""
+
+# Monkeypatch this when testing, since testing is straight-through sources as yet exist.
+SOURCES_TO_ENUMERATE = PARAMS.paths.sources
+"""Directory from which to enumerate all project datasets."""
+
 LOCAL_PATHS = LocalPaths()

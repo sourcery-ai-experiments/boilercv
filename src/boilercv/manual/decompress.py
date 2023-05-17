@@ -1,25 +1,18 @@
 """Decompress sources to local storage."""
 
 
-import xarray as xr
 from loguru import logger
 
-from boilercv.data import HEADER, VIDEO
-from boilercv.data.sets import ALL_STEMS
-from boilercv.models.params import LOCAL_PATHS, PARAMS
+from boilercv.data.sets import get_dataset, get_unprocessed_destinations
+from boilercv.models.params import LOCAL_PATHS
 
 
 def main():
     logger.info("start decompress")
-    for source_name in ALL_STEMS:
-        destination = LOCAL_PATHS.uncompressed_sources / f"{source_name}.nc"
-        if destination.exists():
-            continue
-        source = PARAMS.paths.sources / f"{source_name}.nc"
-        with xr.open_dataset(source) as ds:
-            xr.Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(
-                path=destination, encoding={VIDEO: {"zlib": False}}
-            )
+    destinations = get_unprocessed_destinations(LOCAL_PATHS.uncompressed_sources)
+    for source_name, _destination in destinations.items():
+        # Touch the dataset to trigger decompression implicitly
+        get_dataset(name=source_name, stage="sources")
     logger.info("finish decompress")
 
 

@@ -9,6 +9,14 @@ import pandas as pd
 from cv2 import version
 from loguru import logger
 
+# Monkeypatch these when testing.
+PARAMS_FILE = Path("params.yaml")
+"""Location of the parameters file."""
+DATA_DIR = Path("data")
+"""Data directory."""
+LOCAL_DATA = Path("~").expanduser() / ".local/boilercv"
+"""Local data directory."""
+
 _debug = environ.get("BOILERCV_DEBUG")
 _preview = environ.get("BOILERCV_PREVIEW")
 _write = environ.get("BOILERCV_WRITE")
@@ -25,14 +33,6 @@ FRAMERATE_CONT = 60
 """Framerate for continuous video output."""
 FRAMERATE_PREV = 3
 """Framerate for previews from multiple results, as in a slideshow."""
-
-# Only these variables need monkeypatching for testing.
-PARAMS_FILE = Path("params.yaml")
-"""Location of the parameters file."""
-DATA_DIR = Path("data")
-"""Data directory."""
-LOCAL_DATA = Path("~").expanduser() / ".local/boilercv"
-"""Local data directory."""
 
 
 def init():
