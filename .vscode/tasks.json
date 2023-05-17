@@ -427,14 +427,6 @@
       ],
       "icon": { "id": "code" },
       "problemMatcher": []
-    },
-    {
-      "label": "task: pytest-cov: Generate coverage",
-      "type": "process",
-      "command": "pwsh",
-      "args": ["-Command", "pytest --cov --cov-report xml"],
-      "icon": { "id": "beaker" },
-      "problemMatcher": []
     }
   ]
 }
