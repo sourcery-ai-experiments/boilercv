@@ -2,6 +2,7 @@ ci:
   skip:
     - "pytest"
     - "pyright"
+    - "ruff-check"
     - "dvc-post-checkout"
     - "dvc-pre-push"
   autoupdate_schedule: "quarterly"
@@ -52,6 +53,13 @@ repos:
     rev: "v0.0.263"
     hooks:
       - id: "ruff"
+        alias: "ruff-check"
+        name: "ruff-check"
+        args: ["--no-fix"]
+      - id: "ruff"
+        alias: "ruff-fix-only"
+        name: "ruff-fix-only"
+        args: ["--fix-only"]
   - repo: "https://github.com/srstevenson/nb-clean"
     rev: "2.4.0"
     hooks:

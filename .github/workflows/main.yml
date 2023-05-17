@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: "pip install --no-deps --requirement .tools/requirements/requirements_nodeps.txt"
-      - run: "ruff --format github ."
+      - run: "ruff --no-fix --format github ."
   pytest-cov:
     permissions:
       contents: "read"
