@@ -10,7 +10,7 @@ import xarray as xr
 
 from boilercv.data import HEADER, ROI, VIDEO
 from boilercv.data.packing import unpack
-from boilercv.models.params import LOCAL_PATHS, PARAMS, SOURCES_TO_ENUMERATE
+from boilercv.models.params import PARAMS, SOURCES_TO_ENUMERATE
 from boilercv.models.paths import get_sorted_paths
 from boilercv.types import DF, DS
 
@@ -128,13 +128,13 @@ def get_dataset(
 def get_stage(name: str, stage: Stage = STAGE_DEFAULT) -> tuple[Path, Path]:
     """Get the paths associated with a particular video name and pipeline stage."""
     if stage == "sources":
-        unc_source = LOCAL_PATHS.uncompressed_sources / f"{name}.nc"
+        unc_source = PARAMS.local_paths.uncompressed_sources / f"{name}.nc"
         return PARAMS.paths.sources / f"{name}.nc", unc_source
     elif stage == "large_sources":
-        source = unc_source = LOCAL_PATHS.large_sources / f"{name}.nc"
+        source = unc_source = PARAMS.local_paths.large_sources / f"{name}.nc"
         return source, unc_source
     elif stage == "filled":
-        unc_source = LOCAL_PATHS.uncompressed_filled / f"{name}.nc"
+        unc_source = PARAMS.local_paths.uncompressed_filled / f"{name}.nc"
         return PARAMS.paths.filled / f"{name}.nc", unc_source
     else:
         raise ValueError(f"Unknown stage: {stage}")
@@ -142,7 +142,7 @@ def get_stage(name: str, stage: Stage = STAGE_DEFAULT) -> tuple[Path, Path]:
 
 def get_contours_df(name: str) -> DF:
     """Load contours from a dataset."""
-    unc_cont = LOCAL_PATHS.uncompressed_contours / f"{name}.h5"
+    unc_cont = PARAMS.local_paths.uncompressed_contours / f"{name}.h5"
     contour = unc_cont if unc_cont.exists() else PARAMS.paths.contours / f"{name}.h5"
     contour_df: DF = pd.read_hdf(contour)  # type: ignore
     if not unc_cont.exists():

@@ -11,7 +11,7 @@ from boilercv.data.sets import get_dataset
 from boilercv.examples.detect_surface import find_boiling_surface
 from boilercv.examples.previews import _EXAMPLE
 from boilercv.images import overlay, scale_bool
-from boilercv.models.params import LOCAL_PATHS, PARAMS
+from boilercv.models.params import PARAMS
 
 
 def main():
@@ -41,8 +41,8 @@ def main():
     if PREVIEW:
         view_images(highlighted_bubbles)
     if WRITE:
-        write_image(LOCAL_PATHS.media / "roi", highlighted_roi)
-        write_image(LOCAL_PATHS.media / "composite", highlighted_bubbles)
+        write_image(PARAMS.local_paths.media / "roi", highlighted_roi)
+        write_image(PARAMS.local_paths.media / "composite", highlighted_bubbles)
 
 
 if __name__ == "__main__":

@@ -7,14 +7,14 @@ from boilercv.data import FRAME, ROI, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
 from boilercv.images import scale_bool
 from boilercv.images.cv import apply_mask, binarize, flood, get_roi
-from boilercv.models.params import LOCAL_PATHS, PARAMS
+from boilercv.models.params import PARAMS
 from boilercv.models.paths import get_sorted_paths
 from boilercv.types import DA
 
 
 def main():
     logger.info("start binarize")
-    for source in get_sorted_paths(LOCAL_PATHS.large_sources):
+    for source in get_sorted_paths(PARAMS.local_paths.large_sources):
         destination = PARAMS.paths.sources / f"{source.stem}.nc"
         if destination.exists():
             continue

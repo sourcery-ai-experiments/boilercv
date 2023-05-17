@@ -5,7 +5,7 @@ from boilercv.captivate.captures import write_video
 from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
 from boilercv.images import scale_bool
-from boilercv.models.params import LOCAL_PATHS, PARAMS
+from boilercv.models.params import PARAMS
 from boilercv.previews import compose_da, draw_text_da, get_preview
 from boilercv.types import DA
 
@@ -22,7 +22,7 @@ def main(preview: bool = PREVIEW) -> DA:
         view_images(composed, framerate=FRAMERATE_PREV)
     if WRITE:
         write_video(
-            LOCAL_PATHS.media / "examples" / "composite",
+            PARAMS.local_paths.media / "examples" / "composite",
             composed,
             framerate=FRAMERATE_PREV,
         )

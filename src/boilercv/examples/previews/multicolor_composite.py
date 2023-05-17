@@ -15,7 +15,7 @@ from boilercv.data.sets import get_contours_df, get_dataset
 from boilercv.examples.previews import _EXAMPLE
 from boilercv.images import overlay
 from boilercv.images.cv import convert_image, draw_contours
-from boilercv.models.params import LOCAL_PATHS
+from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
 
 _NUM_FRAMES = 1
@@ -48,7 +48,7 @@ def main():
         plt.show()
         view_images(composed)
     if WRITE:
-        path = LOCAL_PATHS.media / "examples" / _EXAMPLE / "multicolor"
+        path = PARAMS.local_paths.media / "examples" / _EXAMPLE / "multicolor"
         path.parent.mkdir(parents=True, exist_ok=True)
         write_image(path, composed)
 

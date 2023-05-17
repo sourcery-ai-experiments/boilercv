@@ -7,7 +7,7 @@ from boilercv.data import VIDEO
 from boilercv.data.sets import get_dataset
 from boilercv.examples.previews import _EXAMPLE, _NUM_FRAMES
 from boilercv.images import scale_bool
-from boilercv.models.params import LOCAL_PATHS
+from boilercv.models.params import PARAMS
 from boilercv.previews import compose_da
 
 
@@ -21,9 +21,11 @@ def main():
         view_images(bubbles.isel(frame=0))
         view_images(highlighted_bubbles, framerate=FRAMERATE_CONT)
     if WRITE:
-        write_video(LOCAL_PATHS.media / "binarized", source)
-        write_video(LOCAL_PATHS.media / "bubbles", bubbles, preview_frame=True)
-        write_video(LOCAL_PATHS.media / "binarized_highlighted", highlighted_bubbles)
+        write_video(PARAMS.local_paths.media / "binarized", source)
+        write_video(PARAMS.local_paths.media / "bubbles", bubbles, preview_frame=True)
+        write_video(
+            PARAMS.local_paths.media / "binarized_highlighted", highlighted_bubbles
+        )
 
 
 if __name__ == "__main__":

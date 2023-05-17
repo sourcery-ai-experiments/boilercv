@@ -9,7 +9,7 @@ successful conversion each time.
 from loguru import logger
 
 from boilercv.data.video import prepare_dataset
-from boilercv.models.params import LOCAL_PATHS
+from boilercv.models.params import PARAMS
 from boilercv.models.paths import get_sorted_paths
 
 FRAMES = {
@@ -29,10 +29,10 @@ FRAMES = {
 
 def main():
     logger.info("start convert")
-    sources = get_sorted_paths(LOCAL_PATHS.data / "weird")
+    sources = get_sorted_paths(PARAMS.local_paths.data / "weird")
     for source in sources:
         num_frames = FRAMES[source.stem] - 1
-        destination = LOCAL_PATHS.large_sources / f"{source.stem}.nc"
+        destination = PARAMS.local_paths.large_sources / f"{source.stem}.nc"
         if destination.exists():
             continue
         prepare_dataset(source, num_frames).to_netcdf(path=destination)

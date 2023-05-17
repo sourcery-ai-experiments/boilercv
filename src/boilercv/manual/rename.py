@@ -11,18 +11,18 @@ The directory structure looks like:
 
 from itertools import chain
 
-from boilercv.models.params import LOCAL_PATHS
+from boilercv.models.params import PARAMS
 
 
 def main():
-    source = LOCAL_PATHS.hierarchical_data
+    source = PARAMS.local_paths.hierarchical_data
     rename_notes(source)
     rename_cines(source)
     rename_sheets(source)
 
 
 def rename_notes(source):
-    notes_dest = LOCAL_PATHS.notes
+    notes_dest = PARAMS.local_paths.notes
     notes_dirs = {
         trial.stem: trial / "notes"
         for trial in sorted(source.iterdir())
@@ -35,7 +35,7 @@ def rename_notes(source):
 
 
 def rename_cines(source):
-    destination = LOCAL_PATHS.cines
+    destination = PARAMS.local_paths.cines
     trials = [trial / "video" for trial in source.iterdir() if trial.is_dir()]
     videos = chain.from_iterable(trial.glob("*.cine") for trial in trials)
     for video in videos:
@@ -43,7 +43,7 @@ def rename_cines(source):
 
 
 def rename_sheets(source):
-    sheets_dest = LOCAL_PATHS.sheets
+    sheets_dest = PARAMS.local_paths.sheets
     data = [trial / "data" for trial in sorted(source.iterdir()) if trial.is_dir()]
     sheets = chain.from_iterable(trial.glob("*.csv") for trial in data)
     for sheet in sheets:

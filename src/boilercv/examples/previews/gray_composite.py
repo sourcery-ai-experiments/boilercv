@@ -7,7 +7,7 @@ from boilercv.data import VIDEO
 from boilercv.data.sets import get_dataset
 from boilercv.examples.previews import _EXAMPLE, _NUM_FRAMES
 from boilercv.images import scale_bool
-from boilercv.models.params import LOCAL_PATHS
+from boilercv.models.params import PARAMS
 from boilercv.previews import compose_da
 
 
@@ -20,7 +20,7 @@ def main():
     if PREVIEW:
         view_images(highlighted_bubbles, framerate=FRAMERATE_CONT)
     if WRITE:
-        path = LOCAL_PATHS.media / "examples" / _EXAMPLE / "gray_highlighted"
+        path = PARAMS.local_paths.media / "examples" / _EXAMPLE / "gray_highlighted"
         path.parent.mkdir(parents=True, exist_ok=True)
         write_video(path, highlighted_bubbles, preview_frame=True)
 
