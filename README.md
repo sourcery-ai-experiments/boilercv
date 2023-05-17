@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/503551174.svg)](https://zenodo.org/badge/latestdoi/503551174)
 
-Computer vision routines suitable for nucleate pool boiling bubble analysis. See the [documentation](https://blakenaccarato.github.io/boilercv/) for more detail. I intend to bundle a small example dataset to exhibit the usage of this package on arbitrary data, but this is not currently done.
+Computer vision routines suitable for nucleate pool boiling bubble analysis. See the [documentation](https://blakenaccarato.github.io/boilercv/) for more detail.
 
 ## Data process graph
 
@@ -30,8 +30,16 @@ flowchart TD
  node10["data\samples.dvc"]
 ```
 
-## Highlighted contours
+## Example
+
+Detected contours are highlighted in the example below. See the [documentation](https://blakenaccarato.github.io/boilercv/) for detail on the representative dataset used to generate this example, available in `tests/data`.
+
+### Highlighted contours
 
 Overlay of the external contours detected in one frame of a high-speed video. Represents output from the "fill" step of the data process.
 
 ![Bubbles highlighted with different colors](docs/_static/multicolor.png)
+
+## Coming soon
+
+Detailed project architecture and a proper tutorial for forking/cloning this repository and running the pipeline on your own data.

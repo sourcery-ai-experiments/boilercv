@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `xarray` back to main requirements now that Pandas 2.0 is supported
 - Specify `pandas` and `xarray` extras and remove manual pins now that extras support Python 3.11
+- Publish example data and implement pipeline testing
 
 ## [0.0.1]
 
