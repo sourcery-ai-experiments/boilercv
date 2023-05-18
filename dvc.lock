@@ -4,15 +4,15 @@ stages:
     cmd: python -m boilercv.stages.schema
     deps:
     - path: src/boilercv/models/paths.py
-      md5: 346ad282f672dcefa9bfda19a5e7ef3d
-      size: 5137
+      md5: 5562648b6b9d640ebf96be5b2e051e2f
+      size: 5093
     - path: src/boilercv/stages/schema.py
       md5: 6eaac97ab24e94f410ccff1517f42d0e
       size: 641
     outs:
     - path: data/schema
-      md5: 234ccf8253abff5e1930719f6dc56de9.dir
-      size: 5239
+      md5: 27d4da10420e152d39b1c80f7d5a1403.dir
+      size: 7966
       nfiles: 1
   update_binarized_preview:
     cmd: python -m boilercv.stages.update_binarized_preview
@@ -49,7 +49,7 @@ stages:
       size: 7424602696
       nfiles: 308
     - path: src/boilercv/stages/contours.py
-      md5: 26bf1bf4419d40f1c90d771a6aaea0fa
+      md5: 2104838a50deea4958e9fb8a4c330110
       size: 3041
     outs:
     - path: data/contours
@@ -68,8 +68,8 @@ stages:
       size: 7424602696
       nfiles: 308
     - path: src/boilercv/stages/fill.py
-      md5: 06f921e3627e9b7766f97bcddd5253a4
-      size: 1342
+      md5: 34c737ea610f8257e536fdd50205e7fb
+      size: 1442
     outs:
     - path: data/filled
       md5: 9d9b406833ae3911940fd4d717bb20e1.dir
