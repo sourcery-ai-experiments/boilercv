@@ -21,12 +21,22 @@ repos:
   # * ------------------------------------------------------------------------------ * #
   # * Changes below may be lost in significant template updates.
 
+  - repo: "meta"
+    hooks:
+      - id: "check-hooks-apply"
+      - id: "check-useless-excludes"
   - repo: "local"
     hooks:
       - id: "compose-pyproject"
         name: "compose-pyproject"
         language: "system"
         entry: "pwsh -Command python .tools/scripts/compose_pyproject.py"
+        files: |
+          (?x)^(
+            pyproject.toml
+            |requirements.txt
+            |.tools/pyproject.toml
+          )$
         pass_filenames: false
       - id: "pytest"
         name: "pytest"
@@ -34,11 +44,42 @@ repos:
         entry: "pwsh -Command pytest --run_skips false"
         pass_filenames: false
         verbose: true
+        files: |
+          (?x)^(
+            src/.*
+            |tests/.*
+          )$
+      - id: "pytest-slow"
+        name: "pytest-slow"
+        language: "system"
+        entry: "pwsh -Command pytest"
+        pass_filenames: false
+        verbose: true
+        files: |
+          (?x)^(
+            pyproject.toml
+            |requirements.txt
+            |.tools/(
+              pyproject.toml
+              |requirements/.*
+            )
+          )$
       - id: "pyright"
         name: "pyright"
         language: "system"
         entry: "pwsh -Command pyright"
         pass_filenames: false
+        files: |
+          (?x)^(
+            src/.*
+            |tests/.*
+            |pyproject.toml
+            |requirements.txt
+            |.tools/(
+              pyproject.toml
+              |requirements/.*
+            )
+          )$
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.4.0"
     hooks:
