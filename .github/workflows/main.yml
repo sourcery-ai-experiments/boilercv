@@ -23,9 +23,6 @@ jobs:
       - run: "pip install --no-deps --requirement .tools/requirements/requirements_nodeps.txt"
       - run: "ruff --no-fix --format github ."
   pytest-cov:
-    permissions:
-      contents: "read"
-      id-token: "write"
     runs-on: "ubuntu-latest"
     steps:
       - uses: "blakeNaccarato/copier-python-workflow-setup@v0.0.12"
