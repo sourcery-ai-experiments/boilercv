@@ -278,7 +278,7 @@
       "problemMatcher": []
     },
     {
-      "label": "task: Remove *.rej",
+      "label": "setup: Remove *.rej",
       "type": "process",
       "command": "pwsh",
       "args": [
@@ -372,7 +372,7 @@
     // * -------------------------------------------------------------------------- * //
     // * BLACK * //
     {
-      "label": "task: black: Ignore magic comma in this file",
+      "label": "black: Ignore magic comma in this file",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "black -C ${file}"],
@@ -380,7 +380,7 @@
       "problemMatcher": []
     },
     {
-      "label": "task: black: Ignore magic comma in all project files",
+      "label": "black: Ignore magic comma in all project files",
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "black -C src tests"],
@@ -390,6 +390,14 @@
 
     // * -------------------------------------------------------------------------- * //
     // * OTHER TASKS * //
+    {
+      "label": "task: Invoke pyright",
+      "type": "process",
+      "command": "pwsh",
+      "args": [".tools/scripts/Invoke-Pyright.ps1"],
+      "icon": { "id": "type-hierarchy-sub" },
+      "problemMatcher": []
+    },
     {
       "label": "task: sphinx-autobuild docs (preview)",
       "type": "process",
