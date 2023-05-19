@@ -6,15 +6,12 @@ from typing import Any
 from pydantic import DirectoryPath, FilePath, validator
 from ruamel.yaml import YAML
 
-from boilercv import DATA_DIR, LOCAL_DATA
+from boilercv import DATA_DIR, LOCAL_DATA, PARAMS_FILE
 from boilercv.models import MyBaseModel
 
 
 def init():
     """Synchronize project paths. Run on initial import of `paths` module."""
-    from boilercv import PARAMS_FILE
-    from boilercv.models.paths import Paths, repl_path
-
     yaml = YAML()
     yaml.indent(offset=2)
     params = yaml.load(PARAMS_FILE) if PARAMS_FILE.exists() else {}
