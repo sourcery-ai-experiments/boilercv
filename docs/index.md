@@ -21,6 +21,10 @@ The test suite in `tests/test_boilercv.py` ensures that individual pipeline stag
 
 Overlay of the external contours detected in one frame of a high-speed video. Represents output from the "fill" step of the data process.
 
+## Coming soon
+
+Detailed project architecture and a proper tutorial for forking/cloning this repository and running the pipeline on your own data.
+
 ```{image} _static/multicolor.png
 :alt: Bubbles highlighted with different colors
 :width: 360px
@@ -31,7 +35,3 @@ Overlay of the external contours detected in one frame of a high-speed video. Re
 :hidden:
 changelog
 ```
-
-## Coming soon
-
-Detailed project architecture and a proper tutorial for forking/cloning this repository and running the pipeline on your own data.
