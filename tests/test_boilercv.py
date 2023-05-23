@@ -9,12 +9,8 @@ import pytest
 TEST_DATA = Path("tests/data")
 
 
-def test_anything():
-    print("hello")
-
-
 @pytest.mark.slow()
-def test_pipeline(check, monkeypatch, tmp_path):
+def test_pipeline(monkeypatch, tmp_path):
     """Test the pipeline."""
 
     def main():
