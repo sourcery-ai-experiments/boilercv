@@ -9,10 +9,12 @@ import pandas as pd
 from cv2 import version
 from loguru import logger
 
+PROJECT_DIR = Path(".")
+"""Project directory."""
 # Monkeypatch these when testing.
-PARAMS_FILE = Path("params.yaml")
+PARAMS_FILE = PROJECT_DIR / "params.yaml"
 """Location of the parameters file."""
-DATA_DIR = Path("data")
+DATA_DIR = PROJECT_DIR / Path("data")
 """Data directory."""
 LOCAL_DATA = Path("~").expanduser() / ".local/boilercv"
 """Local data directory."""

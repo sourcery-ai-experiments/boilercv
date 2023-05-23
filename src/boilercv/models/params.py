@@ -5,7 +5,7 @@ from pydantic import Field
 
 from boilercv import PARAMS_FILE
 from boilercv.models import SynchronizedPathsYamlModel
-from boilercv.models.paths import LocalPaths, Paths
+from boilercv.models.paths import LocalPaths, Paths, ProjectPaths
 
 YAML_INDENT = 2
 
@@ -13,6 +13,7 @@ YAML_INDENT = 2
 class Params(SynchronizedPathsYamlModel):
     """Project parameters."""
 
+    project_paths: ProjectPaths = Field(default_factory=ProjectPaths)
     paths: Paths = Field(default_factory=Paths)
     local_paths: LocalPaths = Field(default_factory=LocalPaths, exclude=True)
 

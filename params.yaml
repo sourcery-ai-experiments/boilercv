@@ -1,4 +1,5 @@
-paths:
+project_paths:
+  project: .
   requirements: requirements.txt
   dev_requirements: .tools/requirements
   package: src/boilercv
@@ -11,6 +12,7 @@ paths:
   stage_binarized_preview: src/boilercv/stages/update_previews/binarized.py
   stage_gray_preview: src/boilercv/stages/update_previews/gray.py
   stage_filled_preview: src/boilercv/stages/update_previews/filled.py
+paths:
   data: data
   contours: data/contours
   examples: data/examples

@@ -3,6 +3,9 @@
   "description": "Project parameters.",
   "type": "object",
   "properties": {
+    "project_paths": {
+      "$ref": "#/definitions/ProjectPaths"
+    },
     "paths": {
       "$ref": "#/definitions/Paths"
     },
@@ -11,11 +14,17 @@
     }
   },
   "definitions": {
-    "Paths": {
-      "title": "Paths",
-      "description": "Paths associated with project data.",
+    "ProjectPaths": {
+      "title": "ProjectPaths",
+      "description": "Paths associated with project requirements and code.",
       "type": "object",
       "properties": {
+        "project": {
+          "title": "Project",
+          "default": ".",
+          "format": "directory-path",
+          "type": "string"
+        },
         "requirements": {
           "title": "Requirements",
           "default": "requirements.txt",
@@ -87,7 +96,15 @@
           "default": "src/boilercv/stages/update_previews/filled.py",
           "format": "file-path",
           "type": "string"
-        },
+        }
+      },
+      "additionalProperties": false
+    },
+    "Paths": {
+      "title": "Paths",
+      "description": "Paths associated with project data.",
+      "type": "object",
+      "properties": {
         "data": {
           "title": "Data",
           "default": "data",

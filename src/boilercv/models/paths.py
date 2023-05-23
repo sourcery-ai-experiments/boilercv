@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pydantic import DirectoryPath, FilePath
 
-from boilercv import DATA_DIR, LOCAL_DATA
+from boilercv import DATA_DIR, LOCAL_DATA, PROJECT_DIR
 from boilercv.models import CreatePathsModel
 
 
@@ -13,15 +13,17 @@ def get_sorted_paths(path: Path) -> list[Path]:
     return sorted(path.iterdir())
 
 
-class Paths(CreatePathsModel):
-    """Paths associated with project data."""
+class ProjectPaths(CreatePathsModel):
+    """Paths associated with project requirements and code."""
+
+    project: DirectoryPath = PROJECT_DIR
 
     # ! REQUIREMENTS
-    requirements: FilePath = Path("requirements.txt")
-    dev_requirements: DirectoryPath = Path(".tools/requirements")
+    requirements: FilePath = project / "requirements.txt"
+    dev_requirements: DirectoryPath = project / ".tools/requirements"
 
     # ! PACKAGE
-    package: DirectoryPath = Path("src") / "boilercv"
+    package: DirectoryPath = project / "src/boilercv"
     stages: DirectoryPath = package / "stages"
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"
@@ -36,8 +38,13 @@ class Paths(CreatePathsModel):
     stage_gray_preview: FilePath = update_previews / "gray.py"
     stage_filled_preview: FilePath = update_previews / "filled.py"
 
-    # ! DATA
+
+class Paths(CreatePathsModel):
+    """Paths associated with project data."""
+
     data: DirectoryPath = DATA_DIR
+
+    # ! STAGE DATA
     contours: DirectoryPath = data / "contours"
     examples: DirectoryPath = data / "examples"
     filled: DirectoryPath = data / "filled"

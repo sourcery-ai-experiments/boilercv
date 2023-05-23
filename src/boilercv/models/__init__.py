@@ -30,7 +30,10 @@ class SynchronizedPathsYamlModel(BaseModel):
         """Get parameters from file, synchronizing paths in the file."""
         yaml = YAML()
         yaml.indent(YAML_INDENT)
-        params = yaml.load(data_file) if data_file.exists() else {}
+        if data_file.exists() and data_file.read_text(encoding="utf-8"):
+            params = yaml.load(data_file)
+        else:
+            params = {}
         params |= cls.get_paths()
         yaml.dump(params, data_file)
         return params
