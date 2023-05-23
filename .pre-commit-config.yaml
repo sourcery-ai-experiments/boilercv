@@ -2,8 +2,8 @@ ci:
   skip:
     - "synchronize-params"
     - "compose-pyproject"
-    - "pytest"
-    - "pytest-fast"
+    - "pytest-fast-only"
+    - "pytest-slow-only"
     - "pyright"
     - "dvc-post-checkout"
     - "dvc-pre-push"
@@ -49,8 +49,8 @@ repos:
             |.tools/pyproject.toml
           )$
         pass_filenames: false
-      - id: "pytest"
-        name: "pytest"
+      - id: "pytest-fast-only"
+        name: "pytest-fast-only"
         language: "system"
         entry: |
           pwsh -Command "pytest -m 'not slow' --suppress-no-test-exit-code"
@@ -65,8 +65,8 @@ repos:
               |requirements/.*
             )
           )$
-      - id: "pytest-slow"
-        name: "pytest-slow"
+      - id: "pytest-slow-only"
+        name: "pytest-slow-only"
         language: "system"
         entry: "pwsh -Command pytest -m slow"
         pass_filenames: false
