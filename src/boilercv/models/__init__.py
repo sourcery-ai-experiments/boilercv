@@ -1,84 +1,112 @@
+"""Parameter models for this project."""
+
 from pathlib import Path
-from typing import TypeVar
+from typing import Any
 
-import yaml
-from pydantic import BaseModel, Extra, MissingError, ValidationError
+from pydantic import BaseModel, Extra, validator
+from ruamel.yaml import YAML
 
-BaseModel_T = TypeVar("BaseModel_T", bound=BaseModel)
+YAML_INDENT = 2
 
 
-class MyBaseModel(BaseModel):
-    """Base model and configuration for all models used in this project."""
+class SynchronizedPathsYamlModel(BaseModel):
+    """Model of a YAML file that synchronizes paths back to the file.
+
+    For example, synchronize complex path structures back to `params.yaml` DVC files for
+    pipeline orchestration.
+    """
+
+    def __init__(self, data_file: Path):
+        """Initialize, propagate paths to the file, and update the schema."""
+        params = self.synchronize_paths(data_file)
+        schema_file = data_file.with_name(f"{data_file.stem}_schema.json")
+        schema_file.write_text(
+            encoding="utf-8", data=f"{self.schema_json(indent=YAML_INDENT)}\n"
+        )
+        super().__init__(**params)
+
+    @classmethod
+    def synchronize_paths(cls, data_file: Path) -> dict[str, Any]:
+        """Get parameters from file, synchronizing paths in the file."""
+        yaml = YAML()
+        yaml.indent(YAML_INDENT)
+        params = yaml.load(data_file) if data_file.exists() else {}
+        params |= cls.get_paths()
+        yaml.dump(params, data_file)
+        return params
+
+    @classmethod
+    def get_paths(cls) -> dict[str, dict[str, str]]:
+        """Get all paths specified in paths-type models."""
+        maybe_excludes = cls.__exclude_fields__
+        excludes = set(maybe_excludes.keys()) if maybe_excludes else set()
+        defaults: dict[str, dict[str, str]] = {}
+        for key, field in cls.__fields__.items():
+            type_ = field.type_
+            if issubclass(type_, DefaultPathsModel) and key not in excludes:
+                defaults[key] = type_.get_paths()
+        return defaults
+
+
+class DefaultPathsModel(BaseModel):
+    """All fields must be path-like and have defaults specified in this model."""
 
     class Config:
-        """Model configuration. Allow arbitrary types. Enables Numpy types in fields."""
+        extra = Extra.forbid
 
-        # Don't specify as class kwargs for easier overriding, and "extra" acted weird.
-        extra = Extra.forbid  # To forbid extra fields
+        @staticmethod
+        def schema_extra(schema: dict[str, Any], model):
+            """Replace backslashes with forward slashes in paths."""
+            if schema.get("required"):
+                raise TypeError(
+                    f"Defaults must be specified in {model}, derived from {DefaultPathsModel}."
+                )
+            for (field, prop), type_ in zip(
+                schema["properties"].items(),
+                (field.type_ for field in model.__fields__.values()),
+                strict=True,
+            ):
+                if not issubclass(type_, Path):
+                    raise TypeError(
+                        f"Field <{field}> is not Path-like in {model}, derived from {DefaultPathsModel}."
+                    )
+                default = prop.get("default")
+                if isinstance(default, list | tuple):
+                    default = [item.replace("\\", "/") for item in default]
+                elif isinstance(default, dict):
+                    default = {
+                        key: value.replace("\\", "/") for key, value in default.items()
+                    }
+                else:
+                    default = default.replace("\\", "/")
+                prop["default"] = default
 
+    @validator("*", always=True, pre=True, each_item=True)
+    def check_pathlike(cls, value, field):
+        """Check that the value is path-like."""
+        if not issubclass(field.type_, Path):
+            raise TypeError(
+                f"Field is not Path-like in {cls}, derived from {DefaultPathsModel}."
+            )
+        return value
 
-# Can't type annotate `model` for some reason
-def load_config(path: Path, model: type[BaseModel_T]) -> BaseModel_T:
-    """Load a YAML file into a Pydantic model.
-
-    Given a path to a YAML file, automatically unpack its fields into the provided
-    Pydantic model.
-
-    Args:
-        path: The path to a YAML file.
-        model: The model class to pass the contents of the YAML file.
-
-    Returns:
-        An instance of the model after validation.
-
-    Raises:
-        ValueError: If an improper path is passed.
-        ValidationError: If a field is undefined in the configuration file.
-    """
-    if path.suffix != ".yaml":
-        raise ValueError(f"The path '{path}' does not refer to a YAML file.")
-    raw_config = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not raw_config:
-        raise ValueError("The configuration file is empty.")
-    try:
-        config = model(**{key: raw_config.get(key) for key in raw_config})
-    except ValidationError as exception:
-        addendum = "\n  The field may be undefined in the configuration file."
-        for error in exception.errors():
-            if error["msg"] == MissingError.msg_template:
-                error["msg"] += addendum
-        raise
-    return config
-
-
-def dump_model(path: Path, model: BaseModel):
-    """Dump a Pydantic model to a YAML file.
-
-    Given a path to a YAML file, write a Pydantic model to the file. Optionally add a
-    schema directive at the top of the file. Create the file if it doesn't exist.
-
-    Args:
-        path: The path to a YAML file. Will create it if it doesn't exist.
-        model: An instance of the Pydantic model to dump.
-    """
-    path = Path(path)
-    # ensure one \n and no leading \n, Pydantic sometimes does more
-    path.write_text(
-        encoding="utf-8",
-        data=yaml.safe_dump(model.dict(exclude_none=True), sort_keys=False),
-    )
+    @classmethod
+    def get_paths(cls) -> dict[str, Any]:
+        """Get the paths for this model."""
+        return {
+            key: value["default"] for key, value in cls.schema()["properties"].items()
+        }
 
 
-def write_schema(path: Path, model: type[BaseModel]):
-    """Write a Pydantic model schema to a JSON file.
+class CreatePathsModel(DefaultPathsModel):
+    """Parent directories will be created for all fields in this model."""
 
-    Given a path to a JSON file, write a Pydantic model schema to the file. Create the
-    file if it doesn't exist.
-
-    Args:
-        path: The path to a JSON file. Will create it if it doesn't exist.
-        model: The Pydantic model class to get the schema from.
-    """
-    if path.suffix != ".json":
-        raise ValueError(f"The path '{path}' does not refer to a JSON file.")
-    path.write_text(model.schema_json(indent=2) + "\n", encoding="utf-8")
+    @validator("*", always=True, pre=True, each_item=True)
+    def create_directories(cls, value):
+        """Create directories associated with each value."""
+        path = Path(value)
+        if path.is_file():
+            return value
+        directory = path.parent if path.suffix else path
+        directory.mkdir(parents=True, exist_ok=True)
+        return value

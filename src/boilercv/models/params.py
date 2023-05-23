@@ -1,26 +1,27 @@
 """Parameters for the data pipeline."""
 
-from typing import Self
 
 from pydantic import Field
 
 from boilercv import PARAMS_FILE
-from boilercv.models import MyBaseModel, load_config
+from boilercv.models import SynchronizedPathsYamlModel
 from boilercv.models.paths import LocalPaths, Paths
 
+YAML_INDENT = 2
 
-class Params(MyBaseModel):
+
+class Params(SynchronizedPathsYamlModel):
     """Project parameters."""
 
     paths: Paths = Field(default_factory=Paths)
-    local_paths: LocalPaths = Field(default_factory=LocalPaths)
+    local_paths: LocalPaths = Field(default_factory=LocalPaths, exclude=True)
 
-    @classmethod
-    def get_params(cls: type[Self]) -> Self:
-        return load_config(PARAMS_FILE, cls)
+    def __init__(self):
+        """Initialize, propagate paths to the parameters file, and update the schema."""
+        super().__init__(PARAMS_FILE)
 
 
-PARAMS = Params.get_params()
+PARAMS = Params()
 """All project parameters, including paths."""
 
 # Monkeypatch this when testing. When testing straight-through, sources as yet exist.

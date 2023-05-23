@@ -1,28 +1,11 @@
 """Paths for this project."""
 
 from pathlib import Path
-from typing import Any
 
-from pydantic import DirectoryPath, FilePath, validator
-from ruamel.yaml import YAML
+from pydantic import DirectoryPath, FilePath
 
-from boilercv import DATA_DIR, LOCAL_DATA, PARAMS_FILE
-from boilercv.models import MyBaseModel
-
-
-def init():
-    """Synchronize project paths. Run on initial import of `paths` module."""
-    yaml = YAML()
-    yaml.indent(offset=2)
-    params = yaml.load(PARAMS_FILE) if PARAMS_FILE.exists() else {}
-    paths = Paths()
-    params["paths"] = repl_path(paths.dict(exclude_none=True))
-    yaml.dump(params, PARAMS_FILE)
-
-
-def repl_path(dirs_dict: dict[str, Path]):
-    """Replace Windows path separator with POSIX separator."""
-    return {k: str(v).replace("\\", "/") for k, v in dirs_dict.items()}
+from boilercv import DATA_DIR, LOCAL_DATA
+from boilercv.models import CreatePathsModel
 
 
 def get_sorted_paths(path: Path) -> list[Path]:
@@ -30,58 +13,8 @@ def get_sorted_paths(path: Path) -> list[Path]:
     return sorted(path.iterdir())
 
 
-class LocalPaths(MyBaseModel):
-    """Local paths for larger files not stored in the cloud."""
-
-    data: DirectoryPath = LOCAL_DATA
-    hierarchical_data: DirectoryPath = data / "data"
-
-    large_examples: DirectoryPath = data / "large_examples"
-    large_sources: DirectoryPath = data / "large_sources"
-    notes: DirectoryPath = data / "notes"
-    sheets: DirectoryPath = data / "sheets"
-    uncompressed_contours: DirectoryPath = data / "uncompressed_contours"
-    uncompressed_filled: DirectoryPath = data / "uncompressed_filled"
-    uncompressed_sources: DirectoryPath = data / "uncompressed_sources"
-
-    cines: DirectoryPath = data / "cines"
-    large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
-
-    media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")
-
-    # "always" so it'll run even if not in YAML
-    # "pre" because dir must exist pre-validation
-    @validator(
-        "data",
-        "hierarchical_data",
-        "large_examples",
-        "large_sources",
-        "notes",
-        "sheets",
-        "uncompressed_contours",
-        "uncompressed_filled",
-        "uncompressed_sources",
-        "cines",
-        always=True,
-        pre=True,
-    )
-    def validate_output_directories(cls, directory: Path) -> Path:
-        """Re-create designated output directories each run, for reproducibility."""
-        directory = Path(directory)
-        directory.mkdir(parents=True, exist_ok=True)
-        return directory
-
-
-class Paths(MyBaseModel):
-    """Directories relevant to the project."""
-
-    class Config(MyBaseModel.Config):
-        @staticmethod
-        def schema_extra(schema: dict[str, Any]):
-            for prop in schema.get("properties", {}).values():
-                default = prop.get("default")
-                if isinstance(default, str):
-                    prop["default"] = default.replace("\\", "/")
+class Paths(CreatePathsModel):
+    """Paths associated with project data."""
 
     # ! REQUIREMENTS
     requirements: FilePath = Path("requirements.txt")
@@ -96,7 +29,6 @@ class Paths(MyBaseModel):
     # ! STAGES
     stage_contours: FilePath = stages / "contours.py"
     stage_fill: FilePath = stages / "fill.py"
-    stage_schema: FilePath = stages / "schema.py"
 
     # ! PREVIEW STAGES
     update_previews: DirectoryPath = stages / "update_previews"
@@ -119,30 +51,22 @@ class Paths(MyBaseModel):
     gray_preview: Path = previews / "gray.nc"
     filled_preview: Path = previews / "filled.nc"
 
-    # ! SCHEMA
-    # Can't be "schema", which is a special member of BaseClass
-    project_schema: DirectoryPath = data / "schema"
 
-    # "always" so it'll run even if not in YAML
-    # "pre" because dir must exist pre-validation
-    @validator(
-        "data",
-        "contours",
-        "examples",
-        "filled",
-        "rois",
-        "samples",
-        "sources",
-        "previews",
-        "project_schema",
-        always=True,
-        pre=True,
-    )
-    def validate_output_directories(cls, directory: Path) -> Path:
-        """Re-create designated output directories each run, for reproducibility."""
-        directory = Path(directory)
-        directory.mkdir(parents=True, exist_ok=True)
-        return directory
+class LocalPaths(CreatePathsModel):
+    """Local paths for larger files not stored in the cloud."""
 
+    data: DirectoryPath = LOCAL_DATA
+    hierarchical_data: DirectoryPath = data / "data"
 
-init()
+    large_examples: DirectoryPath = data / "large_examples"
+    large_sources: DirectoryPath = data / "large_sources"
+    notes: DirectoryPath = data / "notes"
+    sheets: DirectoryPath = data / "sheets"
+    uncompressed_contours: DirectoryPath = data / "uncompressed_contours"
+    uncompressed_filled: DirectoryPath = data / "uncompressed_filled"
+    uncompressed_sources: DirectoryPath = data / "uncompressed_sources"
+
+    cines: DirectoryPath = data / "cines"
+    large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
+
+    media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")

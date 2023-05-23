@@ -1,0 +1,241 @@
+{
+  "title": "Params",
+  "description": "Project parameters.",
+  "type": "object",
+  "properties": {
+    "paths": {
+      "$ref": "#/definitions/Paths"
+    },
+    "local_paths": {
+      "$ref": "#/definitions/LocalPaths"
+    }
+  },
+  "definitions": {
+    "Paths": {
+      "title": "Paths",
+      "description": "Paths associated with project data.",
+      "type": "object",
+      "properties": {
+        "requirements": {
+          "title": "Requirements",
+          "default": "requirements.txt",
+          "format": "file-path",
+          "type": "string"
+        },
+        "dev_requirements": {
+          "title": "Dev Requirements",
+          "default": ".tools/requirements",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "package": {
+          "title": "Package",
+          "default": "src/boilercv",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "stages": {
+          "title": "Stages",
+          "default": "src/boilercv/stages",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "models": {
+          "title": "Models",
+          "default": "src/boilercv/models",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "paths_module": {
+          "title": "Paths Module",
+          "default": "src/boilercv/models/paths.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "stage_contours": {
+          "title": "Stage Contours",
+          "default": "src/boilercv/stages/contours.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "stage_fill": {
+          "title": "Stage Fill",
+          "default": "src/boilercv/stages/fill.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "update_previews": {
+          "title": "Update Previews",
+          "default": "src/boilercv/stages/update_previews",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "stage_binarized_preview": {
+          "title": "Stage Binarized Preview",
+          "default": "src/boilercv/stages/update_previews/binarized.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "stage_gray_preview": {
+          "title": "Stage Gray Preview",
+          "default": "src/boilercv/stages/update_previews/gray.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "stage_filled_preview": {
+          "title": "Stage Filled Preview",
+          "default": "src/boilercv/stages/update_previews/filled.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "data": {
+          "title": "Data",
+          "default": "data",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "contours": {
+          "title": "Contours",
+          "default": "data/contours",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "examples": {
+          "title": "Examples",
+          "default": "data/examples",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "filled": {
+          "title": "Filled",
+          "default": "data/filled",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "rois": {
+          "title": "Rois",
+          "default": "data/rois",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "samples": {
+          "title": "Samples",
+          "default": "data/samples",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "sources": {
+          "title": "Sources",
+          "default": "data/sources",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "previews": {
+          "title": "Previews",
+          "default": "data/previews",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "binarized_preview": {
+          "title": "Binarized Preview",
+          "default": "data/previews/binarized.nc",
+          "type": "string",
+          "format": "path"
+        },
+        "gray_preview": {
+          "title": "Gray Preview",
+          "default": "data/previews/gray.nc",
+          "type": "string",
+          "format": "path"
+        },
+        "filled_preview": {
+          "title": "Filled Preview",
+          "default": "data/previews/filled.nc",
+          "type": "string",
+          "format": "path"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LocalPaths": {
+      "title": "LocalPaths",
+      "description": "Local paths for larger files not stored in the cloud.",
+      "type": "object",
+      "properties": {
+        "data": {
+          "title": "Data",
+          "default": "C:/Users/Blake/.local/boilercv",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "hierarchical_data": {
+          "title": "Hierarchical Data",
+          "default": "C:/Users/Blake/.local/boilercv/data",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "large_examples": {
+          "title": "Large Examples",
+          "default": "C:/Users/Blake/.local/boilercv/large_examples",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "large_sources": {
+          "title": "Large Sources",
+          "default": "C:/Users/Blake/.local/boilercv/large_sources",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "notes": {
+          "title": "Notes",
+          "default": "C:/Users/Blake/.local/boilercv/notes",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "sheets": {
+          "title": "Sheets",
+          "default": "C:/Users/Blake/.local/boilercv/sheets",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "uncompressed_contours": {
+          "title": "Uncompressed Contours",
+          "default": "C:/Users/Blake/.local/boilercv/uncompressed_contours",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "uncompressed_filled": {
+          "title": "Uncompressed Filled",
+          "default": "C:/Users/Blake/.local/boilercv/uncompressed_filled",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "uncompressed_sources": {
+          "title": "Uncompressed Sources",
+          "default": "C:/Users/Blake/.local/boilercv/uncompressed_sources",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "cines": {
+          "title": "Cines",
+          "default": "C:/Users/Blake/.local/boilercv/cines",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "large_example_cine": {
+          "title": "Large Example Cine",
+          "default": "C:/Users/Blake/.local/boilercv/cines/2022-01-06T16-57-31.cine",
+          "type": "string",
+          "format": "path"
+        },
+        "media": {
+          "title": "Media",
+          "default": "G:/My Drive/Blake/School/Grad/Reports/Content/boilercv",
+          "type": "string",
+          "format": "path"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

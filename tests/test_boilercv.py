@@ -20,9 +20,6 @@ def test_pipeline(check, monkeypatch, tmp_path):
         stage_result_paths = get_stages()
         for module, result_paths in stage_result_paths.items():
             stage = Stage(module, result_paths, tmp_path)
-            skip_asserts = ("schema",)
-            if stage.name in skip_asserts:
-                continue
             for result, expected in stage.expectations.items():
                 with check:
                     assert_stage_result(result, expected)
@@ -45,11 +42,10 @@ def test_pipeline(check, monkeypatch, tmp_path):
         )
 
         from boilercv.manual import binarize, convert
-        from boilercv.stages import contours, fill, schema
+        from boilercv.stages import contours, fill
         from boilercv.stages.update_previews import binarized, filled, gray
 
         return {
-            schema: (PARAMS.paths.project_schema,),
             convert: (PARAMS.local_paths.large_sources,),
             binarize: (PARAMS.paths.sources, PARAMS.paths.rois),
             contours: (PARAMS.paths.contours,),

@@ -4,7 +4,7 @@
 
   //! Schema
   "yaml.schemas": {
-    "data/schema/params_schema.json": "params.yaml"
+    "params_schema.json": "params.yaml"
   },
 
   "git.ignoredRepositories": [

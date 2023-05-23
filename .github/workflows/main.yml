@@ -47,6 +47,8 @@ jobs:
       - uses: "stefanzweifel/git-auto-commit-action@v4.16.0"
         with:
           commit_message: "Bump project template and compose `pyproject.toml`."
+      - name: "synchronize parameter file"
+        run: "python -m boilercv.models.params"
 
   # * ------------------------------------------------------------------------------ * #
   # * Changes below should persist in significant template updates.

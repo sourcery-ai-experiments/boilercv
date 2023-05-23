@@ -116,4 +116,4 @@ split-on-trailing-comma = false
 extend-immutable-calls = ["typer.Argument", "typer.Option"]
 
 [tool.ruff.pep8-naming]
-classmethod-decorators = ["pydantic.validator"]
+classmethod-decorators = ["pydantic.validator", "pydantic.root_validator"]
