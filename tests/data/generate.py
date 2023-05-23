@@ -13,19 +13,10 @@ def main():
         boilercv.DATA_DIR = Path("tests/data/cloud")
         boilercv.LOCAL_DATA = Path("tests/data/local")
         from boilercv.manual import binarize, convert
-        from boilercv.stages import contours, fill, schema
+        from boilercv.stages import contours, fill
         from boilercv.stages.update_previews import binarized, filled, gray
 
-        for module in (
-            schema,
-            convert,
-            binarize,
-            contours,
-            fill,
-            binarized,
-            filled,
-            gray,
-        ):
+        for module in (binarize, binarized, contours, convert, fill, filled, gray):
             module.main()
 
 

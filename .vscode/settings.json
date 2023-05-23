@@ -8,6 +8,8 @@
   },
 
   "git.ignoredRepositories": [
+    "template",
+    "typings",
     "/home/user/.cache",
     "/home/user/opencv-python",
     "/home/user/opencv-python/multibuild",
