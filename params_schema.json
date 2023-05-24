@@ -13,6 +13,7 @@
       "$ref": "#/definitions/LocalPaths"
     }
   },
+  "additionalProperties": false,
   "definitions": {
     "ProjectPaths": {
       "title": "ProjectPaths",
