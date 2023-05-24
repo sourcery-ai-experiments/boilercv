@@ -87,7 +87,6 @@
   //* pytest
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
-  "python.testing.pytestArgs": ["--cov", "--cov-report", "xml"],
   //* markdownlint
   "markdownlint.config": {
     "first-line-heading": false

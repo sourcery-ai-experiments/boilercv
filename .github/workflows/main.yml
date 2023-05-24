@@ -22,7 +22,7 @@ jobs:
           python-version: "3.11"
       - run: "pip install --no-deps --requirement .tools/requirements/requirements_nodeps.txt"
       - run: "ruff --no-fix --format github ."
-  pytest-cov:
+  pytest:
     runs-on: "ubuntu-latest"
     steps:
       - uses: "blakeNaccarato/copier-python-workflow-setup@v0.0.12"
@@ -34,10 +34,10 @@ jobs:
           # https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
           sudo apt update
           sudo apt install libegl1
-      - run: "pytest --cov"
+      - run: "pytest"
       - uses: "codecov/codecov-action@v3.1.3"
   bump_project:
-    needs: ["pyright", "ruff", "pytest-cov"]
+    needs: ["pyright", "ruff", "pytest"]
     runs-on: "ubuntu-latest"
     steps:
       - uses: "blakeNaccarato/copier-python-workflow-setup@v0.0.12"
