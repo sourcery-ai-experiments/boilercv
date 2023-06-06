@@ -1,15 +1,19 @@
+"""Test configuration."""
+
 from pathlib import Path
 from shutil import copytree
-from types import ModuleType
+from sys import path
 
 import pytest
+
+from tests import NOTEBOOK_STAGES, get_nb_content
 
 TEST_DATA = Path("tests/data")
 
 
 @pytest.fixture()
-def patched_modules(monkeypatch, tmp_path) -> dict[str, ModuleType]:
-    """Test the pipeline by patching constants before importing stages."""
+def tmp_project(monkeypatch, tmp_path: Path) -> Path:
+    """Produce a temporary project directory."""
 
     import boilercv
 
@@ -24,19 +28,14 @@ def patched_modules(monkeypatch, tmp_path) -> dict[str, ModuleType]:
     copytree(TEST_DATA / "local", PARAMS.local_paths.data, dirs_exist_ok=True)
     copytree(TEST_DATA / "cloud", PARAMS.paths.data, dirs_exist_ok=True)
 
-    from boilercv.manual import binarize, convert
-    from boilercv.stages import contours, fill
-    from boilercv.stages.update_previews import binarized, filled, gray
+    return tmp_path
 
-    return {
-        module.__name__.removeprefix(f"{module.__package__}."): module
-        for module in (
-            binarize,
-            binarized,
-            contours,
-            convert,
-            fill,
-            filled,
-            gray,
+
+@pytest.fixture()
+def _tmp_project_with_nb_stages(tmp_project: Path):
+    """Enable importing of notebook stages like `importlib.import_module("stage")`."""
+    path.insert(0, str(tmp_project))  # For importing tmp_project stages in tests
+    for nb in NOTEBOOK_STAGES:
+        (tmp_project / nb.with_suffix(".py").name).write_text(
+            encoding="utf-8", data=get_nb_content(nb)
         )
-    }
