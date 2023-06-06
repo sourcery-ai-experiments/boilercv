@@ -1,6 +1,5 @@
 ci:
   skip:
-    - "update-submodule"
     - "synchronize-params"
     - "compose-pyproject"
     - "pytest-fast-only"
@@ -35,13 +34,6 @@ repos:
       # * -------------------------------------------------------------------------- * #
       # * Changes below may be lost in significant template updates.
 
-      - id: "update-submodule"
-        name: "update-submodule"
-        stages: ["post-checkout"]
-        always_run: true
-        pass_filenames: false
-        language: "system"
-        entry: "pwsh -Command git submodule update"
       - id: "compose-pyproject"
         name: "compose-pyproject"
         fail_fast: true
