@@ -22,7 +22,6 @@ ipython==8.13.1
 
 # Format
 sourcery-cli==1.2.0
-nbqa==1.7.0
 
 # Profiling
 snakeviz==2.2.0

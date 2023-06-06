@@ -45,6 +45,8 @@
       "depth": 2
     }
   ],
+  //! DVC
+  "dvc.studio.shareExperimentsLive": true,
 
   // * ---------------------------------------------------------------------------- * //
   // * Changes below may be lost in significant template updates.
@@ -94,6 +96,7 @@
   //* black
   "black-formatter.importStrategy": "fromEnvironment",
   //? Ensure user setting args are cleared
+  "black-formatter.logLevel": "warn",
   "black-formatter.args": [],
   //* ruff
   "ruff.importStrategy": "fromEnvironment",
@@ -143,10 +146,20 @@
     ".pylintrc": "ini",
     "pyrightconfig.json": "jsonc",
     "*requirements*.txt": "pip-requirements",
-    "repro.txt": "pip-requirements",
     ".nest_md": "markdown",
     ".nest_tools_config": "plaintext",
     ".sourcery.yaml": "yaml"
+  },
+  //* Exclude problematic files in Problems panel filter and elsewhere
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    //? Pylance notebook cell temp files that get picked up in Problems pane before deletion
+    "**/*pylance-notebook-cell*": true
   },
   //* File icon associations
   "workbench.iconTheme": "vscode-icons",
@@ -173,6 +186,7 @@
   "files.trimFinalNewlines": true,
   //* Periodically fetch changes to tracked repo. Don't confirm on push/pull.
   "git.autofetch": true,
+  "git.commandsToLog": ["commit", "push"],
   "git.confirmSync": false,
   //* Markdown editor moves jarringly when this is "true"
   "markdown.preview.scrollEditorWithPreview": false,
@@ -251,5 +265,6 @@
   },
 
   //! Extension: Jupyter Notebooks
-  "jupyter.notebookFileRoot": "${workspaceFolder}"
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "jupyter.showVariableViewWhenDebugging": true
 }

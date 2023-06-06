@@ -10,27 +10,19 @@ ci:
   autoupdate_schedule: "quarterly"
 
 repos:
-  # * ------------------------------------------------------------------------------ * #
-  # * Changes below should persist in significant template updates.
-
-  - repo: "https://github.com/iterative/dvc"
-    rev: "2.57.1"
-    hooks:
-      - id: "dvc-post-checkout"
-      - id: "dvc-pre-push"
-        additional_dependencies: ["dvc[gs]"]
-
-  # * ------------------------------------------------------------------------------ * #
-  # * Changes below may be lost in significant template updates.
-
   - repo: "meta"
     hooks:
+      # ? Enable this to ensure each hook runs against at least one file
       - id: "check-hooks-apply"
       - id: "check-useless-excludes"
   - repo: "local"
     hooks:
+      # * -------------------------------------------------------------------------- * #
+      # * Changes below should persist in significant template updates.
+
       - id: "synchronize-params"
         name: "synchronize-params"
+        fail_fast: true
         language: "system"
         entry: "pwsh -Command python -m boilercv.models.params"
         files: |
@@ -38,8 +30,14 @@ repos:
             src/boilercv/models/.*
             |params.yaml
           )$
+
+      # * -------------------------------------------------------------------------- * #
+      # * Changes below may be lost in significant template updates.
+
       - id: "compose-pyproject"
         name: "compose-pyproject"
+        fail_fast: true
+        pass_filenames: false
         language: "system"
         entry: "pwsh -Command python .tools/scripts/compose_pyproject.py"
         files: |
@@ -48,39 +46,12 @@ repos:
             |requirements.txt
             |.tools/pyproject.toml
           )$
-        pass_filenames: false
-      - id: "pytest-fast-only"
-        name: "pytest-fast-only"
-        language: "system"
-        entry: |
-          pwsh -Command "pytest -m 'not slow' --suppress-no-test-exit-code"
-        pass_filenames: false
-        verbose: true
-        files: |
-          (?x)^(
-            pyproject.toml
-            |requirements.txt
-            |.tools/(
-              pyproject.toml
-              |requirements/.*
-            )
-          )$
-      - id: "pytest-slow-only"
-        name: "pytest-slow-only"
-        language: "system"
-        entry: "pwsh -Command pytest -m slow"
-        pass_filenames: false
-        verbose: true
-        files: |
-          (?x)^(
-            src/.*
-            |tests/.*
-          )$
       - id: "pyright"
         name: "pyright"
+        fail_fast: true
+        pass_filenames: false
         language: "system"
         entry: "pwsh .tools/scripts/Invoke-Pyright.ps1"
-        pass_filenames: false
         files: |
           (?x)^(
             src/.*
@@ -92,6 +63,49 @@ repos:
               |requirements/.*
             )
           )$
+      - id: "pytest-fast-only"
+        name: "pytest-fast-only"
+        fail_fast: true
+        verbose: true
+        pass_filenames: false
+        language: "system"
+        entry: |
+          pwsh -Command "pytest -m 'not slow' --suppress-no-test-exit-code"
+        files: |
+          (?x)^(
+            pyproject.toml
+            |requirements.txt
+            |.tools/(
+              pyproject.toml
+              |requirements/.*
+            )
+          )$
+      - id: "pytest-slow-only"
+        name: "pytest-slow-only"
+        fail_fast: true
+        verbose: true
+        pass_filenames: false
+        language: "system"
+        entry: "pwsh -Command pytest -m slow"
+        files: |
+          (?x)^(
+            src/.*
+            |tests/.*
+          )$
+
+  # * ------------------------------------------------------------------------------ * #
+  # * Changes below should persist in significant template updates.
+
+  - repo: "https://github.com/iterative/dvc"
+    rev: "2.58.1"
+    hooks:
+      - id: "dvc-post-checkout"
+      - id: "dvc-pre-push"
+        additional_dependencies: ["dvc[gs]"]
+
+  # * ------------------------------------------------------------------------------ * #
+  # * Changes below may be lost in significant template updates.
+
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.4.0"
     hooks:

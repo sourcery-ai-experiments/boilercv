@@ -7,7 +7,7 @@ git+https://github.com/blakeNaccarato/boilercine@main
 # * Changes below may be lost in significant template updates.
 
 # Bump
-copier==7.2.0
+copier==8.0.0
 toml==0.10.2
 
 # Build
@@ -25,6 +25,8 @@ pytest==7.3.1
 # Testing plugins
 pytest-cov==4.0.0
 pytest-custom-exit-code==0.3.0
+# Format AND test notebooks
+nbqa==1.7.0
 
 # Document
 -r requirements_docs.txt

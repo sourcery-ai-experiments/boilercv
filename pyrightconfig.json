@@ -12,8 +12,7 @@
   // * Changes below may be lost in significant template updates.
 
   // Paths
-  "include": ["src"],
-  "extraPaths": ["tests"],
+  "include": ["src", "tests"],
 
   // Sets most checks to "error". See overrides below
   "typeCheckingMode": "strict",

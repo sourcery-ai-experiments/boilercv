@@ -21,6 +21,7 @@ name = "Blake Naccarato"
 email = "blake.naccarato@gmail.com"
 [[project.authors]]
 name = "Kwang Jin Kim"
+
 [project.urls]
 Changes = "https://blakeNaccarato.github.io/boilercv/changelog.html"
 Docs = "https://blakeNaccarato.github.io/boilercv"
@@ -116,4 +117,4 @@ split-on-trailing-comma = false
 extend-immutable-calls = ["typer.Argument", "typer.Option"]
 
 [tool.ruff.pep8-naming]
-classmethod-decorators = ["pydantic.validator", "pydantic.root_validator"]
+classmethod-decorators = ["pydantic.validator"]

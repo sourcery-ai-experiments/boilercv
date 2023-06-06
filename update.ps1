@@ -2,7 +2,7 @@
 Update the local virtual environment to the latest tracked dependencies.
 #>
 
-# * ------------------------------------------------------------------------------ * #
+# * -------------------------------------------------------------------------------- * #
 # * Changes below may be lost in significant template updates.
 
 # Activate environment
@@ -27,6 +27,9 @@ pip install --upgrade --requirement 'requirements.txt'
 
 # Ensure pre-commit hooks are applied and updated
 pre-commit install --install-hooks
+
+# Ensure type stubs are synchronized
+git submodule update --init --merge typings
 
 # * -------------------------------------------------------------------------------- * #
 # * Changes below should persist in significant template updates.

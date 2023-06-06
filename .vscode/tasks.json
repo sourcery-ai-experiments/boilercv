@@ -243,18 +243,32 @@
       "problemMatcher": []
     },
     {
-      "label": "setup: Re-answer template questions",
+      "label": "setup: Update from template, prompt for responses",
       "type": "process",
       "command": "pwsh",
-      "args": [".tools/scripts/Update-Template.ps1"],
+      "args": ["-Command", ".tools/scripts/Copy-Template.ps1 -Update"],
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": []
     },
     {
-      "label": "setup: Bump template",
+      "label": "setup: Recopy from template",
       "type": "process",
       "command": "pwsh",
-      "args": ["-Command", ".tools/scripts/Update-Template.ps1 -Remote -Force"],
+      "args": [
+        "-Command",
+        ".tools/scripts/Copy-Template.ps1 -Recopy -Defaults"
+      ],
+      "icon": { "id": "file-symlink-directory" },
+      "problemMatcher": []
+    },
+    {
+      "label": "setup: Update from template",
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-Command",
+        ".tools/scripts/Copy-Template.ps1 -Update -Defaults"
+      ],
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": []
     },
@@ -390,6 +404,36 @@
 
     // * -------------------------------------------------------------------------- * //
     // * OTHER TASKS * //
+    {
+      "label": "task: format notebook, clear outputs",
+      "dependsOrder": "sequence",
+      "dependsOn": ["task: format notebook"],
+      "type": "shell",
+      "options": {
+        "shell": { "executable": "pwsh", "args": ["-Command"] }
+      },
+      "command": "nb-clean clean --remove-empty-cells --preserve-cell-metadata tags slideshow special -- ${file}",
+      "icon": { "id": "notebook" },
+      "problemMatcher": []
+    },
+    {
+      "label": "task: format notebook",
+      "type": "shell",
+      "options": {
+        "shell": { "executable": "pwsh", "args": ["-Command"] }
+      },
+      "command": "nbqa black ${file}; nbqa ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-outputs --preserve-cell-metadata tags slideshow special -- ${file}",
+      "icon": { "id": "notebook" },
+      "problemMatcher": []
+    },
+    {
+      "label": "task: Run pytest with coverage",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "pytest --cov --cov-report xml"],
+      "icon": { "id": "type-hierarchy-sub" },
+      "problemMatcher": []
+    },
     {
       "label": "task: Invoke pyright",
       "type": "process",
