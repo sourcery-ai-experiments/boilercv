@@ -28,7 +28,7 @@ If you would like to adopt this approach to processing your own data, you may cl
 4. Activate the virtual environment (e.g. `.venv/scripts/activate` on Windows).
 5. Run `pip install --editable .` to install `boilercv` package in an editable fashion. This step may take awhile.
 6. Delete the top-level `data` directory, then copy the `cloud` folder inside `tests/data` to the root directory. Rename it to `data`.
-7. Copy the `local` folder from `tests/data` to `~/.local` where `~` is your user/home folder (e.g. `C:/Users/\<you\>/.local` on Windows). Rename it to `boilercv`.
+7. Copy the `local` folder from `tests/data` to `~/.local` where `~` is your user/home folder (e.g. `C:/Users/<you>/.local` on Windows). Rename it to `boilercv`.
 8. Run `dvc repro` to execute the data process up to that stage.
 
 The data process should run the following stages: `contours`, `fill`, `filled_preview`, `binarized_preview` and `gray_preview`. You may inspect the actual code that runs during these stages in `src/boilercv/stages`, e.g. `contours.py` contains the logic for the `contours` stage. This example happens to use Python scripts, but you could define a stage in `dvc.yaml` that instead runs Matlab scripts, or any arbitrary action. This approach allows for the data process to be reliably reproduced over time, and for the process to be easily modified and extended in a collaborative effort.
