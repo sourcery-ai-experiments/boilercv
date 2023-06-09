@@ -44,3 +44,35 @@ stages:
     outs:
       - "${paths.filled_preview}":
           persist: true
+
+  unobstructed:
+    cmd: "python -m boilercv.stages.unobstructed"
+    deps:
+      - "${project_paths.stage_unobstructed}"
+      - "${paths.contours}"
+    outs:
+      - "${paths.unobstructed}"
+
+  tracks:
+    cmd: "python -m boilercv.stages.tracks"
+    deps:
+      - "${project_paths.stage_tracks}"
+      - "${paths.unobstructed}"
+    outs:
+      - "${paths.tracks}"
+
+  correlations:
+    cmd: "python -m boilercv.stages.correlations"
+    deps:
+      - "${project_paths.stage_correlations}"
+    outs:
+      - "${paths.correlations}"
+
+  lifetimes:
+    cmd: "python -m boilercv.stages.lifetimes"
+    deps:
+      - "${project_paths.stage_lifetimes}"
+      - "${paths.tracks}"
+      - "${paths.correlations}"
+    outs:
+      - "${paths.lifetimes}"

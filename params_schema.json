@@ -68,9 +68,33 @@
           "format": "file-path",
           "type": "string"
         },
+        "stage_correlations": {
+          "title": "Stage Correlations",
+          "default": "src/boilercv/stages/correlations.py",
+          "format": "file-path",
+          "type": "string"
+        },
         "stage_fill": {
           "title": "Stage Fill",
           "default": "src/boilercv/stages/fill.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "stage_lifetimes": {
+          "title": "Stage Lifetimes",
+          "default": "src/boilercv/stages/lifetimes.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "stage_tracks": {
+          "title": "Stage Tracks",
+          "default": "src/boilercv/stages/tracks.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "stage_unobstructed": {
+          "title": "Stage Unobstructed",
+          "default": "src/boilercv/stages/unobstructed.py",
           "format": "file-path",
           "type": "string"
         },
@@ -118,6 +142,12 @@
           "format": "directory-path",
           "type": "string"
         },
+        "correlations": {
+          "title": "Correlations",
+          "default": "data/correlations",
+          "format": "directory-path",
+          "type": "string"
+        },
         "examples": {
           "title": "Examples",
           "default": "data/examples",
@@ -127,6 +157,12 @@
         "filled": {
           "title": "Filled",
           "default": "data/filled",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "lifetimes": {
+          "title": "Lifetimes",
+          "default": "data/lifetimes",
           "format": "directory-path",
           "type": "string"
         },
@@ -145,6 +181,18 @@
         "sources": {
           "title": "Sources",
           "default": "data/sources",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "tracks": {
+          "title": "Tracks",
+          "default": "data/tracks",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "unobstructed": {
+          "title": "Unobstructed",
+          "default": "data/unobstructed",
           "format": "directory-path",
           "type": "string"
         },

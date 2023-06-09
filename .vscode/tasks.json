@@ -101,7 +101,7 @@
     {
       "label": "dvc: repro force downstream (debug)",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize paths"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro --force --downstream ${input:stage}"],
@@ -114,7 +114,7 @@
     {
       "label": "dvc: repro (debug)",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize paths"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro ${input:stage}"],
@@ -127,7 +127,7 @@
     {
       "label": "dvc: repro force downstream",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize paths"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro --force --downstream ${input:stage}"],
@@ -137,7 +137,7 @@
     {
       "label": "dvc: repro",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize paths"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "process",
       "command": "pwsh",
       "args": ["-Command", "dvc repro ${input:stage}"],
@@ -149,7 +149,7 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "setup: Update project",
-        "dvc: synchronize paths",
+        "dvc: synchronize params",
         "dvc: freeze",
         "git: Stage all files",
         "pre-commit",
@@ -166,7 +166,7 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "setup: Update project",
-        "dvc: synchronize paths",
+        "dvc: synchronize params",
         "dvc: freeze",
         "git: Stage all files",
         "pre-commit",
@@ -181,7 +181,7 @@
     {
       "label": "dvc: dag",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize paths"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "process",
       "command": "pwsh",
       "args": [
@@ -192,10 +192,10 @@
       "problemMatcher": []
     },
     {
-      "label": "dvc: synchronize paths",
+      "label": "dvc: synchronize params",
       "type": "process",
       "command": "pwsh",
-      "args": ["-Command", "python -m boilercv.models.paths"],
+      "args": ["-Command", "python -m boilercv.models.params"],
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

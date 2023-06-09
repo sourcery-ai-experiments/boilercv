@@ -7,7 +7,11 @@ project_paths:
   models: src/boilercv/models
   paths_module: src/boilercv/models/paths.py
   stage_contours: src/boilercv/stages/contours.py
+  stage_correlations: src/boilercv/stages/correlations.py
   stage_fill: src/boilercv/stages/fill.py
+  stage_lifetimes: src/boilercv/stages/lifetimes.py
+  stage_tracks: src/boilercv/stages/tracks.py
+  stage_unobstructed: src/boilercv/stages/unobstructed.py
   update_previews: src/boilercv/stages/update_previews
   stage_binarized_preview: src/boilercv/stages/update_previews/binarized.py
   stage_gray_preview: src/boilercv/stages/update_previews/gray.py
@@ -15,11 +19,15 @@ project_paths:
 paths:
   data: data
   contours: data/contours
+  correlations: data/correlations
   examples: data/examples
   filled: data/filled
+  lifetimes: data/lifetimes
   rois: data/rois
   samples: data/samples
   sources: data/sources
+  tracks: data/tracks
+  unobstructed: data/unobstructed
   previews: data/previews
   binarized_preview: data/previews/binarized.nc
   gray_preview: data/previews/gray.nc

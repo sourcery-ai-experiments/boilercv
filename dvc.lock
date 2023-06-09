@@ -149,3 +149,63 @@ stages:
     - path: data/previews/filled.nc
       md5: f3596d4b5c08d8701b7630f1136c45aa
       size: 1661392
+  unobstructed:
+    cmd: python -m boilercv.stages.unobstructed
+    deps:
+    - path: data/contours
+      md5: d43be95333c9df0e76d570f8b11aada2.dir
+      size: 4279876062
+      nfiles: 308
+    - path: src/boilercv/stages/unobstructed.py
+      md5: 1ac8ebbe39d30d3208f1357f45db0191
+      size: 72
+    outs:
+    - path: data/unobstructed
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
+  tracks:
+    cmd: python -m boilercv.stages.tracks
+    deps:
+    - path: data/unobstructed
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
+    - path: src/boilercv/stages/tracks.py
+      md5: 62e86ce4b840b2f318431b628fd629b9
+      size: 22
+    outs:
+    - path: data/tracks
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
+  correlations:
+    cmd: python -m boilercv.stages.correlations
+    deps:
+    - path: src/boilercv/stages/correlations.py
+      md5: 6dc3104f27c37113ff04c12d4fa15a18
+      size: 62
+    outs:
+    - path: data/correlations
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
+  lifetimes:
+    cmd: python -m boilercv.stages.lifetimes
+    deps:
+    - path: data/correlations
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
+    - path: data/tracks
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
+    - path: src/boilercv/stages/lifetimes.py
+      md5: a0e078277617753ae38f0229ac783a1d
+      size: 64
+    outs:
+    - path: data/lifetimes
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
