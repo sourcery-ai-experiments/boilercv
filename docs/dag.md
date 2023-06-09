@@ -25,8 +25,8 @@ flowchart TD
  node11-->node10
  node12["data\examples.dvc"]
  node13["data\samples.dvc"]
- style node3 fill:#FFE18E
- style node9 fill:#FFE18E
- style node10 fill:#FFE18E
- style node11 fill:#FFE18E
+ style node3 fill:#8b6969
+ style node9 fill:#8b6969
+ style node10 fill:#8b6969
+ style node11 fill:#8b6969
 ```
