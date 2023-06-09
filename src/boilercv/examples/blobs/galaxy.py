@@ -15,7 +15,7 @@ from boilercv.types import ArrInt
 
 
 def main():
-    image = data.hubble_deep_field()[0:500, 0:500]
+    image = data.hubble_deep_field()[0:500, 0:500]  # type: ignore
     image_gray = rgb2gray(image)
     operations = {
         "Laplacian of Gaussian": get_blobs_log,
