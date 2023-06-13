@@ -25,11 +25,11 @@ STAGES = sorted(Path("src/boilercv/stages").glob("[!__]*.py"))
 @pytest.mark.parametrize(
     ("stage", "x"),
     (
-        {stage.stem: "xpass" for stage in STAGES}
+        {stage.stem: "" for stage in STAGES}
         | {
             stage.stem: "xfail"
             for stage in STAGES
-            if stage.stem in ["correlations", "lifetimes", "tracks", "unobstructed"]
+            if stage.stem in ["compare_theory", "find_tracks", "find_unobstructed"]
         }
     ).items(),
 )
@@ -46,14 +46,12 @@ def test_stages(stage: str, x: str):
     "stage",
     [
         stage.stem
-        for stage in sorted(
-            Path("src/boilercv/stages/update_previews").glob("[!__]*.py")
-        )
+        for stage in sorted(Path("src/boilercv/stages/preview").glob("[!__]*.py"))
     ],
 )
-def test_update_previews(stage: str):
+def test_preview(stage: str):
     """Test that preview update stages can run."""
-    importlib.import_module(f"boilercv.stages.update_previews.{stage}").main()
+    importlib.import_module(f"boilercv.stages.preview.{stage}").main()
 
 
 @pytest.mark.slow()

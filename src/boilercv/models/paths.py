@@ -29,18 +29,20 @@ class ProjectPaths(CreatePathsModel):
     paths_module: FilePath = models / "paths.py"
 
     # ! STAGES
-    stage_contours: FilePath = stages / "contours.py"
-    stage_correlations: FilePath = stages / "correlations.py"
+    stage_find_contours: FilePath = stages / "find_contours.py"
     stage_fill: FilePath = stages / "fill.py"
-    stage_lifetimes: FilePath = stages / "lifetimes.py"
-    stage_tracks: FilePath = stages / "tracks.py"
-    stage_unobstructed: FilePath = stages / "unobstructed.py"
+    stage_find_tracks: FilePath = stages / "find_tracks.py"
+    stage_find_unobstructed: FilePath = stages / "find_unobstructed.py"
+    stage_compare_theory: FilePath = stages / "compare_theory.py"
 
     # ! PREVIEW STAGES
-    update_previews: DirectoryPath = stages / "update_previews"
-    stage_binarized_preview: FilePath = update_previews / "binarized.py"
-    stage_gray_preview: FilePath = update_previews / "gray.py"
-    stage_filled_preview: FilePath = update_previews / "filled.py"
+    preview: DirectoryPath = stages / "preview"
+    stage_preview_binarized: FilePath = preview / "preview_binarized.py"
+    stage_preview_gray: FilePath = preview / "preview_gray.py"
+    stage_preview_filled: FilePath = preview / "preview_filled.py"
+
+    # ! STAGE DEPENDENCIES
+    correlations: FilePath = package / "correlations.py"
 
 
 class Paths(CreatePathsModel):
@@ -50,7 +52,6 @@ class Paths(CreatePathsModel):
 
     # ! STAGE DATA
     contours: DirectoryPath = data / "contours"
-    correlations: DirectoryPath = data / "correlations"
     examples: DirectoryPath = data / "examples"
     filled: DirectoryPath = data / "filled"
     lifetimes: DirectoryPath = data / "lifetimes"

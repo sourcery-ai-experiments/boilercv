@@ -62,15 +62,9 @@
           "format": "file-path",
           "type": "string"
         },
-        "stage_contours": {
-          "title": "Stage Contours",
-          "default": "src/boilercv/stages/contours.py",
-          "format": "file-path",
-          "type": "string"
-        },
-        "stage_correlations": {
-          "title": "Stage Correlations",
-          "default": "src/boilercv/stages/correlations.py",
+        "stage_find_contours": {
+          "title": "Stage Find Contours",
+          "default": "src/boilercv/stages/find_contours.py",
           "format": "file-path",
           "type": "string"
         },
@@ -80,45 +74,51 @@
           "format": "file-path",
           "type": "string"
         },
-        "stage_lifetimes": {
-          "title": "Stage Lifetimes",
-          "default": "src/boilercv/stages/lifetimes.py",
+        "stage_find_tracks": {
+          "title": "Stage Find Tracks",
+          "default": "src/boilercv/stages/find_tracks.py",
           "format": "file-path",
           "type": "string"
         },
-        "stage_tracks": {
-          "title": "Stage Tracks",
-          "default": "src/boilercv/stages/tracks.py",
+        "stage_find_unobstructed": {
+          "title": "Stage Find Unobstructed",
+          "default": "src/boilercv/stages/find_unobstructed.py",
           "format": "file-path",
           "type": "string"
         },
-        "stage_unobstructed": {
-          "title": "Stage Unobstructed",
-          "default": "src/boilercv/stages/unobstructed.py",
+        "stage_compare_theory": {
+          "title": "Stage Compare Theory",
+          "default": "src/boilercv/stages/compare_theory.py",
           "format": "file-path",
           "type": "string"
         },
-        "update_previews": {
-          "title": "Update Previews",
-          "default": "src/boilercv/stages/update_previews",
+        "preview": {
+          "title": "Preview",
+          "default": "src/boilercv/stages/preview",
           "format": "directory-path",
           "type": "string"
         },
-        "stage_binarized_preview": {
-          "title": "Stage Binarized Preview",
-          "default": "src/boilercv/stages/update_previews/binarized.py",
+        "stage_preview_binarized": {
+          "title": "Stage Preview Binarized",
+          "default": "src/boilercv/stages/preview/preview_binarized.py",
           "format": "file-path",
           "type": "string"
         },
-        "stage_gray_preview": {
-          "title": "Stage Gray Preview",
-          "default": "src/boilercv/stages/update_previews/gray.py",
+        "stage_preview_gray": {
+          "title": "Stage Preview Gray",
+          "default": "src/boilercv/stages/preview/preview_gray.py",
           "format": "file-path",
           "type": "string"
         },
-        "stage_filled_preview": {
-          "title": "Stage Filled Preview",
-          "default": "src/boilercv/stages/update_previews/filled.py",
+        "stage_preview_filled": {
+          "title": "Stage Preview Filled",
+          "default": "src/boilercv/stages/preview/preview_filled.py",
+          "format": "file-path",
+          "type": "string"
+        },
+        "correlations": {
+          "title": "Correlations",
+          "default": "src/boilercv/correlations.py",
           "format": "file-path",
           "type": "string"
         }
@@ -139,12 +139,6 @@
         "contours": {
           "title": "Contours",
           "default": "data/contours",
-          "format": "directory-path",
-          "type": "string"
-        },
-        "correlations": {
-          "title": "Correlations",
-          "default": "data/correlations",
           "format": "directory-path",
           "type": "string"
         },

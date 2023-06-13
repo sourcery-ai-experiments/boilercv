@@ -1,26 +1,26 @@
 stages:
-  binarized_preview:
-    cmd: "python -m boilercv.stages.update_previews.binarized"
+  preview_binarized:
+    cmd: "python -m boilercv.stages.preview.preview_binarized"
     deps:
-      - "${project_paths.stage_binarized_preview}"
+      - "${project_paths.stage_preview_binarized}"
       - "${paths.rois}"
       - "${paths.sources}"
     outs:
       - "${paths.binarized_preview}":
           persist: true
-  gray_preview:
-    cmd: "python -m boilercv.stages.update_previews.gray"
+  preview_gray:
+    cmd: "python -m boilercv.stages.preview.preview_gray"
     deps:
-      - "${project_paths.stage_gray_preview}"
+      - "${project_paths.stage_preview_gray}"
       - "${paths.sources}"
     outs:
       - "${paths.gray_preview}":
           persist: true
 
-  contours:
-    cmd: "python -m boilercv.stages.contours"
+  find_contours:
+    cmd: "python -m boilercv.stages.find_contours"
     deps:
-      - "${project_paths.stage_contours}"
+      - "${project_paths.stage_find_contours}"
       - "${paths.sources}"
     outs:
       - "${paths.contours}":
@@ -35,44 +35,37 @@ stages:
     outs:
       - "${paths.filled}":
           persist: true
-  filled_preview:
-    cmd: "python -m boilercv.stages.update_previews.filled"
+  preview_filled:
+    cmd: "python -m boilercv.stages.preview.preview_filled"
     deps:
-      - "${project_paths.stage_filled_preview}"
+      - "${project_paths.stage_preview_filled}"
       - "${paths.sources}"
       - "${paths.filled}"
     outs:
       - "${paths.filled_preview}":
           persist: true
 
-  unobstructed:
-    cmd: "python -m boilercv.stages.unobstructed"
+  find_unobstructed:
+    cmd: "python -m boilercv.stages.find_unobstructed"
     deps:
-      - "${project_paths.stage_unobstructed}"
+      - "${project_paths.stage_find_unobstructed}"
       - "${paths.contours}"
     outs:
       - "${paths.unobstructed}"
 
-  tracks:
-    cmd: "python -m boilercv.stages.tracks"
+  find_tracks:
+    cmd: "python -m boilercv.stages.find_tracks"
     deps:
-      - "${project_paths.stage_tracks}"
+      - "${project_paths.stage_find_tracks}"
       - "${paths.unobstructed}"
     outs:
       - "${paths.tracks}"
 
-  correlations:
-    cmd: "python -m boilercv.stages.correlations"
+  compare_theory:
+    cmd: "python -m boilercv.stages.compare_theory"
     deps:
-      - "${project_paths.stage_correlations}"
-    outs:
-      - "${paths.correlations}"
-
-  lifetimes:
-    cmd: "python -m boilercv.stages.lifetimes"
-    deps:
-      - "${project_paths.stage_lifetimes}"
+      - "${project_paths.stage_compare_theory}"
       - "${paths.tracks}"
-      - "${paths.correlations}"
+      - "${project_paths.correlations}"
     outs:
       - "${paths.lifetimes}"

@@ -4,6 +4,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import boilercv
+from boilercv.stages import find_contours
+from boilercv.stages.preview import preview_binarized, preview_filled
 
 
 def main():
@@ -13,10 +15,18 @@ def main():
         boilercv.DATA_DIR = Path("tests/data/cloud")
         boilercv.LOCAL_DATA = Path("tests/data/local")
         from boilercv.manual import binarize, convert
-        from boilercv.stages import contours, fill
-        from boilercv.stages.update_previews import binarized, filled, gray
+        from boilercv.stages import fill
+        from boilercv.stages.preview import preview_gray
 
-        for module in (binarize, binarized, contours, convert, fill, filled, gray):
+        for module in (
+            binarize,
+            preview_binarized,
+            find_contours,
+            convert,
+            fill,
+            preview_filled,
+            preview_gray,
+        ):
             module.main()
 
 

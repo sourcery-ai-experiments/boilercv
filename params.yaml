@@ -6,20 +6,19 @@ project_paths:
   stages: src/boilercv/stages
   models: src/boilercv/models
   paths_module: src/boilercv/models/paths.py
-  stage_contours: src/boilercv/stages/contours.py
-  stage_correlations: src/boilercv/stages/correlations.py
+  stage_find_contours: src/boilercv/stages/find_contours.py
   stage_fill: src/boilercv/stages/fill.py
-  stage_lifetimes: src/boilercv/stages/lifetimes.py
-  stage_tracks: src/boilercv/stages/tracks.py
-  stage_unobstructed: src/boilercv/stages/unobstructed.py
-  update_previews: src/boilercv/stages/update_previews
-  stage_binarized_preview: src/boilercv/stages/update_previews/binarized.py
-  stage_gray_preview: src/boilercv/stages/update_previews/gray.py
-  stage_filled_preview: src/boilercv/stages/update_previews/filled.py
+  stage_find_tracks: src/boilercv/stages/find_tracks.py
+  stage_find_unobstructed: src/boilercv/stages/find_unobstructed.py
+  stage_compare_theory: src/boilercv/stages/compare_theory.py
+  preview: src/boilercv/stages/preview
+  stage_preview_binarized: src/boilercv/stages/preview/preview_binarized.py
+  stage_preview_gray: src/boilercv/stages/preview/preview_gray.py
+  stage_preview_filled: src/boilercv/stages/preview/preview_filled.py
+  correlations: src/boilercv/correlations.py
 paths:
   data: data
   contours: data/contours
-  correlations: data/correlations
   examples: data/examples
   filled: data/filled
   lifetimes: data/lifetimes

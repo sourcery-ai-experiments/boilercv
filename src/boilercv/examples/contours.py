@@ -11,7 +11,7 @@ from boilercv.data.sets import get_dataset
 from boilercv.examples import EXAMPLE_CONTOURS, EXAMPLE_NUM_FRAMES, EXAMPLE_VIDEO_NAME
 from boilercv.images import scale_bool
 from boilercv.images.cv import draw_contours
-from boilercv.stages.contours import get_all_contours
+from boilercv.stages.find_contours import get_all_contours
 from boilercv.types import ArrInt, Img
 
 

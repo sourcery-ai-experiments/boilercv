@@ -18,3 +18,4 @@ html_theme_options = {
     "use_fullscreen_button": True,
     "use_repository_button": True,
 }
+mermaid_d3_zoom = False

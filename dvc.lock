@@ -33,14 +33,23 @@ stages:
       md5: 5598ee8b69f8591e2035194a9054f2c3
       size: 147879321
   preview_binarized:
-    cmd: python -m boilercv.stages.preview_binarized
+    cmd: python -m boilercv.stages.preview.preview_binarized
     deps:
+    - path: data/rois
+      md5: 1300e5dce1774bdc91feb6365369c7d8.dir
+      size: 186726548
+      nfiles: 308
+    - path: data/sources
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/preview/preview_binarized.py
+      md5: a131470d86c4496d8f15e97048afd0da
+      size: 827
+    outs:
     - path: data/previews/binarized.nc
-      md5: 312b51939f1ac4ae21bffd45ad91f854
-      size: 38903364
-    - path: src/boilercv/stages/preview_binarized.py
-      md5: aa0adbd6d0409460b55b55ce0a1a5b96
-      size: 349
+      md5: a254f85beabe041bf6c4b0820024465d
+      size: 3446443
   contours:
     cmd: python -m boilercv.stages.contours
     deps:
@@ -209,3 +218,50 @@ stages:
       md5: d751713988987e9331980363e24189ce.dir
       size: 0
       nfiles: 0
+  find_contours:
+    cmd: python -m boilercv.stages.find_contours
+    deps:
+    - path: data/sources
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/find_contours.py
+      md5: 2104838a50deea4958e9fb8a4c330110
+      size: 3041
+    outs:
+    - path: data/contours
+      md5: d43be95333c9df0e76d570f8b11aada2.dir
+      size: 4279876062
+      nfiles: 308
+  preview_filled:
+    cmd: python -m boilercv.stages.preview.preview_filled
+    deps:
+    - path: data/filled
+      md5: 9d9b406833ae3911940fd4d717bb20e1.dir
+      size: 3482532424
+      nfiles: 308
+    - path: data/sources
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/preview/preview_filled.py
+      md5: de97f6533c9965cc0ab37a729b2c4691
+      size: 759
+    outs:
+    - path: data/previews/filled.nc
+      md5: f3596d4b5c08d8701b7630f1136c45aa
+      size: 1661392
+  preview_gray:
+    cmd: python -m boilercv.stages.preview.preview_gray
+    deps:
+    - path: data/sources
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/preview/preview_gray.py
+      md5: 8e144554972c1b685462ad2e443f4055
+      size: 760
+    outs:
+    - path: data/previews/gray.nc
+      md5: bca01dd9d72e5a7c25db766c5522652e
+      size: 18686615

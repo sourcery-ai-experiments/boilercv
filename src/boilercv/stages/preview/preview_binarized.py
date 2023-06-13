@@ -5,7 +5,7 @@ from loguru import logger
 from boilercv.data import FRAME, ROI, VIDEO
 from boilercv.data.sets import get_dataset
 from boilercv.models.params import PARAMS
-from boilercv.stages.update_previews import new_videos_to_preview
+from boilercv.stages.preview import new_videos_to_preview
 
 
 def main():
