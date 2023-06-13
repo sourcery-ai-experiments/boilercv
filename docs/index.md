@@ -45,5 +45,6 @@ This data process graph is derived from the code itself. It is automatically gen
 ```{toctree}
 :hidden:
 development
+correlations
 changelog
 ```
