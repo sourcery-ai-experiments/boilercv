@@ -28,6 +28,11 @@ class ProjectPaths(CreatePathsModel):
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"
 
+    # ! PLOT CONFIG
+    plot_config: DirectoryPath = Path("plotting")
+    mpl_base: FilePath = plot_config / "base.mplstyle"
+    mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
+
     # ! STAGES
     stage_find_contours: FilePath = stages / "find_contours.py"
     stage_fill: FilePath = stages / "fill.py"

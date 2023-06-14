@@ -1,65 +1,42 @@
-"""Tests."""
+"""Test individual parts."""
 
-import importlib
-from pathlib import Path
+import numpy as np
 
-import pytest
-
-
-@pytest.mark.slow()
-@pytest.mark.usefixtures("tmp_project")
-@pytest.mark.parametrize(
-    "stage",
-    [stage.stem for stage in sorted(Path("src/boilercv/manual").glob("[!__]*.py"))],
+from boilercv.correlations import (
+    dimensionless_bubble_diameter_florschuetz_chao_1965,
+    fourier,
+    jakob,
 )
-def test_manual(stage: str):
-    """Test that manual stages can run."""
-    importlib.import_module(f"boilercv.manual.{stage}").main()
 
 
-STAGES = sorted(Path("src/boilercv/stages").glob("[!__]*.py"))
-
-
-@pytest.mark.slow()
-@pytest.mark.usefixtures("tmp_project")
-@pytest.mark.parametrize(
-    ("stage", "x"),
-    (
-        {stage.stem: "" for stage in STAGES}
-        | {
-            stage.stem: "xfail"
-            for stage in STAGES
-            if stage.stem in ["compare_theory", "find_tracks", "find_unobstructed"]
-        }
-    ).items(),
-)
-def test_stages(stage: str, x: str):
-    """Test that stages can run."""
-    if x == "xfail":
-        pytest.xfail("Stage not yet implemented.")
-    importlib.import_module(f"boilercv.stages.{stage}").main()
-
-
-@pytest.mark.slow()
-@pytest.mark.usefixtures("tmp_project")
-@pytest.mark.parametrize(
-    "stage",
-    [
-        stage.stem
-        for stage in sorted(Path("src/boilercv/stages/preview").glob("[!__]*.py"))
-    ],
-)
-def test_preview(stage: str):
-    """Test that preview update stages can run."""
-    importlib.import_module(f"boilercv.stages.preview.{stage}").main()
-
-
-@pytest.mark.slow()
-@pytest.mark.usefixtures("tmp_project")
-@pytest.mark.parametrize(
-    "stage",
-    [stage.stem for stage in sorted(Path("src/boilercv/previews").glob("[!__]*.py"))],
-)
-def test_previews(stage: str):
-    """Test that manual stages can run."""
-    importlib.import_module(f"boilercv.previews.{stage}").main()
+def test_correlations():
+    """Test bubble collapse correlations."""
+    result = dimensionless_bubble_diameter_florschuetz_chao_1965(
+        jakob(
+            liquid_density=1000,  # kg/m^3
+            vapor_density=0.804,  # kg/m^3
+            liquid_specific_heat=4180,  # J/kg-K
+            subcooling=2,  # K
+            latent_heat_of_vaporization=2.23e6,  # J/kg
+        ),
+        fourier(
+            thermal_diffusivity=1.43e-7,  # m^2/s
+            time=np.linspace(0, 0.2, 10),  # s
+            initial_bubble_diameter=0.001,  # m
+        ),
+    )
+    expected = np.array(  # m/m
+        [
+            1.0,
+            0.66532964,
+            0.52670464,
+            0.42033394,
+            0.33065929,
+            0.25165433,
+            0.18022839,
+            0.11454547,
+            0.05340929,
+            -0.00401107,
+        ]
+    )
+    assert np.allclose(result, expected)

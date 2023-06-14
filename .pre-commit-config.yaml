@@ -131,9 +131,8 @@ repos:
         args:
           - "--remove-empty-cells"
           - "--preserve-cell-metadata"
-          - "tags"
-          - "slideshow"
           - "special"
+          - "tags"
           - "--"
   - repo: "https://github.com/asottile/blacken-docs"
     rev: "1.13.0"

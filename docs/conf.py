@@ -9,12 +9,13 @@ language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_book_theme"
 extensions = [
-    "myst_parser",
     "sphinx_design",
-    "sphinxcontrib.mermaid",
+    "myst_nb",
     "sphinxcontrib.bibtex",
+    "sphinxcontrib.mermaid",
 ]
 # https://sphinx-book-theme.readthedocs.io/en/stable/reference.html#reference-of-theme-options
+html_context = {"default_mode": "light"}
 html_theme_options = {
     "path_to_docs": "docs",
     "repository_url": "https://github.com/blakeNaccarato/boilercv",
@@ -23,7 +24,8 @@ html_theme_options = {
     "use_fullscreen_button": True,
     "use_repository_button": True,
 }
-mermaid_d3_zoom = False
 bibtex_bibfiles = ["refs.bib"]
 bibtex_reference_style = "label"
 bibtex_default_style = "unsrt"
+mermaid_d3_zoom = False
+nb_remove_code_source = True
