@@ -30,6 +30,7 @@ node_modules/
 # * Gitignore for MyST-NB
 
 jupyter_execute
+.jupyter_cache
 
 # * -------------------------------------------------------------------------------- * #
 # * Modifications to the below Python.gitignore
