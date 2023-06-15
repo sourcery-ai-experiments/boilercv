@@ -1,7 +1,10 @@
-from os import chdir
+from os import chdir, environ
 from pathlib import Path
 from shutil import copytree, rmtree
 from tempfile import mkdtemp
+
+_CI = environ.get("CI")
+CI = str(_CI).casefold() == "true" if _CI else False
 
 
 def patch() -> Path | None:
@@ -11,7 +14,7 @@ def patch() -> Path | None:
         return
 
     chdir("..")
-    tmp_project = Path(mkdtemp(prefix="boilercv-docs"))
+    tmp_project = Path("_temp") if CI else Path(mkdtemp(prefix="boilercv-docs"))
 
     import boilercv
 
@@ -32,5 +35,5 @@ def patch() -> Path | None:
 
 def unpatch(tmp_project: Path | None):  # sourcery skip: remove-redundant-if
     """Remove the temporary project directory."""
-    if tmp_project and False:  # noqa: SIM223
+    if tmp_project and not CI:
         rmtree(tmp_project)
