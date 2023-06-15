@@ -29,3 +29,4 @@ bibtex_reference_style = "label"
 bibtex_default_style = "unsrt"
 mermaid_d3_zoom = False
 nb_remove_code_source = True
+nb_execution_mode = "off"
