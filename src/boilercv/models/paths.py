@@ -29,7 +29,7 @@ class ProjectPaths(CreatePathsModel):
     paths_module: FilePath = models / "paths.py"
 
     # ! PLOT CONFIG
-    plot_config: DirectoryPath = Path("plotting")
+    plot_config: DirectoryPath = project / "plotting"
     mpl_base: FilePath = plot_config / "base.mplstyle"
     mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
 

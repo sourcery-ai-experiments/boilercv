@@ -134,25 +134,6 @@ repos:
           - "special"
           - "tags"
           - "--"
-        files: |
-          (?x)^(
-            src/.*
-            |tests/.*
-          )$
-      - id: "nb-clean"
-        name: "nb-clean (keep docs outputs)"
-        args:
-          - "--remove-empty-cells"
-          - "--preserve-cell-outputs"
-          - "--preserve-cell-metadata"
-          - "special"
-          - "tags"
-          - "--"
-        files: |
-          (?x)^(
-            docs/.*
-          )$
-
   - repo: "https://github.com/asottile/blacken-docs"
     rev: "1.13.0"
     hooks:

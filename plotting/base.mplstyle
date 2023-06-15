@@ -1,5 +1,3 @@
-axes.formatter.limits: -2, 2
-
 figure.autolayout: True
 
 #* Legend format

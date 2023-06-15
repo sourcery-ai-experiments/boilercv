@@ -39,6 +39,7 @@ convention = "google"
 split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
+"docs/**" = [ "E402",]
 "tests/**" = [ "N815", "ARG001", "S101",]
 
 [tool.ruff.flake8-bugbear]

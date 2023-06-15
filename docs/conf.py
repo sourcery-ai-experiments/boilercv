@@ -28,5 +28,4 @@ bibtex_bibfiles = ["refs.bib"]
 bibtex_reference_style = "label"
 bibtex_default_style = "unsrt"
 mermaid_d3_zoom = False
-nb_execution_mode = "off"
 nb_remove_code_source = True

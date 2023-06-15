@@ -9,7 +9,7 @@ import pandas as pd
 from cv2 import version
 from loguru import logger
 
-PROJECT_DIR = Path(".")
+PROJECT_DIR = Path()
 """Project directory."""
 # Monkeypatch these when testing.
 PARAMS_FILE = PROJECT_DIR / "params.yaml"
