@@ -30,7 +30,7 @@ def patch() -> Path | None:
     return tmp_project
 
 
-def unpatch(tmp_project: Path | None):
+def unpatch(tmp_project: Path | None):  # sourcery skip: remove-redundant-if
     """Remove the temporary project directory."""
-    if tmp_project:
+    if tmp_project and False:  # noqa: SIM223
         rmtree(tmp_project)
