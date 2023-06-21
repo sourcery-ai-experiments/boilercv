@@ -101,7 +101,7 @@ split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "docs/**" = [
-    "E402", # Need to allow imports below the patch operation
+    "E402", # Need to allow imports below patches in docs notebooks
 ]
 "tests/**" = [
     # * ---------------------------------------------------------------------------- * #
