@@ -5,6 +5,9 @@
 {
   "version": "2.0.0",
   "inputs": [
+    // * -------------------------------------------------------------------------- * //
+    // * Changes below should persist in significant template updates.
+
     {
       "id": "stage",
       "type": "pickString",
@@ -31,6 +34,16 @@
       "type": "promptString",
       "description": "version",
       "default": "0.0.1"
+    },
+
+    // * -------------------------------------------------------------------------- * //
+    // * Changes below may be lost in significant template updates.
+
+    {
+      "id": "templateOptions",
+      "description": "Template options.",
+      "type": "pickString",
+      "options": ["", "-Defaults", "-Recopy", "-Recopy -Defaults"]
     }
   ],
   "tasks": [
@@ -237,26 +250,10 @@
       "problemMatcher": []
     },
     {
-      "label": "setup: Update from template, prompt for responses",
+      "label": "setup: Copy template",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": ".tools/scripts/Copy-Template.ps1 -Update",
-      "icon": { "id": "file-symlink-directory" },
-      "problemMatcher": []
-    },
-    {
-      "label": "setup: Recopy from template",
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": ".tools/scripts/Copy-Template.ps1 -Recopy -Defaults",
-      "icon": { "id": "file-symlink-directory" },
-      "problemMatcher": []
-    },
-    {
-      "label": "setup: Update from template",
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": ".tools/scripts/Copy-Template.ps1 -Update -Defaults",
+      "command": ".tools/scripts/Copy-Template.ps1 ${input:templateOptions}",
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": []
     },
