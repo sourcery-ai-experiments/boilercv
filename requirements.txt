@@ -25,4 +25,4 @@ xarray[accel,io,parallel]==2023.6.0
 numpy==1.24.4
 # ? Issue with pyside6>=6.5. Conflicts with pyqtgraph
 # ? https://github.com/pyqtgraph/pyqtgraph/issues/2672
-pyside6==6.4.3
+pyside6==6.5.1.1
