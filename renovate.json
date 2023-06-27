@@ -19,11 +19,6 @@
   },
   "packageRules": [
     {
-      "description": "Ignore dependencies with issues specific to this project.",
-      "matchManagers": ["pip_requirements"],
-      "ignoreDeps": ["pyside6"]
-    },
-    {
       "groupName": "pyright and type stubs",
       "groupSlug": "pyright-and-type-stubs",
       "matchManagers": ["pip_requirements", "git-submodules"],
@@ -34,7 +29,8 @@
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
-      "excludeDepNames": ["pyright"]
+      "excludeDepNames": ["pyright"],
+      "ignoreDeps": ["numpy", "pyside6"]
     },
     {
       "description": "Ignore github-actions dependencies managed by the template.",
