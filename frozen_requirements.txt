@@ -1,2 +1,0 @@
-# See if we can properly reset dependency detection on this file
-numpy
