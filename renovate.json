@@ -29,8 +29,7 @@
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
-      "excludeDepNames": ["pyright"],
-      "ignoreDeps": ["numpy", "pyside6"]
+      "excludeDepNames": ["pyright", "numpy", "pyside6"]
     },
     {
       "description": "Ignore github-actions dependencies managed by the template.",
