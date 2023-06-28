@@ -1,5 +1,4 @@
 # List project dependencies here. A workflow ports them to `pyproject.toml`
-dvc[gs]==2.58.2
 imageio[pyav]==2.31.1
 ipywidgets==8.0.6
 loguru==0.7.0
@@ -22,5 +21,10 @@ seaborn==0.12.2
 sympy==1.12
 xarray[accel,io,parallel]==2023.6.0
 
+# ? Issue upgrading to dvc>=3.
+# ? Would need to `dvc gc --cloud ...` and dump everything prior to DVC 3.
+# ? This is because links cannot be made between the cache files so it is forcibly
+# ? duplicated.
+dvc[gs]==2.58.2
 # ? Issue with numpy>=1.25. Conflicts with latest imageio, matplotlib, and xarray
 numpy==1.24.4

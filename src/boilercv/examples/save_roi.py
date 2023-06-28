@@ -21,3 +21,7 @@ def main():
     if len(contours) > 1:
         warn("More than one contour found when searching for the ROI.", stacklevel=1)
     save_roi(contours[0], EXAMPLE_ROI)
+
+
+if __name__ == "__main__":
+    main()

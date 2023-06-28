@@ -26,11 +26,7 @@ STAGES = sorted(Path("src/boilercv/stages").glob("[!__]*.py"))
     ("stage", "x"),
     (
         {stage.stem: "" for stage in STAGES}
-        | {
-            stage.stem: "xfail"
-            for stage in STAGES
-            if stage.stem in ["compare_theory", "find_tracks", "find_unobstructed"]
-        }
+        | {stage.stem: "xfail" for stage in STAGES if stage.stem in []}
     ).items(),
 )
 def test_stages(stage: str, x: str):
