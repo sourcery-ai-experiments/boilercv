@@ -1,6 +1,7 @@
 ci:
   skip:
     - "synchronize-params"
+    - "hide-notebook-inputs"
     - "compose-pyproject"
     - "pytest-fast-only"
     - "pytest-slow-only"
