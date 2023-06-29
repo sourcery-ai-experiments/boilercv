@@ -8,6 +8,7 @@ sphinxcontrib-mermaid==0.9.2
 # * Changes below may be lost in significant template updates.
 
 myst-nb==0.17.2
+nbformat==5.9.0
 sphinx-autobuild==2021.03.14
 sphinx-book-theme==1.0.1
 sphinx-design==0.4.1

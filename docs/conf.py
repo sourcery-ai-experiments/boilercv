@@ -7,6 +7,7 @@ version = "0.0.1"
 master_doc = "index"
 language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+html_favicon = "_static/favicon.ico"
 html_theme = "sphinx_book_theme"
 extensions = [
     "sphinx_design",
@@ -28,5 +29,5 @@ bibtex_bibfiles = ["refs.bib"]
 bibtex_reference_style = "label"
 bibtex_default_style = "unsrt"
 mermaid_d3_zoom = False
-nb_remove_code_source = True
+nb_remove_code_source = False
 nb_execution_mode = "off"

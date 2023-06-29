@@ -50,6 +50,14 @@
     // * -------------------------------------------------------------------------- * //
     // * Changes below should persist in significant template updates.
     {
+      "label": "proj: hide notebook inputs",
+      "type": "shell",
+      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
+      "command": "python -m boilercv.docs",
+      "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
+    {
       "label": "proj: Run file PREVIEW/WRITE",
       "type": "shell",
       "options": {
@@ -444,7 +452,7 @@
       "label": "task: sphinx-autobuild docs (preview)",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "sphinx-autobuild -n docs _site --watch README.md --watch CHANGELOG.md",
+      "command": "sphinx-build -Ean docs _site; sphinx-autobuild -n docs _site --watch README.md --watch CHANGELOG.md",
       "icon": { "id": "book" },
       "problemMatcher": []
     },

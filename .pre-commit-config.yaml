@@ -22,13 +22,20 @@ repos:
 
       - id: "synchronize-params"
         name: "synchronize-params"
-        fail_fast: true
         language: "system"
         entry: "pwsh -Command python -m boilercv.models.params"
         files: |
           (?x)^(
             src/boilercv/models/.*
             |params.yaml
+          )$
+      - id: "hide-notebook-inputs"
+        name: "hide-notebook-inputs"
+        language: "system"
+        entry: "pwsh -Command python -m boilercv.docs"
+        files: |
+          (?x)^(
+            docs/examples/.*
           )$
 
       # * -------------------------------------------------------------------------- * #
