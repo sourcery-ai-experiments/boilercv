@@ -6,7 +6,7 @@ from boilercv.data import FRAME, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
 from boilercv.examples.large import example_dataset
 from boilercv.images import scale_bool
-from boilercv.images.cv import apply_mask, binarize, flood, get_roi
+from boilercv.images.cv import apply_mask, binarize, close_and_erode, flood
 from boilercv.types import DA
 
 
@@ -17,7 +17,7 @@ def main():
         video = ds[VIDEO]
         maximum = video.max(FRAME)
         flooded: DA = apply_to_img_da(flood, maximum)
-        roi = apply_to_img_da(get_roi, scale_bool(flooded))
+        roi = apply_to_img_da(close_and_erode, scale_bool(flooded))
         masked: DA = apply_to_img_da(apply_mask, video, scale_bool(roi), vectorize=True)
         binarized: DA = apply_to_img_da(binarize, masked, vectorize=True)
         ds[VIDEO] = pack(binarized)

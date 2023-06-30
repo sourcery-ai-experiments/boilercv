@@ -12,3 +12,6 @@ savefig.transparent: False
 savefig.facecolor: white
 #?
 savefig.dpi: 300
+
+#* Colormap for imshow
+image.cmap: gray

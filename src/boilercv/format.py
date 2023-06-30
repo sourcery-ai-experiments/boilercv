@@ -10,9 +10,6 @@ from IPython.display import display  # type: ignore
 from sympy import FiniteSet
 from sympy.printing.latex import latex
 
-idxs = pd.IndexSlice
-"""Use to slice pd.MultiIndex indices."""
-
 # * -------------------------------------------------------------------------------- * #
 # * DISPLAY
 

@@ -1,4 +1,6 @@
 from collections.abc import Sequence
+from dataclasses import dataclass
+from enum import Enum
 
 import cv2 as cv
 import numpy as np
@@ -19,7 +21,7 @@ def apply_mask(img: Img, mask: Img) -> Img:
 
 
 def pad(img: Img, pad_width: int, value: int) -> Img:
-    """Pad an image. Faster than np.pad()."""
+    """Pad an image with a constant value. Faster than np.pad()."""
     return cv.copyMakeBorder(
         img,
         top=pad_width,
@@ -62,29 +64,55 @@ def flood(img: Img) -> ImgBool:
     return unpad(mask, pad_width).astype(bool)
 
 
-def get_roi(wall: Img) -> Img:
-    """Erode the wall to get the ROI."""
-    kernel_size = 9
-    close_kernel_size = 4
-    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [kernel_size] * 2)
-    close_kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [close_kernel_size] * 2)
-    # Explicitly pad out the image since cv.morphologyEx boundary handling is weird
-    pad_width = max(close_kernel_size, kernel_size)
-    padded = pad(wall, pad_width, value=0)
-    wall = cv.morphologyEx(src=padded, op=cv.MORPH_CLOSE, kernel=close_kernel)
-    roi = cv.morphologyEx(src=wall, op=cv.MORPH_ERODE, kernel=kernel)
-    return unpad(roi, pad_width).astype(bool)
+def close_and_erode(img: Img) -> Img:
+    """Close holes, then erode."""
+    return transform(img, [Transform(Op.close, 4), Transform(Op.erode, 9)]).astype(bool)
 
 
 def get_wall(roi: Img) -> Img:
     """Dilate the ROI to get the wall."""
+    return transform(roi, Transform(Op.dilate, 9)).astype(bool)
+
+
+class Op(Enum):
+    """A morphological transform operation."""
+
+    black_hat = cv.MORPH_BLACKHAT
+    close = cv.MORPH_CLOSE
+    cross = cv.MORPH_CROSS
+    dilate = cv.MORPH_DILATE
+    ellipse = cv.MORPH_ELLIPSE
+    erode = cv.MORPH_ERODE
+    gradient = cv.MORPH_GRADIENT
+    hitmiss = cv.MORPH_HITMISS
+    open = cv.MORPH_OPEN  # noqa: A003
+    rect = cv.MORPH_RECT
+    top_hat = cv.MORPH_TOPHAT
+
+
+@dataclass
+class Transform:
+    """A morphological transform."""
+
+    op: Op
+    """The transform to perform."""
+    size: int
+    """The elliptical kernel size."""
+
+
+def transform(img: Img, transforms: Transform | Sequence[Transform]) -> Img:
+    """Apply morphological transforms to an image with a dark background."""
+    transforms = [transforms] if isinstance(transforms, Transform) else transforms
+    pad_width = max(transform.size for transform in transforms)
     # Explicitly pad out the image since cv.morphologyEx boundary handling is weird
-    kernel_size = 9
-    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, [kernel_size] * 2)
-    pad_width = kernel_size
-    padded = pad(roi, pad_width, value=0)
-    wall = cv.morphologyEx(src=padded, op=cv.MORPH_DILATE, kernel=kernel)
-    return unpad(wall, pad_width).astype(bool)
+    img = pad(img, pad_width, value=0)
+    for transform in transforms:
+        img = cv.morphologyEx(
+            src=img,
+            op=transform.op.value,
+            kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE, [transform.size] * 2),
+        )
+    return unpad(img, pad_width)
 
 
 def build_mask_from_polygons(img: Img, contours: Sequence[ArrInt]) -> Img:

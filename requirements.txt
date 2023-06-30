@@ -19,6 +19,7 @@ scikit-image==0.21.0
 scipy==1.11.1
 seaborn==0.12.2
 sympy==1.12
+trackpy==0.6.1
 xarray[accel,io,parallel]==2023.6.0
 
 # ? Issue upgrading to dvc>=3.
