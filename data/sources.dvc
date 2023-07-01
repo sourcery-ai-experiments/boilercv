@@ -2,4 +2,5 @@ outs:
 - md5: a409ab9bcababc1baaea4dc53e312bda.dir
   size: 7424602696
   nfiles: 308
+  hash: md5
   path: sources

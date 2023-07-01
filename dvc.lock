@@ -40,6 +40,7 @@ stages:
       size: 186726548
       nfiles: 308
     - path: data/sources
+      hash: md5
       md5: a409ab9bcababc1baaea4dc53e312bda.dir
       size: 7424602696
       nfiles: 308
@@ -73,6 +74,7 @@ stages:
       size: 4279876062
       nfiles: 308
     - path: data/sources
+      hash: md5
       md5: a409ab9bcababc1baaea4dc53e312bda.dir
       size: 7424602696
       nfiles: 308
@@ -222,6 +224,7 @@ stages:
     cmd: python -m boilercv.stages.find_contours
     deps:
     - path: data/sources
+      hash: md5
       md5: a409ab9bcababc1baaea4dc53e312bda.dir
       size: 7424602696
       nfiles: 308
@@ -241,6 +244,7 @@ stages:
       size: 3482532424
       nfiles: 308
     - path: data/sources
+      hash: md5
       md5: a409ab9bcababc1baaea4dc53e312bda.dir
       size: 7424602696
       nfiles: 308
@@ -255,6 +259,7 @@ stages:
     cmd: python -m boilercv.stages.preview.preview_gray
     deps:
     - path: data/sources
+      hash: md5
       md5: a409ab9bcababc1baaea4dc53e312bda.dir
       size: 7424602696
       nfiles: 308
