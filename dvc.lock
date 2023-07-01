@@ -33,7 +33,27 @@ stages:
       md5: 5598ee8b69f8591e2035194a9054f2c3
       size: 147879321
   preview_binarized:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.preview.preview_binarized
+    deps:
+    - path: data/rois
+      hash: md5
+      md5: 1300e5dce1774bdc91feb6365369c7d8.dir
+      size: 186726548
+      nfiles: 308
+    - path: data/sources
+      hash: md5
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/preview/preview_binarized.py
+      hash: md5
+      md5: f99253544033fbbeec930be6eefe3eb9
+      size: 827
+    outs:
+    - path: data/previews/binarized.nc
+      hash: md5
+      md5: a254f85beabe041bf6c4b0820024465d
+      size: 3446443
   contours:
     cmd: python -m boilercv.stages.contours
     deps:
@@ -50,7 +70,28 @@ stages:
       size: 4279876062
       nfiles: 308
   fill:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.fill
+    deps:
+    - path: data/contours
+      hash: md5
+      md5: d43be95333c9df0e76d570f8b11aada2.dir
+      size: 4279876062
+      nfiles: 308
+    - path: data/sources
+      hash: md5
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/fill.py
+      hash: md5
+      md5: 155d3e834190f9d91f65e144f2debb20
+      size: 1442
+    outs:
+    - path: data/filled
+      hash: md5
+      md5: 9d9b406833ae3911940fd4d717bb20e1.dir
+      size: 3482532424
+      nfiles: 308
   update_filled_preview:
     cmd: python -m boilercv.stages.update_filled_preview
     deps:
@@ -186,16 +227,119 @@ stages:
       size: 0
       nfiles: 0
   find_contours:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.find_contours
+    deps:
+    - path: data/sources
+      hash: md5
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/find_contours.py
+      hash: md5
+      md5: bac6c8407055d515cf4f917bb229db1a
+      size: 3041
+    outs:
+    - path: data/contours
+      hash: md5
+      md5: d43be95333c9df0e76d570f8b11aada2.dir
+      size: 4279876062
+      nfiles: 308
   preview_filled:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.preview.preview_filled
+    deps:
+    - path: data/filled
+      hash: md5
+      md5: 9d9b406833ae3911940fd4d717bb20e1.dir
+      size: 3482532424
+      nfiles: 308
+    - path: data/sources
+      hash: md5
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/preview/preview_filled.py
+      hash: md5
+      md5: ccc3ae7510b48fe25fc317287b6d14e5
+      size: 759
+    outs:
+    - path: data/previews/filled.nc
+      hash: md5
+      md5: f3596d4b5c08d8701b7630f1136c45aa
+      size: 1661392
   preview_gray:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.preview.preview_gray
+    deps:
+    - path: data/sources
+      hash: md5
+      md5: a409ab9bcababc1baaea4dc53e312bda.dir
+      size: 7424602696
+      nfiles: 308
+    - path: src/boilercv/stages/preview/preview_gray.py
+      hash: md5
+      md5: bfdc83053ec093629a7eeda685b343b2
+      size: 760
+    outs:
+    - path: data/previews/gray.nc
+      hash: md5
+      md5: bca01dd9d72e5a7c25db766c5522652e
+      size: 18686615
   find_unobstructed:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.find_unobstructed
+    deps:
+    - path: data/contours
+      hash: md5
+      md5: d43be95333c9df0e76d570f8b11aada2.dir
+      size: 4279876062
+      nfiles: 308
+    - path: src/boilercv/stages/find_unobstructed.py
+      hash: md5
+      md5: 4f3a6655839d40e92d84847236d1b487
+      size: 236
+    outs:
+    - path: data/unobstructed
+      hash: md5
+      md5: d86b284d61c0341668c7594a76e10ec3.dir
+      size: 0
+      nfiles: 1
   find_tracks:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.find_tracks
+    deps:
+    - path: data/unobstructed
+      hash: md5
+      md5: d86b284d61c0341668c7594a76e10ec3.dir
+      size: 0
+      nfiles: 1
+    - path: src/boilercv/stages/find_tracks.py
+      hash: md5
+      md5: 57fb1a62343382871aacbaa45cba4957
+      size: 172
+    outs:
+    - path: data/tracks
+      hash: md5
+      md5: 3224c01679660267629b93a0a66c9d22.dir
+      size: 0
+      nfiles: 1
   compare_theory:
-    cmd: echo hello
+    cmd: python -m boilercv.stages.compare_theory
+    deps:
+    - path: data/tracks
+      hash: md5
+      md5: 3224c01679660267629b93a0a66c9d22.dir
+      size: 0
+      nfiles: 1
+    - path: src/boilercv/correlations.py
+      hash: md5
+      md5: d5e13040077e06d679e64896ad907f12
+      size: 2652
+    - path: src/boilercv/stages/compare_theory.py
+      hash: md5
+      md5: 51c2bc74bc7d89241ce66f71f981d60b
+      size: 217
+    outs:
+    - path: data/lifetimes
+      hash: md5
+      md5: 6829db6b84ef3bde25e2085ed7be0a4e.dir
+      size: 0
+      nfiles: 1
   temp:
     cmd: echo hello
