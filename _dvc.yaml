@@ -1,0 +1,71 @@
+stages:
+  preview_binarized:
+    cmd: "python -m boilercv.stages.preview.preview_binarized"
+    deps:
+      - "${project_paths.stage_preview_binarized}"
+      - "${paths.rois}"
+      - "${paths.sources}"
+    outs:
+      - "${paths.binarized_preview}":
+          persist: true
+  preview_gray:
+    cmd: "python -m boilercv.stages.preview.preview_gray"
+    deps:
+      - "${project_paths.stage_preview_gray}"
+      - "${paths.sources}"
+    outs:
+      - "${paths.gray_preview}":
+          persist: true
+
+  find_contours:
+    cmd: "python -m boilercv.stages.find_contours"
+    deps:
+      - "${project_paths.stage_find_contours}"
+      - "${paths.sources}"
+    outs:
+      - "${paths.contours}":
+          persist: true
+
+  fill:
+    cmd: "python -m boilercv.stages.fill"
+    deps:
+      - "${project_paths.stage_fill}"
+      - "${paths.sources}"
+      - "${paths.contours}"
+    outs:
+      - "${paths.filled}":
+          persist: true
+  preview_filled:
+    cmd: "python -m boilercv.stages.preview.preview_filled"
+    deps:
+      - "${project_paths.stage_preview_filled}"
+      - "${paths.sources}"
+      - "${paths.filled}"
+    outs:
+      - "${paths.filled_preview}":
+          persist: true
+
+  find_unobstructed:
+    cmd: "python -m boilercv.stages.find_unobstructed"
+    deps:
+      - "${project_paths.stage_find_unobstructed}"
+      - "${paths.contours}"
+    outs:
+      - "${paths.unobstructed}"
+
+  find_tracks:
+    cmd: "python -m boilercv.stages.find_tracks"
+    deps:
+      - "${project_paths.stage_find_tracks}"
+      - "${paths.unobstructed}"
+    outs:
+      - "${paths.tracks}"
+
+  compare_theory:
+    cmd: "python -m boilercv.stages.compare_theory"
+    deps:
+      - "${project_paths.stage_compare_theory}"
+      - "${paths.tracks}"
+      - "${project_paths.correlations}"
+    outs:
+      - "${paths.lifetimes}"
