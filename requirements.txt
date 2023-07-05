@@ -21,11 +21,5 @@ seaborn==0.12.2
 sympy==1.12
 trackpy==0.6.1
 xarray[accel,io,parallel]==2023.6.0
-
-# ? Issue upgrading to dvc>=3.
-# ? Would need to `dvc gc --cloud ...` and dump everything prior to DVC 3.
-# ? This is because links cannot be made between the cache files so it is forcibly
-# ? duplicated.
-dvc[gs]==3.2.4
-# ? Issue with numpy>=1.25. Conflicts with latest imageio, matplotlib, and xarray
+# ? Conflicts with imageio, matplotlib, and xarray
 numpy==1.24.4
