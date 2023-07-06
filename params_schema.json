@@ -80,6 +80,12 @@
           "format": "file-path",
           "type": "string"
         },
+        "stage_build_docs": {
+          "title": "Stage Build Docs",
+          "default": ".tools/scripts/ConvertTo-Docx.ps1",
+          "format": "file-path",
+          "type": "string"
+        },
         "stage_find_contours": {
           "title": "Stage Find Contours",
           "default": "src/boilercv/stages/find_contours.py",

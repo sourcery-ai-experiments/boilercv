@@ -34,6 +34,7 @@ class ProjectPaths(CreatePathsModel):
     mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
 
     # ! STAGES
+    stage_build_docs: FilePath = project / ".tools/scripts/ConvertTo-Docx.ps1"
     stage_find_contours: FilePath = stages / "find_contours.py"
     stage_fill: FilePath = stages / "fill.py"
     stage_find_tracks: FilePath = stages / "find_tracks.py"

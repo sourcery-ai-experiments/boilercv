@@ -1,7 +1,9 @@
 stages:
   build_docs:
-    cmd: myst build --docx
+    cmd: |
+      pwsh -Command "Get-ChildItem ${paths.docs} | ${project_paths.stage_build_docs}"
     deps:
+      - "${project_paths.stage_build_docs}"
       - "${paths.docs}"
     outs:
       - "${paths.docx}"

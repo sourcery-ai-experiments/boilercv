@@ -344,16 +344,21 @@ stages:
   temp:
     cmd: echo hello
   build_docs:
-    cmd: myst build --docx
+    cmd: "pwsh -Command \"Get-ChildItem data/docs | .tools/scripts/ConvertTo-Docx.ps1\"\
+      \n"
     deps:
+    - path: .tools/scripts/ConvertTo-Docx.ps1
+      hash: md5
+      md5: cdb49ecf5566583e9d1a3fc35303616a
+      size: 1675
     - path: data/docs
       hash: md5
-      md5: a22e178a7d41b6006c782130bfbf5995.dir
-      size: 124026
+      md5: 06f415b23e52c4f4c3584c8e7a83d5af.dir
+      size: 123544
       nfiles: 3
     outs:
     - path: data/docx
       hash: md5
-      md5: c09c38b05118be4366d3984e1d8d2198.dir
-      size: 209606
+      md5: 9367b1b8e5c935d16821f5efc92e6f58.dir
+      size: 140002
       nfiles: 3
