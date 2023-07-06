@@ -160,6 +160,18 @@
           "format": "directory-path",
           "type": "string"
         },
+        "docs": {
+          "title": "Docs",
+          "default": "data/docs",
+          "format": "directory-path",
+          "type": "string"
+        },
+        "docx": {
+          "title": "Docx",
+          "default": "data/docx",
+          "format": "directory-path",
+          "type": "string"
+        },
         "examples": {
           "title": "Examples",
           "default": "data/examples",

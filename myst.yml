@@ -1,0 +1,5 @@
+version: 1
+site:
+  projects:
+    - slug: "docs"
+      path: "data/docs"

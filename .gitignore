@@ -1,6 +1,9 @@
 # * -------------------------------------------------------------------------------- * #
 # * Changes below should persist in significant template updates.
 
+# Don't commit local DVC plots
+dvc_plots
+
 # * -------------------------------------------------------------------------------- * #
 # * Changes below may be lost in significant template updates.
 
@@ -13,6 +16,7 @@ first_time_setup.ps1
 # Don't commit code workspace files, which might be symlinked here
 *.code-workspace
 # Avoid committing local docs builds for previewing
+_build
 _site
 # If using Google Cloud Platform Workload Identity Federation, avoid committing keys
 # Ignore generated credentials from google-github-actions/auth

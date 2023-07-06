@@ -57,6 +57,8 @@ class Paths(CreatePathsModel):
 
     # ! STAGE DATA
     contours: DirectoryPath = data / "contours"
+    docs: DirectoryPath = data / "docs"
+    docx: DirectoryPath = data / "docx"
     examples: DirectoryPath = data / "examples"
     filled: DirectoryPath = data / "filled"
     lifetimes: DirectoryPath = data / "lifetimes"

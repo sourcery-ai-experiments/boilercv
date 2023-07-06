@@ -15,11 +15,15 @@
       "default": "",
       "options": [
         "",
-        "schema",
-        "update_binarized_preview",
-        "contours",
+        "build_docs",
+        "preview_binarized",
+        "preview_gray",
+        "find_contours",
         "fill",
-        "update_filled_preview"
+        "preview_filled",
+        "find_unobstructed",
+        "find_tracks",
+        "compare_theory"
       ]
     },
     {

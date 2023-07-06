@@ -22,6 +22,8 @@ project_paths:
 paths:
   data: data
   contours: data/contours
+  docs: data/docs
+  docx: data/docx
   examples: data/examples
   filled: data/filled
   lifetimes: data/lifetimes

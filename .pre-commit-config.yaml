@@ -1,11 +1,11 @@
 ci:
   skip:
     - "synchronize-params"
-    - "hide-notebook-inputs"
+    # - "hide-notebook-inputs"
     - "compose-pyproject"
+    # - "pyright"
     - "pytest-fast-only"
     # - "pytest-slow-only"
-    # - "pyright"
     - "dvc-post-checkout"
     - "dvc-pre-push"
   autoupdate_schedule: "quarterly"
@@ -30,15 +30,15 @@ repos:
             src/boilercv/models/.*
             |params.yaml
           )$
-      - id: "hide-notebook-inputs"
-        name: "hide-notebook-inputs"
-        pass_filenames: false
-        language: "system"
-        entry: "pwsh -Command python -m boilercv.docs"
-        files: |
-          (?x)^(
-            docs/examples/.*
-          )$
+      # - id: "hide-notebook-inputs"
+      #   name: "hide-notebook-inputs"
+      #   pass_filenames: false
+      #   language: "system"
+      #   entry: "pwsh -Command python -m boilercv.docs"
+      #   files: |
+      #     (?x)^(
+      #       docs/examples/.*
+      #     )$
 
       # * -------------------------------------------------------------------------- * #
       # * Changes below may be lost in significant template updates.
@@ -156,6 +156,7 @@ repos:
         files: |
           (?x)^(
             docs/.*
+            data/docs/.*
           )$
   - repo: "https://github.com/asottile/blacken-docs"
     rev: "1.13.0"

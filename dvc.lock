@@ -343,3 +343,17 @@ stages:
       nfiles: 1
   temp:
     cmd: echo hello
+  build_docs:
+    cmd: myst build --docx
+    deps:
+    - path: data/docs
+      hash: md5
+      md5: d1d24f79d5237081c8045eaf8243aa06.dir
+      size: 122616
+      nfiles: 2
+    outs:
+    - path: data/docx
+      hash: md5
+      md5: 442eab932ea601092fa0f3312fafbab7.dir
+      size: 167151
+      nfiles: 2

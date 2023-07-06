@@ -1,4 +1,11 @@
 stages:
+  build_docs:
+    cmd: "myst build --docx"
+    deps:
+      - "${paths.docs}"
+    outs:
+      - "${paths.docx}"
+
   preview_binarized:
     cmd: "python -m boilercv.stages.preview.preview_binarized"
     deps:
