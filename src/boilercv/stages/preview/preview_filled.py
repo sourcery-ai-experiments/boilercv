@@ -18,6 +18,6 @@ def main():
 
 
 if __name__ == "__main__":
-    logger.info("Start update filled preview")
+    logger.info("Start updating filled preview")
     main()
-    logger.info("Finish update filled preview")
+    logger.info("Finish updating filled preview")

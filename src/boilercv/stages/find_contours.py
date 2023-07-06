@@ -14,13 +14,11 @@ from boilercv.types import DF, Vid
 
 
 def main():
-    logger.info("start finding contours")
     destinations = get_unprocessed_destinations(PARAMS.paths.contours, ext="h5")
     for source_name, destination in destinations.items():
         video = cv.bitwise_not(scale_bool(get_dataset(source_name)[VIDEO].values))
         df = get_all_contours(video, method=cv.CHAIN_APPROX_SIMPLE)
         df.to_hdf(destination, "contours", complib="zlib", complevel=9)
-    logger.info("finish finding contours")
 
 
 def get_all_contours(video: Vid, method) -> DF:
@@ -72,4 +70,6 @@ def get_all_contours(video: Vid, method) -> DF:
 
 
 if __name__ == "__main__":
+    logger.info("Start finding contours")
     main()
+    logger.info("Finish finding contours")

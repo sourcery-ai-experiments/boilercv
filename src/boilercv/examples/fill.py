@@ -41,6 +41,6 @@ def main():
 
 
 if __name__ == "__main__":
-    logger.info("start fill contours")
+    logger.info("Start filling contours")
     main()
-    logger.info("finish fill contours")
+    logger.info("Finish filling contours")

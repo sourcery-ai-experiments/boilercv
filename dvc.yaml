@@ -9,7 +9,7 @@ stages:
       - "${paths.docx}"
 
   preview_binarized:
-    cmd: "python -m boilercv.stages.preview.preview_binarized"
+    cmd: "python ${project_paths.stage_preview_binarized}"
     deps:
       - "${project_paths.stage_preview_binarized}"
       - "${paths.rois}"
@@ -19,7 +19,7 @@ stages:
           persist: true
 
   preview_gray:
-    cmd: "python -m boilercv.stages.preview.preview_gray"
+    cmd: "python ${project_paths.stage_preview_gray}"
     deps:
       - "${project_paths.stage_preview_gray}"
       - "${paths.sources}"
@@ -28,7 +28,7 @@ stages:
           persist: true
 
   find_contours:
-    cmd: "python -m boilercv.stages.find_contours"
+    cmd: "python ${project_paths.stage_find_contours}"
     deps:
       - "${project_paths.stage_find_contours}"
       - "${paths.sources}"
@@ -37,7 +37,7 @@ stages:
           persist: true
 
   fill:
-    cmd: "python -m boilercv.stages.fill"
+    cmd: "python ${project_paths.stage_fill}"
     deps:
       - "${project_paths.stage_fill}"
       - "${paths.sources}"
@@ -47,7 +47,7 @@ stages:
           persist: true
 
   preview_filled:
-    cmd: "python -m boilercv.stages.preview.preview_filled"
+    cmd: "python ${project_paths.stage_preview_filled}"
     deps:
       - "${project_paths.stage_preview_filled}"
       - "${paths.sources}"
@@ -57,7 +57,7 @@ stages:
           persist: true
 
   find_unobstructed:
-    cmd: "python -m boilercv.stages.find_unobstructed"
+    cmd: "python ${project_paths.stage_find_unobstructed}"
     deps:
       - "${project_paths.stage_find_unobstructed}"
       - "${paths.contours}"
@@ -65,7 +65,7 @@ stages:
       - "${paths.unobstructed}"
 
   find_tracks:
-    cmd: "python -m boilercv.stages.find_tracks"
+    cmd: "python ${project_paths.stage_find_tracks}"
     deps:
       - "${project_paths.stage_find_tracks}"
       - "${paths.unobstructed}"
@@ -73,7 +73,7 @@ stages:
       - "${paths.tracks}"
 
   compare_theory:
-    cmd: "python -m boilercv.stages.compare_theory"
+    cmd: "python ${project_paths.stage_compare_theory}"
     deps:
       - "${project_paths.stage_compare_theory}"
       - "${paths.tracks}"

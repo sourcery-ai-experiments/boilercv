@@ -19,6 +19,6 @@ def main():
 
 
 if __name__ == "__main__":
-    logger.info("Start update binarized preview")
+    logger.info("Start updating binarized preview")
     main()
-    logger.info("Finish update binarized preview")
+    logger.info("Finish updating binarized preview")
