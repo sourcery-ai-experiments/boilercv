@@ -17,6 +17,7 @@ stages:
     outs:
       - "${paths.binarized_preview}":
           persist: true
+
   preview_gray:
     cmd: "python -m boilercv.stages.preview.preview_gray"
     deps:
@@ -44,6 +45,7 @@ stages:
     outs:
       - "${paths.filled}":
           persist: true
+
   preview_filled:
     cmd: "python -m boilercv.stages.preview.preview_filled"
     deps:
