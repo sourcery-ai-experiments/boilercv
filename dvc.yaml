@@ -1,6 +1,6 @@
 stages:
   build_docs:
-    cmd: "myst build --docx"
+    cmd: myst build --docx
     deps:
       - "${paths.docs}"
     outs:

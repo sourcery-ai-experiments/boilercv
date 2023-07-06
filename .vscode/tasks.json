@@ -126,7 +126,7 @@
     {
       "label": "dvc: repro force downstream (debug)",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize params"],
+      "dependsOn": ["dvc: pre-repro"],
       "type": "shell",
       "options": {
         "shell": { "executable": "pwsh", "args": ["-Command"] },
@@ -139,7 +139,7 @@
     {
       "label": "dvc: repro (debug)",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize params"],
+      "dependsOn": ["dvc: pre-repro"],
       "type": "shell",
       "options": {
         "shell": { "executable": "pwsh", "args": ["-Command"] },
@@ -152,7 +152,7 @@
     {
       "label": "dvc: repro force downstream",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize params"],
+      "dependsOn": ["dvc: pre-repro"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "dvc repro --force --downstream ${input:stage}",
@@ -162,7 +162,7 @@
     {
       "label": "dvc: repro",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize params"],
+      "dependsOn": ["dvc: pre-repro"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "dvc repro ${input:stage}",
@@ -174,7 +174,7 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "setup: Update project",
-        "dvc: synchronize params",
+        "dvc: pre-repro",
         "dvc: freeze",
         "git: Stage all files",
         "pre-commit",
@@ -191,7 +191,7 @@
       "dependsOrder": "sequence",
       "dependsOn": [
         "setup: Update project",
-        "dvc: synchronize params",
+        "dvc: pre-repro",
         "dvc: freeze",
         "git: Stage all files",
         "pre-commit",
@@ -206,7 +206,7 @@
     {
       "label": "dvc: dag",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: synchronize params"],
+      "dependsOn": ["dvc: pre-repro"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "(dvc dag --md) -Replace 'mermaid', '{mermaid}' > docs/dag.md && . '~/.local/nodeenvs/markdownlint/Scripts/Activate.ps1' && markdownlint --fix docs/dag.md",
@@ -214,10 +214,10 @@
       "problemMatcher": []
     },
     {
-      "label": "dvc: synchronize params",
+      "label": "dvc: pre-repro",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "python -m boilercv.models.params",
+      "command": ".tools/scripts/Repair-Notebooks.ps1 && python -m boilercv.models.params",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },
@@ -424,7 +424,7 @@
       "dependsOn": ["task: format notebook"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "nb-clean clean --remove-empty-cells --preserve-cell-metadata special tags -- ${file}",
+      "command": "nbqa black ${file}; nbqa ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-metadata tags special -- ${file}",
       "icon": { "id": "notebook" },
       "problemMatcher": []
     },

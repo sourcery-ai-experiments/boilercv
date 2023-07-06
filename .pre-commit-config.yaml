@@ -156,7 +156,6 @@ repos:
         files: |
           (?x)^(
             docs/.*
-            data/docs/.*
           )$
   - repo: "https://github.com/asottile/blacken-docs"
     rev: "1.13.0"
