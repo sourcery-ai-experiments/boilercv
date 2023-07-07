@@ -66,7 +66,7 @@ SAMPLE_DIAMETER_UM = 9_525_000
 ROI = "roi"
 """ROI dimension name."""
 
-IDX = pd.IndexSlice
+islice = pd.IndexSlice
 """Helper for slicing multi-index dataframes."""
 
 

@@ -6,7 +6,7 @@ import numpy as np
 from boilercv import PREVIEW
 from boilercv.captivate.previews import view_images
 from boilercv.colors import BLUE
-from boilercv.data import IDX, VIDEO
+from boilercv.data import VIDEO, islice
 from boilercv.data.sets import get_dataset
 from boilercv.examples import EXAMPLE_CONTOURS, EXAMPLE_NUM_FRAMES, EXAMPLE_VIDEO_NAME
 from boilercv.images import scale_bool
@@ -25,7 +25,7 @@ def main():
     result: list[Img] = []
     for frame_num, frame in enumerate(video):
         contours: list[ArrInt] = list(  # type: ignore
-            df.loc[IDX[frame_num], :]  # type: ignore
+            df.loc[islice[frame_num], :]  # type: ignore
             .groupby("contour")
             .apply(lambda grp: grp.values)  # type: ignore
         )
