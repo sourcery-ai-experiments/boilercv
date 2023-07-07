@@ -7,6 +7,7 @@ stages:
       - "${paths.docs}"
     outs:
       - "${paths.docx}"
+    frozen: true
 
   preview_binarized:
     cmd: "python ${project_paths.stage_preview_binarized}"
