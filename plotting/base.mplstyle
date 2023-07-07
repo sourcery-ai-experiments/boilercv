@@ -1,17 +1,19 @@
+# * Figure
 figure.autolayout: True
 
-#* Legend format
+# * Images (e.g. imshow)
+image.cmap: gray
+
+# * Legend format
+# ? Make legend opaque
 legend.framealpha: None
 
-#* Saving figures
-#? Fix the whitespace around axes
+# * Saving figures
+# ? Fix whitespace around axes
 savefig.bbox: tight
 savefig.pad_inches: 0.2
-#? Somehow, both of these are necessary to get a white background
+# ? Both are necessary to enforce a white figure background on save
 savefig.transparent: False
 savefig.facecolor: white
-#?
+# ? DPI for saving figures only
 savefig.dpi: 300
-
-#* Colormap for imshow
-image.cmap: gray

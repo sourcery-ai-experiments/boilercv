@@ -353,12 +353,12 @@ stages:
       size: 1675
     - path: data/docs
       hash: md5
-      md5: a3cf14e504e05d8a54734d3238c85850.dir
-      size: 226130
+      md5: c7a0ee5081c41035dffbfcd5f6626291.dir
+      size: 265047
       nfiles: 3
     outs:
     - path: data/docx
       hash: md5
-      md5: c01d153b6bb1a266b138c323935d0af0.dir
-      size: 198806
+      md5: 4b7e73e85c66d0f458d8a98a8e504d7c.dir
+      size: 224092
       nfiles: 3
