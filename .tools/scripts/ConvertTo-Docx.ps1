@@ -11,6 +11,7 @@ begin {
     $DataDir = "$RootDir/data"
     $MdDir = "$DataDir/md"
     $DocxDir = "$DataDir/docx"
+    if (Test-Path $DocxDir) {Remove-Item $DocxDir -Recurse}
     New-Item $DocxDir -ItemType Directory
     $ToMarkdown = @(
         '--to', 'markdown'
@@ -29,9 +30,9 @@ begin {
 }
 process {
     $Notebook = Get-Item $Notebook
-    $Name = $Notebook.BaseName
     jupyter nbconvert @ToMarkdown $Notebook
     Push-Location $MdDir
+    $Name = $Notebook.BaseName
     Get-Item "$Name.md" | Get-Content |
         pandoc @DocxWithCitations --output "$DocxDir/$Name.docx"
     Pop-Location

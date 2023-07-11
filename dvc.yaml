@@ -1,13 +1,14 @@
 stages:
   build_docs:
     cmd: |
-      pwsh -Command "Get-ChildItem ${paths.docs} -Filter *.ipynb | ${project_paths.stage_build_docs}"
+      pwsh -Command "Get-ChildItem ${paths.docs} -Recurse -Filter *.ipynb | ${project_paths.stage_build_docs}"
     deps:
       - "${project_paths.stage_build_docs}"
       - "${paths.docs}"
-    outs:
       - "${paths.docx}"
-    frozen: true
+    # # ? Don't check in outputs for now
+    # outs:
+    #   - "${paths.docx}"
 
   preview_binarized:
     cmd: "python ${project_paths.stage_preview_binarized}"

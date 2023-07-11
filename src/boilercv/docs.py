@@ -14,7 +14,8 @@ from boilercv.format import set_format
 # * COMMON TO ROOT AND DVC-TRACKED DOCUMENTATION
 
 
-_ = display()
+HIDE = display()
+"""Hide unsuppressed output. Can't use semicolon due to black autoformatter."""
 
 
 def init():

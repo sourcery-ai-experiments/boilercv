@@ -344,21 +344,28 @@ stages:
   temp:
     cmd: echo hello
   build_docs:
-    cmd: "pwsh -Command \"Get-ChildItem data/docs -Filter *.ipynb | .tools/scripts/ConvertTo-Docx.ps1\"\
+    cmd: "pwsh -Command \"Get-ChildItem data/docs -Recurse -Filter *.ipynb | .tools/scripts/ConvertTo-Docx.ps1\"\
       \n"
     deps:
     - path: .tools/scripts/ConvertTo-Docx.ps1
       hash: md5
-      md5: cdb49ecf5566583e9d1a3fc35303616a
-      size: 1675
+      md5: 89a4a2f6e0656cd0ef02ef434f44f1f2
+      size: 1736
     - path: data/docs
       hash: md5
-      md5: c7a0ee5081c41035dffbfcd5f6626291.dir
-      size: 265047
-      nfiles: 3
+      md5: 96ee11635dbbc599086162eff13680be.dir
+      size: 226482
+      nfiles: 2
+    - path: data/docx
+      hash: md5
+      md5: fde8f45a21f443e5dd8b7b1759d417ff.dir
+      size: 184413
+      nfiles: 2
+  clear_docx:
+    cmd: "pwsh -Command \"New-Item data/docx -ItemType Directory\"\n"
     outs:
     - path: data/docx
       hash: md5
-      md5: 4b7e73e85c66d0f458d8a98a8e504d7c.dir
-      size: 224092
-      nfiles: 3
+      md5: d751713988987e9331980363e24189ce.dir
+      size: 0
+      nfiles: 0
