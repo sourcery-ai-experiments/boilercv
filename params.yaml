@@ -9,7 +9,7 @@ project_paths:
   plot_config: plotting
   mpl_base: plotting/base.mplstyle
   mpl_hide_title: plotting/hide_title.mplstyle
-  stage_build_docs: .tools/scripts/ConvertTo-Docx.ps1
+  stage_build_docs: .tools/scripts/Build-Docs.ps1
   stage_find_contours: src/boilercv/stages/find_contours.py
   stage_fill: src/boilercv/stages/fill.py
   stage_find_tracks: src/boilercv/stages/find_tracks.py

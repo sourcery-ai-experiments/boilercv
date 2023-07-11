@@ -10,6 +10,7 @@ begin {
     $RootDir = Push-Location -PassThru "$PSSCriptRoot/../.."
     $DataDir = "$RootDir/data"
     $MdDir = "$DataDir/md"
+
     $DocxDir = "$DataDir/docx"
     if (Test-Path $DocxDir) {Remove-Item $DocxDir -Recurse}
     New-Item $DocxDir -ItemType Directory
@@ -18,6 +19,7 @@ begin {
         '--no-input' # Remove notebook input cells
         '--output-dir', $MdDir # Write to a separate output folder
     )
+
     $DocxWithCitations = @(
         '--standalone' # Don't produce a document fragment.
         '--from', 'markdown-auto_identifiers' # Avoids bookmark pollution around Markdown headers
@@ -27,10 +29,20 @@ begin {
         '--metadata', "zotero_csl_style:$PSSCriptRoot/international-journal-of-heat-and-mass-transfer.csl" # Must also be installed in Zotero
         '--metadata', 'zotero_library:3' # Corresponds to "Nucleate pool boiling [3]"
     )
+
+    $HtmlDir = "$DataDir/html"
+    if (Test-Path $HtmlDir) {Remove-Item $HtmlDir -Recurse}
+    New-Item $HtmlDir -ItemType Directory
+    $ToHtml = @(
+        '--to', 'html'
+        '--no-input' # Remove notebook input cells
+        '--output-dir', $HtmlDir # Write to a separate output folder
+    )
 }
 process {
     $Notebook = Get-Item $Notebook
     jupyter nbconvert @ToMarkdown $Notebook
+    jupyter nbconvert @ToHtml $Notebook
     Push-Location $MdDir
     $Name = $Notebook.BaseName
     Get-Item "$Name.md" | Get-Content |

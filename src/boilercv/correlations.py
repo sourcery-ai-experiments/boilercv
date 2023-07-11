@@ -1,6 +1,5 @@
 """Theoretical correlations for bubble lifetimes."""
 
-
 import numpy as np
 
 from boilercv.types import Float as F  # noqa: N817
