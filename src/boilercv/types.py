@@ -12,6 +12,7 @@ T = TypeVar("T")
 DF: TypeAlias = pd.DataFrame
 DA: TypeAlias = xr.DataArray
 DS: TypeAlias = xr.Dataset
+DfOrS: TypeAlias = pd.DataFrame | pd.Series  # type: ignore  # pyright 1.1.311
 
 
 class SupportsMul(Protocol):

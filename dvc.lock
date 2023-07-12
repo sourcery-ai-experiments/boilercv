@@ -353,8 +353,8 @@ stages:
       size: 2129
     - path: data/docs
       hash: md5
-      md5: 9ce6ce3906dbd9b51afe8eb75e5a9e57.dir
-      size: 929125
+      md5: 90cfee1a36de1804396f6a47ba609d44.dir
+      size: 936566
       nfiles: 4
   clear_docx:
     cmd: "pwsh -Command \"New-Item data/docx -ItemType Directory\"\n"
