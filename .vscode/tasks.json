@@ -124,6 +124,16 @@
       "problemMatcher": []
     },
     {
+      "label": "dvc: repro build docs",
+      "dependsOrder": "sequence",
+      "dependsOn": ["dvc: pre-repro"],
+      "type": "shell",
+      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
+      "command": "dvc repro build_docs",
+      "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
+    {
       "label": "dvc: repro force downstream (debug)",
       "dependsOrder": "sequence",
       "dependsOn": ["dvc: pre-repro"],

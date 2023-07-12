@@ -349,18 +349,13 @@ stages:
     deps:
     - path: .tools/scripts/Build-Docs.ps1
       hash: md5
-      md5: be2fbd3acd49aa7b9712ea872722291d
-      size: 2090
+      md5: 55ca0cb689da4328a02f6b70f6335a82
+      size: 2129
     - path: data/docs
       hash: md5
-      md5: d8941ab0b2957e9535b27e96a660b84f.dir
-      size: 249067
-      nfiles: 2
-    - path: data/docx
-      hash: md5
-      md5: dccb1694685d39aaf3e493624cc5cab8.dir
-      size: 198302
-      nfiles: 2
+      md5: 7f5e37dde78e8ffd8db77c58ed70972d.dir
+      size: 929157
+      nfiles: 4
   clear_docx:
     cmd: "pwsh -Command \"New-Item data/docx -ItemType Directory\"\n"
     outs:

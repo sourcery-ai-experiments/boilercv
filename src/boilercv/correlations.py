@@ -45,12 +45,14 @@ def fourier(liquid_thermal_diffusivity: F, initial_bubble_diameter: F, time: F) 
     return liquid_thermal_diffusivity * time / initial_bubble_diameter**2
 
 
-def dimensionless_bubble_diameter_florschuetz_chao_1965(jakob: F, fourier: F) -> F:
+def dimensionless_bubble_diameter_florschuetz(jakob: F, fourier: F) -> F:
     """Bubble history correlation for condensation of a stagnant bubble.
 
-    Reference: <https://doi.org/10.1115/1.3689075>
+    References:
+        tangReviewDirectContact2022 <https://doi.org/10.1007/s42757-020-0100-4>
+        florschuetzMechanicsVaporBubble1965 <https://doi.org/10.1115/1.3689075>
     """
-    return 1 - 4 * jakob * np.sqrt(fourier) / np.pi
+    return 1 - 4 * jakob * np.sqrt(fourier / np.pi)
 
 
 def dimensionless_bubble_diameter_inaba(
@@ -58,7 +60,9 @@ def dimensionless_bubble_diameter_inaba(
 ) -> F:
     """Bubble history correlation for condensation of a stagnant bubble.
 
-    Reference: <https://doi.org/10.1115/1.3689075>
+    References:
+        tangReviewDirectContact2022 <https://doi.org/10.1007/s42757-020-0100-4>
+        <https://doi.org/10.1115/1.3689075>
     """
     return (
         1
@@ -75,7 +79,9 @@ def dimensionless_bubble_diameter_yuan(
 ) -> F:
     """Bubble history correlation for condensation of a stagnant bubble.
 
-    Reference: <https://doi.org/10.1115/1.3689075>
+    References:
+        tangReviewDirectContact2022 <https://doi.org/10.1007/s42757-020-0100-4>
+        <https://doi.org/10.1115/1.3689075>
     """
     return 1 - (
         1.8

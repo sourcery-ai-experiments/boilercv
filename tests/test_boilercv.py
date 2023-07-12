@@ -3,7 +3,7 @@
 import numpy as np
 
 from boilercv.correlations import (
-    dimensionless_bubble_diameter_florschuetz_chao_1965,
+    dimensionless_bubble_diameter_florschuetz,
     fourier,
     jakob,
 )
@@ -11,7 +11,7 @@ from boilercv.correlations import (
 
 def test_correlations():
     """Test bubble collapse correlations."""
-    result = dimensionless_bubble_diameter_florschuetz_chao_1965(
+    result = dimensionless_bubble_diameter_florschuetz(
         jakob(
             liquid_density=1000,  # kg/m^3
             vapor_density=0.804,  # kg/m^3

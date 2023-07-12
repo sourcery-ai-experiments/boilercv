@@ -5,11 +5,6 @@ stages:
     deps:
       - "${project_paths.stage_build_docs}"
       - "${paths.docs}"
-      - "${paths.docx}"
-    # # ? Don't check in outputs for now
-    # outs:
-    #   - "${paths.docx}"
-    #   - "${paths.html}"
 
   preview_binarized:
     cmd: "python ${project_paths.stage_preview_binarized}"

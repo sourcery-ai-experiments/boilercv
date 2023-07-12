@@ -1,7 +1,9 @@
 """Utilities for root and DVC-tracked documentation."""
 
+from contextlib import contextmanager
 from os import chdir
 from pathlib import Path
+from warnings import catch_warnings, filterwarnings
 
 import nbformat as nbf
 import seaborn as sns
@@ -30,7 +32,16 @@ def init():
         palette="bright",
         font="sans-serif",
     )
+    sns.color_palette("deep")
     plt.style.use(style=PARAMS.project_paths.mpl_base)
+
+
+@contextmanager
+def nowarn():
+    """Don't warn at all."""
+    with catch_warnings():
+        filterwarnings("ignore")
+        yield
 
 
 def keep_viewer_in_scope():
