@@ -329,8 +329,8 @@ stages:
       nfiles: 1
     - path: src/boilercv/correlations.py
       hash: md5
-      md5: d5e13040077e06d679e64896ad907f12
-      size: 2652
+      md5: 425fdb56946ddc30b7cb692cecb31b17
+      size: 2949
     - path: src/boilercv/stages/compare_theory.py
       hash: md5
       md5: 51c2bc74bc7d89241ce66f71f981d60b
@@ -353,8 +353,8 @@ stages:
       size: 2129
     - path: data/docs
       hash: md5
-      md5: 7f5e37dde78e8ffd8db77c58ed70972d.dir
-      size: 929157
+      md5: 82b5a77e1b5b6c08f883e15d53a9d73d.dir
+      size: 927771
       nfiles: 4
   clear_docx:
     cmd: "pwsh -Command \"New-Item data/docx -ItemType Directory\"\n"
