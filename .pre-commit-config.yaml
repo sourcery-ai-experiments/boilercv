@@ -80,6 +80,11 @@ repos:
         files: |
           (?x)^(
             pyproject.toml
+
+            # exclude these if running pytest-slow-only again below
+            src/.*
+            |tests/.*
+
             |requirements.txt
             |.tools/(
               pyproject.toml
