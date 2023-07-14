@@ -1,4 +1,5 @@
 # List project dependencies here. A workflow ports them to `pyproject.toml`
+dvc[gs]==3.5.1
 imageio[pyav]==2.31.1
 ipywidgets==8.0.6
 loguru==0.7.0
