@@ -63,8 +63,6 @@ LENGTH = "um"
 """Length dimension units."""
 SAMPLE_DIAMETER_UM = 9_525_000
 """Sample diameter in micrometers."""
-ROI = "roi"
-"""ROI dimension name."""
 
 islice = pd.IndexSlice
 """Helper for slicing multi-index dataframes."""

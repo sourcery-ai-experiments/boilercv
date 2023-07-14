@@ -7,7 +7,7 @@ from boilercv.data import YX_PX
 from boilercv.types import DF, ArrLike
 
 
-def df_points(points: ArrLike, dims=YX_PX) -> DF:
+def df_points(points: ArrLike, dims: list[str] = YX_PX) -> DF:
     """Build a dataframe from an array of points."""
     return (
         pd.DataFrame(
