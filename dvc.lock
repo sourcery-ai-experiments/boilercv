@@ -344,18 +344,17 @@ stages:
   temp:
     cmd: echo hello
   build_docs:
-    cmd: "pwsh -Command \"Get-ChildItem data/docs -Recurse -Filter *.ipynb | .tools/scripts/Build-Docs.ps1\"\
-      \n"
+    cmd: python src/boilercv/stages/build_docs.py
     deps:
-    - path: .tools/scripts/Build-Docs.ps1
-      hash: md5
-      md5: 55ca0cb689da4328a02f6b70f6335a82
-      size: 2129
     - path: data/docs
       hash: md5
-      md5: 51ef15048a45107c3a3771dbaed4ee87.dir
-      size: 3080577
+      md5: 7824cbac12f01c9cc092ef346ca86999.dir
+      size: 3082405
       nfiles: 8
+    - path: src/boilercv/stages/build_docs.py
+      hash: md5
+      md5: 930f12ce26a3395fd9feec78856cd6ba
+      size: 535
   clear_docx:
     cmd: "pwsh -Command \"New-Item data/docx -ItemType Directory\"\n"
     outs:

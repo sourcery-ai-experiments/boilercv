@@ -34,7 +34,7 @@ class ProjectPaths(CreatePathsModel):
     mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
 
     # ! STAGES
-    stage_build_docs: FilePath = project / ".tools/scripts/Build-Docs.ps1"
+    stage_build_docs: FilePath = stages / "build_docs.py"
     stage_find_contours: FilePath = stages / "find_contours.py"
     stage_fill: FilePath = stages / "fill.py"
     stage_find_tracks: FilePath = stages / "find_tracks.py"
@@ -50,6 +50,9 @@ class ProjectPaths(CreatePathsModel):
     # ! STAGE DEPENDENCIES
     correlations: FilePath = package / "correlations.py"
 
+    # ! EXTERNAL SCRIPTS
+    script_build_docs: FilePath = Path(".tools/scripts/Build-Docs.ps1")
+
 
 class Paths(CreatePathsModel):
     """Paths associated with project data."""
@@ -58,7 +61,6 @@ class Paths(CreatePathsModel):
 
     # ! STAGE DATA
     contours: DirectoryPath = data / "contours"
-    docs: DirectoryPath = data / "docs"
     examples: DirectoryPath = data / "examples"
     filled: DirectoryPath = data / "filled"
     lifetimes: DirectoryPath = data / "lifetimes"
@@ -73,6 +75,11 @@ class Paths(CreatePathsModel):
     binarized_preview: Path = previews / "binarized.nc"
     gray_preview: Path = previews / "gray.nc"
     filled_preview: Path = previews / "filled.nc"
+
+    # ! PROJECT DOCUMENTATION
+    docs: DirectoryPath = data / "docs"
+    docx: DirectoryPath = data / "docx"
+    md: DirectoryPath = data / "md"
 
 
 class LocalPaths(CreatePathsModel):

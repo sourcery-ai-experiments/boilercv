@@ -9,7 +9,7 @@ project_paths:
   plot_config: plotting
   mpl_base: plotting/base.mplstyle
   mpl_hide_title: plotting/hide_title.mplstyle
-  stage_build_docs: .tools/scripts/Build-Docs.ps1
+  stage_build_docs: src/boilercv/stages/build_docs.py
   stage_find_contours: src/boilercv/stages/find_contours.py
   stage_fill: src/boilercv/stages/fill.py
   stage_find_tracks: src/boilercv/stages/find_tracks.py
@@ -20,10 +20,10 @@ project_paths:
   stage_preview_gray: src/boilercv/stages/preview/preview_gray.py
   stage_preview_filled: src/boilercv/stages/preview/preview_filled.py
   correlations: src/boilercv/correlations.py
+  script_build_docs: .tools/scripts/Build-Docs.ps1
 paths:
   data: data
   contours: data/contours
-  docs: data/docs
   examples: data/examples
   filled: data/filled
   lifetimes: data/lifetimes
@@ -36,3 +36,6 @@ paths:
   binarized_preview: data/previews/binarized.nc
   gray_preview: data/previews/gray.nc
   filled_preview: data/previews/filled.nc
+  docs: data/docs
+  docx: data/docx
+  md: data/md

@@ -4,28 +4,21 @@ Generate a document from a notebook.
 
 Param(
     # Notebook to generate a document from.
-    [Parameter(Mandatory, ValueFromPipeline)]$Notebook
+    [Parameter(Mandatory, ValueFromPipeline)]$Notebook,
+    [Parameter(Mandatory)]$Md,
+    [Parameter(Mandatory)]$Docx
 )
 begin {
     $Root = Push-Location -PassThru "$PSSCriptRoot/../.."
-    $Data = "$Root/data"
-    $Md = "$Data/md"
-    $Docx = "$Data/docx"
-
+    $Md = "$Root/$Md"
+    $Docx = "$Root/$Docx"
     $ObsidianExports = "$Root/../notes/data/local/vaults/grad/_imports"
     $Html = "$ObsidianExports/boilercv"
-
-    if (Test-Path $Docx) { Remove-Item $Docx -Recurse }
-    New-Item $Docx -ItemType Directory
-    if (Test-Path $Html) { Remove-Item $Html -Recurse }
-    New-Item $Html -ItemType Directory
-
     $ToMarkdown = @(
         '--to', 'markdown'
         '--no-input' # Remove notebook input cells
         '--output-dir', $Md # Write to a separate output folder
     )
-
     $DocxWithCitations = @(
         '--standalone' # Don't produce a document fragment.
         '--from', 'markdown-auto_identifiers' # Avoids bookmark pollution around Markdown headers
@@ -35,7 +28,6 @@ begin {
         '--metadata', "zotero_csl_style:$PSSCriptRoot/international-journal-of-heat-and-mass-transfer.csl" # Must also be installed in Zotero
         '--metadata', 'zotero_library:3' # Corresponds to "Nucleate pool boiling [3]"
     )
-
     $ToHtml = @(
         '--to', 'html'
         '--no-input' # Remove notebook input cells

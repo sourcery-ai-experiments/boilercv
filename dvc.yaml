@@ -1,7 +1,6 @@
 stages:
   build_docs:
-    cmd: |
-      pwsh -Command "Get-ChildItem ${paths.docs} -Recurse -Filter *.ipynb | ${project_paths.stage_build_docs}"
+    cmd: "python ${project_paths.stage_build_docs}"
     deps:
       - "${project_paths.stage_build_docs}"
       - "${paths.docs}"
