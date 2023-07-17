@@ -20,6 +20,7 @@ project_paths:
   stage_preview_gray: src/boilercv/stages/preview/preview_gray.py
   stage_preview_filled: src/boilercv/stages/preview/preview_filled.py
   correlations: src/boilercv/correlations.py
+  script_repair_notebooks: .tools/scripts/Repair-Notebooks.ps1
   script_build_docs: .tools/scripts/Build-Docs.ps1
 paths:
   data: data

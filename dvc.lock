@@ -346,15 +346,19 @@ stages:
   build_docs:
     cmd: python src/boilercv/stages/build_docs.py
     deps:
+    - path: .tools/scripts/Build-Docs.ps1
+      hash: md5
+      md5: b5b385bb299a24f9854e97b3b30fb34b
+      size: 1887
     - path: data/docs
       hash: md5
-      md5: 7824cbac12f01c9cc092ef346ca86999.dir
-      size: 3082405
+      md5: 4a70076a208c39bf16e99e7539f7c2e4.dir
+      size: 2903782
       nfiles: 8
     - path: src/boilercv/stages/build_docs.py
       hash: md5
-      md5: 930f12ce26a3395fd9feec78856cd6ba
-      size: 535
+      md5: cd9cb49e5a73126576ab897d03a05a08
+      size: 761
   clear_docx:
     cmd: "pwsh -Command \"New-Item data/docx -ItemType Directory\"\n"
     outs:

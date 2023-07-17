@@ -227,7 +227,7 @@
       "label": "dvc: pre-repro",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "dvc commit --force data/docs.dvc; if (git status data/docs.dvc | Select-String modified) {.tools/scripts/Repair-Notebooks.ps1}; dvc commit --force data/docs.dvc; python -m boilercv.models.params",
+      "command": "python -m boilercv.dvc.pre_repro",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

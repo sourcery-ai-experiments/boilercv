@@ -51,7 +51,8 @@ class ProjectPaths(CreatePathsModel):
     correlations: FilePath = package / "correlations.py"
 
     # ! EXTERNAL SCRIPTS
-    script_build_docs: FilePath = Path(".tools/scripts/Build-Docs.ps1")
+    script_repair_notebooks: FilePath = project / ".tools/scripts/Repair-Notebooks.ps1"
+    script_build_docs: FilePath = project / ".tools/scripts/Build-Docs.ps1"
 
 
 class Paths(CreatePathsModel):
@@ -100,3 +101,6 @@ class LocalPaths(CreatePathsModel):
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
 
     media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")
+    html: Path = Path(
+        "~/code/mine/notes/data/local/vaults/grad/_imports/boilercv"
+    ).expanduser()

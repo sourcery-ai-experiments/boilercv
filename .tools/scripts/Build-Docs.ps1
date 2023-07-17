@@ -6,14 +6,13 @@ Param(
     # Notebook to generate a document from.
     [Parameter(Mandatory, ValueFromPipeline)]$Notebook,
     [Parameter(Mandatory)]$Md,
-    [Parameter(Mandatory)]$Docx
+    [Parameter(Mandatory)]$Docx,
+    [Parameter(Mandatory)]$Html
 )
 begin {
     $Root = Push-Location -PassThru "$PSSCriptRoot/../.."
     $Md = "$Root/$Md"
     $Docx = "$Root/$Docx"
-    $ObsidianExports = "$Root/../notes/data/local/vaults/grad/_imports"
-    $Html = "$ObsidianExports/boilercv"
     $ToMarkdown = @(
         '--to', 'markdown'
         '--no-input' # Remove notebook input cells

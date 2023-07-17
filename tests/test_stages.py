@@ -26,13 +26,17 @@ STAGES = sorted(Path("src/boilercv/stages").glob("[!__]*.py"))
     ("stage", "x"),
     (
         {stage.stem: "" for stage in STAGES}
-        | {stage.stem: "xfail" for stage in STAGES if stage.stem in []}
+        | {
+            stage.stem: "xfail"
+            for stage in STAGES
+            if stage.stem in {"build_docs": "Can't run DVC in CI."}
+        }
     ).items(),
 )
 def test_stages(stage: str, x: str):
     """Test that stages can run."""
     if x == "xfail":
-        pytest.xfail("Stage not yet implemented.")
+        pytest.xfail("Stage or test not yet implemented.")
     importlib.import_module(f"boilercv.stages.{stage}").main()
 
 

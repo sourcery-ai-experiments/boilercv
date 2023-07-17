@@ -3,6 +3,7 @@ stages:
     cmd: "python ${project_paths.stage_build_docs}"
     deps:
       - "${project_paths.stage_build_docs}"
+      - "${project_paths.script_build_docs}"
       - "${paths.docs}"
 
   preview_binarized:

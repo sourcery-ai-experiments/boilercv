@@ -27,6 +27,7 @@ def tmp_project(monkeypatch, tmp_path: Path) -> Path:
     monkeypatch.setattr(params, "SOURCES_TO_ENUMERATE", PARAMS.local_paths.cines)
     copytree(TEST_DATA / "local", PARAMS.local_paths.data, dirs_exist_ok=True)
     copytree(TEST_DATA / "cloud", PARAMS.paths.data, dirs_exist_ok=True)
+    copytree(".tools", tmp_path / ".tools", dirs_exist_ok=True)
 
     return tmp_path
 
