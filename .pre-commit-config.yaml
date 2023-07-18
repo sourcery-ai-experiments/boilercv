@@ -111,8 +111,9 @@ repos:
     rev: "3.5.1"
     hooks:
       - id: "dvc-post-checkout"
+        additional_dependencies: [".[gs]"]
       - id: "dvc-pre-push"
-        additional_dependencies: ["dvc[gs]"]
+        additional_dependencies: [".[gs]"]
 
   # * ------------------------------------------------------------------------------ * #
   # * Changes below may be lost in significant template updates.
