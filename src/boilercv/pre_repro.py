@@ -1,106 +1,142 @@
-"""Prepare to reproduce the pipeline with DVC."""
+"""Update DVC paths (implicitly through import of PARAMS) and build docs."""
 
 import asyncio
-from asyncio import Task, TaskGroup, create_subprocess_exec, gather
+from asyncio import TaskGroup, create_subprocess_exec
 from asyncio.subprocess import PIPE
-from contextlib import chdir
+from collections.abc import Callable, Coroutine
+from concurrent.futures import ProcessPoolExecutor
+from contextlib import AbstractContextManager
+from functools import wraps
+from os import chdir
 from pathlib import Path
 from shlex import quote, split
 from subprocess import CalledProcessError
-from typing import TypedDict
+from typing import Any, TypedDict
 
-from dulwich.porcelain import add
-from dvc.repo import Repo
-from loguru import logger
+from dulwich.porcelain import add  # type: ignore  # pyright: 1.1.311
+from dvc.repo import Repo  # type: ignore  # pyright: 1.1.311
+from loguru import logger  # type: ignore  # pyright: 1.1.311
+from ploomber_engine import execute_notebook
 
 from boilercv.models.params import PARAMS
 
+CLEAN = True
+EXECUTE = False
+EXPORT = True
+REPORT = True
+COMMIT = True
+SKIP = not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT)
 
-async def main():
-    # Get modfied files
+
+async def main():  # noqa: C901
+    """Update DVC paths (implicitly through import of PARAMS) and build docs."""
+
+    # Skip if all stages are disabled
+    if SKIP:
+        return
+
+    # Skip if no changes to docs
     repo = Repo()
     modified = get_dvc_modified(repo, granular=True)
     if PARAMS.paths.docs not in modified:
         return
-    nbs = get_modified_nbs(modified)
-    tasks: list[Task[str]] = []
 
-    # Run stages that don't require changing the active directory
-    for stage in [run_notebook, clean_notebook, export_notebook]:
+    # Get modified notebooks
+    notebooks = get_modified_nbs(modified)
+
+    # Clean notebooks, removing outputs before execution as necessary
+    if CLEAN:
         async with TaskGroup() as tg:
-            tasks.extend(tg.create_task(stage(nb)) for nb in nbs)
+            for nb in notebooks:
+                tg.create_task(clean_notebook(nb, preserve_outputs=(not EXECUTE)))
+
+    # Run CPU-bound stages in a process pool
+    if EXECUTE:
+        with ProcessPoolExecutor() as executor:
+            for nb in notebooks:
+                executor.submit(execute_notebook, nb, nb)
+        # # ! This works, but has some overhead, and leaves other traces
+        # # ! Use it if you ever need to parametrize the notebooks
+        # dag = DAG(executor=Parallel())  # type: ignore
+        # for nb in notebooks:
+        #     NotebookRunner(
+        #         Path(nb),
+        #         File(nb),
+        #         dag=dag,
+        #         executor="ploomber-engine",
+        #         static_analysis="disable",
+        #     )
+        # dag.build(force=True)
+
+    # Run IO-bound stages concurrently (loop is inside the task)
+    if EXPORT:
+        async with TaskGroup() as tg:
+            for nb in notebooks:
+                tg.create_task(export_notebook(nb))
 
     # Run the last stage, which requires changing the active directory
-    with chdir(PARAMS.paths.md):
+    if REPORT:
+        workdir = fold(PARAMS.paths.md)
         async with TaskGroup() as tg:
-            tasks.extend(
-                [
-                    tg.create_task(generate_report_from_notebook(**kwargs))
-                    for kwargs in nbs.values()
-                ]
-            )
-
-    # Log the results
-    prefix = "\n  "
-    for res in await gather(*tasks):
-        logger.info((prefix + res.replace("\n", prefix)) if "\n" in res else res)
+            for kwargs in notebooks.values():
+                tg.create_task(generate_report_from_notebook(workdir, **kwargs))
 
     # Commit the changes
-    # docs_dvc_file = PARAMS.paths.docs.with_suffix(".dvc")
-    # repo.commit(str(docs_dvc_file), force=True)
-    # add(paths=str(docs_dvc_file))
+    if COMMIT:
+        docs_dvc_file = fold(PARAMS.paths.docs.with_suffix(".dvc"))
+        repo.commit(docs_dvc_file, force=True)
+        add(paths=docs_dvc_file)
 
 
-async def run_notebook(notebook: Path) -> str:
-    """Run a notebook."""
-    nb = fold(notebook)
-    return await run_process(
-        f"jupyter nbconvert --execute --to notebook --inplace {nb}"
-    )
-
-
-async def clean_notebook(notebook: Path) -> str:
+async def clean_notebook(nb: str, preserve_outputs: bool):
     """Clean a notebook."""
-    nb = fold(notebook)
-    return "\n".join(
-        [
-            await run_process(command)
-            for command in [
-                f"nbqa black {nb}",
-                f"nbqa ruff --fix-only {nb}",
-                (
-                    " nb-clean clean --remove-empty-cells --preserve-cell-outputs"
-                    "   --preserve-cell-metadata tags special"
-                    f"  -- {nb}"
-                ),
-            ]
-        ]
-    )
+    logger.info(Path(nb).name)
+    for command in [
+        f"nbqa black {nb}",
+        f"nbqa ruff --fix-only {nb}",
+        (
+            " nb-clean clean --remove-empty-cells"
+            f"{' --preserve-cell-outputs' if preserve_outputs else ''}"
+            "   --preserve-cell-metadata tags special"
+            f"  -- {nb}"
+        ),
+    ]:
+        await run_process(command)
 
 
-async def export_notebook(notebook: Path) -> str:
+async def export_notebook(nb: str):
     """Export a notebook to Markdown and HTML."""
-    nb = fold(notebook)
+    logger.info(Path(nb).name)
     html = fold(PARAMS.local_paths.html)
     md = fold(PARAMS.paths.md)
-    return "\n".join(
-        [
-            await run_process(command)
-            for command in [
-                f"jupyter nbconvert {nb} --to markdown --no-input --output-dir {md}",
-                f"jupyter nbconvert {nb} --to html --no-input --output-dir {html}",
-            ]
-        ]
-    )
+    for command in [
+        f"jupyter nbconvert {nb} --to markdown --no-input --output-dir {md}",
+        f"jupyter nbconvert {nb} --to html --no-input --output-dir {html}",
+    ]:
+        await run_process(command)
 
 
-async def generate_report_from_notebook(template, zotero, csl, docx, md) -> str:
+def preserve_dir(f: Callable[..., Coroutine[Any, Any, Any]]):
+    """Preserve the current directory."""
+
+    @wraps(f)
+    async def wrapped(*args, **kwargs):
+        return await CoroWrapper(f(*args, **kwargs), PreserveDir())
+
+    return wrapped
+
+
+@preserve_dir
+async def generate_report_from_notebook(
+    workdir: str, template: str, zotero: str, csl: str, docx: str, md: str
+):
     """Generate a DOCX report from a notebook.
 
     Requires changing the active directory to the Markdown folder outside of this
     asynchronous function, due to how Pandoc generates links inside the documents.
     """
-    return await run_process(
+    chdir(workdir)
+    await run_process(
         venv=False,
         command=(
             " pandoc"
@@ -130,10 +166,10 @@ class ReportKwargs(TypedDict):
     md: str
 
 
-def get_modified_nbs(modified: list[Path]) -> dict[Path, ReportKwargs]:
+def get_modified_nbs(modified: list[Path]) -> dict[str, ReportKwargs]:
     """Get the modified notebooks and their corresponding report paths."""
     return {
-        nb: ReportKwargs(
+        fold(nb): ReportKwargs(
             **{
                 kwarg: fold(path)
                 for kwarg, path in dict(
@@ -167,14 +203,18 @@ def get_dvc_modified(
     return modified
 
 
-async def run_process(command: str, venv: bool = True) -> str:
+async def run_process(command: str, venv: bool = True):
     """Run a subprocess asynchronously."""
     command, *args = split(command, posix=False)
     process = await create_subprocess_exec(
         f"{'.venv/scripts/' if venv else ''}{command}", *args, stdout=PIPE, stderr=PIPE
     )
     stdout, stderr = (msg.decode("utf-8") for msg in await process.communicate())
-    message = f"{stdout}\n{stderr}" if stdout and stderr else stdout or stderr
+    message = (
+        (f"{stdout}\n{stderr}" if stdout and stderr else stdout or stderr)
+        .replace("\r\n", "\n")
+        .strip()
+    )
     if process.returncode:
         exception = CalledProcessError(
             returncode=process.returncode,
@@ -185,7 +225,10 @@ async def run_process(command: str, venv: bool = True) -> str:
         exception.add_note(message)
         exception.add_note("Arguments:\n" + "  \n".join(args))
         raise exception
-    return message
+    logger.info(
+        f"Finished {command}:"
+        + (("\n  " + message.replace("\n", "\n  ")) if "\n" in message else message)
+    )
 
 
 def fold(path: Path):
@@ -193,5 +236,62 @@ def fold(path: Path):
     return quote(str(path.resolve()).replace("\\", "/"))
 
 
+class PreserveDir:
+    """Re-entrant context manager that preserves the current directory.
+
+    Reference: <https://stackoverflow.com/a/64395754/20430423>
+    """
+
+    def __init__(self):
+        self.inner_dir = None
+
+    def __enter__(self):
+        self.outer_dir = Path.cwd()  # type: ignore
+        if self.inner_dir is not None:
+            chdir(self.inner_dir)
+
+    def __exit__(self, *exc_info):
+        self.inner_dir = Path.cwd()
+        chdir(self.outer_dir)
+
+
+class CoroWrapper:
+    """Wrap `target` to have every send issued in a `context`.
+
+    Reference: <https://stackoverflow.com/a/56079900/1600898>
+    """
+
+    def __init__(
+        self, target: Coroutine[Any, Any, Any], context: AbstractContextManager[Any]
+    ):
+        self.target = target
+        self.context = context
+
+    # wrap an iterator for use with 'await'
+    def __await__(self):
+        # unwrap the underlying iterator
+        target_iter = self.target.__await__()
+        # emulate 'yield from'
+        iter_send, iter_throw = target_iter.send, target_iter.throw
+        send, message = iter_send, None
+        while True:
+            # communicate with the target coroutine
+            try:
+                with self.context:  # type: ignore  # pyright: 1.1.311
+                    signal = send(message)  # type: ignore  # pyright: 1.1.311
+            except StopIteration as err:
+                return err.value
+            else:
+                send = iter_send
+            # communicate with the ambient event loop
+            try:
+                message = yield signal
+            except BaseException as err:  # noqa: BLE001
+                send, message = iter_throw, err
+
+
 if __name__ == "__main__":
+    logger.add(sink="pre_repro.log")
+    logger.info("Start pre_repro")
     asyncio.run(main())
+    logger.info("Finish pre_repro")

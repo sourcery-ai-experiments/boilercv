@@ -98,10 +98,10 @@
   "black-formatter.logLevel": "warn",
   "black-formatter.args": [],
   //* ruff
-  "ruff.importStrategy": "fromEnvironment",
   //? Ensure user setting args are cleared
-  "ruff.logLevel": "warn",
   "ruff.args": [],
+  "ruff.importStrategy": "fromEnvironment",
+  "ruff.trace.server": "off",
 
   //! GitHub Actions
   "github-actions.workflows.pinned.workflows": [".github/workflows/main.yml"],
