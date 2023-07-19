@@ -145,6 +145,7 @@ repos:
         args:
           - "--remove-empty-cells"
           - "--preserve-cell-metadata"
+          - "ploomber"
           - "special"
           - "tags"
           - "--"
@@ -159,6 +160,7 @@ repos:
           - "--remove-empty-cells"
           - "--preserve-cell-outputs"
           - "--preserve-cell-metadata"
+          - "ploomber"
           - "special"
           - "tags"
           - "--"

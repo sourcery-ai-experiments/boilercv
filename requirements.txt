@@ -9,6 +9,7 @@ opencv-contrib-python==4.8.0.74
 pandas[hdf5,performance]==2.0.3
 pandera==0.16.0
 pillow==10.0.0
+ploomber-engine==0.0.30
 pyarrow==12.0.1
 pydantic==1.10.11
 pyjanitor==0.24.0

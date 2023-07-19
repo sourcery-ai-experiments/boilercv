@@ -16,14 +16,16 @@ from typing import Any, TypedDict
 from dulwich.porcelain import add  # type: ignore  # pyright: 1.1.311
 from dvc.repo import Repo  # type: ignore  # pyright: 1.1.311
 from loguru import logger  # type: ignore  # pyright: 1.1.311
-from ploomber_engine import execute_notebook
+from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 
 from boilercv.models.params import PARAMS
 
+RUN_ALL = False
+
 CLEAN = True
-EXECUTE = False
+EXECUTE = True
 EXPORT = True
-REPORT = True
+REPORT = False
 COMMIT = True
 SKIP = not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT)
 
@@ -35,50 +37,50 @@ async def main():  # noqa: C901
     if SKIP:
         return
 
-    # Skip if no changes to docs
+    # Get notebooks to run
     repo = Repo()
-    modified = get_dvc_modified(repo, granular=True)
-    if PARAMS.paths.docs not in modified:
-        return
-
-    # Get modified notebooks
-    notebooks = get_modified_nbs(modified)
+    if RUN_ALL:
+        nbs = get_modified_nbs(list(PARAMS.paths.docs.glob("**/*.ipynb")))
+    else:
+        repo = Repo()
+        # Check for modifications
+        modified = get_dvc_modified(repo, granular=True)
+        # Skip if no changes to docs
+        if PARAMS.paths.docs not in modified:
+            return
+        nbs = get_modified_nbs(modified)
 
     # Clean notebooks, removing outputs before execution as necessary
     if CLEAN:
         async with TaskGroup() as tg:
-            for nb in notebooks:
+            for nb in nbs:
                 tg.create_task(clean_notebook(nb, preserve_outputs=(not EXECUTE)))
+
+    # Repeat the modification check after cleaning
+    if not RUN_ALL:
+        modified = get_dvc_modified(repo, granular=True)
+        # Skip if no changes to docs
+        if PARAMS.paths.docs not in modified:
+            return
+        nbs = get_modified_nbs(modified)
 
     # Run CPU-bound stages in a process pool
     if EXECUTE:
         with ProcessPoolExecutor() as executor:
-            for nb in notebooks:
+            for nb in nbs:
                 executor.submit(execute_notebook, nb, nb)
-        # # ! This works, but has some overhead, and leaves other traces
-        # # ! Use it if you ever need to parametrize the notebooks
-        # dag = DAG(executor=Parallel())  # type: ignore
-        # for nb in notebooks:
-        #     NotebookRunner(
-        #         Path(nb),
-        #         File(nb),
-        #         dag=dag,
-        #         executor="ploomber-engine",
-        #         static_analysis="disable",
-        #     )
-        # dag.build(force=True)
 
     # Run IO-bound stages concurrently (loop is inside the task)
     if EXPORT:
         async with TaskGroup() as tg:
-            for nb in notebooks:
+            for nb in nbs:
                 tg.create_task(export_notebook(nb))
 
     # Run the last stage, which requires changing the active directory
     if REPORT:
         workdir = fold(PARAMS.paths.md)
         async with TaskGroup() as tg:
-            for kwargs in notebooks.values():
+            for kwargs in nbs.values():
                 tg.create_task(generate_report_from_notebook(workdir, **kwargs))
 
     # Commit the changes
@@ -97,7 +99,7 @@ async def clean_notebook(nb: str, preserve_outputs: bool):
         (
             " nb-clean clean --remove-empty-cells"
             f"{' --preserve-cell-outputs' if preserve_outputs else ''}"
-            "   --preserve-cell-metadata tags special"
+            "   --preserve-cell-metadata ploomber special tags"
             f"  -- {nb}"
         ),
     ]:
@@ -223,12 +225,19 @@ async def run_process(command: str, venv: bool = True):
             stderr=stderr,
         )
         exception.add_note(message)
-        exception.add_note("Arguments:\n" + "  \n".join(args))
+        exception.add_note("Arguments:\n" + "    \n".join(args))
         raise exception
-    logger.info(
-        f"Finished {command}:"
-        + (("\n  " + message.replace("\n", "\n  ")) if "\n" in message else message)
-    )
+    if message:
+        logger.info(
+            f"Finished {command}"
+            + (
+                (":\n    " + message.replace("\n", "\n    "))
+                if "\n" in message
+                else f": {message}"
+            )
+        )
+    else:
+        logger.info(f"Finished {command}")
 
 
 def fold(path: Path):
