@@ -46,9 +46,9 @@ async def main():
         logger.info((prefix + res.replace("\n", prefix)) if "\n" in res else res)
 
     # Commit the changes
-    docs_dvc_file = PARAMS.paths.docs.with_suffix(".dvc")
-    repo.commit(str(docs_dvc_file), force=True)
-    add(paths=str(docs_dvc_file))
+    # docs_dvc_file = PARAMS.paths.docs.with_suffix(".dvc")
+    # repo.commit(str(docs_dvc_file), force=True)
+    # add(paths=str(docs_dvc_file))
 
 
 async def run_notebook(notebook: Path) -> str:
