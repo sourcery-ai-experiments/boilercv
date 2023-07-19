@@ -227,7 +227,7 @@
       "label": "dvc: pre-repro",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "python -m boilercv.dvc.pre_repro",
+      "command": "python -m boilercv.pre_repro",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

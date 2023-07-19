@@ -33,8 +33,13 @@ class ProjectPaths(CreatePathsModel):
     mpl_base: FilePath = plot_config / "base.mplstyle"
     mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
 
+    # ! SCRIPTS
+    scripts: DirectoryPath = project / "scripts"
+    zotero: FilePath = scripts / "zotero.lua"
+    csl: FilePath = scripts / "international-journal-of-heat-and-mass-transfer.csl"
+    template: FilePath = scripts / "template.dotx"
+
     # ! STAGES
-    stage_build_docs: FilePath = stages / "build_docs.py"
     stage_find_contours: FilePath = stages / "find_contours.py"
     stage_fill: FilePath = stages / "fill.py"
     stage_find_tracks: FilePath = stages / "find_tracks.py"
@@ -49,10 +54,6 @@ class ProjectPaths(CreatePathsModel):
 
     # ! STAGE DEPENDENCIES
     correlations: FilePath = package / "correlations.py"
-
-    # ! EXTERNAL SCRIPTS
-    script_repair_notebooks: FilePath = project / ".tools/scripts/Repair-Notebooks.ps1"
-    script_build_docs: FilePath = project / ".tools/scripts/Build-Docs.ps1"
 
 
 class Paths(CreatePathsModel):

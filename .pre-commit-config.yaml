@@ -1,6 +1,6 @@
 ci:
   skip:
-    - "synchronize-params"
+    - "pre-repro"
     # - "hide-notebook-inputs"
     - "compose-pyproject"
     # - "pyright"
@@ -21,15 +21,18 @@ repos:
       # * -------------------------------------------------------------------------- * #
       # * Changes below should persist in significant template updates.
 
-      - id: "synchronize-params"
-        name: "synchronize-params"
+      - id: "pre-repro"
+        name: "pre-repro"
         language: "system"
-        entry: "pwsh -Command python -m boilercv.models.params"
+        entry: "pwsh -Command python -m boilercv.pre_repro"
         files: |
           (?x)^(
             src/boilercv/models/.*
             |params.yaml
+            |data/docs.dvc
           )$
+        pass_filenames: false
+        verbose: true
       # - id: "hide-notebook-inputs"
       #   name: "hide-notebook-inputs"
       #   pass_filenames: false

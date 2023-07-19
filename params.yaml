@@ -9,7 +9,10 @@ project_paths:
   plot_config: plotting
   mpl_base: plotting/base.mplstyle
   mpl_hide_title: plotting/hide_title.mplstyle
-  stage_build_docs: src/boilercv/stages/build_docs.py
+  scripts: scripts
+  zotero: scripts/zotero.lua
+  csl: scripts/international-journal-of-heat-and-mass-transfer.csl
+  template: scripts/template.dotx
   stage_find_contours: src/boilercv/stages/find_contours.py
   stage_fill: src/boilercv/stages/fill.py
   stage_find_tracks: src/boilercv/stages/find_tracks.py
@@ -20,8 +23,6 @@ project_paths:
   stage_preview_gray: src/boilercv/stages/preview/preview_gray.py
   stage_preview_filled: src/boilercv/stages/preview/preview_filled.py
   correlations: src/boilercv/correlations.py
-  script_repair_notebooks: .tools/scripts/Repair-Notebooks.ps1
-  script_build_docs: .tools/scripts/Build-Docs.ps1
 paths:
   data: data
   contours: data/contours

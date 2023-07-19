@@ -31,7 +31,7 @@ fix = true
 select = ["ALL"]
 src = ["src", "tests"]
 target-version = "py311"
-extend-exclude = ["template", "typings", ".github", ".tools", ".venv"]
+extend-exclude = ["template", "typings", ".github", ".tools"]
 ignore = [
     # * ---------------------------------------------------------------------------- * #
     # * Changes below should persist in significant template updates.
