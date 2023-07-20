@@ -68,7 +68,7 @@ async def main():  # noqa: C901
     if EXECUTE:
         with ProcessPoolExecutor() as executor:
             for nb in nbs:
-                executor.submit(execute_notebook, nb, nb)
+                executor.submit(execute_notebook, input_path=nb, output_path=nb)
 
     # Run IO-bound stages concurrently (loop is inside the task)
     if EXPORT:

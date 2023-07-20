@@ -2,7 +2,7 @@
 
 from collections.abc import Callable, Sequence
 from itertools import chain
-from typing import Any
+from typing import Any, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -84,6 +84,19 @@ def identity_da(da: DA, dim: str) -> DA:
     )
 
 
+class CommonKwargs(TypedDict):
+    """Keyword arguments common to `xr.apply_ufunc` calls."""
+
+    input_core_dims: list[list[str]]
+    """Dimensions which will remain after the function is applied."""
+    vectorize: bool
+    """Whether to vectorize the function over the input dimensions."""
+    keep_attrs: bool
+    """Whether to keep attributes from the input data array."""
+    kwargs: dict[str, Any] | None
+    """Keyword arguments for the function to be wrapped."""
+
+
 def apply_to_img_da(
     func: Callable[..., Any],
     *args: Any,
@@ -94,7 +107,7 @@ def apply_to_img_da(
 ) -> Any:
     """Apply functions that transform images to transform data arrays instead."""
     core_dims = [YX_PX]
-    common_kwargs = dict(
+    common_kwargs = CommonKwargs(
         input_core_dims=core_dims * len(args),
         vectorize=vectorize,
         keep_attrs=True,
