@@ -27,15 +27,16 @@ CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
 
 # Don't log function call since we're almost always in "run_process" in this module
 logger.remove()
-logger.add(
-    sink=stdout,
-    format=(
-        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> |"
-        " <level>{level: <8}</level> |"
-        # " <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> -"
-        " <level>{message}</level>"
-    ),
-)
+for sink in [stdout, "pre_repro.log"]:
+    logger.add(
+        sink=sink,
+        format=(
+            "<green>{time:YYYY-MM-DD HH:mm:ss}</green> |"
+            " <level>{level: <8}</level> |"
+            # " <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> -"
+            " <level>{message}</level>"
+        ),
+    )
 
 
 async def main():  # noqa: C901
@@ -316,7 +317,6 @@ class CoroWrapper:
 
 
 if __name__ == "__main__":
-    logger.add(sink="pre_repro.log")
     logger.info("START pre_repro")
     asyncio.run(main())
     logger.info("FINISH pre_repro")
