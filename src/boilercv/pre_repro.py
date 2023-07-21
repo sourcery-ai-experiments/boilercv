@@ -22,15 +22,8 @@ from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 from boilercv.models.params import PARAMS
 
 DOCS = PARAMS.paths.docs
-
-RUN_ALL = False
-RUN_COMMITTED = False
-
-CLEAN = True
-EXECUTE = True
-EXPORT = True
-REPORT = True
-COMMIT = True
+RUN_ALL = RUN_COMMITTED = False
+CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
 
 # Don't log function call since we're almost always in "run_process" in this module
 logger.remove()
@@ -57,25 +50,31 @@ async def main():  # noqa: C901
     else:
         nbs = fold_modified_nbs(repo, RUN_COMMITTED, DOCS)
 
-    # Clean notebooks and check for modifications again after cleaning
     if CLEAN:
+        logger.info("START CLEAN")
         preserve_outputs = not EXECUTE
         async with TaskGroup() as tg:
             for nb in nbs.values():
-                tg.create_task(clean_notebook(nb, preserve_outputs))
+                tg.create_task(clean_notebook(nb, preserve_outputs, lint=True))
         logger.info("FINISH CLEAN")
     if not RUN_ALL:
         nbs = fold_modified_nbs(repo, RUN_COMMITTED, DOCS)
 
-    # Execute notebooks in a process pool as this is CPU-bound
     if EXECUTE:
+        logger.info("START EXECUTE")
         with ProcessPoolExecutor() as executor:
             for nb in nbs.values():
                 executor.submit(execute_and_log, nb)
         logger.info("FINISH EXECUTE")
+        logger.info("START REMOVE EXECUTION METADATA")
+        async with TaskGroup() as tg:
+            for nb in nbs.values():
+                tg.create_task(clean_notebook(nb, preserve_outputs=True, lint=False))
+        logger.info("FINISH REMOVE EXECUTION METADATA")
 
     # Export notebooks to Markdown and HTML
     if EXPORT:
+        logger.info("START EXPORT")
         async with TaskGroup() as tg:
             for nb in nbs.values():
                 tg.create_task(
@@ -87,6 +86,7 @@ async def main():  # noqa: C901
 
     # Generate DOCX reports w/ Pandoc
     if REPORT:
+        logger.info("START REPORT")
         async with TaskGroup() as tg:
             for nb in nbs:
                 tg.create_task(
@@ -115,31 +115,25 @@ async def main():  # noqa: C901
         logger.info("FINISH COMMIT")
 
 
-async def clean_notebook(nb: str, preserve_outputs: bool):
+async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
     """Clean a notebook."""
-    for command in [
-        f"nbqa black {nb}",
-        f"nbqa ruff --fix-only {nb}",
-        (
-            " nb-clean clean --remove-empty-cells"
-            f"{' --preserve-cell-outputs' if preserve_outputs else ''}"
-            "   --preserve-cell-metadata ploomber special tags"
-            f"  -- {nb}"
-        ),
-    ]:
+    commands: list[str] = [f"nbqa black {nb}", f"nbqa ruff --fix-only {nb}"] if lint else []  # type: ignore  # redefine
+    commands.append(
+        "   nb-clean clean --remove-empty-cells"
+        f"{'  --preserve-cell-outputs' if preserve_outputs else ''}"
+        "     --preserve-cell-metadata special tags"
+        f"    -- {nb}"
+    )
+    for command in commands:
         await run_process(command)
 
 
 def execute_and_log(nb: str):
     """Log notebook execution."""
-    prefix = "START ploomber-engine execution of "
-    logger.info(
-        f"{prefix}{nb[:9]}.../" + nb.split("/")[-1]
-        if "/" in nb and len(nb) > 30
-        else f"{prefix}{nb}"
-    )
+    msg = f"{nb[:9]}.../" + nb.split("/")[-1] if "/" in nb and len(nb) > 30 else nb
+    logger.info(f"    Start execution of {msg}")
     execute_notebook(input_path=nb, output_path=nb)
-    prefix = "FINISH EXECUTE"
+    logger.info(f"    Finish execution of {msg}")
 
 
 async def export_notebook(nb: str, md: str, html: str):
@@ -195,10 +189,11 @@ async def run_process(command: str, venv: bool = True):
     """Run a subprocess asynchronously."""
     command, *args = split(command, posix=False)
     cmd_and_args = join([command, *args])
+    start = "    Start "
     logger.info(
-        f"START {cmd_and_args[:30]}...{cmd_and_args[-30:]}"
+        f"{start}{cmd_and_args[:30]}...{cmd_and_args[-30:]}"
         if len(cmd_and_args) > 60
-        else cmd_and_args
+        else f"{start}{cmd_and_args}"
     )
     process = await create_subprocess_exec(
         f"{'.venv/scripts/' if venv else ''}{command}", *args, stdout=PIPE, stderr=PIPE
@@ -219,16 +214,12 @@ async def run_process(command: str, venv: bool = True):
         exception.add_note(message)
         exception.add_note("Arguments:\n" + "    \n".join(args))
         raise exception
-    finish = f"FINISH {command}"
     if message:
-        indent = "\n    "
         logger.info(
-            f"{finish}: ⏎{indent}" + message.replace("\n", indent)
-            if "\n" in message
-            else f"{finish}: {message}"
+            f"    Finish {command}: " + message.replace("\n", ". ")[:30] + "..."
         )
     else:
-        logger.info(finish)
+        logger.info(f"    Finish {command}")
 
 
 def fold_modified_nbs(repo: Repo, run_committed: bool, docs: Path) -> dict[Path, str]:

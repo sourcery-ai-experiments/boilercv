@@ -434,7 +434,7 @@
       "dependsOn": ["task: format notebook"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "nbqa black ${file}; nbqa ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-metadata ploomber special tags -- ${file}",
+      "command": "nbqa black ${file}; nbqa ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-metadata special tags -- ${file}",
       "icon": { "id": "notebook" },
       "problemMatcher": []
     },
@@ -442,7 +442,7 @@
       "label": "task: format notebook",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "nbqa black ${file}; nbqa ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-outputs --preserve-cell-metadata ploomber special tags -- ${file}",
+      "command": "nbqa black ${file}; nbqa ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-outputs --preserve-cell-metadata special tags -- ${file}",
       "icon": { "id": "notebook" },
       "problemMatcher": []
     },
