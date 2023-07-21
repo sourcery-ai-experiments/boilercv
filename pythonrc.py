@@ -3,10 +3,13 @@
 Avoid activating Rich features that break functionality outside of the REPL.
 """
 
+from warning_filters import filter_warnings_and_update_dotenv
 
-def main():
+
+def init():
     from rich import inspect, traceback  # noqa: F401
 
+    filter_warnings_and_update_dotenv()
     traceback.install()
 
     if not is_notebook_or_ipython():
@@ -25,4 +28,4 @@ def is_notebook_or_ipython() -> bool:
         return shell == "TerminalInteractiveShell"
 
 
-main()
+init()

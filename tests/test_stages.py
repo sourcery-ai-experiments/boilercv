@@ -40,6 +40,15 @@ def test_stages(stage: str, x: str):
     importlib.import_module(f"boilercv.stages.{stage}").main()
 
 
+@pytest.mark.filterwarnings(
+    ":".join(
+        (
+            "ignore",
+            r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+            "RuntimeWarning",
+        )
+    )
+)
 @pytest.mark.slow()
 @pytest.mark.usefixtures("tmp_project")
 @pytest.mark.parametrize(

@@ -2,6 +2,7 @@ ci:
   skip:
     - "pre-repro"
     # - "hide-notebook-inputs"
+    - "update-warning-filters"
     - "compose-pyproject"
     # - "pyright"
     - "pytest-fast-only"
@@ -46,6 +47,16 @@ repos:
       # * -------------------------------------------------------------------------- * #
       # * Changes below may be lost in significant template updates.
 
+      - id: "update-warning-filters"
+        name: "update-warning-filters"
+        verbose: true
+        pass_filenames: false
+        language: "system"
+        entry: "pwsh -Command python warning_filters.py"
+        files: |
+          (?x)^(
+            warning_filters.py
+          )$
       - id: "compose-pyproject"
         name: "compose-pyproject"
         pass_filenames: false
