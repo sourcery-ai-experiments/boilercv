@@ -1,7 +1,7 @@
 """Utilities for root and DVC-tracked documentation."""
 
 from collections.abc import Callable
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from os import chdir
 from pathlib import Path
 from typing import Any
@@ -11,6 +11,7 @@ import nbformat as nbf
 import pandas as pd
 import seaborn as sns
 from IPython.display import display
+from IPython.utils.capture import capture_output
 from matplotlib import pyplot as plt
 
 from boilercv.types import DfOrS
@@ -46,9 +47,9 @@ def init():
 
 
 @contextmanager
-def nowarn():
-    """Don't warn at all."""
-    with catch_warnings():
+def nowarn(capture: bool = False):
+    """Don't raise any warnings. Optionally capture output for pesky warnings."""
+    with catch_warnings(), capture_output() if capture else nullcontext():
         filterwarnings("ignore")
         yield
 

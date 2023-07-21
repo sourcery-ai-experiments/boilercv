@@ -1,5 +1,7 @@
+"""Warning filters and `.env` updater."""
+
 from pathlib import Path
-from warnings import filterwarnings
+from warnings import filterwarnings, resetwarnings
 
 
 def filter_warnings_and_update_dotenv():
@@ -10,11 +12,14 @@ def filter_warnings_and_update_dotenv():
         filterwarnings(*filt)  # type: ignore  # pyright 1.1.317
         # Since `.env` files don't support regex matching, un-escape slashes and
         # truncate after the first `.*`.
-        if len(filt) > (message_pos := 1):
-            filt[message_pos] = filt[message_pos].replace("\\", "").split(".*")[0]  # type: ignore  # pyright 1.1.317
+        if len(filt) > (msg_pos := 1):
+            msg = filt[msg_pos].replace("\\", "")  # type: ignore  # pyright 1.1.317
+            for splittable in [",", ".*", "=", "'", '"']:
+                msg = msg.split(splittable)[0]
+            filt[msg_pos] = msg
         # Convert classes to string representations of their names
-        if len(filt) > (warning_class_pos := 2):
-            filt[warning_class_pos] = filt[warning_class_pos].__name__  # type: ignore  # pyright 1.1.317
+        if len(filt) > (warn_pos := 2):
+            filt[warn_pos] = filt[warn_pos].__name__  # type: ignore  # pyright 1.1.317
         # Join filter parts with colons, as expected in `.env` files
         filters.append(":".join(str(f) for f in filt))
     # ! Truncate `.env` after notice and insert filters
@@ -216,6 +221,15 @@ FILTERS = (
             (
                 r"unclosed file <_io\.BufferedReader name='.*'>",
                 ResourceWarning,
+            ),
+            # ! NOT LINKED
+            (
+                (
+                    "subpackages can technically be lazily loaded, but it causes the "
+                    "package to be eagerly loaded even if it is already lazily loaded."
+                    "So, you probably shouldn't use subpackages with this lazy feature."
+                ),
+                RuntimeWarning,
             ),
         )
     ),

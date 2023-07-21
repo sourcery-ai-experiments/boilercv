@@ -9,7 +9,7 @@ from contextlib import AbstractContextManager
 from functools import wraps
 from os import chdir
 from pathlib import Path
-from shlex import quote, split
+from shlex import join, quote, split
 from subprocess import CalledProcessError
 from typing import Any, TypedDict
 
@@ -21,9 +21,10 @@ from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 from boilercv.models.params import PARAMS
 
 RUN_ALL = False
+RERUN_COMMITTED = False
 
 CLEAN = True
-EXECUTE = True
+EXECUTE = False
 EXPORT = True
 REPORT = False
 COMMIT = True
@@ -42,13 +43,7 @@ async def main():  # noqa: C901
     if RUN_ALL:
         nbs = get_modified_nbs(list(PARAMS.paths.docs.glob("**/*.ipynb")))
     else:
-        repo = Repo()
-        # Check for modifications
-        modified = get_dvc_modified(repo, granular=True)
-        # Skip if no changes to docs
-        if PARAMS.paths.docs not in modified:
-            return
-        nbs = get_modified_nbs(modified)
+        nbs = get_dvc_modified_nbs(repo)
 
     # Clean notebooks, removing outputs before execution as necessary
     if CLEAN:
@@ -58,17 +53,13 @@ async def main():  # noqa: C901
 
     # Repeat the modification check after cleaning
     if not RUN_ALL:
-        modified = get_dvc_modified(repo, granular=True)
-        # Skip if no changes to docs
-        if PARAMS.paths.docs not in modified:
-            return
-        nbs = get_modified_nbs(modified)
+        nbs = get_dvc_modified_nbs(repo)
 
     # Run CPU-bound stages in a process pool
     if EXECUTE:
         with ProcessPoolExecutor() as executor:
             for nb in nbs:
-                executor.submit(execute_notebook, input_path=nb, output_path=nb)
+                executor.submit(log_execution, nb)
 
     # Run IO-bound stages concurrently (loop is inside the task)
     if EXPORT:
@@ -92,7 +83,6 @@ async def main():  # noqa: C901
 
 async def clean_notebook(nb: str, preserve_outputs: bool):
     """Clean a notebook."""
-    logger.info(Path(nb).name)
     for command in [
         f"nbqa black {nb}",
         f"nbqa ruff --fix-only {nb}",
@@ -106,14 +96,24 @@ async def clean_notebook(nb: str, preserve_outputs: bool):
         await run_process(command)
 
 
+def log_execution(nb: str):
+    """Log notebook execution."""
+    prefix = "Start ploomber-engine execution of "
+    logger.info(
+        f"{prefix}{nb[:9]}.../" + nb.split("/")[-1]
+        if "/" in nb and len(nb) > 30
+        else f"{prefix}{nb}"
+    )
+    return execute_notebook(input_path=nb, output_path=nb)
+
+
 async def export_notebook(nb: str):
     """Export a notebook to Markdown and HTML."""
-    logger.info(Path(nb).name)
     html = fold(PARAMS.local_paths.html)
     md = fold(PARAMS.paths.md)
     for command in [
-        f"jupyter nbconvert {nb} --to markdown --no-input --output-dir {md}",
-        f"jupyter nbconvert {nb} --to html --no-input --output-dir {html}",
+        f"jupyter-nbconvert {nb} --to markdown --no-input --output-dir {md}",
+        f"jupyter-nbconvert {nb} --to html --no-input --output-dir {html}",
     ]:
         await run_process(command)
 
@@ -158,6 +158,46 @@ async def generate_report_from_notebook(
     )
 
 
+async def run_process(command: str, venv: bool = True):
+    """Run a subprocess asynchronously."""
+    command, *args = split(command, posix=False)
+    cmd_and_args = join([command, *args])
+    logger.info(
+        f"Start {cmd_and_args[:30]}...{cmd_and_args[-30:]}"
+        if len(cmd_and_args) > 60
+        else cmd_and_args
+    )
+    process = await create_subprocess_exec(
+        f"{'.venv/scripts/' if venv else ''}{command}", *args, stdout=PIPE, stderr=PIPE
+    )
+    stdout, stderr = (msg.decode("utf-8") for msg in await process.communicate())
+    message = (
+        (f"{stdout}\n{stderr}" if stdout and stderr else stdout or stderr)
+        .replace("\r\n", "\n")
+        .strip()
+    )
+    if process.returncode:
+        exception = CalledProcessError(
+            returncode=process.returncode,
+            cmd=command,
+            output=stdout,
+            stderr=stderr,
+        )
+        exception.add_note(message)
+        exception.add_note("Arguments:\n" + "    \n".join(args))
+        raise exception
+    finish = f"Finish {command}"
+    if message:
+        indent = "\n    "
+        logger.info(
+            f"{finish}: ⏎{indent}" + message.replace("\n", indent)
+            if "\n" in message
+            else f"{finish}: {message}"
+        )
+    else:
+        logger.info(finish)
+
+
 class ReportKwargs(TypedDict):
     """Keyword arguments for generating a report."""
 
@@ -166,6 +206,26 @@ class ReportKwargs(TypedDict):
     csl: str
     docx: str
     md: str
+
+
+def get_dvc_modified_nbs(repo: Repo) -> dict[str, ReportKwargs]:
+    # Check for modifications
+    modified = get_dvc_modified(repo, granular=True)
+    # Skip if no changes to docs
+    return get_modified_nbs(modified) if PARAMS.paths.docs in modified else {}
+
+
+def get_dvc_modified(repo: Repo, granular: bool = False) -> list[Path]:
+    """Get a list of modified files tracked by DVC."""
+    status = repo.data_status(granular=granular)
+    modified: list[Path] = []
+    for key in ["modified", "added"]:
+        paths = (status["uncommitted"].get(key) or []) + (
+            (status["committed"].get(key) or []) if RERUN_COMMITTED else []
+        )
+        if paths:
+            modified.extend([Path(path) for path in paths])
+    return modified
 
 
 def get_modified_nbs(modified: list[Path]) -> dict[str, ReportKwargs]:
@@ -193,53 +253,6 @@ def get_modified_nbs(modified: list[Path]) -> dict[str, ReportKwargs]:
     }
 
 
-def get_dvc_modified(
-    repo: Repo, granular: bool = False, committed: bool = False
-) -> list[Path]:
-    """Get a list of modified files tracked by DVC."""
-    status = repo.data_status(granular=granular)
-    modified: list[Path] = []
-    for key in ["modified", "added"]:
-        if paths := status["committed" if committed else "uncommitted"].get(key):
-            modified.extend([Path(path) for path in paths])
-    return modified
-
-
-async def run_process(command: str, venv: bool = True):
-    """Run a subprocess asynchronously."""
-    command, *args = split(command, posix=False)
-    process = await create_subprocess_exec(
-        f"{'.venv/scripts/' if venv else ''}{command}", *args, stdout=PIPE, stderr=PIPE
-    )
-    stdout, stderr = (msg.decode("utf-8") for msg in await process.communicate())
-    message = (
-        (f"{stdout}\n{stderr}" if stdout and stderr else stdout or stderr)
-        .replace("\r\n", "\n")
-        .strip()
-    )
-    if process.returncode:
-        exception = CalledProcessError(
-            returncode=process.returncode,
-            cmd=command,
-            output=stdout,
-            stderr=stderr,
-        )
-        exception.add_note(message)
-        exception.add_note("Arguments:\n" + "    \n".join(args))
-        raise exception
-    if message:
-        logger.info(
-            f"Finished {command}"
-            + (
-                (":\n    " + message.replace("\n", "\n    "))
-                if "\n" in message
-                else f": {message}"
-            )
-        )
-    else:
-        logger.info(f"Finished {command}")
-
-
 def fold(path: Path):
     """Resolve and normalize a path to a POSIX string path with forward slashes."""
     return quote(str(path.resolve()).replace("\\", "/"))
@@ -252,14 +265,15 @@ class PreserveDir:
     """
 
     def __init__(self):
+        self.outer_dir = Path.cwd()
         self.inner_dir = None
 
     def __enter__(self):
-        self.outer_dir = Path.cwd()  # type: ignore
+        self.outer_dir = Path.cwd()
         if self.inner_dir is not None:
             chdir(self.inner_dir)
 
-    def __exit__(self, *exc_info):
+    def __exit__(self, *exception_info_):
         self.inner_dir = Path.cwd()
         chdir(self.outer_dir)
 
