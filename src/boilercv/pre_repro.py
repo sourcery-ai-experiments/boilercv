@@ -21,6 +21,8 @@ from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 
 from boilercv.models.params import PARAMS
 
+DOCS = PARAMS.paths.docs
+
 RUN_ALL = False
 RUN_COMMITTED = False
 
@@ -29,8 +31,6 @@ EXECUTE = True
 EXPORT = True
 REPORT = True
 COMMIT = True
-
-SKIP = not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT)
 
 # Don't log function call since we're almost always in "run_process" in this module
 logger.remove()
@@ -49,22 +49,23 @@ async def main():  # noqa: C901
     """Update DVC paths (implicitly through import of PARAMS) and build docs."""
 
     # Check for modifications
-    if SKIP:
+    if skip_ := not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT):
         return
     repo = Repo()
     if RUN_ALL:
-        nbs = fold_docs_nbs(list(PARAMS.paths.docs.glob("**/*.ipynb")))
+        nbs = fold_docs_nbs(list(DOCS.glob("**/*.ipynb")), DOCS)
     else:
-        nbs = fold_modified_nbs(repo)
+        nbs = fold_modified_nbs(repo, RUN_COMMITTED, DOCS)
 
     # Clean notebooks and check for modifications again after cleaning
     if CLEAN:
+        preserve_outputs = not EXECUTE
         async with TaskGroup() as tg:
             for nb in nbs.values():
-                tg.create_task(clean_notebook(nb, preserve_outputs=(not EXECUTE)))
+                tg.create_task(clean_notebook(nb, preserve_outputs))
         logger.info("FINISH CLEAN")
     if not RUN_ALL:
-        nbs = fold_modified_nbs(repo)
+        nbs = fold_modified_nbs(repo, RUN_COMMITTED, DOCS)
 
     # Execute notebooks in a process pool as this is CPU-bound
     if EXECUTE:
@@ -77,7 +78,11 @@ async def main():  # noqa: C901
     if EXPORT:
         async with TaskGroup() as tg:
             for nb in nbs.values():
-                tg.create_task(export_notebook(nb))
+                tg.create_task(
+                    export_notebook(
+                        nb, html=fold(PARAMS.local_paths.html), md=fold(PARAMS.paths.md)
+                    )
+                )
         logger.info("FINISH EXPORT")
 
     # Generate DOCX reports w/ Pandoc
@@ -104,7 +109,7 @@ async def main():  # noqa: C901
     # Commit changes
     if COMMIT:
         logger.info("START COMMIT")
-        docs_dvc_file = fold(PARAMS.paths.docs.with_suffix(".dvc"))
+        docs_dvc_file = fold(DOCS.with_suffix(".dvc"))
         repo.commit(docs_dvc_file, force=True)
         add(paths=docs_dvc_file)
         logger.info("FINISH COMMIT")
@@ -137,10 +142,8 @@ def execute_and_log(nb: str):
     prefix = "FINISH EXECUTE"
 
 
-async def export_notebook(nb: str):
+async def export_notebook(nb: str, md: str, html: str):
     """Export a notebook to Markdown and HTML."""
-    html = fold(PARAMS.local_paths.html)
-    md = fold(PARAMS.paths.md)
     for command in [
         f"jupyter-nbconvert {nb} --to markdown --no-input --output-dir {md}",
         f"jupyter-nbconvert {nb} --to html --no-input --output-dir {html}",
@@ -228,26 +231,26 @@ async def run_process(command: str, venv: bool = True):
         logger.info(finish)
 
 
-def fold_modified_nbs(repo: Repo) -> dict[Path, str]:
+def fold_modified_nbs(repo: Repo, run_committed: bool, docs: Path) -> dict[Path, str]:
     """Fold the paths of modified documentation notebooks."""
-    modified = get_modified_files(repo, granular=True)
-    return fold_docs_nbs(modified) if PARAMS.paths.docs in modified else {}
+    modified = get_modified_files(repo, run_committed)
+    return fold_docs_nbs(modified, docs) if docs in modified else {}
 
 
-def get_modified_files(repo: Repo, granular: bool = False) -> list[Path]:
+def get_modified_files(repo: Repo, run_committed: bool) -> list[Path]:
     """Get files considered modified by DVC."""
-    status = repo.data_status(granular=granular)
+    status = repo.data_status(granular=True)
     modified: list[Path] = []
     for key in ["modified", "added"]:
         paths = (status["uncommitted"].get(key) or []) + (
-            (status["committed"].get(key) or []) if RUN_COMMITTED else []
+            (status["committed"].get(key) or []) if run_committed else []
         )
         if paths:
             modified.extend([Path(path) for path in paths])
     return modified
 
 
-def fold_docs_nbs(paths: list[Path]) -> dict[Path, str]:
+def fold_docs_nbs(paths: list[Path], docs: Path) -> dict[Path, str]:
     """Fold the paths of documentation-related notebooks."""
     return {
         nb: fold(nb)
@@ -255,7 +258,7 @@ def fold_docs_nbs(paths: list[Path]) -> dict[Path, str]:
             [
                 path
                 for path in paths
-                if path.is_relative_to(PARAMS.paths.docs) and path.suffix == ".ipynb"
+                if path.is_relative_to(docs) and path.suffix == ".ipynb"
             ]
         )
     }
