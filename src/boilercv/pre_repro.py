@@ -11,7 +11,8 @@ from os import chdir
 from pathlib import Path
 from shlex import join, quote, split
 from subprocess import CalledProcessError
-from typing import Any, TypedDict
+from sys import stdout
+from typing import Any
 
 from dulwich.porcelain import add  # type: ignore  # pyright: 1.1.311
 from dvc.repo import Repo  # type: ignore  # pyright: 1.1.311
@@ -21,64 +22,92 @@ from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 from boilercv.models.params import PARAMS
 
 RUN_ALL = False
-RERUN_COMMITTED = False
+RUN_COMMITTED = False
 
 CLEAN = True
-EXECUTE = False
+EXECUTE = True
 EXPORT = True
-REPORT = False
+REPORT = True
 COMMIT = True
+
 SKIP = not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT)
+
+# Don't log function call since we're almost always in "run_process" in this module
+logger.remove()
+logger.add(
+    sink=stdout,
+    format=(
+        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> |"
+        " <level>{level: <8}</level> |"
+        # " <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> -"
+        " <level>{message}</level>"
+    ),
+)
 
 
 async def main():  # noqa: C901
     """Update DVC paths (implicitly through import of PARAMS) and build docs."""
 
-    # Skip if all stages are disabled
+    # Check for modifications
     if SKIP:
         return
-
-    # Get notebooks to run
     repo = Repo()
     if RUN_ALL:
-        nbs = get_modified_nbs(list(PARAMS.paths.docs.glob("**/*.ipynb")))
+        nbs = fold_docs_nbs(list(PARAMS.paths.docs.glob("**/*.ipynb")))
     else:
-        nbs = get_dvc_modified_nbs(repo)
+        nbs = fold_modified_nbs(repo)
 
-    # Clean notebooks, removing outputs before execution as necessary
+    # Clean notebooks and check for modifications again after cleaning
     if CLEAN:
         async with TaskGroup() as tg:
-            for nb in nbs:
+            for nb in nbs.values():
                 tg.create_task(clean_notebook(nb, preserve_outputs=(not EXECUTE)))
-
-    # Repeat the modification check after cleaning
+        logger.info("FINISH CLEAN")
     if not RUN_ALL:
-        nbs = get_dvc_modified_nbs(repo)
+        nbs = fold_modified_nbs(repo)
 
-    # Run CPU-bound stages in a process pool
+    # Execute notebooks in a process pool as this is CPU-bound
     if EXECUTE:
         with ProcessPoolExecutor() as executor:
-            for nb in nbs:
-                executor.submit(log_execution, nb)
+            for nb in nbs.values():
+                executor.submit(execute_and_log, nb)
+        logger.info("FINISH EXECUTE")
 
-    # Run IO-bound stages concurrently (loop is inside the task)
+    # Export notebooks to Markdown and HTML
     if EXPORT:
         async with TaskGroup() as tg:
-            for nb in nbs:
+            for nb in nbs.values():
                 tg.create_task(export_notebook(nb))
+        logger.info("FINISH EXPORT")
 
-    # Run the last stage, which requires changing the active directory
+    # Generate DOCX reports w/ Pandoc
     if REPORT:
-        workdir = fold(PARAMS.paths.md)
         async with TaskGroup() as tg:
-            for kwargs in nbs.values():
-                tg.create_task(generate_report_from_notebook(workdir, **kwargs))
+            for nb in nbs:
+                tg.create_task(
+                    generate_report_from_notebook(
+                        **{
+                            kwarg: fold(path)
+                            for kwarg, path in dict(
+                                workdir=PARAMS.paths.md,
+                                template=PARAMS.project_paths.template,
+                                zotero=PARAMS.project_paths.zotero,
+                                csl=PARAMS.project_paths.csl,
+                                docx=PARAMS.paths.docx / nb.with_suffix(".docx").name,
+                                md=PARAMS.paths.md / nb.with_suffix(".md").name,
+                            ).items()
+                        },
+                    )
+                )
+        logger.info("FINISH REPORT")
 
-    # Commit the changes
+    # Commit changes
     if COMMIT:
+        logger.info("START COMMIT")
         docs_dvc_file = fold(PARAMS.paths.docs.with_suffix(".dvc"))
         repo.commit(docs_dvc_file, force=True)
         add(paths=docs_dvc_file)
+        logger.info("FINISH COMMIT")
 
 
 async def clean_notebook(nb: str, preserve_outputs: bool):
@@ -96,15 +125,16 @@ async def clean_notebook(nb: str, preserve_outputs: bool):
         await run_process(command)
 
 
-def log_execution(nb: str):
+def execute_and_log(nb: str):
     """Log notebook execution."""
-    prefix = "Start ploomber-engine execution of "
+    prefix = "START ploomber-engine execution of "
     logger.info(
         f"{prefix}{nb[:9]}.../" + nb.split("/")[-1]
         if "/" in nb and len(nb) > 30
         else f"{prefix}{nb}"
     )
-    return execute_notebook(input_path=nb, output_path=nb)
+    execute_notebook(input_path=nb, output_path=nb)
+    prefix = "FINISH EXECUTE"
 
 
 async def export_notebook(nb: str):
@@ -163,7 +193,7 @@ async def run_process(command: str, venv: bool = True):
     command, *args = split(command, posix=False)
     cmd_and_args = join([command, *args])
     logger.info(
-        f"Start {cmd_and_args[:30]}...{cmd_and_args[-30:]}"
+        f"START {cmd_and_args[:30]}...{cmd_and_args[-30:]}"
         if len(cmd_and_args) > 60
         else cmd_and_args
     )
@@ -186,7 +216,7 @@ async def run_process(command: str, venv: bool = True):
         exception.add_note(message)
         exception.add_note("Arguments:\n" + "    \n".join(args))
         raise exception
-    finish = f"Finish {command}"
+    finish = f"FINISH {command}"
     if message:
         indent = "\n    "
         logger.info(
@@ -198,55 +228,33 @@ async def run_process(command: str, venv: bool = True):
         logger.info(finish)
 
 
-class ReportKwargs(TypedDict):
-    """Keyword arguments for generating a report."""
-
-    template: str
-    zotero: str
-    csl: str
-    docx: str
-    md: str
+def fold_modified_nbs(repo: Repo) -> dict[Path, str]:
+    """Fold the paths of modified documentation notebooks."""
+    modified = get_modified_files(repo, granular=True)
+    return fold_docs_nbs(modified) if PARAMS.paths.docs in modified else {}
 
 
-def get_dvc_modified_nbs(repo: Repo) -> dict[str, ReportKwargs]:
-    # Check for modifications
-    modified = get_dvc_modified(repo, granular=True)
-    # Skip if no changes to docs
-    return get_modified_nbs(modified) if PARAMS.paths.docs in modified else {}
-
-
-def get_dvc_modified(repo: Repo, granular: bool = False) -> list[Path]:
-    """Get a list of modified files tracked by DVC."""
+def get_modified_files(repo: Repo, granular: bool = False) -> list[Path]:
+    """Get files considered modified by DVC."""
     status = repo.data_status(granular=granular)
     modified: list[Path] = []
     for key in ["modified", "added"]:
         paths = (status["uncommitted"].get(key) or []) + (
-            (status["committed"].get(key) or []) if RERUN_COMMITTED else []
+            (status["committed"].get(key) or []) if RUN_COMMITTED else []
         )
         if paths:
             modified.extend([Path(path) for path in paths])
     return modified
 
 
-def get_modified_nbs(modified: list[Path]) -> dict[str, ReportKwargs]:
-    """Get the modified notebooks and their corresponding report paths."""
+def fold_docs_nbs(paths: list[Path]) -> dict[Path, str]:
+    """Fold the paths of documentation-related notebooks."""
     return {
-        fold(nb): ReportKwargs(
-            **{
-                kwarg: fold(path)
-                for kwarg, path in dict(
-                    template=PARAMS.project_paths.template,
-                    zotero=PARAMS.project_paths.zotero,
-                    csl=PARAMS.project_paths.csl,
-                    docx=PARAMS.paths.docx / nb.with_suffix(".docx").name,
-                    md=PARAMS.paths.md / nb.with_suffix(".md").name,
-                ).items()
-            }
-        )
+        nb: fold(nb)
         for nb in sorted(
             [
                 path
-                for path in modified
+                for path in paths
                 if path.is_relative_to(PARAMS.paths.docs) and path.suffix == ".ipynb"
             ]
         )
@@ -315,6 +323,6 @@ class CoroWrapper:
 
 if __name__ == "__main__":
     logger.add(sink="pre_repro.log")
-    logger.info("Start pre_repro")
+    logger.info("START pre_repro")
     asyncio.run(main())
-    logger.info("Finish pre_repro")
+    logger.info("FINISH pre_repro")
