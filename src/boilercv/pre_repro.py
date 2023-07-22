@@ -131,7 +131,7 @@ async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
 
 def execute_and_log(nb: str):
     """Log notebook execution."""
-    msg = f"{nb[:9]}.../" + nb.split("/")[-1] if "/" in nb and len(nb) > 30 else nb
+    msg = f"{nb[:9]}.../{nb.split('/')[-1]}" if "/" in nb and len(nb) > 30 else nb
     logger.info(f"    Start execution of {msg}")
     execute_notebook(input_path=nb, output_path=nb)
     logger.info(f"    Finish execution of {msg}")
