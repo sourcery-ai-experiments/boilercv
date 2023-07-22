@@ -22,7 +22,7 @@ from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 from boilercv.models.params import PARAMS
 
 DOCS = PARAMS.paths.docs
-RUN_ALL = RUN_COMMITTED = False
+RUN_ALL = ALSO_RUN_COMMITTED = False
 CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
 
 # Don't log function call since we're almost always in "run_process" in this module
@@ -49,7 +49,7 @@ async def main():  # noqa: C901
     if RUN_ALL:
         nbs = fold_docs_nbs(list(DOCS.glob("**/*.ipynb")), DOCS)
     else:
-        nbs = fold_modified_nbs(repo, RUN_COMMITTED, DOCS)
+        nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
 
     if CLEAN:
         logger.info("START CLEAN")
@@ -59,7 +59,7 @@ async def main():  # noqa: C901
                 tg.create_task(clean_notebook(nb, preserve_outputs, lint=True))
         logger.info("FINISH CLEAN")
     if not RUN_ALL:
-        nbs = fold_modified_nbs(repo, RUN_COMMITTED, DOCS)
+        nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
 
     if EXECUTE:
         logger.info("START EXECUTE")
@@ -223,22 +223,21 @@ async def run_process(command: str, venv: bool = True):
         logger.info(f"    Finish {command}")
 
 
-def fold_modified_nbs(repo: Repo, run_committed: bool, docs: Path) -> dict[Path, str]:
+def fold_modified_nbs(repo: Repo, also_committed: bool, docs: Path) -> dict[Path, str]:
     """Fold the paths of modified documentation notebooks."""
-    modified = get_modified_files(repo, run_committed)
+    modified = get_modified_files(repo, also_committed)
     return fold_docs_nbs(modified, docs) if docs in modified else {}
 
 
-def get_modified_files(repo: Repo, run_committed: bool) -> list[Path]:
+def get_modified_files(repo: Repo, also_committed: bool) -> list[Path]:
     """Get files considered modified by DVC."""
     status = repo.data_status(granular=True)
     modified: list[Path] = []
     for key in ["modified", "added"]:
-        paths = (status["uncommitted"].get(key) or []) + (
-            (status["committed"].get(key) or []) if run_committed else []
-        )
-        if paths:
-            modified.extend([Path(path) for path in paths])
+        paths = status["uncommitted"].get(key) or []
+        if also_committed:
+            paths.extend(status["committed"].get(key) or [])
+        modified.extend([Path(path) for path in paths])
     return modified
 
 
