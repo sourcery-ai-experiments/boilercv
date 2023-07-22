@@ -22,7 +22,7 @@ from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 from boilercv.models.params import PARAMS
 
 DOCS = PARAMS.paths.docs
-RUN_ALL = ALSO_RUN_COMMITTED = False
+RUN_ALL = ALSO_RUN_COMMITTED = True
 CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
 
 # Don't log function call since we're almost always in "run_process" in this module
@@ -37,6 +37,7 @@ for sink in [stdout, "pre_repro.log"]:
             " <level>{message}</level>"
         ),
     )
+logger = logger.opt(colors=True)
 
 
 async def main():  # noqa: C901
@@ -52,30 +53,30 @@ async def main():  # noqa: C901
         nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
 
     if CLEAN:
-        logger.info("START CLEAN")
+        logger.info("<yellow>START</yellow> CLEAN")
         preserve_outputs = not EXECUTE
         async with TaskGroup() as tg:
             for nb in nbs.values():
                 tg.create_task(clean_notebook(nb, preserve_outputs, lint=True))
-        logger.info("FINISH CLEAN")
+        logger.info("<green>FINISH</green> CLEAN")
     if not RUN_ALL:
         nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
 
     if EXECUTE:
-        logger.info("START EXECUTE")
+        logger.info("<yellow>START</yellow> EXECUTE")
         with ProcessPoolExecutor() as executor:
             for nb in nbs.values():
                 executor.submit(execute_and_log, nb)
-        logger.info("FINISH EXECUTE")
-        logger.info("START REMOVE EXECUTION METADATA")
+        logger.info("<green>FINISH</green> EXECUTE")
+        logger.info("<yellow>START</yellow> REMOVE EXECUTION METADATA")
         async with TaskGroup() as tg:
             for nb in nbs.values():
                 tg.create_task(clean_notebook(nb, preserve_outputs=True, lint=False))
-        logger.info("FINISH REMOVE EXECUTION METADATA")
+        logger.info("<green>FINISH</green> REMOVE EXECUTION METADATA")
 
     # Export notebooks to Markdown and HTML
     if EXPORT:
-        logger.info("START EXPORT")
+        logger.info("<yellow>START</yellow> EXPORT")
         async with TaskGroup() as tg:
             for nb in nbs.values():
                 tg.create_task(
@@ -83,11 +84,11 @@ async def main():  # noqa: C901
                         nb, html=fold(PARAMS.local_paths.html), md=fold(PARAMS.paths.md)
                     )
                 )
-        logger.info("FINISH EXPORT")
+        logger.info("<green>FINISH</green> EXPORT")
 
     # Generate DOCX reports w/ Pandoc
     if REPORT:
-        logger.info("START REPORT")
+        logger.info("<yellow>START</yellow> REPORT")
         async with TaskGroup() as tg:
             for nb in nbs:
                 tg.create_task(
@@ -105,15 +106,15 @@ async def main():  # noqa: C901
                         },
                     )
                 )
-        logger.info("FINISH REPORT")
+        logger.info("<green>FINISH</green> REPORT")
 
     # Commit changes
     if COMMIT:
-        logger.info("START COMMIT")
+        logger.info("<yellow>START</yellow> COMMIT")
         docs_dvc_file = fold(DOCS.with_suffix(".dvc"))
         repo.commit(docs_dvc_file, force=True)
         add(paths=docs_dvc_file)
-        logger.info("FINISH COMMIT")
+        logger.info("<green>FINISH</green> COMMIT")
 
 
 async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
@@ -132,9 +133,9 @@ async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
 def execute_and_log(nb: str):
     """Log notebook execution."""
     msg = f"{nb[:9]}.../{nb.split('/')[-1]}" if "/" in nb and len(nb) > 30 else nb
-    logger.info(f"    Start execution of {msg}")
+    logger.info(f"    <yellow>Start</yellow> <orange>execution</orange> of {msg}")
     execute_notebook(input_path=nb, output_path=nb)
-    logger.info(f"    Finish execution of {msg}")
+    logger.info(f"    <green>Finish</green> <orange>execution</orange> of {msg}")
 
 
 async def export_notebook(nb: str, md: str, html: str):
@@ -189,13 +190,20 @@ async def generate_report_from_notebook(
 async def run_process(command: str, venv: bool = True):
     """Run a subprocess asynchronously."""
     command, *args = split(command, posix=False)
-    cmd_and_args = join([command, *args])
-    start = "    Start "
-    logger.info(
-        f"{start}{cmd_and_args[:30]}...{cmd_and_args[-30:]}"
-        if len(cmd_and_args) > 60
-        else f"{start}{cmd_and_args}"
-    )
+    colors = {
+        "jupyter-nbconvert": "blue",
+        "nb-clean": "magenta",
+        "nbqa": "cyan",
+        "pandoc": "red",
+    }
+    colored_command = f"<{colors[command]}>{command}</{colors[command]}>"
+    cmd_and_args = f"{colored_command} {join(args)}"
+    start = "    <yellow>Start</yellow> "
+    if len(join([command, *args])) > 60:
+        cmd_and_args = f"{cmd_and_args[:30]}...{cmd_and_args[-30:]}"
+    else:
+        cmd_and_args = f"{cmd_and_args}"
+    logger.info(f"{start}{cmd_and_args}")
     process = await create_subprocess_exec(
         f"{'.venv/scripts/' if venv else ''}{command}", *args, stdout=PIPE, stderr=PIPE
     )
@@ -217,10 +225,12 @@ async def run_process(command: str, venv: bool = True):
         raise exception
     if message:
         logger.info(
-            f"    Finish {command}: " + message.replace("\n", ". ")[:30] + "..."
+            f"    <green>Finish</green> {colored_command}: "
+            + message.replace("\n", ". ")[:30]
+            + "..."
         )
     else:
-        logger.info(f"    Finish {command}")
+        logger.info(f"    <green>Finish</green> {colored_command}")
 
 
 def fold_modified_nbs(repo: Repo, also_committed: bool, docs: Path) -> dict[Path, str]:
@@ -316,6 +326,6 @@ class CoroWrapper:
 
 
 if __name__ == "__main__":
-    logger.info("START pre_repro")
+    logger.info("<yellow>START</yellow> pre_repro")
     asyncio.run(main())
-    logger.info("FINISH pre_repro")
+    logger.info("<green>FINISH</green> pre_repro")
