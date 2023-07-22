@@ -118,7 +118,7 @@ async def main():  # noqa: C901
 
 async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
     """Clean a notebook."""
-    commands: list[str] = [f"nbqa black {nb}", f"nbqa ruff --fix-only {nb}"] if lint else []  # type: ignore  # redefine
+    commands: list[str] = [f"nbqa black {nb}", f"nbqa ruff --fix-only {nb}"] if lint else []
     commands.append(
         "   nb-clean clean --remove-empty-cells"
         f"{'  --preserve-cell-outputs' if preserve_outputs else ''}"
