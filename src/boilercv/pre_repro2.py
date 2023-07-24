@@ -4,7 +4,6 @@ import asyncio
 from asyncio import TaskGroup, create_subprocess_exec
 from asyncio.subprocess import PIPE
 from collections.abc import Callable, Coroutine
-from concurrent.futures import ProcessPoolExecutor
 from contextlib import AbstractContextManager
 from functools import wraps
 from os import chdir
@@ -17,34 +16,41 @@ from typing import Any
 from dulwich.porcelain import add  # type: ignore  # pyright: 1.1.311
 from dvc.repo import Repo  # type: ignore  # pyright: 1.1.311
 from loguru import logger  # type: ignore  # pyright: 1.1.311
-from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 
 from boilercv.models.params import PARAMS
 
 DOCS = PARAMS.paths.docs
 RUN_ALL = ALSO_RUN_COMMITTED = True
-CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
+CLEAN = EXPORT = REPORT = COMMIT = True
 
-# Don't log function call since we're almost always in "run_process" in this module
+REPLAY_LOG = True
+file = Path("pre_repro.log")
 logger.remove()
-for sink in [stdout, "pre_repro.log"]:
+if REPLAY_LOG:
     logger.add(
-        sink=sink,
-        format=(
-            "<green>{time:YYYY-MM-DD HH:mm:ss}</green> |"
-            # " <level>{level: <8}</level> |"
-            # " <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> -"
-            " {message}"
-        ),
+        sink=file,
+        format=(r"\<green>{time:YYYY-MM-DD HH:mm:ss}\</green> | {message}"),
     )
-logger = logger.opt(colors=True)
+    logger = logger.opt(colors=False)
+else:
+    for sink in [stdout, file]:
+        logger.add(
+            sink=sink,
+            format=(
+                "<green>{time:YYYY-MM-DD HH:mm:ss}</green> |"
+                # " <level>{level: <8}</level> |"
+                # " <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> -"
+                " {message}"
+            ),
+        )
+    logger = logger.opt(colors=True)
 
 
 async def main():  # noqa: C901
     """Update DVC paths (implicitly through import of PARAMS) and build docs."""
 
     # Check for modifications
-    if skip_ := not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT):
+    if skip_ := not (CLEAN or EXPORT or REPORT or COMMIT):
         return
     repo = Repo()
     if RUN_ALL:
@@ -53,27 +59,14 @@ async def main():  # noqa: C901
         nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
 
     if CLEAN:
-        preserve_outputs = RUN_ALL or not EXECUTE
+        preserve_outputs = RUN_ALL
         logger.info("<yellow>START</yellow> CLEAN")
-        preserve_outputs = not EXECUTE
         async with TaskGroup() as tg:
             for nb in nbs.values():
                 tg.create_task(clean_notebook(nb, preserve_outputs, lint=True))
         logger.info("<green>FINISH</green> CLEAN")
     if not RUN_ALL:
         nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
-
-    if EXECUTE:
-        logger.info("<yellow>START</yellow> EXECUTE")
-        with ProcessPoolExecutor() as executor:
-            for nb in nbs.values():
-                executor.submit(execute_and_log, nb)
-        logger.info("<green>FINISH</green> EXECUTE")
-        logger.info("<yellow>START</yellow> REMOVE EXECUTION METADATA")
-        async with TaskGroup() as tg:
-            for nb in nbs.values():
-                tg.create_task(clean_notebook(nb, preserve_outputs=True, lint=False))
-        logger.info("<green>FINISH</green> REMOVE EXECUTION METADATA")
 
     # Export notebooks to Markdown and HTML
     if EXPORT:
@@ -131,14 +124,6 @@ async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
         await run_process(command)
 
 
-def execute_and_log(nb: str):
-    """Log notebook execution."""
-    msg = f"{nb[:9]}.../{nb.split('/')[-1]}" if "/" in nb and len(nb) > 30 else nb
-    logger.info(f"    <yellow>Start</yellow> <orange>execution</orange> of {msg}")
-    execute_notebook(input_path=nb, output_path=nb)
-    logger.info(f"    <green>Finish</green> <orange>execution</orange> of {msg}")
-
-
 async def export_notebook(nb: str, md: str, html: str):
     """Export a notebook to Markdown and HTML."""
     for command in [
@@ -189,10 +174,10 @@ async def generate_report_from_notebook(
 
 
 COLORS = {
-    "jupyter-nbconvert": "blue",
+    "jupyter-nbconvert": "cyan",
     "nb-clean": "magenta",
-    "nbqa": "cyan",
-    "pandoc": "red",
+    "nbqa": "yellow",
+    "pandoc": "blue",
 }
 
 
