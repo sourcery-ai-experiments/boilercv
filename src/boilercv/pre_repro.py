@@ -53,7 +53,7 @@ async def main():
         nbs = get_nbs(REPO, DOCS, ALSO_COMMITTED, MODIFIED_ONLY)
         if not nbs:
             return
-    for cond, process in {EXECUTE: execute, EXPORT: export, REPORT: report}.items():
+    for process, cond in {execute: EXECUTE, export: EXPORT, report: REPORT}.items():
         if cond:
             await process(nbs)
     if COMMIT:
