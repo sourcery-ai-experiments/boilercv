@@ -21,76 +21,108 @@ from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 
 from boilercv.models.params import PARAMS
 
+# Pipeline parameters
+REPO = Repo()
 DOCS = PARAMS.paths.docs
-RUN_ALL = ALSO_RUN_COMMITTED = True
-CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
+ALSO_COMMITTED = False
+MODIFIED_ONLY = CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
 
-# Set up logging
+# Notebook parameter overrides
+OVERRIDE = RELINK = False
+
+# Logging
 VERBOSE_LOG = True
 REPLAY = LOG_TO_FILE = False
 logger.remove()
-for sink in ([stdout] if REPLAY else []) + (["pre_repro.log"] if LOG_TO_FILE else []):
-    logger.add(sink=sink, enqueue=True, format=("<green>{mm:ss}</green> | {message}"))
+for sink in (["pre_repro.log"] if LOG_TO_FILE else []) + ([] if REPLAY else [stdout]):
+    logger.add(
+        sink=sink, enqueue=True, format=("<green>{time:mm:ss}</green> | {message}")
+    )
 logger = logger.opt(colors=not REPLAY)
+logger.info("<yellow>START</yellow> pre_repro")
+if not VERBOSE_LOG:
+    logger.disable("__main__")
 
 
-async def main():  # noqa: C901
-    """Update DVC paths (implicitly through import of PARAMS) and build docs."""
-
-    logger.info("<yellow>START</yellow> pre_repro")
-    if not VERBOSE_LOG:
-        logger.disable("__main__")
-
-    # Check for modifications
-    if skip_ := not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT):
+async def main():
+    nbs = get_nbs(REPO, DOCS, ALSO_COMMITTED, MODIFIED_ONLY)
+    if not nbs:
         return
-    repo = Repo()
-    if RUN_ALL:
-        nbs = fold_docs_nbs(list(DOCS.glob("**/*.ipynb")), DOCS)
-    else:
-        nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
-
     if CLEAN:
-        preserve_outputs = RUN_ALL or not EXECUTE
-        logger.info("<yellow>START</yellow> CLEAN")
-        preserve_outputs = not EXECUTE
-        async with TaskGroup() as tg:
-            for nb in nbs.values():
-                tg.create_task(clean_notebook(nb, preserve_outputs, lint=True))
-        logger.info("<green>FINISH</green> CLEAN")
-    if not RUN_ALL:
-        nbs = fold_modified_nbs(repo, ALSO_RUN_COMMITTED, DOCS)
-
+        await clean(nbs)
+        nbs = get_nbs(REPO, DOCS, ALSO_COMMITTED, MODIFIED_ONLY)
+        if not nbs:
+            return
     if EXECUTE:
-        logger.info("<yellow>START</yellow> EXECUTE")
-        with ProcessPoolExecutor() as executor:
-            for nb in nbs.values():
-                executor.submit(execute_and_log, nb)
-        logger.info("<green>FINISH</green> EXECUTE")
-        logger.info("<yellow>START</yellow> REMOVE EXECUTION METADATA")
-        async with TaskGroup() as tg:
-            for nb in nbs.values():
-                tg.create_task(clean_notebook(nb, preserve_outputs=True, lint=False))
-        logger.info("<green>FINISH</green> REMOVE EXECUTION METADATA")
+        await execute(nbs)
+    if EXPORT or REPORT:
+        await export_and_report(nbs, EXPORT, REPORT)
+    if COMMIT:
+        commit(REPO)
 
-    # Export notebooks to Markdown and HTML
-    if EXPORT:
-        logger.info("<yellow>START</yellow> EXPORT")
-        async with TaskGroup() as tg:
-            for nb in nbs.values():
+
+# * -------------------------------------------------------------------------------- * #
+# * NOTEBOOK PROCESSING
+
+
+def get_nbs(
+    repo: Repo, docs: Path, also_committed: bool, modified_only: bool
+) -> dict[Path, str]:
+    """Get all notebooks or just the modified ones."""
+    return (
+        fold_modified_nbs(repo, also_committed, docs)
+        if modified_only
+        else fold_docs_nbs(list(docs.glob("**/*.ipynb")), docs)
+    )
+
+
+async def clean(nbs):
+    """Clean notebooks."""
+    logger.info("<yellow>START</yellow> CLEAN")
+    async with TaskGroup() as tg:
+        for nb in nbs.values():
+            tg.create_task(clean_notebook(nb, lint=True))
+    logger.info("<green>FINISH</green> CLEAN")
+
+
+async def execute(nbs: dict[Path, str]):
+    """Execute notebooks."""
+    logger.info("<yellow>START</yellow> EXECUTE")
+    with ProcessPoolExecutor() as executor:
+        for nb in nbs:
+            executor.submit(
+                execute_notebook,
+                input_path=nb,
+                output_path=nb,
+                progress_bar=VERBOSE_LOG,
+                remove_tagged_cells=["ploomber-engine-error-cell"]
+                + ([] if OVERRIDE else ["injected_parameters"]),
+                parameters=dict(RELINK=RELINK) if OVERRIDE else {},
+            )
+    logger.info("<green>FINISH</green> EXECUTE")
+    logger.info("<yellow>START</yellow> REMOVE EXECUTION METADATA")
+    async with TaskGroup() as tg:
+        for nb in nbs.values():
+            tg.create_task(clean_notebook(nb, lint=False))
+    logger.info("<green>FINISH</green> REMOVE EXECUTION METADATA")
+
+
+async def export_and_report(nbs: dict[Path, str], export: bool, report: bool):
+    """Export notebooks and generate reports."""
+    logger.info("<yellow>START</yellow> EXPORT/REPORT")
+    async with TaskGroup() as tg:
+        for nbp, nb in nbs.items():
+            # Export notebooks to Markdown and HTML
+            if export:
                 tg.create_task(
                     export_notebook(
                         nb, html=fold(PARAMS.local_paths.html), md=fold(PARAMS.paths.md)
                     )
                 )
-
-    # Generate DOCX reports w/ Pandoc
-    if REPORT:
-        logger.info("<yellow>START</yellow> REPORT")
-        async with TaskGroup() as tg:
-            for nb in nbs:
+            # Generate DOCX reports w/ Pandoc
+            if report:
                 tg.create_task(
-                    generate_report_from_notebook(
+                    report_on_notebook(
                         **{
                             kwarg: fold(path)
                             for kwarg, path in dict(
@@ -98,45 +130,39 @@ async def main():  # noqa: C901
                                 template=PARAMS.project_paths.template,
                                 zotero=PARAMS.project_paths.zotero,
                                 csl=PARAMS.project_paths.csl,
-                                docx=PARAMS.paths.docx / nb.with_suffix(".docx").name,
-                                md=PARAMS.paths.md / nb.with_suffix(".md").name,
+                                docx=PARAMS.paths.docx / nbp.with_suffix(".docx").name,
+                                md=PARAMS.paths.md / nbp.with_suffix(".md").name,
                             ).items()
-                        },
+                        }
                     )
                 )
-        logger.info("<green>FINISH</green> REPORT")
-
-    # Commit changes
-    if COMMIT:
-        logger.info("<yellow>START</yellow> COMMIT")
-        docs_dvc_file = fold(DOCS.with_suffix(".dvc"))
-        repo.commit(docs_dvc_file, force=True)
-        add(paths=docs_dvc_file)
-        logger.info("<green>FINISH</green> COMMIT")
-
-    logger.enable("__main__")
-    logger.info("<green>FINISH</green> pre_repro")
+    logger.info("<green>FINISH</green> EXPORT/REPORT")
 
 
-async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
+def commit(repo):
+    """Commit changes."""
+    logger.info("<yellow>START</yellow> COMMIT")
+    docs_dvc_file = fold(DOCS.with_suffix(".dvc"))
+    repo.commit(docs_dvc_file, force=True)
+    add(paths=docs_dvc_file)
+    logger.info("<green>FINISH</green> COMMIT")
+
+
+# * -------------------------------------------------------------------------------- * #
+# * SINGLE NOTEBOOK PROCESSING
+
+
+async def clean_notebook(nb: str, lint: bool):
     """Clean a notebook."""
     commands = [f"nbqa black {nb}", f"nbqa ruff --fix-only {nb}"] if lint else []
     commands.append(
         "   nb-clean clean --remove-empty-cells"
-        f"{'  --preserve-cell-outputs' if preserve_outputs else ''}"
+        "     --preserve-cell-outputs"
         "     --preserve-cell-metadata special tags"
         f"    -- {nb}"
     )
     for command in commands:
         await run_process(command)
-
-
-def execute_and_log(nb: str):
-    """Log notebook execution."""
-    msg = f"{nb[:9]}.../{nb.split('/')[-1]}" if "/" in nb and len(nb) > 30 else nb
-    logger.info(f"    <yellow>Start</yellow> <orange>execution</orange> of {msg}")
-    execute_notebook(input_path=nb, output_path=nb)
-    logger.info(f"    <green>Finish</green> <orange>execution</orange> of {msg}")
 
 
 async def export_notebook(nb: str, md: str, html: str):
@@ -159,7 +185,7 @@ def preserve_dir(f: Callable[..., Coroutine[Any, Any, Any]]):
 
 
 @preserve_dir
-async def generate_report_from_notebook(
+async def report_on_notebook(
     workdir: str, template: str, zotero: str, csl: str, docx: str, md: str
 ):
     """Generate a DOCX report from a notebook.
@@ -187,6 +213,9 @@ async def generate_report_from_notebook(
         ),
     )
 
+
+# * -------------------------------------------------------------------------------- * #
+# * UTILITIES
 
 COLORS = {
     "jupyter-nbconvert": "blue",
@@ -258,11 +287,12 @@ def fold_docs_nbs(paths: list[Path], docs: Path) -> dict[Path, str]:
     return {
         nb: fold(nb)
         for nb in sorted(
-            [
-                path
+            {
+                path.with_suffix(".ipynb")
                 for path in paths
-                if path.is_relative_to(docs) and path.suffix == ".ipynb"
-            ]
+                # Consider notebook modified even if only its `.h5` file is
+                if path.is_relative_to(docs) and path.suffix in [".ipynb", ".h5"]
+            }
         )
     }
 
@@ -270,6 +300,10 @@ def fold_docs_nbs(paths: list[Path], docs: Path) -> dict[Path, str]:
 def fold(path: Path):
     """Resolve and normalize a path to a POSIX string path with forward slashes."""
     return quote(str(path.resolve()).replace("\\", "/"))
+
+
+# * -------------------------------------------------------------------------------- * #
+# * PRIMITIVES
 
 
 class PreserveDir:
@@ -327,5 +361,9 @@ class CoroWrapper:
                 send, message = iter_throw, err
 
 
+# * -------------------------------------------------------------------------------- * #
+
 if __name__ == "__main__":
     asyncio.run(main())
+    logger.enable("__main__")
+    logger.info("<green>FINISH</green> pre_repro")
