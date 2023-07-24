@@ -25,23 +25,21 @@ DOCS = PARAMS.paths.docs
 RUN_ALL = ALSO_RUN_COMMITTED = True
 CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
 
-# Don't log function call since we're almost always in "run_process" in this module
+# Set up logging
+VERBOSE_LOG = True
+REPLAY = LOG_TO_FILE = False
 logger.remove()
-for sink in [stdout, "pre_repro.log"]:
-    logger.add(
-        sink=sink,
-        format=(
-            "<green>{time:YYYY-MM-DD HH:mm:ss}</green> |"
-            # " <level>{level: <8}</level> |"
-            # " <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> -"
-            " {message}"
-        ),
-    )
-logger = logger.opt(colors=True)
+for sink in ([stdout] if REPLAY else []) + (["pre_repro.log"] if LOG_TO_FILE else []):
+    logger.add(sink=sink, enqueue=True, format=("<green>{mm:ss}</green> | {message}"))
+logger = logger.opt(colors=not REPLAY)
 
 
 async def main():  # noqa: C901
     """Update DVC paths (implicitly through import of PARAMS) and build docs."""
+
+    logger.info("<yellow>START</yellow> pre_repro")
+    if not VERBOSE_LOG:
+        logger.disable("__main__")
 
     # Check for modifications
     if skip_ := not (CLEAN or EXECUTE or EXPORT or REPORT or COMMIT):
@@ -85,7 +83,6 @@ async def main():  # noqa: C901
                         nb, html=fold(PARAMS.local_paths.html), md=fold(PARAMS.paths.md)
                     )
                 )
-        logger.info("<green>FINISH</green> EXPORT")
 
     # Generate DOCX reports w/ Pandoc
     if REPORT:
@@ -116,6 +113,9 @@ async def main():  # noqa: C901
         repo.commit(docs_dvc_file, force=True)
         add(paths=docs_dvc_file)
         logger.info("<green>FINISH</green> COMMIT")
+
+    logger.enable("__main__")
+    logger.info("<green>FINISH</green> pre_repro")
 
 
 async def clean_notebook(nb: str, preserve_outputs: bool, lint: bool):
@@ -328,6 +328,4 @@ class CoroWrapper:
 
 
 if __name__ == "__main__":
-    logger.info("<yellow>START</yellow> pre_repro")
     asyncio.run(main())
-    logger.info("<green>FINISH</green> pre_repro")
