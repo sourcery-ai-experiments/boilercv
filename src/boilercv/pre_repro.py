@@ -94,8 +94,7 @@ async def execute(nbs: dict[Path, str]):
                 input_path=nb,
                 output_path=nb,
                 progress_bar=VERBOSE_LOG,
-                remove_tagged_cells=["ploomber-engine-error-cell"]
-                + ([] if OVERRIDE else ["injected_parameters"]),
+                remove_tagged_cells=["ploomber-engine-error-cell"],
                 parameters=dict(RELINK=RELINK) if OVERRIDE else {},
             )
     logger.info("<green>FINISH</green> EXECUTE")
