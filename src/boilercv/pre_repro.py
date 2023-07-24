@@ -53,10 +53,9 @@ async def main():
         nbs = get_nbs(REPO, DOCS, ALSO_COMMITTED, MODIFIED_ONLY)
         if not nbs:
             return
-    if EXECUTE:
-        await execute(nbs)
-    if EXPORT or REPORT:
-        await export_and_report(nbs, EXPORT, REPORT)
+    for cond, process in {EXECUTE: execute, EXPORT: export, REPORT: report}.items():
+        if cond:
+            await process(nbs)
     if COMMIT:
         commit(REPO)
 
@@ -107,36 +106,40 @@ async def execute(nbs: dict[Path, str]):
     logger.info("<green>FINISH</green> REMOVE EXECUTION METADATA")
 
 
-async def export_and_report(nbs: dict[Path, str], export: bool, report: bool):
-    """Export notebooks and generate reports."""
-    logger.info("<yellow>START</yellow> EXPORT/REPORT")
+async def export(nbs: dict[Path, str]):
+    """Export notebooks to Markdown and HTML."""
+    logger.info("<yellow>START</yellow> EXPORT")
     async with TaskGroup() as tg:
-        for nbp, nb in nbs.items():
-            # Export notebooks to Markdown and HTML
-            if export:
-                tg.create_task(
-                    export_notebook(
-                        nb, html=fold(PARAMS.local_paths.html), md=fold(PARAMS.paths.md)
-                    )
+        for nb in nbs.values():
+            tg.create_task(
+                export_notebook(
+                    nb, html=fold(PARAMS.local_paths.html), md=fold(PARAMS.paths.md)
                 )
-            # Generate DOCX reports w/ Pandoc
-            if report:
-                tg.create_task(
-                    report_on_notebook(
-                        **{
-                            kwarg: fold(path)
-                            for kwarg, path in dict(
-                                workdir=PARAMS.paths.md,
-                                template=PARAMS.project_paths.template,
-                                zotero=PARAMS.project_paths.zotero,
-                                csl=PARAMS.project_paths.csl,
-                                docx=PARAMS.paths.docx / nbp.with_suffix(".docx").name,
-                                md=PARAMS.paths.md / nbp.with_suffix(".md").name,
-                            ).items()
-                        }
-                    )
+            )
+    logger.info("<green>FINISH</green> EXPORT")
+
+
+async def report(nbs: dict[Path, str]):
+    """Generate DOCX reports."""
+    logger.info("<yellow>START</yellow> REPORT")
+    async with TaskGroup() as tg:
+        for nb in nbs:
+            tg.create_task(
+                report_on_notebook(
+                    **{
+                        kwarg: fold(path)
+                        for kwarg, path in dict(
+                            workdir=PARAMS.paths.md,
+                            template=PARAMS.project_paths.template,
+                            zotero=PARAMS.project_paths.zotero,
+                            csl=PARAMS.project_paths.csl,
+                            docx=PARAMS.paths.docx / nb.with_suffix(".docx").name,
+                            md=PARAMS.paths.md / nb.with_suffix(".md").name,
+                        ).items()
+                    }
                 )
-    logger.info("<green>FINISH</green> EXPORT/REPORT")
+            )
+    logger.info("<green>FINISH</green> REPORT")
 
 
 def commit(repo):
