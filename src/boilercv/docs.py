@@ -25,6 +25,9 @@ FLOAT_SPEC = "#.4g"
 HIDE = display()
 """Hide unsuppressed output. Can't use semicolon due to black autoformatter."""
 
+DISPLAY_ROWS = 40
+"""The number of rows to display in a dataframe."""
+
 
 def init():
     """Initialize notebook formats."""
@@ -35,6 +38,7 @@ def init():
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
     pd.options.display.float_format = f"{{:{FLOAT_SPEC}}}".format
+    pd.options.display.min_rows = pd.options.display.max_rows = DISPLAY_ROWS
 
     sns.set_theme(
         context="notebook",
@@ -70,17 +74,15 @@ def keep_viewer_in_scope():
 
 
 @contextmanager
-def style_df(df: DfOrS):
-    """Apply default styles to styled dataframes."""
-    if isinstance(df, pd.Series):
-        df = df.to_frame()
+def style_df(df: DfOrS, head: bool = False):
+    """Style a dataframe."""
+    df, truncated = truncate(df, head)
     styler = df.style
-    formatter = get_df_formatter(df)
     yield styler
-    display(styler.format(formatter))  # type: ignore  # pyright 1.1.311
+    display(styler.format(get_df_formatter(df, truncated)))  # type: ignore  # pyright 1.1.317
 
 
-def display_dfs(*dfs: DfOrS):
+def display_dfs(*dfs: DfOrS, head: bool = False):
     """Display formatted DataFrames.
 
     When a mapping of column names to callables is given to the Pandas styler, the
@@ -89,17 +91,24 @@ def display_dfs(*dfs: DfOrS):
     actually process the value and return the formatted string.
     """
     for df in dfs:
-        if isinstance(df, pd.Series):
-            df = df.to_frame()
-        formatter = get_df_formatter(df)
-        display(df.style.format(formatter))  # type: ignore  # pyright 1.1.311
+        df, truncated = truncate(df, head)
+        display(df.style.format(get_df_formatter(df, truncated)))  # type: ignore  # pyright 1.1.317
 
 
-def get_df_formatter(df: pd.DataFrame) -> dict[str, Callable[..., str]]:
+def get_df_formatter(
+    df: pd.DataFrame, truncated: bool
+) -> Callable[..., str] | dict[str, Callable[..., str]]:
     """Get formatter for the dataframe."""
+    if truncated:
+        return format_cell
     cols = df.columns
     types = {col: dtype.type for col, dtype in zip(cols, df.dtypes, strict=True)}
     return {col: get_formatter(types[col]()) for col in cols}
+
+
+def format_cell(cell) -> str:
+    """Format individual cells."""
+    return get_formatter(cell)(cell)
 
 
 def get_formatter(instance: Any) -> Callable[..., str]:
@@ -109,6 +118,36 @@ def get_formatter(instance: Any) -> Callable[..., str]:
             return lambda cell: f"{cell:{FLOAT_SPEC}}"
         case _:
             return lambda cell: f"{cell}"
+
+
+def truncate(df: DfOrS, head: bool = False) -> tuple[pd.DataFrame, bool]:
+    """Truncate long dataframes, showing only the head and tail."""
+    if isinstance(df, pd.Series):
+        df = df.to_frame()
+    if len(df) <= pd.options.display.max_rows:
+        return df, False  # type: ignore  # pyright 1.1.317
+    if head:
+        return df.head(pd.options.display.min_rows), True
+    df = df.copy()
+    # Resolves case when column names are not strings for latter assignment, e.g. when
+    # the column axis is a RangeIndex.
+    df.columns = [str(col) for col in df.columns]
+    # Resolves ValueError: Length of names must match number of levels in MultiIndex.
+    ellipsis_index = ("...",) * df.index.nlevels
+    df = pd.concat(
+        [
+            df.head(pd.options.display.min_rows // 2),
+            df.iloc[[0]]  # Resolves ValueError: cannot handle a non-unique multi-index!
+            .reindex(
+                pd.MultiIndex.from_tuples([ellipsis_index], names=df.index.names)
+                if isinstance(df.index, pd.MultiIndex)
+                else pd.Index(ellipsis_index, name=df.index.name)
+            )
+            .assign(**{col: "..." for col in df.columns}),
+            df.tail(pd.options.display.min_rows // 2),
+        ]
+    )
+    return df, True
 
 
 # * -------------------------------------------------------------------------------- * #
