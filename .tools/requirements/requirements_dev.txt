@@ -5,10 +5,10 @@
 # * Changes below may be lost in significant template updates.
 
 # Introspection
-fawltydeps==0.12.0
+fawltydeps==0.12.1
 
 # Experiment
-ipykernel==6.24.0
+ipykernel==6.25.0
 
 # Debug
 debugpy==1.6.7
