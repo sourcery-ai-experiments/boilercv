@@ -1,7 +1,7 @@
 # List project dependencies here. A workflow ports them to `pyproject.toml`
 dvc[gs]==3.5.1
 imageio[pyav]==2.31.1
-ipywidgets==8.0.7
+ipykernel==6.24.0
 loguru==0.7.0
 matplotlib==3.7.2
 nbconvert==7.7.1
@@ -25,5 +25,7 @@ sparklines==0.4.2
 sympy==1.12
 trackpy==0.6.1
 xarray[accel,io,parallel]==2023.6.0
-# ? Conflicts with imageio, matplotlib, and xarray
+# Numba only supports numpy<1.25 https://github.com/numba/numba/issues/8698
+# ! Unpin numba once it supports numpy>=1.25
+numba==0.57.1
 numpy==1.24.4
