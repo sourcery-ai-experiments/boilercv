@@ -39,9 +39,6 @@ for sink in (["pre_repro.log"] if LOG_TO_FILE else []) + ([] if REPLAY else [std
         sink=sink, enqueue=True, format=("<green>{time:mm:ss}</green> | {message}")
     )
 logger = logger.opt(colors=not REPLAY)
-logger.info("<yellow>START</yellow> pre_repro")
-if not VERBOSE_LOG:
-    logger.disable("__main__")
 
 
 async def main():
@@ -366,6 +363,9 @@ class CoroWrapper:
 # * -------------------------------------------------------------------------------- * #
 
 if __name__ == "__main__":
+    logger.info("<yellow>START</yellow> pre_repro")
+    if not VERBOSE_LOG:
+        logger.disable("__main__")
     asyncio.run(main())
     logger.enable("__main__")
     logger.info("<green>FINISH</green> pre_repro")
