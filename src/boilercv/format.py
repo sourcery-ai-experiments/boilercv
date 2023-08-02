@@ -1,16 +1,12 @@
 # type: ignore pyright 1.1.308, local/CI differences, below
 from collections.abc import Mapping
 from contextlib import contextmanager
-from typing import Any, Literal
+from typing import Any
 
 import matplotlib as mpl
-import numpy as np
 import pandas as pd
 from IPython.core.display import Markdown, Math  # type: ignore
 from IPython.display import display  # type: ignore
-from matplotlib import pyplot as plt
-from matplotlib.axis import XAxis, YAxis
-from matplotlib.ticker import MaxNLocator
 from sympy import FiniteSet
 from sympy.printing.latex import latex
 
@@ -41,37 +37,6 @@ def math_mod(expr, long_frac_ratio=3, **kwargs):
 
 # * -------------------------------------------------------------------------------- * #
 # * PLOTTING
-
-
-def smart_set_lim(
-    ax: plt.Axes,
-    axis: Literal["x", "y", "z"],
-    limit: tuple[float, float],
-    prec: int = 0,
-):
-    """Set axis limits with smart precision and tick handling.
-
-    If axis limits exceed one, simply set the limits. Otherwise, set limits and
-    automatically choose the minimum necessary label format precision to represent the
-    limits. Limit the number of major ticks so as not to repeat tick labels given the
-    format precision.
-
-    Args:
-        ax: The axes object to operate on.
-        axis: The axis (e.g. "x" or "y") to operate on.
-        limit: The axes limits to apply.
-        prec: The maximum precision for the major ticks. Default is 0.
-    """
-    getattr(ax, f"set_{axis}lim")(*limit)
-    if np.max(limit) > 1:
-        return
-    if prec == 0:
-        prec = int(np.min(np.floor(np.log10(np.array(limit)[np.array(limit) != 0]))))
-    axis_to_set: XAxis | YAxis = getattr(ax, f"{axis}axis")
-    axis_to_set.set_major_formatter(f"{{:#.{-prec}f}}".format)
-    axis_to_set.set_major_locator(
-        MaxNLocator(int(np.squeeze(np.diff(limit)) * 10**-prec))
-    )
 
 
 @contextmanager
