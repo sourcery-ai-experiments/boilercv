@@ -11,6 +11,7 @@ project_paths:
   mpl_hide_title: plotting/hide_title.mplstyle
   scripts: scripts
   zotero: scripts/zotero.lua
+  filt: scripts/filt.py
   csl: scripts/international-journal-of-heat-and-mass-transfer.csl
   template: scripts/template.dotx
   stage_find_contours: src/boilercv/stages/find_contours.py

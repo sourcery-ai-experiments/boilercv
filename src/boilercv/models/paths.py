@@ -36,6 +36,7 @@ class ProjectPaths(CreatePathsModel):
     # ! SCRIPTS
     scripts: DirectoryPath = project / "scripts"
     zotero: FilePath = scripts / "zotero.lua"
+    filt: FilePath = scripts / "filt.py"
     csl: FilePath = scripts / "international-journal-of-heat-and-mass-transfer.csl"
     template: FilePath = scripts / "template.dotx"
 

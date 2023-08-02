@@ -127,6 +127,7 @@ async def report(nbs: dict[Path, str]):
                         for kwarg, path in dict(
                             workdir=PARAMS.paths.md,
                             template=PARAMS.project_paths.template,
+                            filt=PARAMS.project_paths.filt,
                             zotero=PARAMS.project_paths.zotero,
                             csl=PARAMS.project_paths.csl,
                             docx=PARAMS.paths.docx / nb.with_suffix(".docx").name,
@@ -185,7 +186,7 @@ def preserve_dir(f: Callable[..., Coroutine[Any, Any, Any]]):
 
 @preserve_dir
 async def report_on_notebook(
-    workdir: str, template: str, zotero: str, csl: str, docx: str, md: str
+    workdir: str, template: str, filt: str, zotero: str, csl: str, docx: str, md: str
 ):
     """Generate a DOCX report from a notebook.
 
@@ -202,6 +203,8 @@ async def report_on_notebook(
             "   --from markdown-auto_identifiers"  # Avoids bookmark pollution around Markdown headers
             "   --to docx"  # The output format
             f"  --reference-doc {template}"  # The template to export literature reviews to
+            # Custom filter to strip out dataframes
+            f"  --filter {filt}"
             # Zotero Lua filter and metadata passed to it
             f"  --lua-filter {zotero}"  # Needs to be the one downloaded from the tutorial page https://retorque.re/zotero-better-bibtex/exporting/pandoc/#from-markdown-to-zotero-live-citations
             "   --metadata zotero_library:3"  # Corresponds to "Nucleate pool boiling [3]"
