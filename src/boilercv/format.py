@@ -56,3 +56,11 @@ def tex_wrap(df: pd.DataFrame) -> tuple[pd.DataFrame, Mapping[str, str]]:
         col = f"${handle_subscript(src_col)}$" if "_" in src_col else src_col
         mapper[src_col] = col
     return df.rename(axis="columns", mapper=mapper), mapper
+
+
+def handle_subscript(val: str) -> str:
+    """Wrap everything after the first underscore and replace others with commas."""
+    quantity, units = sep_unit(val)
+    parts = quantity.split("_")
+    quantity = f"{parts[0]}_" + "{" + ",".join(parts[1:]) + "}"
+    return add_unit(quantity, units, tex=True)

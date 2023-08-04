@@ -25,7 +25,7 @@ FLOAT_SPEC = "#.4g"
 HIDE = display()
 """Hide unsuppressed output. Can't use semicolon due to black autoformatter."""
 
-DISPLAY_ROWS = 40
+DISPLAY_ROWS = 20
 """The number of rows to display in a dataframe."""
 
 
