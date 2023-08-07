@@ -1,4 +1,3 @@
-# List project dependencies here. A workflow ports them to `pyproject.toml`
 colorcet==3.0.1
 dvc[gs]==3.10.1
 imageio[pyav]==2.31.1
@@ -32,6 +31,6 @@ xarray[accel,io,parallel]==2023.7.0
 numba==0.57.1
 numpy==1.24.4
 # ! Consider switching to pims instead
-git+https://github.com/blakeNaccarato/boilercine@main
+boilercine@git+https://github.com/blakeNaccarato/boilercine@main
 # ! Pin the merge commit in master once it is merged
-git+https://github.com/1313e/CMasher@mpl_future_proofing
+CMasher@git+https://github.com/1313e/CMasher@mpl_future_proofing
