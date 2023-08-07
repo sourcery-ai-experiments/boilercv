@@ -2,7 +2,7 @@
 # * Changes below should persist in significant template updates.
 
 git+https://github.com/blakeNaccarato/boilercine@main
-git+https://github.com/blakeNaccarato/CMasher@fix-cm-deprecation
+git+https://github.com/blakeNaccarato/CMasher@fc5cb882562019f374aa5616ddf103730021a3ce
 
 # * -------------------------------------------------------------------------------- * #
 # * Changes below may be lost in significant template updates.
