@@ -1,6 +1,5 @@
 project_paths:
   project: .
-  requirements: requirements.txt
   dev_requirements: .tools/requirements
   package: src/boilercv
   stages: src/boilercv/stages

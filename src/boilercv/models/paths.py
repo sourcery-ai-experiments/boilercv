@@ -19,7 +19,6 @@ class ProjectPaths(CreatePathsModel):
     project: DirectoryPath = PROJECT_DIR
 
     # ! REQUIREMENTS
-    requirements: FilePath = project / "requirements.txt"
     dev_requirements: DirectoryPath = project / ".tools/requirements"
 
     # ! PACKAGE

@@ -3,7 +3,6 @@ ci:
     - "pre-repro"
     # - "hide-notebook-inputs"
     - "update-warning-filters"
-    - "compose-pyproject"
     # - "pyright"
     - "pytest-fast-only"
     # - "pytest-slow-only"
@@ -57,17 +56,6 @@ repos:
           (?x)^(
             warning_filters.py
           )$
-      - id: "compose-pyproject"
-        name: "compose-pyproject"
-        pass_filenames: false
-        language: "system"
-        entry: "pwsh -Command python .tools/scripts/compose_pyproject.py"
-        files: |
-          (?x)^(
-            pyproject.toml
-            |requirements.txt
-            |.tools/pyproject.toml
-          )$
       # - id: "pyright"
       #   name: "pyright"
       #   pass_filenames: false
@@ -78,7 +66,6 @@ repos:
       #       src/.*
       #       |tests/.*
       #       |pyproject.toml
-      #       |requirements.txt
       #       |.tools/(
       #         pyproject.toml
       #         |requirements/.*
@@ -99,7 +86,6 @@ repos:
             src/.*
             |tests/.*
 
-            |requirements.txt
             |.tools/(
               pyproject.toml
               |requirements/.*

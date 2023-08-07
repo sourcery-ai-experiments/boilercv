@@ -27,7 +27,11 @@ sparklines==0.4.2
 sympy==1.12
 trackpy==0.6.1
 xarray[accel,io,parallel]==2023.7.0
-# Numba only supports numpy<1.25 https://github.com/numba/numba/issues/8698
 # ! Unpin numba once it supports numpy>=1.25
+# ? Numba only supports numpy<1.25 https://github.com/numba/numba/issues/8698
 numba==0.57.1
 numpy==1.24.4
+# ! Consider switching to pims instead
+git+https://github.com/blakeNaccarato/boilercine@main
+# ! Pin the merge commit in master once it is merged
+git+https://github.com/1313e/CMasher@mpl_future_proofing
