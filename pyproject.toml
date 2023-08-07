@@ -90,6 +90,7 @@ ignore = [
     "EM",      # Don't check for exception message issues
     "ERA",     # False positives. Don't get rid of commented out code.
     "FBT",     # Allow boolean "traps"
+    "FIX002",  # Allow TODOs
     "F841",    # Don't check for or fix unused variables
     "FLY002",  # Allow different string representations
     "G0",      # Allow f-strings, etc. in Loguru logging
