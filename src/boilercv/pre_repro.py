@@ -154,7 +154,7 @@ def commit(repo):
 
 async def clean_notebook(nb: str, lint: bool):
     """Clean a notebook."""
-    commands = [f"nbqa ruff --fix-only {nb}", f"nbqa black {nb}"] if lint else []
+    commands = [f"nbqa ruff --fix-only {nb}", f"black {nb}"] if lint else []
     commands.append(
         "   nb-clean clean --remove-empty-cells"
         "     --preserve-cell-outputs"
@@ -223,6 +223,7 @@ COLORS = {
     "jupyter-nbconvert": "blue",
     "nb-clean": "magenta",
     "nbqa": "cyan",
+    "black": "cyan",
     "pandoc": "red",
 }
 
