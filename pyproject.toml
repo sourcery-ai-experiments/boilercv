@@ -17,6 +17,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
+    "boilercore>=0.0.0",
     "colorcet>=3.0.1",
     "dulwich>=0.21.5",
     "dvc[gs]>=3.10.1",
@@ -41,7 +42,6 @@ dependencies = [
     "pyside6>=6.5.2",
     "pytz>=2023.3",
     "pyyaml>=6.0.1",
-    "ruamel.yaml>=0.17.32",
     "scikit-image>=0.21.0",
     "scipy>=1.11.1",
     "seaborn>=0.12.2",
@@ -56,7 +56,8 @@ dependencies = [
     # ! Consider switching to pims instead
     "boilercine@git+https://github.com/blakeNaccarato/boilercine@main",
     # ! Pin the merge commit in master once it is merged
-    "CMasher@git+https://github.com/1313e/CMasher@mpl_future_proofing",
+    # ? https://github.com/1313e/CMasher/tree/mpl_future_proofing
+    "CMasher@git+https://github.com/1313e/CMasher@18d50f4deddf2410a4c51475890329d445fd7e1b",
 ]
 [[project.authors]]
 name = "Blake Naccarato, Kwang Jin Kim"
@@ -69,8 +70,12 @@ Home = "https://github.com/blakeNaccarato/boilercv"
 Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 
 [tool.fawltydeps]
-ignore_undeclared = ["pytest"]
+ignore_undeclared = [
+    "boilercore", # Not picked up by fawltydeps
+    "pytest",
+]
 ignore_unused = [
+    "boilercore",   # Not picked up by fawltydeps
     "nbconvert",    # boilercv.pre_repro.export_notebook
     "numba",        # Pin numba until it supports numpy>=1.25
     "pandas-stubs", # Provides stubs for pandas

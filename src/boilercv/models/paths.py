@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
+from boilercore.models import CreatePathsModel
 from pydantic import DirectoryPath, FilePath
 
 from boilercv import DATA_DIR, LOCAL_DATA, PROJECT_DIR
-from boilercv.models import CreatePathsModel
 
 
 def get_sorted_paths(path: Path) -> list[Path]:

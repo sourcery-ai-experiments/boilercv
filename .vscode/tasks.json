@@ -134,19 +134,6 @@
       "problemMatcher": []
     },
     {
-      "label": "dvc: repro force downstream (debug)",
-      "dependsOrder": "sequence",
-      "dependsOn": ["dvc: pre-repro"],
-      "type": "shell",
-      "options": {
-        "shell": { "executable": "pwsh", "args": ["-Command"] },
-        "env": { "BOILERCV_DEBUG": "True" }
-      },
-      "command": "dvc repro --force --downstream ${input:stage}",
-      "icon": { "id": "graph" },
-      "problemMatcher": []
-    },
-    {
       "label": "dvc: repro (debug)",
       "dependsOrder": "sequence",
       "dependsOn": ["dvc: pre-repro"],
@@ -160,12 +147,15 @@
       "problemMatcher": []
     },
     {
-      "label": "dvc: repro force downstream",
+      "label": "dvc: repro force (debug)",
       "dependsOrder": "sequence",
       "dependsOn": ["dvc: pre-repro"],
       "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "dvc repro --force --downstream ${input:stage}",
+      "options": {
+        "shell": { "executable": "pwsh", "args": ["-Command"] },
+        "env": { "BOILERCV_DEBUG": "True" }
+      },
+      "command": "dvc repro --force ${input:stage}",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },
@@ -180,36 +170,12 @@
       "problemMatcher": []
     },
     {
-      "label": "dvc: repro force all",
+      "label": "dvc: repro force",
       "dependsOrder": "sequence",
-      "dependsOn": [
-        "setup: Update project",
-        "dvc: pre-repro",
-        "dvc: freeze",
-        "git: Stage all files",
-        "pre-commit",
-        "git: Stage all files"
-      ],
+      "dependsOn": ["dvc: pre-repro"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "dvc repro --force",
-      "icon": { "id": "graph" },
-      "problemMatcher": []
-    },
-    {
-      "label": "dvc: repro all",
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "setup: Update project",
-        "dvc: pre-repro",
-        "dvc: freeze",
-        "git: Stage all files",
-        "pre-commit",
-        "git: Stage all files"
-      ],
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "dvc repro",
+      "command": "dvc repro --force ${input:stage}",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },
@@ -228,14 +194,6 @@
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "python -m boilercv.pre_repro",
-      "icon": { "id": "graph" },
-      "problemMatcher": []
-    },
-    {
-      "label": "dvc: freeze",
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "pip freeze --requirement .tools/requirements/requirements.txt --local --exclude-editable > repro.txt",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

@@ -1,10 +1,10 @@
 """Parameters for the data pipeline."""
 
 
+from boilercore.models import SynchronizedPathsYamlModel
 from pydantic import Field
 
 from boilercv import PARAMS_FILE
-from boilercv.models import SynchronizedPathsYamlModel
 from boilercv.models.paths import LocalPaths, Paths, ProjectPaths
 
 YAML_INDENT = 2

@@ -22,7 +22,6 @@ pyqtgraph==0.13.3
 pyside6==6.5.2
 pytz==2023.3
 pyyaml==6.0.1
-ruamel.yaml==0.17.32
 scikit-image==0.21.0
 scipy==1.11.1
 seaborn==0.12.2
@@ -38,3 +37,5 @@ numpy==1.24.4
 boilercine@git+https://github.com/blakeNaccarato/boilercine@main
 # ! Pin the merge commit in master once it is merged
 CMasher@git+https://github.com/1313e/CMasher@mpl_future_proofing
+# ! boilercore specified differently in dev and CI to allow editable package in dev
+# boilercore==...
