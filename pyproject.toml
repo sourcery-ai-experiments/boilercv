@@ -31,7 +31,6 @@ dependencies = [
     "nbqa>=1.7.0",
     "opencv-contrib-python>=4.8.0.74",
     "pandas[hdf5,performance]>=2.0.2",
-    "pandas-stubs~=2.0.2",
     "pandocfilters>=1.5.0",
     "pillow>=10.0.0",
     "ploomber-engine>=0.0.30",
