@@ -23,14 +23,7 @@
       "description": "Numba only supports numpy<1.25 https://github.com/numba/numba/issues/8698",
       "groupSlug": "numpy-numba",
       "matchManagers": ["pip_requirements", "pre-commit"],
-      "matchPackageNames": ["numpy", "numba"]
-    },
-    {
-      "groupName": "pandas",
-      "description": "Pandas and pandas-stubs versions should match",
-      "groupSlug": "pandas",
-      "matchManagers": ["pip_requirements"],
-      "matchPackageNames": ["pandas", "pandas-stubs"]
+      "matchPackageNames": ["numpy", "numba", "pandas"]
     },
     {
       "groupName": "pyright and type stubs",
@@ -43,7 +36,6 @@
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": ["*"],
       "matchUpdateTypes": ["minor", "patch"],
-      "excludeDepNames": ["pyright", "numpy", "numba", "pandas", "pandas-stubs"]
     },
     {
       "description": "Ignore github-actions dependencies managed by the template.",
