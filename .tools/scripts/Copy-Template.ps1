@@ -20,3 +20,4 @@ else {
     git submodule deinit template
     copier update --vcs-ref $(git rev-parse HEAD:template) $(if ($Defaults) { '--defaults' })
 }
+python .tools/scripts/warning_filters.py

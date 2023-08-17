@@ -5,7 +5,7 @@
 # * Changes below may be lost in significant template updates.
 
 [build-system]
-requires = ["flit_core >=3.9,<4"]
+requires = ["flit_core==3.9.0"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -59,7 +59,7 @@ dependencies = [
     "CMasher@git+https://github.com/1313e/CMasher@18d50f4deddf2410a4c51475890329d445fd7e1b",
 ]
 [[project.authors]]
-name = "Blake Naccarato, Kwang Jin Kim"
+name = "Blake Naccarato"
 email = "blake.naccarato@gmail.com"
 
 [project.urls]

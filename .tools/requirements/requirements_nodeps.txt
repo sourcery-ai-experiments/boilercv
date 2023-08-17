@@ -1,1 +1,9 @@
+# Requirements for which transitive dependencies will not be installed.
+
+# * -------------------------------------------------------------------------------- * #
+# * Changes below should persist in significant template updates.
+
 pycine@git+https://github.com/ottomatic-io/pycine@815cfca06cafc50745a43b2cd0168982225c6dca
+
+# * -------------------------------------------------------------------------------- * #
+# * Changes below may be lost in significant template updates.
