@@ -43,7 +43,7 @@ jobs:
           python-version: "3.11"
           install-project: false
       - run: "copier update --defaults --vcs-ref $(git rev-parse HEAD:template)"
-      - run: "python .tools/scripts/update_requirements.py"
+      - run: "python .tools/scripts/core_update.py"
       - name: "Check whether bumped requirements install properly"
         run: |-
           pip install .
