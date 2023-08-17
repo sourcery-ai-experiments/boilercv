@@ -19,11 +19,10 @@
   },
   "packageRules": [
     {
-      "groupName": "numpy and numba",
-      "description": "Numba only supports numpy<1.25 https://github.com/numba/numba/issues/8698",
-      "groupSlug": "numpy-numba",
-      "matchManagers": ["pip_requirements", "pre-commit"],
-      "matchPackageNames": ["numpy", "numba", "pandas"]
+      "groupName": "core dependencies",
+      "groupSlug": "all-minor-patch",
+      "matchPackagePatterns": ["*"],
+      "matchUpdateTypes": ["minor", "patch"]
     },
     {
       "groupName": "pyright and type stubs",
@@ -32,10 +31,11 @@
       "matchPackageNames": ["pyright", "typings"]
     },
     {
-      "groupName": "all non-major dependencies except pyright",
-      "groupSlug": "all-minor-patch",
-      "matchPackagePatterns": ["*"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "numpy group",
+      "description": "Numba only supports numpy<1.25 https://github.com/numba/numba/issues/8698",
+      "groupSlug": "numpy-numba",
+      "matchManagers": ["pip_requirements", "pre-commit"],
+      "matchPackageNames": ["numpy", "numba", "pandas"]
     },
     {
       "description": "Ignore github-actions dependencies managed by the template.",
