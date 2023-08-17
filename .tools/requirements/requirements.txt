@@ -36,6 +36,7 @@ numpy==1.24.4
 # ! Consider switching to pims instead
 boilercine@git+https://github.com/blakeNaccarato/boilercine@main
 # ! Pin the merge commit in master once it is merged
-CMasher@git+https://github.com/1313e/CMasher@mpl_future_proofing
+# ? https://github.com/1313e/CMasher/tree/mpl_future_proofing
+CMasher@git+https://github.com/1313e/CMasher@18d50f4deddf2410a4c51475890329d445fd7e1b
 # ! boilercore specified differently in dev and CI to allow editable package in dev
 # boilercore==...
