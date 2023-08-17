@@ -16,8 +16,12 @@ jobs:
         with:
           python-version: "3.11"
           latest-pins: false
-      - run: "pytest --cov"
-      - uses: "codecov/codecov-action@v3.1.4"
+      - name: Install PySide6 system dependencies
+        run: |
+          # https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
+          sudo apt update
+          sudo apt install libegl1
+      - run: "pytest"
 
   # * ------------------------------------------------------------------------------ * #
   # * Changes below should persist in significant template updates.
