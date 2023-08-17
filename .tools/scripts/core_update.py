@@ -5,52 +5,29 @@ from dataclasses import dataclass
 from pathlib import Path
 from re import MULTILINE, VERBOSE, Pattern, compile
 from subprocess import run
-from sys import executable, platform
+from sys import executable
 
+from copier.subproject import Subproject
 from dulwich.porcelain import submodule_list
 from dulwich.repo import Repo
 
-SCRIPTS_DIR = Path(executable).parent
-# Version specification
-VERSION = r"(?P<version>[^\n]+)"  # e.g. 2.0.2
-# Details following a dependency name
-DETAIL = r"""(?P<detail>
-    (\[[^\]]*\])?  # e.g. [hdf5,performance] (optional)
-    [=~><]=        # ==, ~=, >=, <=
-    )"""
-# Constant regex components
-DOMAIN = "git+https://github.com/"
-# Pair of dependencies to source and sink version numbers from/to
-SRC, DST = "pandas", "pandas-stubs"
-
 
 def main():
-    template, typings_, submodules = get_submodules()
-    run(f"{SCRIPTS_DIR}/copier update --defaults --vcs-ref {template.commit}")
+    template, typings_, submodule_deps = get_submodules()
+    if not Subproject(Path().resolve()).is_dirty():
+        run(
+            f"{Path(executable).parent}/copier update"  # noqa: S603
+            f"--defaults --vcs-ref {template.commit}"
+        )
     requirements_files = [
         Path("pyproject.toml"),
         *sorted(Path(".tools/requirements").glob("requirements*.txt")),
     ]
     for file in requirements_files:
         original_content = content = file.read_text("utf-8")
-        if match := re_spec(rf"{SRC}{DETAIL}{VERSION}").search(content):
-            content = re_spec(rf"{DST}{DETAIL}{VERSION}").sub(
-                repl=rf"\g<pre>{DST}\g<detail>{match['version']}\g<post>",
-                string=content,
-            )
-        for sub in submodules:
-            content = re_spec(
-                rf"""
-                {sub.name}@                            # name@
-                {DOMAIN}
-                (?P<org>\w+/)                          # org/
-                {sub.name}@                            # name@
-                (?P<commit>[^\n]*)                     # <commit-hash>
-                $"""
-            ).sub(
-                repl=rf"\g<pre>{sub.name}@{DOMAIN}\g<org>{sub.name}@{sub.commit}\g<post>",
-                string=content,
-            )
+        content = sync_paired_dependency(content, "pandas", "pandas-stubs")
+        for dep in submodule_deps:
+            content = sync_submodule_dependency(content, dep)
         if content != original_content:
             file.write_text(encoding="utf-8", data=content)
 
@@ -85,19 +62,77 @@ def get_submodules() -> tuple[Submodule, Submodule, list[Submodule]]:
         else:
             submodules.append(submodule)
     if not template or not typings:
-        raise ValueError("Could not find template or typings submodules.")
+        raise ValueError("Could not find one of the template or typings submodules.")
     return template, typings, submodules
 
 
-def re_spec(pattern: str) -> Pattern[str]:
-    """Specification for a certain regex pattern."""
-    # Optional pre and post are for quoted dependencies, as in pyproject.toml
+def sync_paired_dependency(content: str, src_name: str, dst_name: str) -> str:
+    """Synchronize paired dependencies.
+
+    Synchronize the `dst` dependency version from the `src` dependency version. This
+    allows for certain complicated dependency relationships to be maintained, such as
+    the one between `pandas` and `pandas-stubs`, in which `pandas-stubs` first three
+    version numbers should match those of releases of `pandas`.
+    """
+    if match := dependency(src_name).search(content):
+        return dependency(dst_name).sub(
+            repl=rf"\g<pre>{dst_name}\g<detail>{match['version']}\g<post>",
+            string=content,
+        )
+    else:
+        return content
+
+
+def dependency(name: str) -> Pattern[str]:
+    """Pattern for a dependency in 'requirements.txt' or 'pyproject.toml'."""
+    return compile_dependency(
+        rf"""
+        {name}               # The dependency name
+        (?P<detail>          # e.g. `~=` or `[hdf5,performance]~=`
+            (\[[^\]]*\])?       # e.g. [hdf5,performance] (optional)
+            [=~><]=             # ==, ~=, >=, <=
+        )
+        (?P<version>[^\n]+)  # e.g. 2.0.2
+        """
+    )
+
+
+def sync_submodule_dependency(content: str, sub: Submodule) -> str:
+    """Synchronize commit-pinned dependencies to their respective submodule commit."""
+    return commit_dependency(sub.name, "https://github.com").sub(
+        repl=rf"\g<before_commit>{sub.commit}\g<post>", string=content
+    )
+
+
+def commit_dependency(name: str, url: str) -> Pattern[str]:
+    """Pattern for a commit-pinned dep in 'requirements.txt' or 'pyproject.toml'."""
+    return compile_dependency(
+        rf"""
+        (?P<before_commit>      # Everything up to the commit hash
+            {name}@git\+{url}/      # e.g. name@git+https://github.com/
+            (?P<org>[^/]+/)         # org/
+            {name}@                 # name@
+        )
+        (?P<commit>[^\n]+)      # <commit-hash>
+        """
+    )
+
+
+def compile_dependency(pattern: str) -> Pattern[str]:
+    """Compile a regex pattern for dependencies in verbose, multiline mode.
+
+    Supports specifications in both `pyproject.toml` and `requirements.txt`.
+    """
     return compile(
-        pattern=rf"""^
-                    (?P<pre>\s*['"])?
-                    {pattern}
-                    (?P<post>\s*['"])?
-                    $""",
+        pattern=(
+            rf"""
+            ^                   # Start of line
+            (?P<pre>\s*['"])?   # `"` if in pyproject.toml
+            {pattern}
+            (?P<post>\s*['"])?  # `",` if in pyproject.toml
+            $                   # End of line
+            """
+        ),
         flags=VERBOSE | MULTILINE,
     )
 

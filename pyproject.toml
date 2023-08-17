@@ -92,7 +92,6 @@ extend-exclude = [
     "template",
     "typings",
     ".github",
-    ".tools",
     "C:/Users/Blake/AppData/Local/Programs/Python/Python311/Lib/**",
 ]
 ignore = [
