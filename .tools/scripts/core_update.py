@@ -10,7 +10,7 @@ from dulwich.repo import Repo
 
 
 def main():
-    template, typings_, submodule_deps = get_submodules()
+    *_, submodule_deps = get_submodules()
     requirements_files = [
         Path("pyproject.toml"),
         *sorted(Path(".tools/requirements").glob("requirements*.txt")),
