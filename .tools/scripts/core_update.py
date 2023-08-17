@@ -5,10 +5,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from re import MULTILINE, VERBOSE, Pattern, compile
 from subprocess import run
+from sys import executable, platform
 
 from dulwich.porcelain import submodule_list
 from dulwich.repo import Repo
 
+SCRIPTS_DIR = Path(executable).parent
 # Version specification
 VERSION = r"(?P<version>[^\n]+)"  # e.g. 2.0.2
 # Details following a dependency name
@@ -23,13 +25,12 @@ SRC, DST = "pandas", "pandas-stubs"
 
 
 def main():
-    run("copier update --defaults --vcs-ref $(git rev-parse HEAD:template)")
+    template, typings_, submodules = get_submodules()
+    run(f"{SCRIPTS_DIR}/copier update --defaults --vcs-ref {template.commit}")
     requirements_files = [
         Path("pyproject.toml"),
         *sorted(Path(".tools/requirements").glob("requirements*.txt")),
     ]
-    with closing(repo := Repo(str(Path.cwd()))):
-        submodules = [Submodule(*item) for item in list(submodule_list(repo))]
     for file in requirements_files:
         original_content = content = file.read_text("utf-8")
         if match := re_spec(rf"{SRC}{DETAIL}{VERSION}").search(content):
@@ -68,6 +69,24 @@ class Submodule:
         # dulwich.porcelain.submodule_list returns bytes
         if isinstance(self.name, bytes):
             self.name = self.name.decode("utf-8")
+
+
+def get_submodules() -> tuple[Submodule, Submodule, list[Submodule]]:
+    """Get the special template and typings submodules, as well as the rest."""
+    with closing(repo := Repo(str(Path.cwd()))):
+        all_submodules = [Submodule(*item) for item in list(submodule_list(repo))]
+    submodules: list[Submodule] = []
+    template = typings = None
+    for submodule in all_submodules:
+        if submodule.name == "template":
+            template = submodule
+        elif submodule.name == "typings":
+            typings = submodule
+        else:
+            submodules.append(submodule)
+    if not template or not typings:
+        raise ValueError("Could not find template or typings submodules.")
+    return template, typings, submodules
 
 
 def re_spec(pattern: str) -> Pattern[str]:
