@@ -232,7 +232,7 @@
     {
       "label": "setup: Copy template",
       "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
+      "options": { "shell": { "executable": "pwsh" } },
       "command": ".tools/scripts/Copy-Template.ps1 ${input:templateOptions}",
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": []
