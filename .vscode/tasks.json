@@ -53,6 +53,15 @@
   "tasks": [
     // * -------------------------------------------------------------------------- * //
     // * Changes below should persist in significant template updates.
+
+    {
+      "label": "proj: local pyrightconfig.json",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python .tools/scripts/local_pyrightconfig.py"],
+      "icon": { "id": "graph" },
+      "problemMatcher": []
+    },
     {
       "label": "proj: update warnings",
       "type": "shell",
