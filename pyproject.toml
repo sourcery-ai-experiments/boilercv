@@ -70,7 +70,8 @@ Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 
 [tool.fawltydeps]
 ignore_undeclared = [
-    "boilercore", # Not picked up by fawltydeps
+    "copier_python", # Used by the project template
+    "boilercore",    # Not picked up by fawltydeps
     "pytest",
 ]
 ignore_unused = [
