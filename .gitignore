@@ -3,7 +3,6 @@
 
 # Ignore schema, which has absolute paths that will vary by system
 params_schema.json
-
 # Don't commit local DVC plots
 dvc_plots
 
