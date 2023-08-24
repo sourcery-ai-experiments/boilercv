@@ -276,10 +276,7 @@ def get_calling_scope_name():
 
 def save_roi(roi_vertices: ArrInt, roi_path: Path):
     """Save an ROI represented by an ordered array of vertices."""
-    roi_path.write_text(
-        encoding="utf-8",
-        data=yaml.safe_dump(roi_vertices.tolist(), indent=2, line_break="\n"),
-    )
+    roi_path.write_text(encoding="utf-8", data=yaml.dump(roi_vertices.tolist()))
 
 
 def edit_roi(
@@ -340,7 +337,7 @@ def load_roi(
     """Load the region of interest for an image."""
     (width, height) = img.shape[-2:]
     if roi_path.exists():
-        vertices: list[tuple[int, int]] = yaml.safe_load(
+        vertices: list[tuple[int, int]] = yaml.load(
             roi_path.read_text(encoding="utf-8")
         )
     else:
