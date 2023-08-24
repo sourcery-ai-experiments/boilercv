@@ -9,14 +9,19 @@ from typing import Any, Literal, TypeAlias
 import numpy as np
 import pandas as pd
 import pyqtgraph as pg
-import yaml
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLayout, QPushButton
+from ruamel.yaml import YAML
 
 from boilercv import FRAMERATE_CONT
 from boilercv.images import scale_bool
 from boilercv.types import DA, ArrInt, Img
+
+YAML_INDENT = 2
+yaml = YAML()
+yaml.indent(mapping=YAML_INDENT, sequence=YAML_INDENT, offset=YAML_INDENT)
+yaml.preserve_quotes = True
 
 
 def init():

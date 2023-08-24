@@ -7,8 +7,6 @@ from pydantic import Field
 from boilercv import PARAMS_FILE
 from boilercv.models.paths import LocalPaths, Paths, ProjectPaths
 
-YAML_INDENT = 2
-
 
 class Params(SynchronizedPathsYamlModel):
     """Project parameters."""

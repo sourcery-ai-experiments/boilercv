@@ -63,14 +63,6 @@
       "problemMatcher": []
     },
     {
-      "label": "proj: update warnings",
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "python .tools/scripts/warning_filters.py",
-      "icon": { "id": "graph" },
-      "problemMatcher": []
-    },
-    {
       "label": "proj: hide notebook inputs",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
