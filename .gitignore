@@ -5,6 +5,8 @@
 params_schema.json
 # Don't commit local DVC plots
 dvc_plots
+# Don't sync the pin-up folder
+pinned-files.json
 
 # * -------------------------------------------------------------------------------- * #
 # * Changes below may be lost in significant template updates.
