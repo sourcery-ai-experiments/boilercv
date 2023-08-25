@@ -25,10 +25,16 @@ from boilercv.models.params import PARAMS
 REPO = Repo()
 DOCS = PARAMS.paths.docs
 ALSO_COMMITTED = False
-MODIFIED_ONLY = CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
+CLEAN = EXECUTE = EXPORT = REPORT = COMMIT = True
+
+MODIFIED_ONLY = True
+"""Whether to process modified notebooks only."""
 
 # Notebook parameter overrides
-OVERRIDE = RELINK = False
+OVERRIDE = False
+"""Whether to override notebook parameters."""
+RELINK = False
+"""Whether to relink bubbles in notebooks, a computationally intensive task."""
 
 # Logging
 VERBOSE_LOG = True
