@@ -77,6 +77,7 @@ ignore_undeclared = [
 ignore_unused = [
     "boilercore",   # Not picked up by fawltydeps
     "nbconvert",    # boilercv.pre_repro.export_notebook
+    "nbqa",         # boilercv.pre_repro.clean_notebook
     "numba",        # Pin numba until it supports numpy>=1.25
     "pandas-stubs", # Provides stubs for pandas
     "pyarrow",      # boilercv.init: pd.set_option("mode.string_storage", "pyarrow")

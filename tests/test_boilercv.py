@@ -1,16 +1,24 @@
-"""Test individual parts."""
+"""Tests."""
+
+from importlib import import_module
+from pathlib import Path
 
 import numpy as np
+import pytest
 
-from boilercv.correlations import (
-    dimensionless_bubble_diameter_florschuetz,
-    fourier,
-    jakob,
-)
+from tests import STAGES
 
 
+# Need to import inside the test function until monkeypatching is removed from fixture.
 def test_correlations():
     """Test bubble collapse correlations."""
+
+    from boilercv.correlations import (
+        dimensionless_bubble_diameter_florschuetz,
+        fourier,
+        jakob,
+    )
+
     result = dimensionless_bubble_diameter_florschuetz(
         jakob(
             liquid_density=1000,  # kg/m^3
@@ -40,3 +48,21 @@ def test_correlations():
         ]
     )
     assert np.allclose(result, expected)
+
+
+@pytest.mark.slow()
+@pytest.mark.filterwarnings(
+    ":".join(
+        (
+            "ignore",
+            r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+            "RuntimeWarning",
+        )
+    )
+)
+@pytest.mark.parametrize("stage", STAGES)
+def test_stages(stage: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """Test that stages can run."""
+    with monkeypatch.context() as m:
+        m.chdir(tmp_path)
+        import_module(stage).main()

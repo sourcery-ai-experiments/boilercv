@@ -2,41 +2,34 @@
 
 from pathlib import Path
 from shutil import copytree
-from sys import path
 
 import pytest
+from boilercore.testing import make_tmp_project_with_nb_stages
 
-from tests import NOTEBOOK_STAGES, get_nb_content
-
-TEST_DATA = Path("tests/data")
+from tests import NOTEBOOK_STAGES, TEST_DATA
 
 
-@pytest.fixture()
-def tmp_project(monkeypatch, tmp_path: Path) -> Path:
+# Need autouse until all monkeypatching is eradicated from this fixture.
+@pytest.fixture(autouse=True)
+def _tmp_project(monkeypatch, tmp_path: Path):
     """Produce a temporary project directory."""
+    copytree(TEST_DATA / "cloud", tmp_path / "data")
 
-    import boilercv
+    # Won't need to chdir until test time after monkeypatching below is done away with.
+    with monkeypatch.context() as m:
+        m.chdir(tmp_path)
+        import boilercv
 
-    monkeypatch.setattr(boilercv, "PARAMS_FILE", tmp_path / "params.yaml")
-    monkeypatch.setattr(boilercv, "DATA_DIR", tmp_path / "cloud")
-    monkeypatch.setattr(boilercv, "LOCAL_DATA", tmp_path / "local")
+    # Needed because of some configs outside of PACKAGE_DIR we depend on.
+    # Consider moving truly necessary things into DATA_DIR, and eliminate others.
+    monkeypatch.setattr(boilercv, "PROJECT_DIR", Path.cwd())
 
-    from boilercv.models import params
-    from boilercv.models.params import PARAMS
-
-    monkeypatch.setattr(params, "SOURCES_TO_ENUMERATE", PARAMS.local_paths.cines)
-    copytree(TEST_DATA / "local", PARAMS.local_paths.data, dirs_exist_ok=True)
-    copytree(TEST_DATA / "cloud", PARAMS.paths.data, dirs_exist_ok=True)
-    copytree(".tools", tmp_path / ".tools", dirs_exist_ok=True)
-
-    return tmp_path
+    # Won't need to monkeypatch LOCAL_DATA anymore once it's in the data directory.
+    local_data = tmp_path / "local"
+    copytree(TEST_DATA / "local", local_data)
+    monkeypatch.setattr(boilercv, "LOCAL_DATA", local_data)
 
 
-@pytest.fixture()
-def _tmp_project_with_nb_stages(tmp_project: Path):
-    """Enable importing of notebook stages like `importlib.import_module("stage")`."""
-    path.insert(0, str(tmp_project))  # For importing tmp_project stages in tests
-    for nb in NOTEBOOK_STAGES:
-        (tmp_project / nb.with_suffix(".py").name).write_text(
-            encoding="utf-8", data=get_nb_content(nb)
-        )
+_tmp_project_with_nb_stages = pytest.fixture(
+    make_tmp_project_with_nb_stages(NOTEBOOK_STAGES)
+)

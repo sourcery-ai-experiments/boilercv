@@ -5,7 +5,7 @@ from pathlib import Path
 from boilercore.models import CreatePathsModel
 from pydantic import DirectoryPath, FilePath
 
-from boilercv import DATA_DIR, LOCAL_DATA, PROJECT_DIR
+from boilercv import DATA_DIR, LOCAL_DATA, PACKAGE_DIR, PROJECT_DIR
 
 
 def get_sorted_paths(path: Path) -> list[Path]:
@@ -22,7 +22,7 @@ class ProjectPaths(CreatePathsModel):
     dev_requirements: DirectoryPath = project / ".tools/requirements"
 
     # ! PACKAGE
-    package: DirectoryPath = project / "src/boilercv"
+    package: DirectoryPath = PACKAGE_DIR
     stages: DirectoryPath = package / "stages"
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"

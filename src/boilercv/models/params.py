@@ -22,7 +22,3 @@ class Params(SynchronizedPathsYamlModel):
 
 PARAMS = Params()
 """All project parameters, including paths."""
-
-# Monkeypatch this when testing. When testing straight-through, sources as yet exist.
-SOURCES_TO_ENUMERATE = PARAMS.paths.sources
-"""Directory from which to enumerate all project datasets."""
