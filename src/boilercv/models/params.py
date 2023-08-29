@@ -1,5 +1,4 @@
-"""Parameters for the data pipeline."""
-
+"""Project parameters."""
 
 from boilercore.models import SynchronizedPathsYamlModel
 from pydantic import Field

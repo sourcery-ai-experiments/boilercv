@@ -17,8 +17,6 @@ PARAMS_FILE = PROJECT_DIR / "params.yaml"
 """Location of the parameters file."""
 DATA_DIR = PROJECT_DIR / "data"
 """Data directory."""
-LOCAL_DATA = Path("~").expanduser() / ".local/boilercv"
-"""Local data directory."""
 
 _debug = environ.get("BOILERCV_DEBUG")
 _preview = environ.get("BOILERCV_PREVIEW")

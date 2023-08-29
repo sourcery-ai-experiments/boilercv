@@ -1,7 +1,6 @@
 """Tests."""
 
 from importlib import import_module
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -60,9 +59,8 @@ def test_correlations():
         )
     )
 )
+@pytest.mark.usefixtures("_tmp_workdir")
 @pytest.mark.parametrize("stage", STAGES)
-def test_stages(stage: str, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+def test_stages(stage: str):
     """Test that stages can run."""
-    with monkeypatch.context() as m:
-        m.chdir(tmp_path)
-        import_module(stage).main()
+    import_module(stage).main()

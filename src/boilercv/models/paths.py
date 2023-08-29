@@ -1,11 +1,11 @@
-"""Paths for this project."""
+"""Project paths."""
 
 from pathlib import Path
 
 from boilercore.models import CreatePathsModel
 from pydantic import DirectoryPath, FilePath
 
-from boilercv import DATA_DIR, LOCAL_DATA, PACKAGE_DIR, PROJECT_DIR
+from boilercv import DATA_DIR, PACKAGE_DIR, PROJECT_DIR
 
 
 def get_sorted_paths(path: Path) -> list[Path]:
@@ -17,6 +17,7 @@ class ProjectPaths(CreatePathsModel):
     """Paths associated with project requirements and code."""
 
     project: DirectoryPath = PROJECT_DIR
+    data: DirectoryPath = DATA_DIR
 
     # ! REQUIREMENTS
     dev_requirements: DirectoryPath = project / ".tools/requirements"
@@ -28,12 +29,12 @@ class ProjectPaths(CreatePathsModel):
     paths_module: FilePath = models / "paths.py"
 
     # ! PLOT CONFIG
-    plot_config: DirectoryPath = project / "plotting"
+    plot_config: DirectoryPath = data / "plotting"
     mpl_base: FilePath = plot_config / "base.mplstyle"
     mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
 
     # ! SCRIPTS
-    scripts: DirectoryPath = project / "scripts"
+    scripts: DirectoryPath = data / "scripts"
     zotero: FilePath = scripts / "zotero.lua"
     filt: FilePath = scripts / "filt.py"
     csl: FilePath = scripts / "international-journal-of-heat-and-mass-transfer.csl"
@@ -87,20 +88,20 @@ class Paths(CreatePathsModel):
 class LocalPaths(CreatePathsModel):
     """Local paths for larger files not stored in the cloud."""
 
-    data: DirectoryPath = LOCAL_DATA
-    hierarchical_data: DirectoryPath = data / "data"
+    data: DirectoryPath = DATA_DIR
 
+    cines: DirectoryPath = data / "cines"
+    hierarchical_data: DirectoryPath = data / "hierarchical_data"
     large_examples: DirectoryPath = data / "large_examples"
     large_sources: DirectoryPath = data / "large_sources"
     notes: DirectoryPath = data / "notes"
+    profiles: DirectoryPath = data / "profiles"
     sheets: DirectoryPath = data / "sheets"
     uncompressed_contours: DirectoryPath = data / "uncompressed_contours"
     uncompressed_filled: DirectoryPath = data / "uncompressed_filled"
     uncompressed_sources: DirectoryPath = data / "uncompressed_sources"
 
-    cines: DirectoryPath = data / "cines"
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
-
     media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")
     html: Path = Path(
         "~/code/mine/notes/data/local/vaults/grad/_imports/boilercv"
