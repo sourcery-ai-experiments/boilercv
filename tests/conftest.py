@@ -3,7 +3,17 @@
 from pathlib import Path
 
 import pytest
-from boilercore.testing import tmp_workdir
+from boilercore import catch_certain_warnings
+
+with catch_certain_warnings():
+    from boilercore.testing import tmp_workdir
+
+
+@pytest.fixture(autouse=True)
+def _catch_certain_warnings():
+    """Filter certain warnings."""
+    with catch_certain_warnings():
+        yield
 
 
 @pytest.fixture(autouse=True)

@@ -8,7 +8,6 @@ import pytest
 from tests import STAGES
 
 
-# Need to import inside the test function until monkeypatching is removed from fixture.
 def test_correlations():
     """Test bubble collapse correlations."""
 

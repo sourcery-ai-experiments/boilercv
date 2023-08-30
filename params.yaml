@@ -37,10 +37,6 @@ paths:
   html: data/html
   md: data/md
   media: data/media
-  previews: data/previews
-  binarized_preview: data/previews/binarized.nc
-  gray_preview: data/previews/gray.nc
-  filled_preview: data/previews/filled.nc
   docs: data/docs
   rois: data/rois
   samples: data/samples
@@ -49,5 +45,9 @@ paths:
   examples: data/examples
   filled: data/filled
   lifetimes: data/lifetimes
+  previews: data/previews
   tracks: data/tracks
   unobstructed: data/unobstructed
+  binarized_preview: data/previews/binarized.nc
+  filled_preview: data/previews/filled.nc
+  gray_preview: data/previews/gray.nc
