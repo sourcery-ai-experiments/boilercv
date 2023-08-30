@@ -29,10 +29,10 @@ FRAMES = {
 
 def main():
     logger.info("start convert")
-    sources = get_sorted_paths(PARAMS.local_paths.data / "weird")
+    sources = get_sorted_paths(PARAMS.paths.data / "weird")
     for source in sources:
         num_frames = FRAMES[source.stem] - 1
-        destination = PARAMS.local_paths.large_sources / f"{source.stem}.nc"
+        destination = PARAMS.paths.large_sources / f"{source.stem}.nc"
         if destination.exists():
             continue
         prepare_dataset(source, num_frames).to_netcdf(path=destination)

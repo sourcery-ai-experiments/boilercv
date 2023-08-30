@@ -47,7 +47,7 @@ def init():
         font="sans-serif",
     )
     sns.color_palette("deep")
-    plt.style.use(style=PARAMS.project_paths.mpl_base)
+    plt.style.use(style=PARAMS.paths.mpl_base)
 
 
 @contextmanager

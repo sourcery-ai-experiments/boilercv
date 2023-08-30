@@ -41,8 +41,8 @@ def main():
     if PREVIEW:
         view_images(highlighted_bubbles)
     if WRITE:
-        write_image(PARAMS.local_paths.media / "roi", highlighted_roi)
-        write_image(PARAMS.local_paths.media / "composite", highlighted_bubbles)
+        write_image(PARAMS.paths.media / "roi", highlighted_roi)
+        write_image(PARAMS.paths.media / "composite", highlighted_bubbles)
 
 
 if __name__ == "__main__":

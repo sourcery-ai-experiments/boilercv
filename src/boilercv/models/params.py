@@ -1,22 +1,22 @@
 """Project parameters."""
 
+from pathlib import Path
+
 from boilercore.models import SynchronizedPathsYamlModel
 from pydantic import Field
 
-from boilercv import PARAMS_FILE
-from boilercv.models.paths import LocalPaths, Paths, ProjectPaths
+from boilercv.models import CWD
+from boilercv.models.paths import Paths
 
 
 class Params(SynchronizedPathsYamlModel):
     """Project parameters."""
 
-    project_paths: ProjectPaths = Field(default_factory=ProjectPaths)
     paths: Paths = Field(default_factory=Paths)
-    local_paths: LocalPaths = Field(default_factory=LocalPaths, exclude=True)
 
-    def __init__(self):
+    def __init__(self, data_file: Path = CWD / "params.yaml", **kwargs):
         """Initialize, propagate paths to the parameters file, and update the schema."""
-        super().__init__(PARAMS_FILE)
+        super().__init__(data_file, **kwargs)
 
 
 PARAMS = Params()

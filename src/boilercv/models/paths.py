@@ -3,9 +3,11 @@
 from pathlib import Path
 
 from boilercore.models import CreatePathsModel
+from boilercore.paths import get_package_dir, map_stages
 from pydantic import DirectoryPath, FilePath
 
-from boilercv import DATA_DIR, PACKAGE_DIR, PROJECT_DIR
+import boilercv
+from boilercv.models import CWD
 
 
 def get_sorted_paths(path: Path) -> list[Path]:
@@ -13,83 +15,35 @@ def get_sorted_paths(path: Path) -> list[Path]:
     return sorted(path.iterdir())
 
 
-class ProjectPaths(CreatePathsModel):
+class Paths(CreatePathsModel):
     """Paths associated with project requirements and code."""
 
-    project: DirectoryPath = PROJECT_DIR
-    data: DirectoryPath = DATA_DIR
-
-    # ! REQUIREMENTS
-    dev_requirements: DirectoryPath = project / ".tools/requirements"
-
-    # ! PACKAGE
-    package: DirectoryPath = PACKAGE_DIR
-    stages: DirectoryPath = package / "stages"
+    # * Roots
+    # ! Project
+    project: DirectoryPath = CWD
+    # ! Package
+    package: DirectoryPath = get_package_dir(boilercv)
+    correlations: FilePath = package / "correlations.py"
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"
+    stages: dict[str, FilePath] = map_stages(package / "stages", package)
+    # ! Data
+    data: DirectoryPath = project / "data"
 
-    # ! PLOT CONFIG
+    # * Git-tracked inputs
+    # ! Plotting config
     plot_config: DirectoryPath = data / "plotting"
     mpl_base: FilePath = plot_config / "base.mplstyle"
     mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
-
-    # ! SCRIPTS
+    # ! Scripts
     scripts: DirectoryPath = data / "scripts"
+    # ? Files
     zotero: FilePath = scripts / "zotero.lua"
     filt: FilePath = scripts / "filt.py"
     csl: FilePath = scripts / "international-journal-of-heat-and-mass-transfer.csl"
     template: FilePath = scripts / "template.dotx"
 
-    # ! STAGES
-    stage_find_contours: FilePath = stages / "find_contours.py"
-    stage_fill: FilePath = stages / "fill.py"
-    stage_find_tracks: FilePath = stages / "find_tracks.py"
-    stage_find_unobstructed: FilePath = stages / "find_unobstructed.py"
-    stage_compare_theory: FilePath = stages / "compare_theory.py"
-
-    # ! PREVIEW STAGES
-    preview: DirectoryPath = stages / "preview"
-    stage_preview_binarized: FilePath = preview / "preview_binarized.py"
-    stage_preview_gray: FilePath = preview / "preview_gray.py"
-    stage_preview_filled: FilePath = preview / "preview_filled.py"
-
-    # ! STAGE DEPENDENCIES
-    correlations: FilePath = package / "correlations.py"
-
-
-class Paths(CreatePathsModel):
-    """Paths associated with project data."""
-
-    data: DirectoryPath = DATA_DIR
-
-    # ! STAGE DATA
-    contours: DirectoryPath = data / "contours"
-    examples: DirectoryPath = data / "examples"
-    filled: DirectoryPath = data / "filled"
-    lifetimes: DirectoryPath = data / "lifetimes"
-    rois: DirectoryPath = data / "rois"
-    samples: DirectoryPath = data / "samples"
-    sources: DirectoryPath = data / "sources"
-    tracks: DirectoryPath = data / "tracks"
-    unobstructed: DirectoryPath = data / "unobstructed"
-
-    # ! PREVIEW DATA
-    previews: DirectoryPath = data / "previews"
-    binarized_preview: Path = previews / "binarized.nc"
-    gray_preview: Path = previews / "gray.nc"
-    filled_preview: Path = previews / "filled.nc"
-
-    # ! PROJECT DOCUMENTATION
-    docs: DirectoryPath = data / "docs"
-    docx: DirectoryPath = data / "docx"
-    md: DirectoryPath = data / "md"
-
-
-class LocalPaths(CreatePathsModel):
-    """Local paths for larger files not stored in the cloud."""
-
-    data: DirectoryPath = DATA_DIR
-
+    # * Local inputs
     cines: DirectoryPath = data / "cines"
     hierarchical_data: DirectoryPath = data / "hierarchical_data"
     large_examples: DirectoryPath = data / "large_examples"
@@ -100,9 +54,30 @@ class LocalPaths(CreatePathsModel):
     uncompressed_contours: DirectoryPath = data / "uncompressed_contours"
     uncompressed_filled: DirectoryPath = data / "uncompressed_filled"
     uncompressed_sources: DirectoryPath = data / "uncompressed_sources"
-
+    # ! Files
     large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
-    media: Path = Path("G:/My Drive/Blake/School/Grad/Reports/Content/boilercv")
-    html: Path = Path(
-        "~/code/mine/notes/data/local/vaults/grad/_imports/boilercv"
-    ).expanduser()
+
+    # * Local results
+    docx: DirectoryPath = data / "docx"
+    html: DirectoryPath = data / "html"
+    md: DirectoryPath = data / "md"
+    media: DirectoryPath = data / "media"
+
+    # * DVC-tracked inputs
+    docs: DirectoryPath = data / "docs"
+    rois: DirectoryPath = data / "rois"
+    samples: DirectoryPath = data / "samples"
+    sources: DirectoryPath = data / "sources"
+
+    # * DVC-tracked results
+    contours: DirectoryPath = data / "contours"
+    examples: DirectoryPath = data / "examples"
+    filled: DirectoryPath = data / "filled"
+    lifetimes: DirectoryPath = data / "lifetimes"
+    previews: DirectoryPath = data / "previews"
+    tracks: DirectoryPath = data / "tracks"
+    unobstructed: DirectoryPath = data / "unobstructed"
+    # ! Files
+    binarized_preview: Path = previews / "binarized.nc"
+    filled_preview: Path = previews / "filled.nc"
+    gray_preview: Path = previews / "gray.nc"

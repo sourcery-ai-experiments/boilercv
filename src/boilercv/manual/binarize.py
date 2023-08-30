@@ -14,7 +14,7 @@ from boilercv.types import DA
 
 def main():
     logger.info("start binarize")
-    for source in get_sorted_paths(PARAMS.local_paths.large_sources):
+    for source in get_sorted_paths(PARAMS.paths.large_sources):
         destination = PARAMS.paths.sources / f"{source.stem}.nc"
         if destination.exists():
             continue

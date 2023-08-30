@@ -21,11 +21,9 @@ def main():
         view_images(bubbles.isel(frame=0))
         view_images(highlighted_bubbles, framerate=FRAMERATE_CONT)
     if WRITE:
-        write_video(PARAMS.local_paths.media / "binarized", source)
-        write_video(PARAMS.local_paths.media / "bubbles", bubbles, preview_frame=True)
-        write_video(
-            PARAMS.local_paths.media / "binarized_highlighted", highlighted_bubbles
-        )
+        write_video(PARAMS.paths.media / "binarized", source)
+        write_video(PARAMS.paths.media / "bubbles", bubbles, preview_frame=True)
+        write_video(PARAMS.paths.media / "binarized_highlighted", highlighted_bubbles)
 
 
 if __name__ == "__main__":

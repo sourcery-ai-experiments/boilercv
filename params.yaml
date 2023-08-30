@@ -1,43 +1,53 @@
-project_paths:
+paths:
   project: .
-  dev_requirements: .tools/requirements
   package: src/boilercv
-  stages: src/boilercv/stages
+  correlations: src/boilercv/correlations.py
   models: src/boilercv/models
   paths_module: src/boilercv/models/paths.py
-  plot_config: plotting
-  mpl_base: plotting/base.mplstyle
-  mpl_hide_title: plotting/hide_title.mplstyle
-  scripts: scripts
-  zotero: scripts/zotero.lua
-  filt: scripts/filt.py
-  csl: scripts/international-journal-of-heat-and-mass-transfer.csl
-  template: scripts/template.dotx
-  stage_find_contours: src/boilercv/stages/find_contours.py
-  stage_fill: src/boilercv/stages/fill.py
-  stage_find_tracks: src/boilercv/stages/find_tracks.py
-  stage_find_unobstructed: src/boilercv/stages/find_unobstructed.py
-  stage_compare_theory: src/boilercv/stages/compare_theory.py
-  preview: src/boilercv/stages/preview
-  stage_preview_binarized: src/boilercv/stages/preview/preview_binarized.py
-  stage_preview_gray: src/boilercv/stages/preview/preview_gray.py
-  stage_preview_filled: src/boilercv/stages/preview/preview_filled.py
-  correlations: src/boilercv/correlations.py
-paths:
+  stages:
+    compare_theory: src/boilercv/stages/compare_theory.py
+    fill: src/boilercv/stages/fill.py
+    find_contours: src/boilercv/stages/find_contours.py
+    find_tracks: src/boilercv/stages/find_tracks.py
+    find_unobstructed: src/boilercv/stages/find_unobstructed.py
+    preview_preview_binarized: src/boilercv/stages/preview/preview_binarized.py
+    preview_preview_filled: src/boilercv/stages/preview/preview_filled.py
+    preview_preview_gray: src/boilercv/stages/preview/preview_gray.py
   data: data
-  contours: data/contours
-  examples: data/examples
-  filled: data/filled
-  lifetimes: data/lifetimes
-  rois: data/rois
-  samples: data/samples
-  sources: data/sources
-  tracks: data/tracks
-  unobstructed: data/unobstructed
+  plot_config: data/plotting
+  mpl_base: data/plotting/base.mplstyle
+  mpl_hide_title: data/plotting/hide_title.mplstyle
+  scripts: data/scripts
+  zotero: data/scripts/zotero.lua
+  filt: data/scripts/filt.py
+  csl: data/scripts/international-journal-of-heat-and-mass-transfer.csl
+  template: data/scripts/template.dotx
+  cines: data/cines
+  hierarchical_data: data/hierarchical_data
+  large_examples: data/large_examples
+  large_sources: data/large_sources
+  notes: data/notes
+  profiles: data/profiles
+  sheets: data/sheets
+  uncompressed_contours: data/uncompressed_contours
+  uncompressed_filled: data/uncompressed_filled
+  uncompressed_sources: data/uncompressed_sources
+  large_example_cine: data/cines/2022-01-06T16-57-31.cine
+  docx: data/docx
+  html: data/html
+  md: data/md
+  media: data/media
   previews: data/previews
   binarized_preview: data/previews/binarized.nc
   gray_preview: data/previews/gray.nc
   filled_preview: data/previews/filled.nc
   docs: data/docs
-  docx: data/docx
-  md: data/md
+  rois: data/rois
+  samples: data/samples
+  sources: data/sources
+  contours: data/contours
+  examples: data/examples
+  filled: data/filled
+  lifetimes: data/lifetimes
+  tracks: data/tracks
+  unobstructed: data/unobstructed

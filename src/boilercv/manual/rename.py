@@ -15,14 +15,14 @@ from boilercv.models.params import PARAMS
 
 
 def main():
-    source = PARAMS.local_paths.hierarchical_data
+    source = PARAMS.paths.hierarchical_data
     rename_notes(source)
     rename_cines(source)
     rename_sheets(source)
 
 
 def rename_notes(source):
-    notes_dest = PARAMS.local_paths.notes
+    notes_dest = PARAMS.paths.notes
     notes_dirs = {
         trial.stem: trial / "notes"
         for trial in sorted(source.iterdir())
@@ -35,7 +35,7 @@ def rename_notes(source):
 
 
 def rename_cines(source):
-    destination = PARAMS.local_paths.cines
+    destination = PARAMS.paths.cines
     trials = [trial / "video" for trial in source.iterdir() if trial.is_dir()]
     videos = chain.from_iterable(trial.glob("*.cine") for trial in trials)
     for video in videos:
@@ -43,7 +43,7 @@ def rename_cines(source):
 
 
 def rename_sheets(source):
-    sheets_dest = PARAMS.local_paths.sheets
+    sheets_dest = PARAMS.paths.sheets
     data = [trial / "data" for trial in sorted(source.iterdir()) if trial.is_dir()]
     sheets = chain.from_iterable(trial.glob("*.csv") for trial in data)
     for sheet in sheets:

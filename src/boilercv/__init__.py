@@ -2,21 +2,11 @@
 
 from collections.abc import Callable
 from os import environ
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from cv2 import version
 from loguru import logger
-
-PACKAGE_DIR = Path(__file__).parent
-"""Package directory."""
-PROJECT_DIR = Path.cwd()
-"""Project directory."""
-PARAMS_FILE = PROJECT_DIR / "params.yaml"
-"""Location of the parameters file."""
-DATA_DIR = PROJECT_DIR / "data"
-"""Data directory."""
 
 _debug = environ.get("BOILERCV_DEBUG")
 _preview = environ.get("BOILERCV_PREVIEW")

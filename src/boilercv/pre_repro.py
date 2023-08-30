@@ -115,7 +115,7 @@ async def export(nbs: dict[Path, str]):
         for nb in nbs.values():
             tg.create_task(
                 export_notebook(
-                    nb, html=fold(PARAMS.local_paths.html), md=fold(PARAMS.paths.md)
+                    nb, html=fold(PARAMS.paths.html), md=fold(PARAMS.paths.md)
                 )
             )
     logger.info("<green>FINISH</green> EXPORT")
@@ -132,10 +132,10 @@ async def report(nbs: dict[Path, str]):
                         kwarg: fold(path)
                         for kwarg, path in dict(
                             workdir=PARAMS.paths.md,
-                            template=PARAMS.project_paths.template,
-                            filt=PARAMS.project_paths.filt,
-                            zotero=PARAMS.project_paths.zotero,
-                            csl=PARAMS.project_paths.csl,
+                            template=PARAMS.paths.template,
+                            filt=PARAMS.paths.filt,
+                            zotero=PARAMS.paths.zotero,
+                            csl=PARAMS.paths.csl,
                             docx=PARAMS.paths.docx / nb.with_suffix(".docx").name,
                             md=PARAMS.paths.md / nb.with_suffix(".md").name,
                         ).items()

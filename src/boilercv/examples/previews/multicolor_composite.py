@@ -48,7 +48,7 @@ def main():
         plt.show()
         view_images(composed)
     if WRITE:
-        path = PARAMS.local_paths.media / "examples" / _EXAMPLE / "multicolor"
+        path = PARAMS.paths.media / "examples" / _EXAMPLE / "multicolor"
         path.parent.mkdir(parents=True, exist_ok=True)
         write_image(path, composed)
 

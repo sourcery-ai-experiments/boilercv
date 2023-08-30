@@ -1,8 +1,8 @@
 stages:
   preview_binarized:
-    cmd: "python ${project_paths.stage_preview_binarized}"
+    cmd: "python ${paths.stages.preview_preview_binarized}"
     deps:
-      - "${project_paths.stage_preview_binarized}"
+      - "${paths.stages.preview_preview_binarized}"
       - "${paths.rois}"
       - "${paths.sources}"
     outs:
@@ -10,27 +10,27 @@ stages:
           persist: true
 
   preview_gray:
-    cmd: "python ${project_paths.stage_preview_gray}"
+    cmd: "python ${paths.stages.preview_preview_gray}"
     deps:
-      - "${project_paths.stage_preview_gray}"
+      - "${paths.stages.preview_preview_gray}"
       - "${paths.sources}"
     outs:
       - "${paths.gray_preview}":
           persist: true
 
   find_contours:
-    cmd: "python ${project_paths.stage_find_contours}"
+    cmd: "python ${paths.stages.find_contours}"
     deps:
-      - "${project_paths.stage_find_contours}"
+      - "${paths.stages.find_contours}"
       - "${paths.sources}"
     outs:
       - "${paths.contours}":
           persist: true
 
   fill:
-    cmd: "python ${project_paths.stage_fill}"
+    cmd: "python ${paths.stages.fill}"
     deps:
-      - "${project_paths.stage_fill}"
+      - "${paths.stages.fill}"
       - "${paths.sources}"
       - "${paths.contours}"
     outs:
@@ -38,9 +38,9 @@ stages:
           persist: true
 
   preview_filled:
-    cmd: "python ${project_paths.stage_preview_filled}"
+    cmd: "python ${paths.stages.preview_preview_filled}"
     deps:
-      - "${project_paths.stage_preview_filled}"
+      - "${paths.stages.preview_preview_filled}"
       - "${paths.sources}"
       - "${paths.filled}"
     outs:
@@ -48,26 +48,26 @@ stages:
           persist: true
 
   find_unobstructed:
-    cmd: "python ${project_paths.stage_find_unobstructed}"
+    cmd: "python ${paths.stages.find_unobstructed}"
     deps:
-      - "${project_paths.stage_find_unobstructed}"
+      - "${paths.stages.find_unobstructed}"
       - "${paths.contours}"
     outs:
       - "${paths.unobstructed}"
 
   find_tracks:
-    cmd: "python ${project_paths.stage_find_tracks}"
+    cmd: "python ${paths.stages.find_tracks}"
     deps:
-      - "${project_paths.stage_find_tracks}"
+      - "${paths.stages.find_tracks}"
       - "${paths.unobstructed}"
     outs:
       - "${paths.tracks}"
 
   compare_theory:
-    cmd: "python ${project_paths.stage_compare_theory}"
+    cmd: "python ${paths.stages.compare_theory}"
     deps:
-      - "${project_paths.stage_compare_theory}"
+      - "${paths.stages.compare_theory}"
       - "${paths.tracks}"
-      - "${project_paths.correlations}"
+      - "${paths.correlations}"
     outs:
       - "${paths.lifetimes}"
