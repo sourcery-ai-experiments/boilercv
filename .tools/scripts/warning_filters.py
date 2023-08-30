@@ -57,10 +57,18 @@ ENCODING_WARNINGS = [
             module=module,
         )
         for module in (
+            *(
+                f"copier.{submodule}"
+                for submodule in (
+                    "subproject",
+                    "template",
+                )
+            ),
             "cv2.load_config_py3",
             "dask.config",
             "dill._dill",
             "dvc_objects.fs.local",
+            "fawltydeps.extract_imports",
             "fsspec.spec",
             "matplotlib.font_manager",
             "ploomber_core.config",
