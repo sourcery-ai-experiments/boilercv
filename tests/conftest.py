@@ -1,22 +1,30 @@
 """Test configuration."""
 
-from pathlib import Path
-
 import pytest
-from boilercore import catch_certain_warnings
+from boilercore import ALL_WARNINGS, WarningFilter, filter_certain_warnings
+from boilercore.testing import get_session_path
 
-with catch_certain_warnings():
-    from boilercore.testing import tmp_workdir
+import boilercv
 
 
+@pytest.fixture(scope="session")
+def project_session_path(tmp_path_factory):
+    """Set the project directory."""
+    return get_session_path(tmp_path_factory, boilercv)
+
+
+# Can't be session scope
 @pytest.fixture(autouse=True)
-def _catch_certain_warnings():
+def _filter_certain_warnings():
     """Filter certain warnings."""
-    with catch_certain_warnings():
-        yield
-
-
-@pytest.fixture(autouse=True)
-def _tmp_workdir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    """Produce a temporary project directory."""
-    tmp_workdir(tmp_path, monkeypatch)
+    filter_certain_warnings(
+        [
+            *ALL_WARNINGS,
+            *[
+                WarningFilter(
+                    message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+                    category=RuntimeWarning,
+                )
+            ],
+        ]
+    )

@@ -49,16 +49,6 @@ def test_correlations():
 
 
 @pytest.mark.slow()
-@pytest.mark.filterwarnings(
-    ":".join(
-        (
-            "ignore",
-            r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
-            "RuntimeWarning",
-        )
-    )
-)
-@pytest.mark.usefixtures("_tmp_workdir")
 @pytest.mark.parametrize("stage", STAGES)
 def test_stages(stage: str):
     """Test that stages can run."""

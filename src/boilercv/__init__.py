@@ -2,11 +2,15 @@
 
 from collections.abc import Callable
 from os import environ
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from cv2 import version
 from loguru import logger
+
+PROJECT_PATH = Path()
+"""Path to the project root, where `params.yaml` will go."""
 
 _debug = environ.get("BOILERCV_DEBUG")
 _preview = environ.get("BOILERCV_PREVIEW")
