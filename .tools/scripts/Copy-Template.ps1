@@ -17,9 +17,9 @@ if ( $Recopy ) {
     copier recopy --overwrite $(if ($Defaults) { '--defaults' })
 }
 else {
-    git submodule update --init --remote --merge template
+    git submodule update --init --remote --merge submodules/template
     git add --all
     git commit $(if ($NoVerify) { '--no-verify' }) -m "Update template digest to $(git rev-parse --short HEAD:template)"
-    git submodule deinit --force template
-    copier update --vcs-ref $(git rev-parse HEAD:template) $(if ($Defaults) { '--defaults' })
+    git submodule deinit --force submodules/template
+    copier update --vcs-ref $(git rev-parse HEAD:submodules/template) $(if ($Defaults) { '--defaults' })
 }

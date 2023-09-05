@@ -10,9 +10,9 @@ numexpr==2.8.4
 # * Changes below may be lost in significant template updates.
 
 # Type checking
-pyright==1.1.318
+pyright==1.1.323
 # Pre-commit common requirements
-ruff==0.0.284
+ruff==0.0.287
 # Testing
 pytest==7.4.0
 # Testing plugins
