@@ -31,11 +31,11 @@ def main():
         .isel(frame=frame)
         .values
     )
-    contours: list[ArrInt] = list(
+    contours: list[ArrInt] = list(  # type: ignore  # pandas stubs  # pyright 1.1.325
         get_contours_df(_EXAMPLE)
         .loc[frame, :]
         .groupby("contour")
-        .apply(lambda grp: grp.values)
+        .apply(lambda grp: grp.values)  # type: ignore  # pandas stubs  # pyright 1.1.325
     )
     highlighted = np.zeros_like(convert_image(gray, cv.COLOR_GRAY2BGR))
     for contour, color in zip(contours, cycle(_PALETTE_CV), strict=False):

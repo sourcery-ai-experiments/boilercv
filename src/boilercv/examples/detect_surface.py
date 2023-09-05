@@ -58,8 +58,8 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     xpx_max = xpx_mid + xpx_max_dist
 
     # Find prominent horizontal lines
-    corners = cv.cornerHarris(src=img, blockSize=2, ksize=3, k=0.04)
-    lines = -1 * corners  # Linear features are strongly negative in Harris
+    corners = cv.cornerHarris(src=img, blockSize=2, ksize=3, k=0.04)  # type: ignore  # OpenCV stubs # pyright 1.1.325
+    lines = -1 * corners  # type: ignore  # OpenCV stubs # pyright 1.1.325  # Linear features are strongly negative in Harris
     blurred = cv.blur(lines, ksize=wide_rectangular_ksize)
     scaled = (blurred - blurred.min()) / (blurred.max() - blurred.min())
     binarized = scaled > threshold
