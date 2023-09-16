@@ -5,7 +5,7 @@ from importlib import import_module
 import numpy as np
 import pytest
 
-from tests import STAGES
+from boilercv_tests import STAGES
 
 
 def test_correlations():
