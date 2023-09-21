@@ -45,6 +45,7 @@ class Paths(CreatePathsModel):
 
     # * Local inputs
     cines: DirectoryPath = data / "cines"
+    example_cines: DirectoryPath = data / "example_cines"
     hierarchical_data: DirectoryPath = data / "hierarchical_data"
     large_examples: DirectoryPath = data / "large_examples"
     large_sources: DirectoryPath = data / "large_sources"
@@ -55,7 +56,7 @@ class Paths(CreatePathsModel):
     uncompressed_filled: DirectoryPath = data / "uncompressed_filled"
     uncompressed_sources: DirectoryPath = data / "uncompressed_sources"
     # ! Files
-    large_example_cine: Path = cines / "2022-01-06T16-57-31.cine"
+    large_example_cine: Path = example_cines / "2022-01-06T16-57-31.cine"
 
     # * Local results
     docx: DirectoryPath = data / "docx"
