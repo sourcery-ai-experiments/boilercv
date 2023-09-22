@@ -1,6 +1,6 @@
 outs:
-- md5: 1300e5dce1774bdc91feb6365369c7d8.dir
-  size: 186726548
-  nfiles: 308
+- md5: 1008ab05cc564b0550ca9581de7cd46a.dir
+  size: 196348551
+  nfiles: 321
   hash: md5
   path: rois
