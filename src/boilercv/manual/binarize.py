@@ -2,6 +2,7 @@
 
 import xarray as xr
 from loguru import logger
+from tqdm import tqdm
 
 from boilercv.data import FRAME, ROI, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
@@ -14,7 +15,7 @@ from boilercv.types import DA
 
 def main():
     logger.info("start binarize")
-    for source in get_sorted_paths(PARAMS.paths.large_sources):
+    for source in tqdm(get_sorted_paths(PARAMS.paths.large_sources)):
         destination = PARAMS.paths.sources / f"{source.stem}.nc"
         if destination.exists():
             continue

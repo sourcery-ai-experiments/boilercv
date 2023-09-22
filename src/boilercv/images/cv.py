@@ -56,7 +56,7 @@ def flood(img: Img) -> ImgBool:
     _retval, _image, mask, _rect = cv.floodFill(
         image=img,
         mask=mask,
-        seedPoint=seed_point,  # type: ignore  # OpenCV stubs # pyright 1.1.325
+        seedPoint=tuple(np.flip(seed_point)),  # OpenCV expects (x, y)
         newVal=None,  # type: ignore  # OpenCV stubs, ignored in mask only mode  # pyright 1.1.325
         flags=cv.FLOODFILL_MASK_ONLY,
     )
