@@ -74,6 +74,7 @@ ignore_undeclared = [
     "copier_python", # Used by the project template
     "boilercore",    # Not picked up by fawltydeps
     "pytest",
+    "_pytest",
 ]
 ignore_unused = [
     "boilercore",   # Not picked up by fawltydeps
@@ -172,6 +173,7 @@ ignore = [
     "G0",      # Allow f-strings, etc. in Loguru logging
     "INP001",  # False positives. Checks for packages missing `__init__.py`
     "ISC",     # False positives. Implicit string concatenation is fine.
+    "PD009",   # Allow `iat`. It has its uses.
     "PD013",   # Allow `stack` instead of `melt`. They're not a direct swap.
     "PD101",   # Allow use of nunique(). False positives
     "PD901",   # Allow `df` variable name. We are all consenting adults here.

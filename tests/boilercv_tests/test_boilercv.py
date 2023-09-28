@@ -49,6 +49,12 @@ def test_correlations():
 
 
 @pytest.mark.slow()
+def test_execute_nb(nb_client_to_execute):
+    """Execute a notebook."""
+    nb_client_to_execute.execute()
+
+
+@pytest.mark.slow()
 @pytest.mark.parametrize("stage", STAGES)
 def test_stages(stage: str):
     """Test that stages can run."""

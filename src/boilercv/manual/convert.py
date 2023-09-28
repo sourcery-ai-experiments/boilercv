@@ -15,8 +15,10 @@ from boilercv.models.paths import get_sorted_paths
 def main():
     logger.info("start convert")
     for source in tqdm(get_sorted_paths(PARAMS.paths.cines)):
-        dt = get_datetime_from_cine(source) or datetime.fromisoformat(source.stem)
-        destination_stem = dt.isoformat().replace(":", "-")
+        if dt := get_datetime_from_cine(source):
+            destination_stem = dt.isoformat().replace(":", "-")
+        else:
+            destination_stem = source.stem
         destination = PARAMS.paths.large_sources / f"{destination_stem}.nc"
         if destination.exists():
             continue
