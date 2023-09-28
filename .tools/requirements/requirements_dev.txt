@@ -3,6 +3,8 @@
 # * -------------------------------------------------------------------------------- * #
 # * Changes below should persist in significant template updates.
 
+# ? For data/scripts/filt.py
+pandocfilters==1.5.0
 # ? Decouple package install from DVC, an external tool used in this repo
 # ? Boilercv requires DVC for `pre_repro`, but we can specify extras in dev deps only
 dvc[gs]==3.21.1
