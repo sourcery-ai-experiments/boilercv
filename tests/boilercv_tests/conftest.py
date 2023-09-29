@@ -22,13 +22,12 @@ def project_session_path(tmp_path_factory):
 def _filter_certain_warnings():
     """Filter certain warnings."""
     filter_certain_warnings(
-        package=boilercv.__name__,
-        warnings=[
+        [
             WarningFilter(
                 message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
                 category=RuntimeWarning,
             )
-        ],
+        ]
     )
 
 
