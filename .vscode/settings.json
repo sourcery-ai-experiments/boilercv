@@ -134,7 +134,7 @@
   "files.associations": {
     ".coveragerc": "ini",
     ".dvcignore": "ignore",
-    "*.env": "dotenv",
+    ".env": "dotenv",
     ".pylintrc": "ini",
     "pyrightconfig.json": "jsonc",
     "*requirements*.txt": "pip-requirements",
