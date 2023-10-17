@@ -21,14 +21,14 @@ def main():
     all_results = [
         # results_log,
         # results_dog,
-        results_doh,
+        results_doh
     ]
     for input_image in SHORTER_FRAME_LIST:
         image = apply_mask(input_image, build_mask_from_polygons(input_image, [roi]))
         all_blobs = [
             # get_blobs_log(image),
             # get_blobs_dog(image),
-            get_blobs_doh(image),
+            get_blobs_doh(image)
         ]
         sequence = zip(all_blobs, all_results, strict=True)
         for blobs, results in sequence:

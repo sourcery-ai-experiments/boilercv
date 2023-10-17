@@ -77,11 +77,7 @@ def identity_da(da: DA, dim: str) -> DA:
         da: Data array.
         dim: The dimension to extract.
     """
-    return xr.DataArray(
-        dims=(dim),
-        coords={dim: da[dim].values},
-        data=da[dim],
-    )
+    return xr.DataArray(dims=(dim), coords={dim: da[dim].values}, data=da[dim])
 
 
 class CommonKwargs(TypedDict):
@@ -115,10 +111,7 @@ def apply_to_img_da(
     )
     if returns and returns > 0:
         result = xr.apply_ufunc(
-            func,
-            *args,
-            **common_kwargs,
-            output_core_dims=core_dims * returns,
+            func, *args, **common_kwargs, output_core_dims=core_dims * returns
         )
         if name and returns == 1:
             result = result.rename(name)
@@ -128,11 +121,7 @@ def apply_to_img_da(
             )
         return result
     if not returns or returns == 0:
-        xr.apply_ufunc(
-            func,
-            *args,
-            **common_kwargs,
-        )
+        xr.apply_ufunc(func, *args, **common_kwargs)
 
 
 def assign_ds(
@@ -191,10 +180,7 @@ def build_da(
     if units:
         attrs["units"] = units
     da = xr.DataArray(
-        name=name,
-        dims=get_dims(*all_primary_dims),
-        data=data,
-        attrs=attrs,
+        name=name, dims=get_dims(*all_primary_dims), data=data, attrs=attrs
     )
     for dim in chain(all_fixed_dims, all_variable_dims):
         da = dim.assign_to(da)

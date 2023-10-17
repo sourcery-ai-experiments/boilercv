@@ -41,10 +41,7 @@ def init():
     pd.options.display.min_rows = pd.options.display.max_rows = DISPLAY_ROWS
 
     sns.set_theme(
-        context="notebook",
-        style="whitegrid",
-        palette="bright",
-        font="sans-serif",
+        context="notebook", style="whitegrid", palette="bright", font="sans-serif"
     )
     sns.color_palette("deep")
     plt.style.use(style=PARAMS.paths.mpl_base)

@@ -293,10 +293,7 @@ def edit_roi(
             positions=np.fliplr(load_roi(image, roi_path, roi_type)),
         )
         roi = (
-            pg.PolyLineROI(
-                **common_roi_args,
-                closed=True,
-            )
+            pg.PolyLineROI(**common_roi_args, closed=True)
             if roi_type == "poly"
             else pg.LineSegmentROI(**common_roi_args)
         )
@@ -330,9 +327,7 @@ def edit_roi(
 
 
 def load_roi(
-    img: Img,
-    roi_path: Path,
-    roi_type: Literal["poly", "line"] = "poly",
+    img: Img, roi_path: Path, roi_type: Literal["poly", "line"] = "poly"
 ) -> ArrInt:
     """Load the region of interest for an image."""
     (width, height) = img.shape[-2:]

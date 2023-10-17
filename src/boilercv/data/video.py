@@ -39,10 +39,7 @@ def prepare_dataset(
     header_da = xr.DataArray(name=HEADER, attrs=asdict(header))
 
     # Dimensions
-    frame_dim = Dimension(
-        dim=FRAME,
-        long_name="Frame number",
-    )
+    frame_dim = Dimension(dim=FRAME, long_name="Frame number")
     time = Dimension(
         parent_dim=frame_dim.dim,
         dim=TIME,
@@ -53,10 +50,7 @@ def prepare_dataset(
         scale=1e-9,
     )
     utc = Dimension(
-        parent_dim=frame_dim.dim,
-        dim=UTC_TIME,
-        long_name="UTC time",
-        coords=utc_arr,
+        parent_dim=frame_dim.dim, dim=UTC_TIME, long_name="UTC time", coords=utc_arr
     )
 
     # Dataset
@@ -66,16 +60,8 @@ def prepare_dataset(
         units="Pixel intensity",
         fixed_dims=(frame_dim,),
         dims=(
-            Dimension(
-                dim=YPX,
-                long_name="Height",
-                units="px",
-            ),
-            Dimension(
-                dim=XPX,
-                long_name="Width",
-                units="px",
-            ),
+            Dimension(dim=YPX, long_name="Height", units="px"),
+            Dimension(dim=XPX, long_name="Width", units="px"),
         ),
         fixed_secondary_dims=(time, utc),
         data=list(get_cine_images(cine_source, num_frames, start_frame)),

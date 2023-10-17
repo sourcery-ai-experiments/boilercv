@@ -36,11 +36,7 @@ def _find_boiling_surface(image: DA, preview: bool = DEBUG) -> ArrInt:
     ).rename("deg")
     # Concatenate contour points with their angles
     roi_poly = (
-        pd.concat(
-            axis="columns",
-            keys=["dim", "angle"],
-            objs=[roi_poly, angles],
-        )
+        pd.concat(axis="columns", keys=["dim", "angle"], objs=[roi_poly, angles])
         .set_index(pd.MultiIndex.from_frame(roi_poly))
         .drop(axis="columns", labels="dim")
     )

@@ -17,10 +17,7 @@ from boilercv.types import ArrInt, Img, ImgBool
 
 def main():
     preview_contours(
-        block_size=11,
-        thresh_dist_from_mean=2,
-        contour_index=-1,
-        thickness=2,
+        block_size=11, thresh_dist_from_mean=2, contour_index=-1, thickness=2
     )
 
 
@@ -62,10 +59,7 @@ def preview_contours(
 
 
 def _get_contours(
-    input_image: ArrInt,
-    roi: ArrInt,
-    block_size: int,
-    thresh_dist_from_mean: int,
+    input_image: ArrInt, roi: ArrInt, block_size: int, thresh_dist_from_mean: int
 ) -> tuple[list[ArrInt], ArrInt, ImgBool]:
     masked = apply_mask(input_image, build_mask_from_polygons(input_image, [roi]))
     thresholded = binarize(masked, block_size, thresh_dist_from_mean)

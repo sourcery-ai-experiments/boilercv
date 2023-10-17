@@ -69,20 +69,8 @@ def get_preview_ds(preview_names: list[str], previews: list[Any]) -> DS:
         units="Pixel state",
         data=pad_images(previews),
         dims=(
-            Dimension(
-                dim=VIDEO_NAME,
-                long_name="Video name",
-                coords=preview_names,
-            ),
-            Dimension(
-                dim=YPX,
-                long_name="Height",
-                units="px",
-            ),
-            Dimension(
-                dim=XPX,
-                long_name="Width",
-                units="px",
-            ),
+            Dimension(dim=VIDEO_NAME, long_name="Video name", coords=preview_names),
+            Dimension(dim=YPX, long_name="Height", units="px"),
+            Dimension(dim=XPX, long_name="Width", units="px"),
         ),
     )
