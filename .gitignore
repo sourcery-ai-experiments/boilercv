@@ -5,6 +5,7 @@
 params_schema.json
 # Don't commit local DVC plots
 dvc_plots
+*.ipynb.*
 
 # * -------------------------------------------------------------------------------- * #
 # * Changes below may be lost in significant template updates.

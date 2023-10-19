@@ -12,6 +12,7 @@ ignore:
   - "vendor"
   # Extras
   - ".*"
+  - "*.ipynb"
 
 rule_settings:
   python_version: "3.11"

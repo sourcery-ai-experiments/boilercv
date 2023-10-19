@@ -34,7 +34,7 @@
       "groupName": "numpy",
       "description": "Numba needs numpy<1.25. Pandas needs numpy>1.25 via stubs. https://github.com/numba/numba/issues/8698",
       "matchManagers": ["pip_requirements"],
-      "matchPackageNames": ["numpy", "numba", "pandas"]
+      "matchPackageNames": ["numpy", "numba", "pandas", "pandas-stubs"]
     },
     {
       "description": "Don't bump pydantic until we're ready for migration.",
