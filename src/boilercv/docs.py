@@ -8,6 +8,7 @@ from typing import Any
 from warnings import catch_warnings, filterwarnings
 
 import nbformat as nbf
+import numpy as np
 import pandas as pd
 import seaborn as sns
 from IPython.display import display
@@ -19,7 +20,10 @@ from boilercv.types import DfOrS
 # * -------------------------------------------------------------------------------- * #
 # * COMMON TO ROOT AND DVC-TRACKED DOCUMENTATION
 
-FLOAT_SPEC = "#.4g"
+PRECISION = 4
+"""The desired precision."""
+
+FLOAT_SPEC = f"#.{PRECISION}g"
 """The desired float specification for formatted output."""
 
 HIDE = display()
@@ -39,6 +43,7 @@ def init():
     # way, and may be extended in the future by making `float_spec` a parameter.
     pd.options.display.float_format = f"{{:{FLOAT_SPEC}}}".format
     pd.options.display.min_rows = pd.options.display.max_rows = DISPLAY_ROWS
+    np.set_printoptions(precision=PRECISION)
 
     sns.set_theme(
         context="notebook", style="whitegrid", palette="bright", font="sans-serif"

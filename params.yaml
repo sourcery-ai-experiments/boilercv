@@ -7,7 +7,7 @@ paths:
   stages:
     compare_theory: src/boilercv/stages/compare_theory.py
     fill: src/boilercv/stages/fill.py
-    find_collapse: src/boilercv/stages/find_collapse.ipynb
+    find_collapse: src/boilercv/stages/find_collapse.py
     find_contours: src/boilercv/stages/find_contours.py
     find_tracks: src/boilercv/stages/find_tracks.py
     find_unobstructed: src/boilercv/stages/find_unobstructed.py
