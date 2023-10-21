@@ -77,6 +77,10 @@ ignore_unused = [
 boilercore = ["boilercore"]
 ipykernel = ["IPython"]
 
+# Use ruff for sorting, but configure this in case isort is being used in IDE tooling
+[tool.isort]
+profile = "black"
+
 [tool.pyright]
 
 # * -------------------------------------------------------------------------------- * #
@@ -204,14 +208,6 @@ skip-magic-trailing-comma = true
 
 [tool.ruff.pydocstyle]
 convention = "google"
-
-[tool.ruff.isort]
-# * ---------------------------------------------------------------------------- * #
-# * Changes below should persist in significant template updates.
-
-# * ---------------------------------------------------------------------------- * #
-# * Changes below may be lost in significant template updates.
-split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
 "docs/**" = [
