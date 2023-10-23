@@ -1,19 +1,19 @@
 """Update DVC paths (implicitly through import of PARAMS) and build docs."""
 
 import asyncio
-from asyncio import TaskGroup, create_subprocess_exec
-from asyncio.subprocess import PIPE
+from asyncio import TaskGroup
 from collections.abc import Callable, Coroutine
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import AbstractContextManager
 from functools import wraps
 from os import chdir
 from pathlib import Path
-from shlex import quote, split
-from subprocess import CalledProcessError
+from shlex import split
 from sys import stdout
 from typing import Any
 
+from boilercore import paths
+from boilercore.paths import fold
 from dulwich.porcelain import add  # type: ignore  # pyright: 1.1.311
 from dvc.repo import Repo  # type: ignore  # pyright: 1.1.311
 from loguru import logger  # type: ignore  # pyright: 1.1.311
@@ -69,7 +69,7 @@ async def main():
 
 def get_nbs(
     repo: Repo, docs: Path, also_committed: bool, modified_only: bool
-) -> dict[Path, str]:
+) -> list[str]:
     """Get all notebooks or just the modified ones."""
     return (
         fold_modified_nbs(repo, also_committed, docs)
@@ -78,16 +78,16 @@ def get_nbs(
     )
 
 
-async def clean(nbs):
+async def clean(nbs: list[str]):
     """Clean notebooks."""
     logger.info("<yellow>START</yellow> CLEAN")
     async with TaskGroup() as tg:
-        for nb in nbs.values():
-            tg.create_task(clean_notebook(nb, lint=True))
+        for nb in nbs:
+            tg.create_task(clean_notebook(nb))
     logger.info("<green>FINISH</green> CLEAN")
 
 
-async def execute(nbs: dict[Path, str]):
+async def execute(nbs: list[str]):
     """Execute notebooks."""
     logger.info("<yellow>START</yellow> EXECUTE")
     with ProcessPoolExecutor() as executor:
@@ -103,16 +103,16 @@ async def execute(nbs: dict[Path, str]):
     logger.info("<green>FINISH</green> EXECUTE")
     logger.info("<yellow>START</yellow> REMOVE EXECUTION METADATA")
     async with TaskGroup() as tg:
-        for nb in nbs.values():
-            tg.create_task(clean_notebook(nb, lint=False))
+        for nb in nbs:
+            tg.create_task(clean_notebook(nb))
     logger.info("<green>FINISH</green> REMOVE EXECUTION METADATA")
 
 
-async def export(nbs: dict[Path, str]):
+async def export(nbs: list[str]):
     """Export notebooks to Markdown and HTML."""
     logger.info("<yellow>START</yellow> EXPORT")
     async with TaskGroup() as tg:
-        for nb in nbs.values():
+        for nb in nbs:
             tg.create_task(
                 export_notebook(
                     nb, html=fold(PARAMS.paths.html), md=fold(PARAMS.paths.md)
@@ -121,7 +121,7 @@ async def export(nbs: dict[Path, str]):
     logger.info("<green>FINISH</green> EXPORT")
 
 
-async def report(nbs: dict[Path, str]):
+async def report(nbs: list[str]):
     """Generate DOCX reports."""
     logger.info("<yellow>START</yellow> REPORT")
     async with TaskGroup() as tg:
@@ -136,8 +136,8 @@ async def report(nbs: dict[Path, str]):
                             filt=PARAMS.paths.filt,
                             zotero=PARAMS.paths.zotero,
                             csl=PARAMS.paths.csl,
-                            docx=PARAMS.paths.docx / nb.with_suffix(".docx").name,
-                            md=PARAMS.paths.md / nb.with_suffix(".md").name,
+                            docx=PARAMS.paths.docx / Path(nb).with_suffix(".docx").name,
+                            md=PARAMS.paths.md / Path(nb).with_suffix(".md").name,
                         ).items()
                     }
                 )
@@ -158,15 +158,17 @@ def commit(repo):
 # * SINGLE NOTEBOOK PROCESSING
 
 
-async def clean_notebook(nb: str, lint: bool):
+async def clean_notebook(nb: str):
     """Clean a notebook."""
-    commands = [f"nbqa ruff --fix-only {nb}", f"black {nb}"] if lint else []
-    commands.append(
-        "   nb-clean clean --remove-empty-cells"
-        "     --preserve-cell-outputs"
-        "     --preserve-cell-metadata special tags"
-        f"    -- {nb}"
-    )
+    commands = [
+        f"ruff --fix-only {nb}",
+        f"ruff format {nb}",
+         "nb-clean clean"
+         " --remove-empty-cells"
+         " --preserve-cell-outputs"
+         " --preserve-cell-metadata special tags"
+        f" -- {nb}",
+    ]  # fmt: skip
     for command in commands:
         await run_process(command)
 
@@ -228,52 +230,32 @@ async def report_on_notebook(
 COLORS = {
     "jupyter-nbconvert": "blue",
     "nb-clean": "magenta",
-    "nbqa": "cyan",
-    "black": "cyan",
+    "ruff": "cyan",
     "pandoc": "red",
 }
 
 
 async def run_process(command: str, venv: bool = True):
     """Run a subprocess asynchronously."""
-    command, *args = split(command, posix=False)
-
-    # Log start
+    c, *args = split(command)
     file = args[-1].split("/")[-1]
-    colored_command = f"<{COLORS[command]}>{command}</{COLORS[command]}>"
+    colored_command = f"<{COLORS[c]}>{c}</{COLORS[c]}>"
     logger.info(f"    <yellow>Start </yellow> {colored_command} {file}")
-
-    # Run process
-    process = await create_subprocess_exec(
-        f"{'.venv/scripts/' if venv else ''}{command}", *args, stdout=PIPE, stderr=PIPE
-    )
-    stdout, stderr = (msg.decode("utf-8") for msg in await process.communicate())
-    message = (
-        (f"{stdout}\n{stderr}" if stdout and stderr else stdout or stderr)
-        .replace("\r\n", "\n")
-        .strip()
-    )
-
-    # Handle exceptions
-    if process.returncode:
-        exception = CalledProcessError(
-            returncode=process.returncode, cmd=command, output=stdout, stderr=stderr
-        )
-        exception.add_note(message)
-        exception.add_note("Arguments:\n" + "    \n".join(args))
-        raise exception
-
-    # Log finish
+    message = await paths.run_process(command, venv)
     logger.info(
         f"    <green>Finish</green> {colored_command} {file}"
         + ((": " + message.replace("\n", ". ")[:30] + "...") if message else "")
     )
 
 
-def fold_modified_nbs(repo: Repo, also_committed: bool, docs: Path) -> dict[Path, str]:
+def fold_modified_nbs(repo: Repo, also_committed: bool, docs: Path) -> list[str]:
     """Fold the paths of modified documentation notebooks."""
     modified = get_modified_files(repo, also_committed)
-    return fold_docs_nbs(modified, docs) if docs in modified else {}
+    return (
+        fold_docs_nbs(modified, docs)
+        if any(path.is_relative_to(docs) for path in modified)
+        else []
+    )
 
 
 def get_modified_files(repo: Repo, also_committed: bool) -> list[Path]:
@@ -284,28 +266,25 @@ def get_modified_files(repo: Repo, also_committed: bool) -> list[Path]:
         paths = status["uncommitted"].get(key) or []
         if also_committed:
             paths.extend(status["committed"].get(key) or [])
-        modified.extend([Path(path) for path in paths])
+        modified.extend([Path(path).resolve() for path in paths])
     return modified
 
 
-def fold_docs_nbs(paths: list[Path], docs: Path) -> dict[Path, str]:
+def fold_docs_nbs(paths: list[Path], docs: Path) -> list[str]:
     """Fold the paths of documentation-related notebooks."""
-    return {
-        nb: fold(nb)
-        for nb in sorted(
-            {
-                path.with_suffix(".ipynb")
-                for path in paths
-                # Consider notebook modified even if only its `.h5` file is
-                if path.is_relative_to(docs) and path.suffix in [".ipynb", ".h5"]
-            }
-        )
-    }
-
-
-def fold(path: Path):
-    """Resolve and normalize a path to a POSIX string path with forward slashes."""
-    return quote(str(path.resolve()).replace("\\", "/"))
+    return list(
+        {
+            fold(nb)
+            for nb in sorted(
+                {
+                    path.with_suffix(".ipynb")
+                    for path in paths
+                    # Consider notebook modified even if only its `.h5` file is
+                    if path.is_relative_to(docs) and path.suffix in [".ipynb", ".h5"]
+                }
+            )
+        }
+    )
 
 
 # * -------------------------------------------------------------------------------- * #
