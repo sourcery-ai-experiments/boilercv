@@ -1,4 +1,4 @@
-"""Update DVC paths (implicitly through import of PARAMS) and build docs."""
+"""Find collapsing bubbles."""
 
 import asyncio
 from asyncio import create_subprocess_exec
@@ -9,73 +9,48 @@ from dataclasses import dataclass
 from pathlib import Path
 from shlex import quote, split
 from subprocess import CalledProcessError
-from sys import stdout
 
 from dulwich.porcelain import status, submodule_list
 from dulwich.repo import Repo
-from loguru import logger  # type: ignore  # pyright: 1.1.311
 from ploomber_engine import execute_notebook  # type: ignore  # pyright: 1.1.311
 
 from boilercv.models.params import PARAMS
 
 # Pipeline parameters
-NB = PARAMS.paths.stages["find_collapse"].with_suffix(".ipynb")
-TIMES = ["2023-09-20T16:52:06"]
-DATA = Path("data/docs/study_the_fit_of_bubble_collapse_correlations/prove_the_concept")
-
-# Logging
-VERBOSE_LOG = True
-REPLAY = LOG_TO_FILE = False
-logger.remove()
-for sink in (["pre_repro.log"] if LOG_TO_FILE else []) + ([] if REPLAY else [stdout]):
-    logger.add(
-        sink=sink, enqueue=True, format=("<green>{time:mm:ss}</green> | {message}")
+NB = quote(
+    str(PARAMS.paths.stages["find_collapse"].with_suffix(".ipynb").resolve()).replace(
+        "\\", "/"
     )
-logger = logger.opt(colors=not REPLAY)
+)
+TIMES = [
+    "2023-09-20T16:52:06",
+    "2023-09-20T16:52:06",
+    "2023-09-20T17:01:04",
+    "2023-09-20T17:05:15",
+    "2023-09-20T17:14:18",
+    "2023-09-20T17:26:15",
+    "2023-09-20T17:34:38",
+    "2023-09-20T17:42:19",
+    "2023-09-20T17:47:49",
+]
 
 
 async def main():
-    if nb := nb_if_modified():
-        await clean(nb)
-    else:
+    if not modified(NB):
         return
-    if nb := nb_if_modified():
-        await execute(nb, times=TIMES)
-    else:
+    await clean(NB)
+    if not modified(NB):
         return
+    await execute(NB, times=TIMES)
 
 
-# * -------------------------------------------------------------------------------- * #
-# * Notebook processing
-
-
-def nb_if_modified() -> str | None:
-    """Get all notebooks or just the modified ones."""
-    return fold(NB) if NB in (change.resolve() for change in get_changes()) else None
-
-
-async def execute(nb: str, times: list[str]):
-    """Execute notebooks."""
-    logger.info("<yellow>START</yellow> EXECUTE")
-    with ProcessPoolExecutor() as executor:
-        for time in times:
-            executor.submit(
-                execute_notebook,
-                input_path=nb,
-                output_path=nb,
-                progress_bar=VERBOSE_LOG,
-                remove_tagged_cells=["ploomber-engine-error-cell"],
-                parameters={"TIME": time},
-            )
-    logger.info("<green>FINISH</green> EXECUTE")
-    logger.info("<yellow>START</yellow> REMOVE EXECUTION METADATA")
-    await clean(nb)
-    logger.info("<green>FINISH</green> REMOVE EXECUTION METADATA")
+def modified(nb: str) -> bool:
+    """Get modified notebook."""
+    return Path(nb) in (change.resolve() for change in get_changes())
 
 
 async def clean(nb: str):
     """Clean a notebook."""
-    logger.info("<yellow>START</yellow> CLEAN")
     commands = [
         f"ruff --fix-only {nb}",
         f"ruff format {nb}",
@@ -86,26 +61,23 @@ async def clean(nb: str):
     ]  # fmt: skip
     for command in commands:
         await run_process(command)
-    logger.info("<green>FINISH</green> CLEAN")
 
 
-# * -------------------------------------------------------------------------------- * #
-# * Utilities
-
-COLORS = {"nb-clean clean": "blue", "ruff --fix-only": "magenta", "ruff format": "cyan"}
+async def execute(nb: str, times: list[str]):
+    """Execute notebooks."""
+    with ProcessPoolExecutor() as executor:
+        for time in times:
+            executor.submit(
+                execute_notebook,
+                input_path=nb,
+                output_path=None,
+                parameters={"TIME": time},
+            )
 
 
 async def run_process(command: str, venv: bool = True):
     """Run a subprocess asynchronously."""
     command, *args = split(command, posix=False)
-
-    # Log start
-    file = args[-1].split("/")[-1]
-    key = f"{command} {args[0]}"
-    colored_command = f"<{COLORS[key]}>{command}</{COLORS[key]}>"
-    logger.info(f"    <yellow>Start </yellow> {colored_command} {file}")
-
-    # Run process
     process = await create_subprocess_exec(
         f"{'.venv/scripts/' if venv else ''}{command}", *args, stdout=PIPE, stderr=PIPE
     )
@@ -115,8 +87,6 @@ async def run_process(command: str, venv: bool = True):
         .replace("\r\n", "\n")
         .strip()
     )
-
-    # Handle exceptions
     if process.returncode:
         exception = CalledProcessError(
             returncode=process.returncode, cmd=command, output=stdout, stderr=stderr
@@ -124,21 +94,6 @@ async def run_process(command: str, venv: bool = True):
         exception.add_note(message)
         exception.add_note("Arguments:\n" + "    \n".join(args))
         raise exception
-
-    # Log finish
-    logger.info(
-        f"    <green>Finish</green> {colored_command} {file}"
-        + ((": " + message.replace("\n", ". ")[:30] + "...") if message else "")
-    )
-
-
-def fold(path: Path) -> str:
-    """Resolve and normalize a path to a POSIX string path with forward slashes."""
-    return quote(str(path.resolve()).replace("\\", "/"))
-
-
-# * -------------------------------------------------------------------------------- * #
-# * Changes
 
 
 def get_changes() -> list[Path]:
@@ -186,12 +141,5 @@ def get_submodules() -> list[Submodule]:
         return [Submodule(*item) for item in list(submodule_list(repo))]
 
 
-# * -------------------------------------------------------------------------------- * #
-
 if __name__ == "__main__":
-    logger.info("<yellow>START</yellow> find_collapse")
-    if not VERBOSE_LOG:
-        logger.disable("__main__")
     asyncio.run(main())
-    logger.enable("__main__")
-    logger.info("<green>FINISH</green> find_collapse")
