@@ -5,12 +5,35 @@
     // * Changes below should persist in significant template updates.
 
     {
-      "name": "auto",
+      "name": "Python: WRITE",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "internalConsole",
+      "justMyCode": true,
+      "env": {
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_WRITE": "True"
+      }
+    },
+    {
+      "name": "Python: PREVIEW",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "internalConsole",
+      "justMyCode": true,
+      "env": {
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_PREVIEW": "True"
+      }
+    },
+    {
+      "name": "Automatic Python/C++ debugging for OpenCV in WSL",
       "type": "auto-debug",
       "request": "launch",
       "map": {
         "*.py": "Python: Current file, OpenCV debug",
-        "*.ps1": "pwsh",
         "*": "C++"
       }
     },
@@ -25,13 +48,6 @@
       "env": {
         "OPENCV_LOG_LEVEL": "DEBUG"
       }
-    },
-    {
-      "name": "pwsh",
-      "type": "PowerShell",
-      "request": "launch",
-      "script": "${file}",
-      "cwd": "${file}"
     },
     {
       "name": "C++",
@@ -53,80 +69,6 @@
         }
       ]
     },
-    {
-      "name": "Python: WRITE/PREVIEW",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole",
-      "justMyCode": true,
-      "env": {
-        "BOILERCV_DEBUG": "True",
-        "BOILERCV_WRITE": "True",
-        "BOILERCV_PREVIEW": "True"
-      }
-    },
-    {
-      "name": "Python: WRITE/PREVIEW, not just my code",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole",
-      "justMyCode": false,
-      "env": {
-        "BOILERCV_DEBUG": "True",
-        "BOILERCV_WRITE": "True",
-        "BOILERCV_PREVIEW": "True"
-      }
-    },
-    {
-      "name": "Python: WRITE",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole",
-      "justMyCode": true,
-      "env": {
-        "BOILERCV_DEBUG": "True",
-        "BOILERCV_WRITE": "True"
-      }
-    },
-    {
-      "name": "Python: WRITE, not just my code",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole",
-      "justMyCode": false,
-      "env": {
-        "BOILERCV_DEBUG": "True",
-        "BOILERCV_WRITE": "True"
-      }
-    },
-    {
-      "name": "Python: PREVIEW",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole",
-      "justMyCode": true,
-      "env": {
-        "BOILERCV_DEBUG": "True",
-        "BOILERCV_PREVIEW": "True"
-      }
-    },
-    {
-      "name": "Python: PREVIEW, not just my code",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${file}",
-      "console": "internalConsole",
-      "justMyCode": false,
-      "env": {
-        "BOILERCV_DEBUG": "True",
-        "BOILERCV_PREVIEW": "True"
-      }
-    },
 
     // * -------------------------------------------------------------------------- * //
     // * Changes below may be lost in significant template updates.
@@ -137,19 +79,8 @@
       "program": "${file}",
       "console": "internalConsole",
       "env": {
-        "BOILERCV_DEBUG": "True"
-      }
-    },
-    {
-      "name": "Python: Current file, not just my code",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${file}",
-      "justMyCode": false,
-      // "purpose": ["debug-test"], // Uncomment to debug tests more deeply.
-      "console": "internalConsole",
-      "env": {
-        "BOILERCV_DEBUG": "True"
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_PREVIEW": "True"
       }
     }
   ]
