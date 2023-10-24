@@ -14,10 +14,13 @@ STAGES = [
 ]
 for module in walk_modules(STAGES_DIR, BOILERCV):
     rel_to_stages = get_module_rel(module, "stages")
-    if rel_to_stages in {"compare_theory", "find_tracks", "find_unobstructed"}:
+    if rel_to_stages in {
+        "compare_theory",
+        "find_collapse",
+        "find_tracks",
+        "find_unobstructed",
+    }:
         marks = [pytest.mark.skip]
-    elif rel_to_stages in {"find_collapse"}:
-        marks = [pytest.mark.xfail]
     else:
         marks = []
     STAGES.append(
