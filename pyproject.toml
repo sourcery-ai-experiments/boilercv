@@ -19,7 +19,6 @@ classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
     "boilercore>=0.0.0",
     "colorcet>=3.0.1",
-    "dulwich>=0.21.5",
     "dvc>=3.10.1",
     "imageio[pyav]>=2.31.1",
     "ipykernel>=6.25.0",
@@ -27,7 +26,6 @@ dependencies = [
     "matplotlib>=3.7.2",
     "nbconvert>=7.7.3",
     "nbformat>=5.9.2",
-    "nbqa>=1.7.0",
     "numpy>=1.24.4",
     "opencv-contrib-python>=4.8.0.74",
     "pandas[hdf5,performance]>=2.0.2",
@@ -70,7 +68,6 @@ code = ["src"]
 deps = ["pyproject.toml"]
 ignore_unused = [
     "nbconvert", # boilercv.pre_repro.export_notebook
-    "nbqa",      # boilercv.pre_repro.clean_notebook
     "pyarrow",   # boilercv.init: pd.set_option("mode.string_storage", "pyarrow")
 ]
 [tool.fawltydeps.custom_mapping]

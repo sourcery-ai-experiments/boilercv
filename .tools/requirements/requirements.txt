@@ -3,6 +3,8 @@
 colorcet==3.0.1
 # ? Already specified in `requirements_core.txt`
 # dulwich
+# ? Required by `boilercv.pre_repro`
+dvc[gs]==3.27.0
 imageio[pyav]==2.31.5
 # ? Already specified in `requirements_both.txt`
 # ipykernel

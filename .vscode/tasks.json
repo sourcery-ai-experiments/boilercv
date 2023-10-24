@@ -15,7 +15,7 @@
       "default": "",
       "options": [
         "",
-        "build_docs",
+        "generate_reports",
         "preview_binarized",
         "preview_gray",
         "find_contours",
@@ -151,7 +151,7 @@
     {
       "label": "dvc: repro build docs",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: pre-repro"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "dvc repro build_docs",
@@ -161,7 +161,7 @@
     {
       "label": "dvc: repro (debug)",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: pre-repro"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "shell",
       "options": {
         "shell": { "executable": "pwsh", "args": ["-Command"] },
@@ -174,7 +174,7 @@
     {
       "label": "dvc: repro force (debug)",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: pre-repro"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "shell",
       "options": {
         "shell": { "executable": "pwsh", "args": ["-Command"] },
@@ -187,7 +187,7 @@
     {
       "label": "dvc: repro",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: pre-repro"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "dvc repro ${input:stage}",
@@ -197,7 +197,7 @@
     {
       "label": "dvc: repro force",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: pre-repro"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "dvc repro --force ${input:stage}",
@@ -207,7 +207,7 @@
     {
       "label": "dvc: dag",
       "dependsOrder": "sequence",
-      "dependsOn": ["dvc: pre-repro"],
+      "dependsOn": ["dvc: synchronize params"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
       "command": "(dvc dag --md) -Replace 'mermaid', '{mermaid}' > docs/dag.md && . '~/.local/nodeenvs/markdownlint/Scripts/Activate.ps1' && markdownlint --fix docs/dag.md",
@@ -215,10 +215,10 @@
       "problemMatcher": []
     },
     {
-      "label": "dvc: pre-repro",
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "python -m boilercv.pre_repro",
+      "label": "dvc: synchronize params",
+      "type": "process",
+      "command": "pwsh",
+      "args": ["-Command", "python -m boilercv.models.params"],
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

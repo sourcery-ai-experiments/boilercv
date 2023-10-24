@@ -367,3 +367,11 @@ stages:
       md5: d751713988987e9331980363e24189ce.dir
       size: 0
       nfiles: 0
+  generate_reports:
+    cmd: python src/boilercv/stages/generate_reports.py
+    deps:
+    - path: data/docs
+      hash: md5
+      md5: 0145dd66d4de5ea937ce5f31d5db6212.dir
+      size: 17546780
+      nfiles: 30

@@ -1,0 +1,13 @@
+md5: 981e2054252a6d326f9c90bca14251f7
+frozen: true
+deps:
+- path: data/scripts
+  repo:
+    url: ../boilercore
+    rev_lock: d72e1dde68057752f2cccc45eb2e89f279be6248
+outs:
+- md5: 5b3dbe4155382967562c92dbcc415dad.dir
+  size: 99592
+  nfiles: 5
+  hash: md5
+  path: scripts

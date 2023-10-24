@@ -5,9 +5,6 @@
 
 # ? For data/scripts/filt.py
 pandocfilters==1.5.0
-# ? Decouple package install from DVC, an external tool used in this repo
-# ? Boilercv requires DVC for `pre_repro`, but we can specify extras in dev deps only
-dvc[gs]==3.27.0
 # ? Install tests package so modules can be run in debugging
 -e tests/.
 # ? For using the latest version of this core package during development
