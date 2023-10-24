@@ -1,7 +1,8 @@
 # Latest working requirements of your package, should be ahead of pyproject.toml.
 
 colorcet==3.0.1
-dulwich==0.21.5
+# ? Already specified in `requirements_core.txt`
+# dulwich
 imageio[pyav]==2.31.5
 # ? Already specified in `requirements_both.txt`
 # ipykernel
