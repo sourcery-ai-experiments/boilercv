@@ -40,7 +40,7 @@ paths:
   filt: data/scripts/filt.py
   template: data/scripts/template.dotx
   zotero: data/scripts/zotero.lua
-  docs: data/docs
+  notebooks: data/notebooks
   rois: data/rois
   samples: data/samples
   sources: data/sources

@@ -37,18 +37,18 @@ stages:
     deps:
     - path: data/rois
       hash: md5
-      md5: 1300e5dce1774bdc91feb6365369c7d8.dir
-      size: 186726548
-      nfiles: 308
+      md5: 1008ab05cc564b0550ca9581de7cd46a.dir
+      size: 196348551
+      nfiles: 321
     - path: data/sources
       hash: md5
-      md5: a409ab9bcababc1baaea4dc53e312bda.dir
-      size: 7424602696
-      nfiles: 308
+      md5: 6df515c6bcc624a893cf68f9c7ef5112.dir
+      size: 7460869563
+      nfiles: 321
     - path: src/boilercv/stages/preview/preview_binarized.py
       hash: md5
-      md5: 8848bb40ef1c2b5949c9b9dcd787c521
-      size: 831
+      md5: 81189ca19c9c07cd8c80178611716f88
+      size: 835
     outs:
     - path: data/previews/binarized.nc
       hash: md5
@@ -84,8 +84,8 @@ stages:
       nfiles: 321
     - path: src/boilercv/stages/fill.py
       hash: md5
-      md5: 423e2e8160e37c54ff2bbe5c76bc2cc9
-      size: 1548
+      md5: 454b9cdfd078daad69600425b5c29e4d
+      size: 1507
     outs:
     - path: data/filled
       hash: md5
@@ -236,8 +236,8 @@ stages:
       nfiles: 321
     - path: src/boilercv/stages/find_contours.py
       hash: md5
-      md5: 33a3d4f607e2f0f2d5cf281847d51daf
-      size: 3041
+      md5: 26bf1bf4419d40f1c90d771a6aaea0fa
+      size: 2966
     outs:
     - path: data/contours
       hash: md5
@@ -249,18 +249,18 @@ stages:
     deps:
     - path: data/filled
       hash: md5
-      md5: 9d9b406833ae3911940fd4d717bb20e1.dir
-      size: 3482532424
-      nfiles: 308
+      md5: 851f3d887be6a2daf3ea25fe136528ef.dir
+      size: 3516069084
+      nfiles: 321
     - path: data/sources
       hash: md5
-      md5: a409ab9bcababc1baaea4dc53e312bda.dir
-      size: 7424602696
-      nfiles: 308
+      md5: 6df515c6bcc624a893cf68f9c7ef5112.dir
+      size: 7460869563
+      nfiles: 321
     - path: src/boilercv/stages/preview/preview_filled.py
       hash: md5
-      md5: 34f809eb06d3ba6ccb58d0e8b7b41573
-      size: 763
+      md5: a798bfac9a99b5336d32d2c78511979d
+      size: 740
     outs:
     - path: data/previews/filled.nc
       hash: md5
@@ -271,13 +271,13 @@ stages:
     deps:
     - path: data/sources
       hash: md5
-      md5: a409ab9bcababc1baaea4dc53e312bda.dir
-      size: 7424602696
-      nfiles: 308
+      md5: 6df515c6bcc624a893cf68f9c7ef5112.dir
+      size: 7460869563
+      nfiles: 321
     - path: src/boilercv/stages/preview/preview_gray.py
       hash: md5
-      md5: 519bcb3e7265a7759a7f74b4479bf025
-      size: 764
+      md5: 951d853ba52d4659c073adb3121fbf10
+      size: 741
     outs:
     - path: data/previews/gray.nc
       hash: md5
@@ -288,13 +288,13 @@ stages:
     deps:
     - path: data/contours
       hash: md5
-      md5: d43be95333c9df0e76d570f8b11aada2.dir
-      size: 4279876062
-      nfiles: 308
+      md5: 40e9c4859498b337fc7c196b54002561.dir
+      size: 4302672654
+      nfiles: 321
     - path: src/boilercv/stages/find_unobstructed.py
       hash: md5
-      md5: 4f3a6655839d40e92d84847236d1b487
-      size: 236
+      md5: ba3378329afb30f7be3ca3c56a4b0bb2
+      size: 225
     outs:
     - path: data/unobstructed
       hash: md5
@@ -311,8 +311,8 @@ stages:
       nfiles: 1
     - path: src/boilercv/stages/find_tracks.py
       hash: md5
-      md5: 57fb1a62343382871aacbaa45cba4957
-      size: 172
+      md5: 6ac662aec69162f628539ae007b1805a
+      size: 162
     outs:
     - path: data/tracks
       hash: md5
@@ -329,12 +329,12 @@ stages:
       nfiles: 1
     - path: src/boilercv/correlations.py
       hash: md5
-      md5: 425fdb56946ddc30b7cb692cecb31b17
-      size: 2949
+      md5: d66b32fc1a05ef32a6eb51c9182548e3
+      size: 2856
     - path: src/boilercv/stages/compare_theory.py
       hash: md5
-      md5: 51c2bc74bc7d89241ce66f71f981d60b
-      size: 217
+      md5: 98c890e0c2113641faefa57643616655
+      size: 207
     outs:
     - path: data/lifetimes
       hash: md5
@@ -370,8 +370,8 @@ stages:
   generate_reports:
     cmd: python src/boilercv/stages/generate_reports.py
     deps:
-    - path: data/docs
+    - path: data/notebooks
       hash: md5
-      md5: 0145dd66d4de5ea937ce5f31d5db6212.dir
-      size: 17546780
-      nfiles: 30
+      md5: b546f3ff33f0684fa57a560ed1d4f8e7.dir
+      size: 14094494
+      nfiles: 22

@@ -64,7 +64,7 @@ class Paths(CreatePathsModel):
     zotero: FilePath = scripts / "zotero.lua"
 
     # * DVC-tracked inputs
-    docs: DirectoryPath = data / "docs"
+    notebooks: DirectoryPath = data / "notebooks"
     rois: DirectoryPath = data / "rois"
     samples: DirectoryPath = data / "samples"
     sources: DirectoryPath = data / "sources"
