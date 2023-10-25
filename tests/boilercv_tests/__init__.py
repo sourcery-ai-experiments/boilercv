@@ -1,5 +1,6 @@
 """Helper functions for tests."""
 
+
 from pathlib import Path
 
 import pytest
@@ -10,12 +11,13 @@ BOILERCV = Path("src") / "boilercv"
 STAGES_DIR = BOILERCV / "stages"
 STAGES = [
     pytest.param(module, id=get_module_rel(module, "boilercv"))
-    for module in walk_modules(package=BOILERCV / "manual", top=BOILERCV)
+    for module in (f"boilercv.{module}" for module in walk_modules(BOILERCV / "manual"))
 ]
-for module in walk_modules(STAGES_DIR, BOILERCV):
+for module in (f"boilercv.{module}" for module in walk_modules(STAGES_DIR)):
     rel_to_stages = get_module_rel(module, "stages")
-    if rel_to_stages in {
+    if "experiments" in rel_to_stages or rel_to_stages in {
         "compare_theory",
+        "generate_reports",
         "find_collapse",
         "find_tracks",
         "find_unobstructed",
@@ -28,5 +30,5 @@ for module in walk_modules(STAGES_DIR, BOILERCV):
     )
 nbs_to_execute: list[ParameterSet] = [
     pytest.param(path, id=str(path.relative_to(STAGES_DIR)), marks=[pytest.mark.xfail])
-    for path in list(walk_module_paths(STAGES_DIR, BOILERCV, suffix=".ipynb"))
+    for path in list(walk_module_paths(STAGES_DIR, suffixes=[".ipynb"]))
 ]

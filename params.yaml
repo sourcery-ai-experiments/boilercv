@@ -29,6 +29,7 @@ paths:
     find_tracks: src/boilercv/stages/find_tracks.py
     find_unobstructed: src/boilercv/stages/find_unobstructed.py
     generate_reports: src/boilercv/stages/generate_reports.py
+    experiments_exp_2023_09_20_subcool: src/boilercv/stages/experiments/exp_2023_09_20_subcool.py
     preview_preview_binarized: src/boilercv/stages/preview/preview_binarized.py
     preview_preview_filled: src/boilercv/stages/preview/preview_filled.py
     preview_preview_gray: src/boilercv/stages/preview/preview_gray.py
@@ -40,6 +41,7 @@ paths:
   filt: data/scripts/filt.py
   template: data/scripts/template.dotx
   zotero: data/scripts/zotero.lua
+  experiments: data/experiments
   notebooks: data/notebooks
   rois: data/rois
   samples: data/samples

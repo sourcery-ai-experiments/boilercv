@@ -50,7 +50,9 @@ class Paths(CreatePathsModel):
     correlations: FilePath = package / "correlations.py"
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"
-    stages: dict[str, FilePath] = map_stages(package / "stages", package)
+    stages: dict[str, FilePath] = map_stages(
+        package / "stages", suffixes=[".py", ".ipynb"]
+    )
     # ! Plotting config
     plot_config: DirectoryPath = data / "plotting"
     mpl_base: FilePath = plot_config / "base.mplstyle"
@@ -64,6 +66,7 @@ class Paths(CreatePathsModel):
     zotero: FilePath = scripts / "zotero.lua"
 
     # * DVC-tracked inputs
+    experiments: DirectoryPath = data / "experiments"
     notebooks: DirectoryPath = data / "notebooks"
     rois: DirectoryPath = data / "rois"
     samples: DirectoryPath = data / "samples"
