@@ -354,7 +354,7 @@
       "dependsOn": ["task: format notebook"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "nbqa ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-metadata special tags -- ${file}; black ${file}",
+      "command": "ruff format; ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-metadata special tags -- ${file}; black ${file}",
       "icon": { "id": "notebook" },
       "problemMatcher": []
     },
