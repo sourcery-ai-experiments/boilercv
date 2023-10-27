@@ -349,12 +349,10 @@
     // * OTHER TASKS * //
 
     {
-      "label": "task: format and clear notebook",
-      "dependsOrder": "sequence",
-      "dependsOn": ["task: format notebook"],
+      "label": "task: format notebook",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "ruff format; ruff --fix-only ${file}; nb-clean clean --remove-empty-cells --preserve-cell-metadata special tags -- ${file}; black ${file}",
+      "command": "nb-clean clean --remove-empty-cells --preserve-cell-outputs --preserve-cell-metadata special tags -- ${file}; ruff --fix-only ${file}; ruff format ${file}",
       "icon": { "id": "notebook" },
       "problemMatcher": []
     },
