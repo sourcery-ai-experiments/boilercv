@@ -15,7 +15,6 @@ jobs:
       - run: |
           pyright
           nbqa pyright src tests
-        shell: "pwsh"
   ruff:
     runs-on: "ubuntu-latest"
     steps:
