@@ -64,7 +64,7 @@ def view_images(images: AllViewable, name: str = "", framerate: int = FRAMERATE_
 
 
 @contextmanager
-def image_viewer(images: AllViewable, name: str = "", framerate: int = FRAMERATE_CONT):  # type: ignore  # noqa: C901
+def image_viewer(images: AllViewable, name: str = "", framerate: int = FRAMERATE_CONT):  # noqa: C901  # type: ignore  # pyright 1.1.333
     """View and interact with images and video."""
 
     images: NamedViewable = coerce_images(images)
@@ -178,14 +178,14 @@ def coerce_images(images: AllViewable) -> NamedViewable:
     )
 
 
-def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore
+def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore  # pyright 1.1.333
     """Pad images to a common size and pack into an array."""
     flat_image = isinstance(images, np.ndarray | DA) and (
         # One-channel
-        images.ndim == 2  # type: ignore  # CI
+        images.ndim == 2
         # Up to four-channel
-        or images.ndim == 3  # type: ignore  # CI
-        and images.shape[-1] <= 4  # type: ignore  # CI
+        or images.ndim == 3
+        and images.shape[-1] <= 4
     )
     images: MutableViewable = [images] if flat_image else list(images)
     shapes = pd.DataFrame(
@@ -198,11 +198,11 @@ def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore
         (shapes[["height", "width"]].max() - shapes[["height", "width"]]) // 2
     ).set_axis(axis="columns", labels=["hpad", "wpad"])
     for i, image in enumerate(images):
-        pad: tuple[int, int] = pads.loc[image.shape[:2], :]  # type: ignore
+        pad: tuple[int, int] = pads.loc[image.shape[:2], :]  # type: ignore  # pyright 1.1.333
         hpad, wpad = pad
         zero_pad_for_additional_dims = ((0, 0),) * (image.ndim - 2)
         pad_width = ((hpad, hpad), (wpad, wpad), *zero_pad_for_additional_dims)
-        images[i] = np.pad(image, pad_width)
+        images[i] = np.pad(image, pad_width)  # type: ignore  # pyright 1.1.333
     return images
 
 
@@ -250,7 +250,7 @@ def get_image_view(framerate: int = FRAMERATE_CONT) -> pg.ImageView:
 def get_calling_scope_name():
     """Get the name of the calling scope."""
     current_frame = inspect.currentframe()
-    scope_name = current_frame.f_back.f_code.co_name  # type: ignore
+    scope_name = current_frame.f_back.f_code.co_name  # type: ignore  # pyright 1.1.333
     while scope_name in {
         "image_viewer",
         "view_images",
@@ -266,8 +266,8 @@ def get_calling_scope_name():
         "do_it",
         "process_internal_commands",
     }:
-        current_frame = current_frame.f_back  # type: ignore
-        scope_name = current_frame.f_back.f_code.co_name  # type: ignore
+        current_frame = current_frame.f_back  # type: ignore  # pyright 1.1.333
+        scope_name = current_frame.f_back.f_code.co_name  # type: ignore  # pyright 1.1.333
     return scope_name
 
 

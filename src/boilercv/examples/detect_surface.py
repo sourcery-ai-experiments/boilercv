@@ -58,8 +58,8 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     xpx_max = xpx_mid + xpx_max_dist
 
     # Find prominent horizontal lines
-    corners = cv.cornerHarris(src=img, blockSize=2, ksize=3, k=0.04)  # type: ignore  # OpenCV stubs # pyright 1.1.325
-    lines = -1 * corners  # type: ignore  # OpenCV stubs # pyright 1.1.325  # Linear features are strongly negative in Harris
+    corners = cv.cornerHarris(src=img, blockSize=2, ksize=3, k=0.04)
+    lines = -1 * corners  # type: ignore  # pyright 1.1.333
     blurred = cv.blur(lines, ksize=wide_rectangular_ksize)
     scaled = (blurred - blurred.min()) / (blurred.max() - blurred.min())
     binarized = scaled > threshold
@@ -68,7 +68,7 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     # ? cv.connectedComponents and cv.moments could also be used
     # ? Consider re-implementing if slow
     find_diag_conns = generate_binary_structure(rank=2, connectivity=2)
-    labeled_img, num_objects = label(input=binarized, structure=find_diag_conns)  # type: ignore
+    labeled_img, num_objects = label(input=binarized, structure=find_diag_conns)  # type: ignore  # pyright 1.1.333
     labels = range(1, num_objects + 1)  # Exclude 0-labeled background
     sizes_px = labeled_comprehension(
         input=binarized,

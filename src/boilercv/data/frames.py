@@ -12,7 +12,7 @@ def df_points(points: ArrLike, dims: list[str] = YX_PX) -> DF:
     return (
         pd.DataFrame(
             columns=dims,
-            data=points,  # type: ignore
+            data=points,  # type: ignore  # pyright 1.1.333
         )
         .rename_axis(axis="index", mapper="point")
         .rename_axis(axis="columns", mapper="dim")

@@ -24,10 +24,10 @@ def main():
     df.to_hdf(EXAMPLE_CONTOURS, "contours", complib="zlib", complevel=9)
     result: list[Img] = []
     for frame_num, frame in enumerate(video):
-        contours: list[ArrInt] = list(  # type: ignore
-            df.loc[islice[frame_num], :]  # type: ignore
+        contours: list[ArrInt] = list(  # type: ignore  # pyright 1.1.333
+            df.loc[islice[frame_num], :]  # type: ignore  # pyright 1.1.333
             .groupby("contour")
-            .apply(lambda grp: grp.values)  # type: ignore
+            .apply(lambda grp: grp.values)  # type: ignore  # pyright 1.1.333
         )
         frame_color = np.repeat(scale_bool(frame.values)[:, :, np.newaxis], 3, axis=-1)
         result.append(draw_contours(frame_color, contours, thickness=2, color=BLUE))

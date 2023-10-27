@@ -22,10 +22,10 @@ def main():
             video = ds[VIDEO]
             if not df.empty:
                 for frame_num, frame in enumerate(video):
-                    contours: list[ArrInt] = list(  # type: ignore  # pandas stubs # pyright 1.1.325
+                    contours: list[ArrInt] = list(  # type: ignore  # pyright 1.1.333
                         df.loc[frame_num, :]
                         .groupby("contour")
-                        .apply(lambda grp: grp.values)  # type: ignore  # pandas stubs # pyright 1.1.325
+                        .apply(lambda grp: grp.values)  # type: ignore  # pyright 1.1.333
                     )
                     video[frame_num, :, :] = draw_contours(
                         scale_bool(frame.values), contours

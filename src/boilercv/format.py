@@ -1,12 +1,12 @@
-# type: ignore pyright 1.1.308, local/CI differences, below
+# type: ignore  # pyright 1.1.333
 from collections.abc import Mapping
 from contextlib import contextmanager
 from typing import Any
 
 import matplotlib as mpl
 import pandas as pd
-from IPython.core.display import Markdown, Math  # type: ignore
-from IPython.display import display  # type: ignore
+from IPython.core.display import Markdown, Math
+from IPython.display import display
 from sympy import FiniteSet
 from sympy.printing.latex import latex
 

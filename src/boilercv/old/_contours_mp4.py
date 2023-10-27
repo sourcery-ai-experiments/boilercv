@@ -54,14 +54,14 @@ def get_roi2(image: ArrInt) -> ArrInt:
     (width, height) = image.shape[:-1]
     click = 0
     default_clicks = [(0, 0), (0, width), (height, width), (height, 0)]
-    hull = ConvexHull(default_clicks)
+    hull = ConvexHull(default_clicks)  # type: ignore  # pyright 1.1.333
     hull_minimum_vertices = 3
     composite_image = image
 
     def main() -> ArrInt:
         nonlocal clicks
         cv.imshow(WINDOW_NAME, image)
-        cv.setMouseCallback(WINDOW_NAME, handle_mouse_events)  # type: ignore  # OpenCV stubs # pyright 1.1.325
+        cv.setMouseCallback(WINDOW_NAME, handle_mouse_events)  # type: ignore  # pyright 1.1.333
         while True and cv.waitKey(100) != ESC_KEY:
             pass
         if len(clicks) < hull_minimum_vertices:
@@ -76,9 +76,9 @@ def get_roi2(image: ArrInt) -> ArrInt:
         if event == cv.EVENT_LBUTTONDOWN:
             click += 1
             clicks.append((x, y))
-            image = cv.drawMarker(image, clicks[-1], BLUE_CV)  # type: ignore  # OpenCV stubs # pyright 1.1.325
+            image = cv.drawMarker(image, clicks[-1], BLUE_CV)  # type: ignore  # pyright 1.1.333
             if click == hull_minimum_vertices:
-                hull = ConvexHull(clicks, incremental=True)
+                hull = ConvexHull(clicks, incremental=True)  # type: ignore  # pyright 1.1.333
                 composite_image = draw_hull(hull, image)
             elif click > hull_minimum_vertices:
                 hull.add_points([clicks[-1]])
@@ -90,7 +90,7 @@ def get_roi2(image: ArrInt) -> ArrInt:
         image = image.copy()
         clicks = hull.points.astype(int)
         for simplex in hull.simplices:
-            image = cv.line(image, clicks[simplex[0]], clicks[simplex[1]], BLUE_CV)  # type: ignore  # OpenCV stubs # pyright 1.1.325
+            image = cv.line(image, clicks[simplex[0]], clicks[simplex[1]], BLUE_CV)  # type: ignore  # pyright 1.1.333
         return image
 
     return main()

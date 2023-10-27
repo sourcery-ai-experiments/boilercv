@@ -81,7 +81,7 @@ def style_df(df: DfOrS, head: bool = False):
     df, truncated = truncate(df, head)
     styler = df.style
     yield styler
-    display(styler.format(get_df_formatter(df, truncated)))  # type: ignore  # pyright 1.1.317
+    display(styler.format(get_df_formatter(df, truncated)))  # type: ignore  # pyright 1.1.333
 
 
 def display_dfs(*dfs: DfOrS, head: bool = False):
@@ -94,7 +94,7 @@ def display_dfs(*dfs: DfOrS, head: bool = False):
     """
     for df in dfs:
         df, truncated = truncate(df, head)
-        display(df.style.format(get_df_formatter(df, truncated)))  # type: ignore  # pyright 1.1.317
+        display(df.style.format(get_df_formatter(df, truncated)))  # type: ignore  # pyright 1.1.333
 
 
 def get_df_formatter(
@@ -127,7 +127,7 @@ def truncate(df: DfOrS, head: bool = False) -> tuple[pd.DataFrame, bool]:
     if isinstance(df, pd.Series):
         df = df.to_frame()
     if len(df) <= pd.options.display.max_rows:
-        return df, False  # type: ignore  # pyright 1.1.317
+        return df, False
     if head:
         return df.head(pd.options.display.min_rows), True
     df = df.copy()
@@ -176,7 +176,7 @@ def insert_tags(notebook: Path, tags_to_insert: list[str]):
     See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
     """
     contents = nbf.read(notebook, nbf.NO_CONVERT)
-    for cell in contents.cells:  # type: ignore
+    for cell in contents.cells:  # type: ignore  # pyright 1.1.333
         tags = cell.get("metadata", {}).get("tags", [])
         cell["metadata"]["tags"] = tags_to_insert + list(
             set(tags) - set(tags_to_insert)

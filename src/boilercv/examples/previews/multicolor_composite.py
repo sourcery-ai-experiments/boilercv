@@ -20,7 +20,7 @@ from boilercv.types import ArrInt
 
 _NUM_FRAMES = 1
 
-_PALETTE = [c for c in sns.color_palette("Set1") if not c[0] == c[1] == c[2]]  # type: ignore
+_PALETTE = [c for c in sns.color_palette("Set1") if not c[0] == c[1] == c[2]]  # type: ignore  # pyright 1.1.333
 _PALETTE_CV = [(int(255 * c[2]), int(255 * c[1]), int(255 * c[0])) for c in _PALETTE]
 
 
@@ -31,11 +31,11 @@ def main():
         .isel(frame=frame)
         .values
     )
-    contours: list[ArrInt] = list(  # type: ignore  # pandas stubs  # pyright 1.1.325
+    contours: list[ArrInt] = list(  # type: ignore  # pyright 1.1.333
         get_contours_df(_EXAMPLE)
         .loc[frame, :]
         .groupby("contour")
-        .apply(lambda grp: grp.values)  # type: ignore  # pandas stubs  # pyright 1.1.325
+        .apply(lambda grp: grp.values)  # type: ignore  # pyright 1.1.333
     )
     highlighted = np.zeros_like(convert_image(gray, cv.COLOR_GRAY2BGR))
     for contour, color in zip(contours, cycle(_PALETTE_CV), strict=False):

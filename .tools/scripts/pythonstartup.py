@@ -25,7 +25,7 @@ def init():
 # https://stackoverflow.com/a/39662359
 def is_notebook_or_ipython() -> bool:
     try:
-        shell = get_ipython().__class__.__name__  # type: ignore  # pyright 1.1.308, dynamic
+        shell = get_ipython().__class__.__name__  # type: ignore  # pyright 1.1.333
     except NameError:
         return False  # Probably standard Python interpreter
     else:
