@@ -1,4 +1,4 @@
-"""Find collapsing bubbles."""
+"""Subcooled bubble collapse experiment."""
 
 from concurrent.futures import ProcessPoolExecutor
 
@@ -6,9 +6,9 @@ from boilercore.paths import fold, modified
 from ploomber_engine import execute_notebook
 
 from boilercv.models.params import PARAMS
+from boilercv.stages.experiments.e230920_subcool import EXP
 
-# Pipeline parameters
-NB = fold(PARAMS.paths.stages["find_collapse"].with_suffix(".ipynb"))
+NB = fold(PARAMS.paths.stages[f"experiments_{EXP}_find_collapse"])
 TIMES = [
     "2023-09-20T16:52:06",
     "2023-09-20T16:52:06",
@@ -35,5 +35,4 @@ def main():
             )
 
 
-if __name__ == "__main__":
-    main()
+main()

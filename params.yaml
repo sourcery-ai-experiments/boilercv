@@ -24,12 +24,13 @@ paths:
   stages:
     compare_theory: src/boilercv/stages/compare_theory.py
     fill: src/boilercv/stages/fill.py
-    find_collapse: src/boilercv/stages/find_collapse.py
     find_contours: src/boilercv/stages/find_contours.py
     find_tracks: src/boilercv/stages/find_tracks.py
     find_unobstructed: src/boilercv/stages/find_unobstructed.py
     generate_reports: src/boilercv/stages/generate_reports.py
-    experiments_exp_2023_09_20_subcool: src/boilercv/stages/experiments/exp_2023_09_20_subcool.py
+    experiments_e230920_subcool_find_collapse: src/boilercv/stages/experiments/e230920_subcool/find_collapse.ipynb
+    experiments_e230920_subcool_get_thermal_data: src/boilercv/stages/experiments/e230920_subcool/get_thermal_data.ipynb
+    experiments_e230920_subcool: src/boilercv/stages/experiments/e230920_subcool/__main__.py
     preview_preview_binarized: src/boilercv/stages/preview/preview_binarized.py
     preview_preview_filled: src/boilercv/stages/preview/preview_filled.py
     preview_preview_gray: src/boilercv/stages/preview/preview_gray.py
