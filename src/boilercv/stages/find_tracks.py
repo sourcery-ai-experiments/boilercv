@@ -1,4 +1,5 @@
 """Track bubbles."""
+
 from boilercv.models.params import PARAMS
 
 

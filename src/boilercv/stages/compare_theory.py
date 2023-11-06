@@ -1,4 +1,5 @@
 """Bubble lifetimes compared with theoretical correlations."""
+
 from boilercv.models.params import PARAMS
 
 
