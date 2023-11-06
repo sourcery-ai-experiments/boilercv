@@ -27,7 +27,7 @@ def disp_free(title, eqn, **kwargs):
 
 
 def disp(title, *exprs, **kwargs):
-    print(f"{title}:")
+    print(f"{title}:")  # noqa: T201
     display(*(math_mod(expr, **kwargs) for expr in exprs))
 
 
@@ -61,3 +61,18 @@ def handle_subscript(val: str) -> str:
     parts = quantity.split("_")
     quantity = f"{parts[0]}_" + "{" + ",".join(parts[1:]) + "}"
     return add_unit(quantity, units, tex=True)
+
+
+def add_unit(quantity: str, units: str, tex: bool = False) -> str:
+    """Append units to a quantity."""
+    if not tex:
+        return f"{quantity} ({units})" if units else quantity
+    units = units.replace("-", r"{\cdot}")
+    return rf"{quantity}\;({units})" if units else quantity
+
+
+def sep_unit(val: str) -> tuple[str, str]:
+    """Split a quantity and its units."""
+    quantity, units = val.split(" (")
+    units = units.removesuffix(")")
+    return quantity, units

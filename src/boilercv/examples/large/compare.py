@@ -16,7 +16,7 @@ kw = KW(preview=DEBUG, save=False)
 
 def main():
     with ex_ds("binarized", **kw) as original, ex_ds("unpacked", **kw) as unpacked:
-        assert unpacked.identical(original)
+        assert unpacked.identical(original)  # noqa: S101
 
 
 if __name__ == "__main__":
