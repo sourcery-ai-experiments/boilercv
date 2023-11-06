@@ -1,9 +1,6 @@
 {
   "version": "0.2.0",
   "configurations": [
-    // * -------------------------------------------------------------------------- * //
-    // * Changes below should persist in significant template updates.
-
     {
       "name": "Python: WRITE",
       "type": "debugpy",
@@ -69,9 +66,8 @@
         }
       ]
     },
-
     // * -------------------------------------------------------------------------- * //
-    // * Changes below may be lost in significant template updates.
+
     {
       "name": "Python: Current file",
       "type": "debugpy",

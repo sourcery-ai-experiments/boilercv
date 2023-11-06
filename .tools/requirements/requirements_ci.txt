@@ -1,11 +1,5 @@
 # Requirements for dev environments.
-
-# * -------------------------------------------------------------------------------- * #
-# * Changes below should persist in significant template updates.
-
 boilercore@git+https://github.com/blakeNaccarato/boilercore@eb1ff2e8bb9478eaf8bfb8792ad21cb309706446
 
-# * -------------------------------------------------------------------------------- * #
-# * Changes below may be lost in significant template updates.
 
 -r requirements_both.txt

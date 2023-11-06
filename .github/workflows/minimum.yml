@@ -6,9 +6,6 @@ on:
     - cron: "0 0 * * 0" # Every Sunday at midnight.
 
 jobs:
-  # * ------------------------------------------------------------------------------ * #
-  # * Changes below may be lost in significant template updates.
-
   pytest:
     runs-on: "ubuntu-latest"
     steps:
@@ -22,6 +19,3 @@ jobs:
           sudo apt update
           sudo apt install libegl1
       - run: "pytest"
-
-  # * ------------------------------------------------------------------------------ * #
-  # * Changes below should persist in significant template updates.
