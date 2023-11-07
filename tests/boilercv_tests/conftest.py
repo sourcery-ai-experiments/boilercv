@@ -1,14 +1,13 @@
 """Test configuration."""
 
-from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from boilercore import WarningFilter, filter_certain_warnings
-from boilercore.testing import get_nb_client, get_session_path
-from ploomber_engine.ipython import PloomberClient
+from boilercore.testing import get_nb_client, get_nb_namespace, get_session_path
 
 import boilercv
-from boilercv_tests import nbs_to_execute
+from boilercv_tests import NB_STAGES
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -26,18 +25,17 @@ def _filter_certain_warnings():
             WarningFilter(
                 message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
                 category=RuntimeWarning,
-            )
+            ),
+            WarningFilter(
+                message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
+                category=FutureWarning,
+            ),
         ]
     )
 
 
-@pytest.fixture(params=nbs_to_execute)
-def nb_to_execute(request) -> Path:
-    """Path to a notebook that should be executed only."""
-    return request.param
-
-
 @pytest.fixture()
-def nb_client_to_execute(nb_to_execute) -> PloomberClient:
-    """Notebook client to be executed only."""
-    return get_nb_client(nb_to_execute)
+def ns(request) -> SimpleNamespace:
+    """Notebook namespace to be inspected."""
+    module: str = request.param
+    return get_nb_namespace(get_nb_client(NB_STAGES[module]))
