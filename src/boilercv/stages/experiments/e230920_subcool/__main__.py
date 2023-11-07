@@ -8,18 +8,22 @@ from ploomber_engine import execute_notebook
 from boilercv.models.params import PARAMS
 from boilercv.stages.experiments.e230920_subcool import EXP, get_times
 
-NB = fold(PARAMS.paths.stages[f"experiments_{EXP}_find_collapse"])
-PATHS = (PARAMS.paths.experiments / EXP).iterdir()
-
 
 def main():
-    if not modified(NB):
+    find_collapse = fold(PARAMS.paths.stages[f"experiments_{EXP}_find_collapse"])
+    if not modified(find_collapse):
         return
+    execute_notebook(
+        input_path=fold(PARAMS.paths.stages[f"experiments_{EXP}_get_thermal_data"]),
+        output_path=None,
+    )
     with ProcessPoolExecutor() as executor:
-        for dt in get_times(path.stem for path in PATHS):
+        for dt in get_times(
+            path.stem for path in (PARAMS.paths.experiments / EXP).iterdir()
+        ):
             executor.submit(
                 execute_notebook,
-                input_path=NB,
+                input_path=find_collapse,
                 output_path=None,
                 parameters={"TIME": dt.isoformat()},
             )

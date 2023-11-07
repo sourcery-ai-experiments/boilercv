@@ -84,8 +84,8 @@ stages:
       nfiles: 321
     - path: src/boilercv/stages/fill.py
       hash: md5
-      md5: 454b9cdfd078daad69600425b5c29e4d
-      size: 1507
+      md5: ba2f34dbad23ecf56873a5841627cb0b
+      size: 1518
     outs:
     - path: data/filled
       hash: md5
@@ -311,8 +311,8 @@ stages:
       nfiles: 1
     - path: src/boilercv/stages/find_tracks.py
       hash: md5
-      md5: 6ac662aec69162f628539ae007b1805a
-      size: 162
+      md5: 2d497c6b2161f8056a0eb2ccf4c19fe8
+      size: 163
     outs:
     - path: data/tracks
       hash: md5
@@ -333,8 +333,8 @@ stages:
       size: 2856
     - path: src/boilercv/stages/compare_theory.py
       hash: md5
-      md5: 98c890e0c2113641faefa57643616655
-      size: 207
+      md5: ac742c69d72e2960d65ac1636ae13ac1
+      size: 208
     outs:
     - path: data/lifetimes
       hash: md5
@@ -372,6 +372,6 @@ stages:
     deps:
     - path: data/notebooks
       hash: md5
-      md5: f43ba26d8ae394320361ee2686261b1a.dir
-      size: 5842086
-      nfiles: 14
+      md5: 341e5d34c2524a85dc9211c2688bf2f1.dir
+      size: 2842184
+      nfiles: 11
