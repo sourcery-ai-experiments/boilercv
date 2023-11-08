@@ -14,10 +14,10 @@ NB_STAGES = {
 }
 STAGES: list[ParameterSet] = []
 for module in walk_modules(boilercv_dir):
-    if not module.startswith("boilercv.stages"):
-        continue
     if module.startswith("boilercv.manual"):
         STAGES.append(pytest.param(module, id=get_module_rel(module, "boilercv")))
+        continue
+    if not module.startswith("boilercv.stages"):
         continue
     stage = get_module_rel(module, "stages")
     match stage.split("."):
