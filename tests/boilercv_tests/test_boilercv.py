@@ -60,7 +60,7 @@ def test_correlations():
             id=get_module_rel(module, "boilercv"),
         )
         for stage, marks in {
-            "find_collapse": [pytest.mark.xfail],
+            "find_collapse": [pytest.mark.xfail(raises=AssertionError)],
             "get_thermal_data": [],
         }.items()
     ],
