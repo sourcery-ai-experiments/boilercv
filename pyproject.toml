@@ -183,6 +183,10 @@ convention = "google"
     "ARG001", # Allow unused arguments in tests
     "S101",   # Allow assert in tests
 ]
+"tests/**/cases/**" = [
+    "N801",   # Case classes look like functions
+    "RUF012", # Case classes have just the `parameters` ClassVar
+]
 
 [tool.ruff.flake8-bugbear]
 extend-immutable-calls = ["typer.Argument", "typer.Option"]

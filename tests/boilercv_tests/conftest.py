@@ -1,13 +1,14 @@
 """Test configuration."""
 
+from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 from boilercore import WarningFilter, filter_certain_warnings
 from boilercore.testing import get_nb_client, get_nb_namespace, get_session_path
 
 import boilercv
-from boilercv_tests import NB_STAGES
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -37,5 +38,6 @@ def _filter_certain_warnings():
 @pytest.fixture()
 def ns(request) -> SimpleNamespace:
     """Notebook namespace to be inspected."""
-    module: str = request.param
-    return get_nb_namespace(get_nb_client(NB_STAGES[module]))
+    param: tuple[Path, dict[str, Any]] = request.param
+    path, parameters = param
+    return get_nb_namespace(get_nb_client(path), parameters)

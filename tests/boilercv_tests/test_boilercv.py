@@ -4,9 +4,8 @@ from importlib import import_module
 
 import numpy as np
 import pytest
-from boilercore.paths import get_module_rel
 
-from boilercv_tests import STAGES, e230920_subcool_tests
+from boilercv_tests import STAGES
 
 
 def test_correlations():
@@ -47,28 +46,6 @@ def test_correlations():
         ]
     )
     assert np.allclose(result, expected)
-
-
-@pytest.mark.slow()
-@pytest.mark.parametrize(
-    ("ns", "test"),
-    [
-        pytest.param(
-            module := f"boilercv.stages.experiments.e230920_subcool.{stage}",
-            getattr(e230920_subcool_tests, stage),
-            marks=marks,
-            id=get_module_rel(module, "boilercv"),
-        )
-        for stage, marks in {
-            "find_collapse": [pytest.mark.xfail(raises=AssertionError)],
-            "get_thermal_data": [],
-        }.items()
-    ],
-    indirect=["ns"],
-)
-def test_inspect_nb(ns, test):
-    """Inspect test."""
-    test(ns)
 
 
 @pytest.mark.slow()
