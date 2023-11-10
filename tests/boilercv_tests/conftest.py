@@ -1,8 +1,8 @@
 """Test configuration."""
 
-from pathlib import Path
+from collections.abc import Callable
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, TypeAlias
 
 import pytest
 from boilercore import WarningFilter, filter_certain_warnings
@@ -35,9 +35,11 @@ def _filter_certain_warnings():
     )
 
 
+Check: TypeAlias = Callable[[SimpleNamespace], Any]
+Ns: TypeAlias = SimpleNamespace
+
+
 @pytest.fixture()
-def ns(request) -> SimpleNamespace:
-    """Notebook namespace to be inspected."""
-    param: tuple[Path, dict[str, Any]] = request.param
-    path, parameters = param
-    return get_nb_namespace(get_nb_client(path), parameters)
+def cases(request) -> tuple[Ns, Check]:
+    path, parameters, fun = request.param
+    return get_nb_namespace(get_nb_client(path), parameters), fun

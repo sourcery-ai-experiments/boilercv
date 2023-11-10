@@ -4,14 +4,9 @@ from pathlib import Path
 
 import pytest
 from _pytest.mark.structures import ParameterSet
-from boilercore.paths import get_module_rel, walk_module_map, walk_modules
+from boilercore.paths import get_module_rel, walk_modules
 
 boilercv_dir = Path("src") / "boilercv"
-NB_STAGES = {
-    module: path
-    for module, path in walk_module_map(boilercv_dir, suffixes=[".ipynb"])
-    if module.startswith("boilercv.stages")
-}
 STAGES: list[ParameterSet] = []
 for module in walk_modules(boilercv_dir):
     if module.startswith("boilercv.manual"):
