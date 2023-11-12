@@ -1,6 +1,5 @@
 """Cases for experiment `e230920_subcool`."""
 
-from collections.abc import Iterator
 from pathlib import Path
 
 from boilercore.paths import get_module_name, walk_module_paths
@@ -26,7 +25,7 @@ modules = dict(
         strict=True,
     )
 )
-CASES: dict[str, Iterator[NotebookCase]] = {
-    get_module_name(module): get_notebook_cases(notebook, module)
+CASES: dict[str, tuple[NotebookCase, ...]] = {
+    get_module_name(module): tuple(get_notebook_cases(notebook, module))
     for module, notebook in modules.items()
 }

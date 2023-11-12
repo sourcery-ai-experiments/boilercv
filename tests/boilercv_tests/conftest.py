@@ -1,12 +1,17 @@
 """Test configuration."""
 
-from collections.abc import Callable
+from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, TypeAlias
 
 import pytest
 from boilercore import WarningFilter, filter_certain_warnings
-from boilercore.testing import get_nb_client, get_nb_namespace, get_session_path
+from boilercore.testing import (
+    Fun,
+    Parameters,
+    Results,
+    get_cached_nb_namespace,
+    get_session_path,
+)
 
 import boilercv
 
@@ -35,11 +40,12 @@ def _filter_certain_warnings():
     )
 
 
-Check: TypeAlias = Callable[[SimpleNamespace], Any]
-Ns: TypeAlias = SimpleNamespace
-
-
 @pytest.fixture()
-def cases(request) -> tuple[Ns, Check]:
-    path, parameters, fun = request.param
-    return get_nb_namespace(get_nb_client(path), parameters), fun
+def cases(request) -> tuple[SimpleNamespace, Fun]:
+    nb: Path
+    fun: Fun
+    parameters: Parameters
+    results: Results
+    nb, fun, parameters, results = request.param
+    ns = get_cached_nb_namespace(nb.read_text(encoding="utf-8"), parameters, results)
+    return ns, fun
