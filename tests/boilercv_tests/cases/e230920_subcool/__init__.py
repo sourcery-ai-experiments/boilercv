@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from boilercore.paths import get_module_name, walk_module_paths
-from boilercore.testing import NotebookCase, get_notebook_cases
+from boilercore.testing import NotebookCase, walk_notebook_cases
 
 from boilercv_tests.cases.e230920_subcool import (
     custom_features,
@@ -26,6 +26,6 @@ modules = dict(
     )
 )
 CASES: dict[str, tuple[NotebookCase, ...]] = {
-    get_module_name(module): tuple(get_notebook_cases(notebook, module))
+    get_module_name(module): tuple(walk_notebook_cases(notebook, module))
     for module, notebook in modules.items()
 }
