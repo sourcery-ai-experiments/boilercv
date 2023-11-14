@@ -3,6 +3,10 @@ params_schema.json
 # Don't commit local DVC plots
 dvc_plots
 *.ipynb.*
+# Don't commit test plots
+tests/plots
+# Don't commit pytest-harvest temporary storage
+.xdist_harvested
 
 # * -------------------------------------------------------------------------------- * #
 # * Template gitignore

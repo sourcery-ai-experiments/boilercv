@@ -9,7 +9,14 @@ from pandas.testing import assert_index_equal
 
 from boilercv_tests import NsArgs, get_nb
 
+EXP = "e230920_subcool"
+
 pytestmark = pytest.mark.slow
+
+
+@pytest.fixture(scope="module")
+def nss(fixtures):
+    return fixtures.ns.test_e230920_subcool
 
 
 class P(NamedTuple):
@@ -29,9 +36,7 @@ def _parametrize(*params: P):
         [
             pytest.param(
                 NsArgs(
-                    nb=get_nb(
-                        Path("src/boilercv/stages/experiments/e230920_subcool"), p.nb
-                    ),
+                    nb=get_nb(Path(f"src/boilercv/stages/experiments/{EXP}"), p.nb),
                     params=p.params,
                     all_results=p.all_results,
                 ),
@@ -45,7 +50,8 @@ def _parametrize(*params: P):
 
 
 @_parametrize(P("custom_features", "cols"))
-def test_custom_features(ns):
+def test_custom_features(ns, ax):
+    ns.objects.plot(ax=ax)
     assert_index_equal(ns.objects.columns, ns.my_objects.columns)
 
 
@@ -62,3 +68,13 @@ def test_find_collapse(ns):
 @_parametrize(P("get_thermal_data", "subcool"))
 def test_get_thermal_data(ns):
     assert ns.data.subcool.mean() == pytest.approx(3.65, abs=0.01, rel=0.01)
+
+
+def test_synthesis(nss, plt):
+    _, axes = plt.subplots(1, 3)
+    axes = iter(axes)
+    nss.test_custom_features.cols.objects.plot(ax=next(axes))
+    nss.test_find_collapse.small_bubbles.nondimensionalized_departing_long_lived_objects.plot(
+        ax=next(axes)
+    )
+    nss.test_get_thermal_data.subcool.data.plot(ax=next(axes))

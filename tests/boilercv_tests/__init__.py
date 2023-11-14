@@ -14,6 +14,8 @@ def get_nb(exp: Path, name: str) -> Path:
 
 
 class NsArgs(NamedTuple):
+    """Indirect parameters for notebook namespace fixture."""
+
     nb: Path
     params: Params = NO_PARAMS
     all_results: bool = False
