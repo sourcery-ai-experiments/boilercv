@@ -1,19 +1,18 @@
 """Test configuration."""
 
-from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 from boilercore import WarningFilter, filter_certain_warnings
 from boilercore.testing import (
-    Fun,
-    Parameters,
-    Results,
+    get_accessed_attributes,
     get_cached_nb_namespace,
     get_session_path,
+    get_source,
 )
 
 import boilercv
+from boilercv_tests import NsArgs
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -41,11 +40,10 @@ def _filter_certain_warnings():
 
 
 @pytest.fixture()
-def cases(request) -> tuple[SimpleNamespace, Fun]:
-    nb: Path
-    fun: Fun
-    parameters: Parameters
-    results: Results
-    nb, fun, parameters, results = request.param
-    ns = get_cached_nb_namespace(nb.read_text(encoding="utf-8"), parameters, results)
-    return ns, fun
+def ns(request) -> SimpleNamespace:
+    namespace: NsArgs = request.param
+    return get_cached_nb_namespace(
+        nb=namespace.nb.read_text(encoding="utf-8"),
+        params=namespace.params,
+        results=get_accessed_attributes(get_source(request.node), request.fixturename),
+    )

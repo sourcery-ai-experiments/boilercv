@@ -1,10 +1,23 @@
 """Helper functions for tests."""
 
 from pathlib import Path
+from typing import Any, NamedTuple
 
 import pytest
 from _pytest.mark.structures import ParameterSet
 from boilercore.paths import get_module_rel, walk_modules
+from boilercore.testing import NO_PARAMS
+
+
+def get_nb(exp: Path, name: str) -> Path:
+    return exp / f"{name}.ipynb"
+
+
+class NsArgs(NamedTuple):
+    nb: Path
+    params: dict[str, Any] = NO_PARAMS
+    all_results: bool = False
+
 
 boilercv_dir = Path("src") / "boilercv"
 STAGES: list[ParameterSet] = []
