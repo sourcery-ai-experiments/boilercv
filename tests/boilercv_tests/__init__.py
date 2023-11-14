@@ -1,12 +1,12 @@
 """Helper functions for tests."""
 
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 import pytest
 from _pytest.mark.structures import ParameterSet
 from boilercore.paths import get_module_rel, walk_modules
-from boilercore.testing import NO_PARAMS
+from boilercore.testing import NO_PARAMS, Params
 
 
 def get_nb(exp: Path, name: str) -> Path:
@@ -15,7 +15,7 @@ def get_nb(exp: Path, name: str) -> Path:
 
 class NsArgs(NamedTuple):
     nb: Path
-    params: dict[str, Any] = NO_PARAMS
+    params: Params = NO_PARAMS
     all_results: bool = False
 
 
