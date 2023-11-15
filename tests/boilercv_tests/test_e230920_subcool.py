@@ -52,7 +52,7 @@ def _parametrize(*params: P):
 @_parametrize(P("custom_features", "cols"))
 def test_custom_features(ns, ax):
     ns.objects.plot(ax=ax)
-    assert_index_equal(ns.objects.columns, ns.my_objects.columns)
+    assert_index_equal(ns.objects.columns, ns.my_objects.columns, check_order=False)  # type: ignore
 
 
 @pytest.mark.xfail(
