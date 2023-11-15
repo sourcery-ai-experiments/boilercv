@@ -29,6 +29,7 @@ paths:
     find_unobstructed: src/boilercv/stages/find_unobstructed.py
     generate_reports: src/boilercv/stages/generate_reports.py
     experiments_e230920_subcool_custom_features: src/boilercv/stages/experiments/e230920_subcool/custom_features.ipynb
+    experiments_e230920_subcool_export_contours: src/boilercv/stages/experiments/e230920_subcool/export_contours.py
     experiments_e230920_subcool_find_collapse: src/boilercv/stages/experiments/e230920_subcool/find_collapse.ipynb
     experiments_e230920_subcool_get_thermal_data: src/boilercv/stages/experiments/e230920_subcool/get_thermal_data.ipynb
     experiments_e230920_subcool: src/boilercv/stages/experiments/e230920_subcool/__main__.py
