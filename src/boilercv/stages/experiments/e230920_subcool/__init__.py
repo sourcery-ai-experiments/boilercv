@@ -53,10 +53,9 @@ def export_centers(params: Params):
         params=params,
         results=["centers", "PATH_TIME"],
     )
-    subcool = f"{ns.SUBCOOLING:.2f}_K".replace(".", "_")
     dest.mkdir(exist_ok=True)
-    path = (dest / f"centers_{ns.PATH_TIME}").with_suffix(".csv")
-    ns.centers.to_csv(path, index=False)
+    path = (dest / f"centers_{ns.PATH_TIME}").with_suffix(".h5")
+    ns.centers.to_hdf(path, key="centers", complib="zlib", complevel=9)
 
 
 def export_contours(params: Params):
@@ -71,7 +70,7 @@ def export_contours(params: Params):
     )
     dest.mkdir(exist_ok=True)
     path = (dest / f"contours_{ns.PATH_TIME}").with_suffix(".h5")
-    ns.contours.to_hdf(path, key="contours", complevel=None, complib=None)
+    ns.contours.to_hdf(path, key="contours", complib="zlib", complevel=9)
 
 
 class GroupByCommon(TypedDict):
