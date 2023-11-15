@@ -4,7 +4,6 @@ from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
 from typing import TypedDict
 
 import numpy as np
@@ -27,9 +26,11 @@ EXP = get_module_name(__spec__ or __file__)
 """Name of this experiment."""
 DAY = "2023-09-20"
 """Day of the experiment"""
-ALL_THERMAL_DATA = PARAMS.paths.experiments / EXP / f"{DAY}_all_thermal_data.csv"
+EXP_DATA = PARAMS.paths.experiments / EXP
+"""Experimental data."""
+ALL_THERMAL_DATA = EXP_DATA / f"{DAY}_all_thermal_data.csv"
 """All thermal data for this experiment."""
-THERMAL_DATA = PARAMS.paths.experiments / EXP / f"{DAY}_thermal.h5"
+THERMAL_DATA = EXP_DATA / f"{DAY}_thermal.h5"
 """Reduced thermal data for this experiment."""
 
 
@@ -39,34 +40,34 @@ def get_times(strings: Iterable[str]) -> Iterable[datetime]:
             yield dt_fromisolike(match)
 
 
-EXP_TIMES = get_times(path.stem for path in (PARAMS.paths.experiments / EXP).iterdir())
+EXP_TIMES = get_times(path.stem for path in (EXP_DATA).iterdir())
 
 
 def export_centers(params: Params):
     """Export centers."""
-    dest = Path("~/Desktop/centers").expanduser()
-    ns = get_nb_namespace(
-        nb=PARAMS.paths.stages[f"experiments_{EXP}_find_contours"].read_text(
-            encoding="utf-8"
-        ),
-        params=params,
-        results=["centers", "PATH_TIME", "SUBCOOLING"],
-    )
-    subcool = f"{ns.SUBCOOLING:.2f}_K".replace(".", "_")
-    dest.mkdir(exist_ok=True)
-    path = (dest / f"centers_time_{ns.PATH_TIME}_subcool_{subcool}").with_suffix(".csv")
-    ns.centers.to_csv(path, index=False)
-
-
-def export_contours(params: Params):
-    """Export contours."""
-    dest = Path("~/Desktop/contours").expanduser()
+    dest = EXP_DATA / "centers"
     ns = get_nb_namespace(
         nb=PARAMS.paths.stages[f"experiments_{EXP}_find_centers"].read_text(
             encoding="utf-8"
         ),
         params=params,
-        results=["contours", "PATH_TIME", "SUBCOOLING"],
+        results=["centers", "PATH_TIME"],
+    )
+    subcool = f"{ns.SUBCOOLING:.2f}_K".replace(".", "_")
+    dest.mkdir(exist_ok=True)
+    path = (dest / f"centers_{ns.PATH_TIME}").with_suffix(".csv")
+    ns.centers.to_csv(path, index=False)
+
+
+def export_contours(params: Params):
+    """Export contours."""
+    dest = EXP_DATA / "contours"
+    ns = get_nb_namespace(
+        nb=PARAMS.paths.stages[f"experiments_{EXP}_find_contours"].read_text(
+            encoding="utf-8"
+        ),
+        params=params,
+        results=["contours", "PATH_TIME"],
     )
     dest.mkdir(exist_ok=True)
     path = (dest / f"contours_{ns.PATH_TIME}").with_suffix(".h5")

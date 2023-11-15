@@ -6,7 +6,7 @@ from boilercore.paths import fold, modified
 from ploomber_engine import execute_notebook
 
 from boilercv.models.params import PARAMS
-from boilercv.stages.experiments.e230920_subcool import EXP, get_times
+from boilercv.stages.experiments.e230920_subcool import EXP, EXP_DATA, get_times
 
 
 def main():
@@ -18,9 +18,7 @@ def main():
         output_path=None,
     )
     with ProcessPoolExecutor() as executor:
-        for dt in get_times(
-            path.stem for path in (PARAMS.paths.experiments / EXP).iterdir()
-        ):
+        for dt in get_times(path.stem for path in EXP_DATA.iterdir()):
             executor.submit(
                 execute_notebook,
                 input_path=find_collapse,
