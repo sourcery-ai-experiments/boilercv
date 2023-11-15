@@ -327,7 +327,7 @@
       "label": "task: format notebook",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "Get-Content ${file} | nb-clean clean --remove-empty-cells --preserve-cell-outputs --preserve-cell-metadata tags | ruff --fix-only --stdin-filename ${file} | ruff format --stdin-filename ${file} | Set-Content ${file}",
+      "command": "if ($(Split-Path -Extension '${file}') -eq '.ipynb') {pre-commit run nb-clean --files '${file}'; pre-commit run ruff --files '${file}'}",
       "icon": { "id": "notebook" },
       "problemMatcher": []
     },

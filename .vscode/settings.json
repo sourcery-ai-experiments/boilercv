@@ -32,8 +32,8 @@
   //? Related autoformatting and format on save settings
   "editor.formatOnType": true,
   "editor.formatOnSave": true,
-  "notebook.formatOnCellExecution": true,
-  "notebook.formatOnSave.enabled": true,
+  "notebook.formatOnCellExecution": false,
+  "notebook.formatOnSave.enabled": false,
   //? Related autoformatting of whitespace conventions
   //? Notebook cells gain new lines on save, language settings can't stop it, nor
   //? does disabling `notebook.formatOnSave`
@@ -54,8 +54,8 @@
     "source.fixAll": "always"
   },
   "notebook.codeActionsOnSave": {
-    "source.organizeImports": "explicit",
-    "source.fixAll": "explicit"
+    "source.organizeImports": "never",
+    "source.fixAll": "never"
   },
   //? Auto imports
   "python.analysis.importFormat": "absolute",
@@ -87,7 +87,8 @@
     "**/__pycache__": true,
     "**/.cache": true,
     "**/.jupyter_cache": true,
-    "**/.pytest_cache/": true
+    "**/.pytest_cache/": true,
+    "**/AppData/**": true
   },
   "search.exclude": {
     "submodules": true

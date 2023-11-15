@@ -276,7 +276,7 @@ def get_calling_scope_name():
 
 def save_roi(roi_vertices: ArrInt, roi_path: Path):
     """Save an ROI represented by an ordered array of vertices."""
-    roi_path.write_text(encoding="utf-8", data=yaml.dump(roi_vertices.tolist()))
+    yaml.dump(roi_vertices.tolist(), roi_path)
 
 
 def edit_roi(

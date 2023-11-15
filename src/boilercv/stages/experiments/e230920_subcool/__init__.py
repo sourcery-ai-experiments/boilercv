@@ -4,11 +4,13 @@ from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from typing import TypedDict
 
 import numpy as np
 import pandas as pd
 from boilercore.paths import ISOLIKE, dt_fromisolike, get_module_name
+from boilercore.testing import Params, get_nb_namespace
 from cmasher import get_sub_cmap
 from matplotlib.axes import Axes
 from matplotlib.cm import ScalarMappable
@@ -35,6 +37,40 @@ def get_times(strings: Iterable[str]) -> Iterable[datetime]:
     for string in strings:
         if match := ISOLIKE.search(string):
             yield dt_fromisolike(match)
+
+
+EXP_TIMES = get_times(path.stem for path in (PARAMS.paths.experiments / EXP).iterdir())
+
+
+def export_centers(params: Params):
+    """Export centers."""
+    dest = Path("~/Desktop/centers").expanduser()
+    ns = get_nb_namespace(
+        nb=PARAMS.paths.stages[f"experiments_{EXP}_find_contours"].read_text(
+            encoding="utf-8"
+        ),
+        params=params,
+        results=["centers", "PATH_TIME", "SUBCOOLING"],
+    )
+    subcool = f"{ns.SUBCOOLING:.2f}_K".replace(".", "_")
+    dest.mkdir(exist_ok=True)
+    path = (dest / f"centers_time_{ns.PATH_TIME}_subcool_{subcool}").with_suffix(".csv")
+    ns.centers.to_csv(path, index=False)
+
+
+def export_contours(params: Params):
+    """Export contours."""
+    dest = Path("~/Desktop/contours").expanduser()
+    ns = get_nb_namespace(
+        nb=PARAMS.paths.stages[f"experiments_{EXP}_find_centers"].read_text(
+            encoding="utf-8"
+        ),
+        params=params,
+        results=["contours", "PATH_TIME", "SUBCOOLING"],
+    )
+    dest.mkdir(exist_ok=True)
+    path = (dest / f"contours_{ns.PATH_TIME}").with_suffix(".h5")
+    ns.contours.to_hdf(path, key="contours", complevel=None, complib=None)
 
 
 class GroupByCommon(TypedDict):
