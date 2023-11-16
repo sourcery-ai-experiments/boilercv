@@ -40,7 +40,7 @@ def get_times(strings: Iterable[str]) -> Iterable[datetime]:
             yield dt_fromisolike(match)
 
 
-EXP_TIMES = get_times(path.stem for path in (EXP_DATA).iterdir())
+EXP_TIMES = list(get_times(path.stem for path in (EXP_DATA).iterdir()))
 
 
 def export_centers(params: Params):
