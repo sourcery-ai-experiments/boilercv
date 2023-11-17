@@ -18,7 +18,6 @@ class NsArgs(NamedTuple):
 
     nb: Path
     params: Params = NO_PARAMS
-    all_results: bool = False
 
 
 boilercv_dir = Path("src") / "boilercv"

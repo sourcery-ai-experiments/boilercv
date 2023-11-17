@@ -12,12 +12,7 @@ import pytest
 import pytest_harvest
 import seaborn as sns
 from boilercore import WarningFilter, filter_certain_warnings
-from boilercore.testing import (
-    get_accessed_attributes,
-    get_cached_nb_namespace,
-    get_session_path,
-    get_source,
-)
+from boilercore.testing import get_cached_minimal_nb_ns, get_session_path, unwrap_node
 
 import boilercv
 from boilercv_tests import NsArgs
@@ -59,10 +54,10 @@ def _filter_certain_warnings():
 def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
     """Notebook namespace."""
     namespace: NsArgs = request.param
-    yield get_cached_nb_namespace(
+    yield get_cached_minimal_nb_ns(
         nb=namespace.nb.read_text(encoding="utf-8"),
+        receiver=unwrap_node(request.node),
         params=namespace.params,
-        results=get_accessed_attributes(get_source(request.node), request.fixturename),
     )
     update_fixture_stores(
         fixture_stores,

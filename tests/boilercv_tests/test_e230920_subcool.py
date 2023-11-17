@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 import pytest
-from boilercore.testing import NO_MARKS, NO_PARAMS, Params
+from boilercore.testing import Params
 from pandas.testing import assert_index_equal
 
 from boilercv_tests import NsArgs, get_nb
@@ -19,13 +19,16 @@ def nss(fixtures):
     return fixtures.ns.test_e230920_subcool
 
 
+NO_PARAMS = {}
+NO_MARKS = []
+
+
 class P(NamedTuple):
     """Local test parameter shorthand."""
 
     nb: str
     id: str  # noqa: A003
     params: Params = NO_PARAMS
-    all_results: bool = False
     marks: list[pytest.Mark] = NO_MARKS
 
 
@@ -38,7 +41,6 @@ def _parametrize(*params: P):
                 NsArgs(
                     nb=get_nb(Path(f"src/boilercv/stages/experiments/{EXP}"), p.nb),
                     params=p.params,
-                    all_results=p.all_results,
                 ),
                 marks=p.marks,
                 id=p.id,

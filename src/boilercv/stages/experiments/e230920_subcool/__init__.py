@@ -9,7 +9,7 @@ from typing import TypedDict
 import numpy as np
 import pandas as pd
 from boilercore.paths import ISOLIKE, dt_fromisolike, get_module_name
-from boilercore.testing import Params, get_nb_namespace
+from boilercore.testing import Params, get_nb_ns
 from cmasher import get_sub_cmap
 from matplotlib.axes import Axes
 from matplotlib.cm import ScalarMappable
@@ -46,13 +46,7 @@ EXP_TIMES = list(get_times(path.stem for path in (EXP_DATA).iterdir()))
 def export_centers(params: Params):
     """Export centers."""
     dest = EXP_DATA / "centers"
-    ns = get_nb_namespace(
-        nb=PARAMS.paths.stages[f"experiments_{EXP}_find_centers"].read_text(
-            encoding="utf-8"
-        ),
-        params=params,
-        results=["centers", "PATH_TIME"],
-    )
+    ns = get_nb_ns(nb=read_exp_nb("find_centers"), params=params)
     dest.mkdir(exist_ok=True)
     path = (dest / f"centers_{ns.PATH_TIME}").with_suffix(".h5")
     ns.centers.to_hdf(path, key="centers", complib="zlib", complevel=9)
@@ -61,16 +55,15 @@ def export_centers(params: Params):
 def export_contours(params: Params):
     """Export contours."""
     dest = EXP_DATA / "contours"
-    ns = get_nb_namespace(
-        nb=PARAMS.paths.stages[f"experiments_{EXP}_find_contours"].read_text(
-            encoding="utf-8"
-        ),
-        params=params,
-        results=["contours", "PATH_TIME"],
-    )
+    ns = get_nb_ns(nb=read_exp_nb("find_contours"), params=params)
     dest.mkdir(exist_ok=True)
     path = (dest / f"contours_{ns.PATH_TIME}").with_suffix(".h5")
     ns.contours.to_hdf(path, key="contours", complib="zlib", complevel=9)
+
+
+def read_exp_nb(nb: str) -> str:
+    """Read one of the notebooks in this experiment module."""
+    return PARAMS.paths.stages[f"experiments_{EXP}_{nb}"].read_text(encoding="utf-8")
 
 
 class GroupByCommon(TypedDict):
