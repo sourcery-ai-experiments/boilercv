@@ -1,5 +1,5 @@
 # Requirements for dev environments.
 
-boilercore@git+https://github.com/blakeNaccarato/boilercore@499e9825bb1f2b56524f894bd6c5746fd0e69dd2
+boilercore@git+https://github.com/blakeNaccarato/boilercore@8e7ae0514d9e80ffefb30f4d58e0d08d2a348155
 
 -r requirements_both.txt

@@ -1,10 +1,14 @@
 """Test configuration."""
 
+import pickle
 from collections import defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass
+from logging import warning
+from os import getpid
 from pathlib import Path
 from re import compile
+from shutil import rmtree
 from types import SimpleNamespace
 from typing import Any, TypeAlias
 
@@ -137,6 +141,52 @@ def fixture_stores(fixture_store) -> FixtureStores:
             lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
         ),
     )
+
+
+# * -------------------------------------------------------------------------------- * #
+# * Harvest setup
+#     https://github.com/smarie/python-pytest-harvest/issues/46#issuecomment-742367746
+#     https://smarie.github.io/python-pytest-harvest/#pytest-x-dist
+
+RESULTS_PATH = Path(f".xdist_harvested/{getpid()}")
+RESULTS_PATH.mkdir(exist_ok=True)
+
+
+def pytest_harvest_xdist_init():
+    """Reset the recipient folder."""
+    if RESULTS_PATH.exists():
+        rmtree(RESULTS_PATH)
+    RESULTS_PATH.mkdir(exist_ok=False)
+    return True
+
+
+def pytest_harvest_xdist_worker_dump(worker_id, session_items, fixture_store):
+    """Persist session_items and fixture_store in the file system."""
+    with (RESULTS_PATH / f"{worker_id}.pkl").open("wb") as f:
+        try:
+            pickle.dump((session_items, fixture_store), f)
+        except Exception as e:  # noqa: BLE001
+            warning(  # noqa: PLE1206
+                "Error while pickling worker %s's harvested results: " "[%s] %s",
+                (worker_id, e.__class__, e),
+            )
+    return True
+
+
+def pytest_harvest_xdist_load():
+    """Restore the saved objects from file system."""
+    workers_saved_material = {}
+    for pkl_file in RESULTS_PATH.glob("*.pkl"):
+        wid = pkl_file.stem
+        with pkl_file.open("rb") as f:
+            workers_saved_material[wid] = pickle.load(f)
+    return workers_saved_material
+
+
+def pytest_harvest_xdist_cleanup():
+    """Delete all temporary pickle files."""
+    rmtree(RESULTS_PATH)
+    return True
 
 
 # * -------------------------------------------------------------------------------- * #
