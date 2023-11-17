@@ -12,7 +12,8 @@ import pytest
 import pytest_harvest
 import seaborn as sns
 from boilercore import WarningFilter, filter_certain_warnings
-from boilercore.testing import get_cached_minimal_nb_ns, get_session_path, unwrap_node
+from boilercore.notebooks.namespaces import get_cached_minimal_nb_ns
+from boilercore.testing import get_session_path, unwrap_node
 
 import boilercv
 from boilercv_tests import NsArgs

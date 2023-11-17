@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 import pytest
-from boilercore.testing import Params
+from boilercore.notebooks.namespaces import Params
 from pandas.testing import assert_index_equal
 
 from boilercv_tests import NsArgs, get_nb

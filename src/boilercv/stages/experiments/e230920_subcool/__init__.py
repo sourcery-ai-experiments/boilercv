@@ -8,8 +8,8 @@ from typing import TypedDict
 
 import numpy as np
 import pandas as pd
+from boilercore.notebooks.namespaces import Params, get_nb_ns
 from boilercore.paths import ISOLIKE, dt_fromisolike, get_module_name
-from boilercore.testing import Params, get_nb_ns
 from cmasher import get_sub_cmap
 from matplotlib.axes import Axes
 from matplotlib.cm import ScalarMappable

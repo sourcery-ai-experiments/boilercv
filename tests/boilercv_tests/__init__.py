@@ -5,8 +5,8 @@ from typing import NamedTuple
 
 import pytest
 from _pytest.mark.structures import ParameterSet
+from boilercore.notebooks.namespaces import NO_PARAMS, Params
 from boilercore.paths import get_module_rel, walk_modules
-from boilercore.testing import NO_PARAMS, Params
 
 
 def get_nb(exp: Path, name: str) -> Path:
