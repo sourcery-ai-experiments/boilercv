@@ -37,6 +37,12 @@
       "matchPackagePatterns": ["pandas"]
     },
     {
+      "description": "Pandas stubs are managed by `.tools/scripts/core_update.py`.",
+      "matchManagers": ["pip_requirements"],
+      "matchFileNames": [".tools/requirements/*"],
+      "ignoreDeps": ["pandas-stubs"]
+    },
+    {
       "description": "Imageio sometimes lags pillow.",
       "groupName": "imageio",
       "matchManagers": ["pip_requirements"],
