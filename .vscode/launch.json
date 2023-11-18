@@ -1,5 +1,12 @@
 {
   "version": "0.2.0",
+  "inputs": [
+    {
+      "id": "input",
+      "type": "promptString",
+      "description": "Input arguments."
+    }
+  ],
   "configurations": [
     {
       "name": "Python: WRITE",
@@ -66,13 +73,22 @@
         }
       ]
     },
-    // * -------------------------------------------------------------------------- * //
-
     {
       "name": "Python: Current file",
       "type": "debugpy",
       "request": "launch",
       "program": "${file}",
+      "console": "internalConsole",
+      "env": {
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_PREVIEW": "True"
+      }
+    },
+    {
+      "name": "Python: Current file with args",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file} ${input:input}",
       "console": "internalConsole",
       "env": {
         "BOILERCV_DEBUG": "True",
@@ -95,7 +111,11 @@
       "request": "launch",
       "program": "${file}",
       "console": "internalConsole",
-      "justMyCode": false
+      "justMyCode": false,
+      "env": {
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_PREVIEW": "True"
+      }
     }
   ]
 }
