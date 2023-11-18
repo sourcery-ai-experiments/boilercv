@@ -31,10 +31,22 @@
       "matchPackageNames": ["pyright", "submodules/typings"]
     },
     {
-      "description": "Stubs for pandas sometimes lag, isolate from core.",
+      "description": "Stubs for pandas sometimes lag.",
       "groupName": "pandas",
       "matchManagers": ["pip_requirements"],
       "matchPackagePatterns": ["pandas"]
+    },
+    {
+      "description": "Imageio sometimes lags pillow.",
+      "groupName": "imageio",
+      "matchManagers": ["pip_requirements"],
+      "matchPackagePatterns": ["imageio"]
+    },
+    {
+      "description": "Pillow sometimes leads imageio.",
+      "groupName": "pillow",
+      "matchManagers": ["pip_requirements"],
+      "matchPackagePatterns": ["pillow"]
     },
     {
       "description": "Don't bump pydantic until we're ready for migration.",
