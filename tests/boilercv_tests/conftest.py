@@ -72,6 +72,9 @@ def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
     )
 
 
+# * -------------------------------------------------------------------------------- * #
+# * Harvest
+
 FixtureStore: TypeAlias = dict[str, Any]
 
 
@@ -85,7 +88,7 @@ class FixtureStores:
     """Fixture for test cases, nested by fixture name, module, then node."""
 
 
-test_case = compile(r"(?P<node>[^\[]+)\[(?P<case>[^\]]+)\]")
+TEST_CASE = compile(r"(?P<node>[^\[]+)\[(?P<case>[^\]]+)\]")
 """Pattern for e.g. `test[case]`."""
 
 
@@ -98,14 +101,10 @@ def update_fixture_stores(
         .with_suffix("")
         .as_posix()
     ]
-    if match := test_case.fullmatch(test):
+    if match := TEST_CASE.fullmatch(test):
         node, case = match.groups()
         key = f"{path.relative_to(Path.cwd()).as_posix()}::{test}"
         module[node][case] = fixture_stores.flat[fixturename][key]
-
-
-# * -------------------------------------------------------------------------------- * #
-# * Harvest
 
 
 @pytest.fixture(scope="session")
@@ -144,9 +143,9 @@ def fixture_stores(fixture_store) -> FixtureStores:
 
 
 # * -------------------------------------------------------------------------------- * #
-# * Harvest setup
-#     https://github.com/smarie/python-pytest-harvest/issues/46#issuecomment-742367746
-#     https://smarie.github.io/python-pytest-harvest/#pytest-x-dist
+# * Harvest hooks
+# #   https://github.com/smarie/python-pytest-harvest/issues/46#issuecomment-742367746
+# #   https://smarie.github.io/python-pytest-harvest/#pytest-x-dist
 
 RESULTS_PATH = Path(f".xdist_harvested/{getpid()}")
 RESULTS_PATH.mkdir(exist_ok=True)
