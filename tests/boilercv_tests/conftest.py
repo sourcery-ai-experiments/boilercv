@@ -183,8 +183,7 @@ def pytest_harvest_xdist_load():
 
 
 def pytest_harvest_xdist_cleanup():
-    """Delete all temporary pickle files."""
-    rmtree(RESULTS_PATH, ignore_errors=True)
+    """Don't clean up. Fails to delete directories often."""
     return True
 
 
