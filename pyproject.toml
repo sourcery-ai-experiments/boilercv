@@ -19,7 +19,6 @@ dependencies = [
     "ipykernel>=6.25.0",
     "loguru>=0.7.0",
     "matplotlib>=3.7.2",
-    "nbconvert>=7.7.3",
     "nbformat>=5.9.2",
     "numpy>=1.24.4",
     "opencv-contrib-python>=4.8.0.74",
@@ -63,8 +62,7 @@ output_format = "human_detailed"
 code = ["src"]
 deps = ["pyproject.toml"]
 ignore_unused = [
-    "nbconvert", # boilercv.pre_repro.export_notebook
-    "pyarrow",   # boilercv.init: pd.set_option("mode.string_storage", "pyarrow")
+    "pyarrow", # boilercv.init: pd.set_option("mode.string_storage", "pyarrow")
 ]
 [tool.fawltydeps.custom_mapping]
 boilercore = ["boilercore"]
