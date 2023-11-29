@@ -29,7 +29,6 @@ paths:
     find_unobstructed: src/boilercv/stages/find_unobstructed.py
     generate_experiment_docs: src/boilercv/stages/generate_experiment_docs.py
     generate_reports: src/boilercv/stages/generate_reports.py
-    experiments_e230920_subcool_custom_features: src/boilercv/stages/experiments/e230920_subcool/custom_features.ipynb
     experiments_e230920_subcool_export_all_centers: src/boilercv/stages/experiments/e230920_subcool/export_all_centers.py
     experiments_e230920_subcool_export_all_contours: src/boilercv/stages/experiments/e230920_subcool/export_all_contours.py
     experiments_e230920_subcool_find_centers: src/boilercv/stages/experiments/e230920_subcool/find_centers.ipynb

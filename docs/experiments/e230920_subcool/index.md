@@ -2,8 +2,7 @@
 
 Subcooled bubble collapse experiment.
 
-```{toctree}
+:::{toctree}
 :hidden:
-custom_features
 find_centers
-```
+:::

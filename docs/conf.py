@@ -10,8 +10,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_favicon = "_static/favicon.ico"
 html_theme = "sphinx_book_theme"
 extensions = [
-    "sphinx_design",
     "myst_nb",
+    "sphinx_design",
+    "sphinx_togglebutton",
     # "sphinxcontrib.bibtex",
     "sphinxcontrib.mermaid",
 ]
@@ -31,5 +32,4 @@ html_theme_options = {
 mermaid_d3_zoom = False
 myst_enable_extensions = ["colon_fence"]
 myst_heading_anchors = 6
-nb_remove_code_source = False
 nb_execution_mode = "off"

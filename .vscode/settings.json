@@ -137,9 +137,11 @@
     "rewrap.autoWrap.enabled": false
   },
   //* MD
+  //* Markdown (MD)
   "[markdown]": {
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
     "editor.wordWrap": "bounded",
+    "files.trimTrailingWhitespace": false,
     "rewrap.autoWrap.enabled": false
   },
   //* JSON

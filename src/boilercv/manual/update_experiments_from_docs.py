@@ -6,6 +6,7 @@ from shutil import copy
 
 from boilercore.paths import fold
 
+from boilercv.docs import remove_tags
 from boilercv.docs_generation import clean_notebooks, different
 from boilercv.models.params import PARAMS
 
@@ -28,6 +29,7 @@ def main():
         if Path(docs_nb).exists() and not different(nb, docs_nb):
             continue
         copy(docs_nb, nb)
+        remove_tags(Path(nb), ["hide-input"])
     clean_notebooks(nbs.values())
 
 

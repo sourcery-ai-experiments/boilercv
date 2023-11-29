@@ -7,6 +7,7 @@ from pathlib import Path
 from boilercore.paths import fold, modified
 from ploomber_engine import execute_notebook
 
+from boilercv.docs import insert_tags
 from boilercv.docs_generation import clean_notebooks, different
 from boilercv.models.params import PARAMS
 
@@ -29,6 +30,7 @@ def main():
             if Path(docs_nb).exists() and not different(nb, docs_nb):
                 continue
             executor.submit(execute_notebook, input_path=nb, output_path=docs_nb)
+            insert_tags(Path(docs_nb), ["hide-input"])
             docs_nbs.append(docs_nb)
     if docs_nbs:
         clean_notebooks(docs_nbs)

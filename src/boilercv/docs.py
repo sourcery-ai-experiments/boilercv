@@ -170,13 +170,25 @@ def patch():
     chdir(path.parent)
 
 
-def insert_tags(notebook: Path, tags_to_insert: list[str]):
-    """Insert tags to all cells in a notebook.
+def remove_tags(notebook: Path, tags_to_remove: list[str]):
+    """Remove tags to all code cells in a notebook.
 
     See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
     """
     contents = nbf.read(notebook, nbf.NO_CONVERT)
-    for cell in contents.cells:  # type: ignore  # pyright 1.1.333
+    for cell in [cell for cell in contents.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
+        tags = cell.get("metadata", {}).get("tags", [])
+        cell["metadata"]["tags"] = list(set(tags) - set(tags_to_remove))
+    nbf.write(contents, notebook)
+
+
+def insert_tags(notebook: Path, tags_to_insert: list[str]):
+    """Insert tags to all code cells in a notebook.
+
+    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
+    """
+    contents = nbf.read(notebook, nbf.NO_CONVERT)
+    for cell in [cell for cell in contents.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
         tags = cell.get("metadata", {}).get("tags", [])
         cell["metadata"]["tags"] = tags_to_insert + list(
             set(tags) - set(tags_to_insert)
