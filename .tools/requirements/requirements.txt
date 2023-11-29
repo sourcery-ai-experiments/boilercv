@@ -12,6 +12,7 @@ imageio[pyav]==2.31.5
 loguru==0.7.2
 matplotlib==3.8.2
 more_itertools==10.1.0
+nbdime==4.0.1
 nbformat==5.9.2
 numpy==1.26.2
 opencv-contrib-python==4.8.1.78

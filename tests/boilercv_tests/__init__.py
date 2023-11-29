@@ -32,8 +32,8 @@ for module in walk_modules(boilercv_dir):
     match stage.split("."):
         case ("experiments", "e230920_subcool", *_):
             marks = [pytest.mark.skip(reason="Test data missing.")]
-        case ("generate_reports", *_):
-            marks = [pytest.mark.skip]
+        case ("generate_reports" | "generate_experiment_docs", *_):
+            marks = [pytest.mark.skip(reason="Local-only documentation generation.")]
         case ("compare_theory" | "find_tracks" | "find_unobstructed", *_):
             marks = [pytest.mark.skip(reason="Implementation trivially does nothing.")]
         case _:

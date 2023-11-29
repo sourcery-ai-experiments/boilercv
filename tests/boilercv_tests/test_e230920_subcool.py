@@ -57,12 +57,6 @@ def test_custom_features_cols(ns, ax):
     assert_index_equal(ns.objects.columns, ns.my_objects.columns, check_order=False)  # type: ignore
 
 
-@_parametrize(P("custom_features"))
-def test_custom_features_(ns, ax):
-    ns.objects.plot(ax=ax)
-    assert_index_equal(ns.objects.columns, ns.my_objects.columns, check_order=False)  # type: ignore
-
-
 @pytest.mark.xfail(
     raises=AssertionError,
     reason="Radius estimate cannot account for large and small bubbles alike",
