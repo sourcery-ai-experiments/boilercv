@@ -44,6 +44,7 @@ This data process graph is derived from the code itself. It is automatically gen
 
 ```{toctree}
 :hidden:
+experiments/e230920_subcool/index
 development
 changelog
 ```

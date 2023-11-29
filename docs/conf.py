@@ -29,5 +29,6 @@ html_theme_options = {
 # bibtex_reference_style = "label"
 # bibtex_default_style = "unsrt"
 mermaid_d3_zoom = False
+myst_heading_anchors = 6
 nb_remove_code_source = False
 nb_execution_mode = "off"

@@ -27,7 +27,7 @@ class P(NamedTuple):
     """Local test parameter shorthand."""
 
     nb: str
-    id: str  # noqa: A003
+    id: str = " "  # noqa: A003
     params: Params = NO_PARAMS
     marks: list[pytest.Mark] = NO_MARKS
 
@@ -51,8 +51,14 @@ def _parametrize(*params: P):
     )
 
 
-@_parametrize(P("custom_features", "cols"))
-def test_custom_features(ns, ax):
+@_parametrize(P("custom_features"))
+def test_custom_features_cols(ns, ax):
+    ns.objects.plot(ax=ax)
+    assert_index_equal(ns.objects.columns, ns.my_objects.columns, check_order=False)  # type: ignore
+
+
+@_parametrize(P("custom_features"))
+def test_custom_features_(ns, ax):
     ns.objects.plot(ax=ax)
     assert_index_equal(ns.objects.columns, ns.my_objects.columns, check_order=False)  # type: ignore
 

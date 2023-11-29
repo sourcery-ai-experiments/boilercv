@@ -375,3 +375,11 @@ stages:
       md5: 341e5d34c2524a85dc9211c2688bf2f1.dir
       size: 2842184
       nfiles: 11
+  generate_experiment_docs:
+    cmd: python src/boilercv/stages/generate_experiment_docs.py
+    deps:
+    - path: src/boilercv/stages/experiments
+      hash: md5
+      md5: 877bf3ca2b7819176a631baeb2522be8.dir
+      size: 49429
+      nfiles: 10

@@ -27,6 +27,7 @@ paths:
     find_contours: src/boilercv/stages/find_contours.py
     find_tracks: src/boilercv/stages/find_tracks.py
     find_unobstructed: src/boilercv/stages/find_unobstructed.py
+    generate_experiment_docs: src/boilercv/stages/generate_experiment_docs.py
     generate_reports: src/boilercv/stages/generate_reports.py
     experiments_e230920_subcool_custom_features: src/boilercv/stages/experiments/e230920_subcool/custom_features.ipynb
     experiments_e230920_subcool_export_all_centers: src/boilercv/stages/experiments/e230920_subcool/export_all_centers.py
@@ -62,3 +63,4 @@ paths:
   binarized_preview: data/previews/binarized.nc
   filled_preview: data/previews/filled.nc
   gray_preview: data/previews/gray.nc
+  docs: docs

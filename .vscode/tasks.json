@@ -12,6 +12,7 @@
       "default": "",
       "options": [
         "",
+        "generate_experiment_docs",
         "generate_reports",
         "preview_binarized",
         "preview_gray",

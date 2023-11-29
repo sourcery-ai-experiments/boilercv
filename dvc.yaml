@@ -1,4 +1,9 @@
 stages:
+  generate_experiment_docs:
+    cmd: "python ${paths.stages.generate_experiment_docs}"
+    deps:
+      - "${paths.package}/stages/experiments"
+
   generate_reports:
     cmd: "python ${paths.stages.generate_reports}"
     deps:
