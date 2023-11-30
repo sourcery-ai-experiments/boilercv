@@ -8,7 +8,14 @@ from boilercv.stages.experiments.e230920_subcool import EXP_TIMES, export_center
 def main():
     with ProcessPoolExecutor() as executor:
         for dt in EXP_TIMES:
-            executor.submit(export_centers, params={"TIME": dt.isoformat()})
+            executor.submit(
+                export_centers,
+                params={
+                    "GET_TRACKPY_CENTERS": False,
+                    "TIME": dt.isoformat(),
+                    "FRAMES": None,
+                },
+            )
 
 
 if __name__ == "__main__":

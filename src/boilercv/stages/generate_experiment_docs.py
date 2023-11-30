@@ -29,9 +29,10 @@ def main():
             docs_nb = fold(PARAMS.paths.docs / Path(nb).relative_to(ROOT))
             if Path(docs_nb).exists() and not different(nb, docs_nb):
                 continue
-            executor.submit(execute_notebook, input_path=nb, output_path=docs_nb)
-            insert_tags(Path(docs_nb), ["hide-input"])
             docs_nbs.append(docs_nb)
+            executor.submit(execute_notebook, input_path=nb, output_path=docs_nb)
+    for docs_nb in docs_nbs:
+        insert_tags(Path(docs_nb), ["hide-input"])
     if docs_nbs:
         clean_notebooks(docs_nbs)
 
