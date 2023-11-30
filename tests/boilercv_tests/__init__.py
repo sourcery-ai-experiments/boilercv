@@ -24,7 +24,15 @@ boilercv_dir = Path("src") / "boilercv"
 STAGES: list[ParameterSet] = []
 for module in walk_modules(boilercv_dir):
     if module.startswith("boilercv.manual"):
-        STAGES.append(pytest.param(module, id=get_module_rel(module, "boilercv")))
+        stage = get_module_rel(module, "manual")
+        match stage.split("."):
+            case ("update_experiments_from_docs", *_):
+                marks = [pytest.mark.skip(reason="Local-only documentation.")]
+            case _:
+                marks = []
+        STAGES.append(
+            pytest.param(module, id=get_module_rel(module, "boilercv"), marks=marks)
+        )
         continue
     if not module.startswith("boilercv.stages"):
         continue
