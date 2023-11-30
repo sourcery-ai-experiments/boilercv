@@ -16,19 +16,20 @@ extensions = [
     # "sphinxcontrib.bibtex",
     "sphinxcontrib.mermaid",
 ]
-# https://sphinx-book-theme.readthedocs.io/en/stable/reference.html#reference-of-theme-options
-html_context = {"default_mode": "light"}
 html_theme_options = {
     "path_to_docs": "docs",
-    "repository_url": "https://github.com/blakeNaccarato/boilercv",
     "repository_branch": "main",
+    "repository_url": "https://github.com/blakeNaccarato/boilercv",
+    "show_navbar_depth": 4,
+    "show_toc_level": 4,
     "use_download_button": True,
     "use_fullscreen_button": True,
     "use_repository_button": True,
 }
 # bibtex_bibfiles = ["refs.bib"]
-# bibtex_reference_style = "label"
 # bibtex_default_style = "unsrt"
+# bibtex_reference_style = "label"
+html_context = {"default_mode": "light"}
 mermaid_d3_zoom = False
 myst_enable_extensions = ["colon_fence"]
 myst_heading_anchors = 6
