@@ -55,12 +55,6 @@
       "matchPackagePatterns": ["pillow"]
     },
     {
-      "description": "Don't bump pydantic until we're ready for migration.",
-      "matchManagers": ["pip_requirements"],
-      "matchPaths": [".tools/requirements/*"],
-      "ignoreDeps": ["pydantic"]
-    },
-    {
       "description": "Ignore changerelease.yml workflow deps managed by the template",
       "matchManagers": ["github-actions"],
       "matchFileNames": [".github/workflows/*"],

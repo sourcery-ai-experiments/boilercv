@@ -11,12 +11,12 @@ license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
-    "boilercore>=0.0.0",
+    "boilercore>=0.0.1",
     "colorcet>=3.0.1",
     "dvc>=3.10.1",
     "geopandas>=0.14.1",
     "imageio[pyav]>=2.31.1",
-    "ipykernel>=6.25.0",
+    "ipykernel>=6.27.1",
     "loguru>=0.7.0",
     "matplotlib>=3.7.2",
     "nbdime>=4.0.1",
@@ -27,7 +27,7 @@ dependencies = [
     "pillow>=10.0.0",
     "ploomber-engine>=0.0.30",
     "pyarrow>=14.0.1",
-    "pydantic>=1.10.12,<2",
+    "pydantic>=2",
     "pyjanitor>=0.25.0",
     "pyqtgraph>=0.13.3",
     "pyside6>=6.5.2",
@@ -42,6 +42,8 @@ dependencies = [
     "trackpy>=0.6.1",
     "tqdm>=4.66.1",
     "xarray[accel,io,parallel]>=2023.7.0",
+    # ! https://github.com/ipython/ipython/issues/14255
+    "ipython<8.18",
     # ! Consider switching to pims instead
     "boilercine@git+https://github.com/blakeNaccarato/boilercine@main",
     # ! Pin the merge commit in master once it is merged

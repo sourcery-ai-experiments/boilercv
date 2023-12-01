@@ -7,8 +7,10 @@ colorcet==3.0.1
 dvc[gs]==3.30.1
 geopandas==0.14.1
 imageio[pyav]==2.31.5
-# ? Already specified in `requirements_both.txt`
+# ? Migrated to `requirements_both.txt` since it's part of package deps
 # ipykernel
+# ? https://github.com/ipython/ipython/issues/14255
+# ipython
 loguru==0.7.2
 matplotlib==3.8.2
 more_itertools==10.1.0
@@ -21,7 +23,7 @@ pandas-stubs~=2.1.1
 pillow==10.1.0
 ploomber-engine==0.0.31
 pyarrow==14.0.1
-pydantic==1.10.12
+pydantic==2.5.2
 pyjanitor==0.26.0
 pyqtgraph==0.13.3
 pyside6==6.6.0

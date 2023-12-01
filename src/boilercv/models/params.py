@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from boilercore.models import SynchronizedPathsYamlModel
-from pydantic import Field
+from pydantic.v1 import Field
 
 from boilercv import PROJECT_PATH
 from boilercv.models.paths import Paths
