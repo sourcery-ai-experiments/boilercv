@@ -13,7 +13,6 @@ extensions = [
     "myst_nb",
     "sphinx_design",
     "sphinx_togglebutton",
-    # "sphinxcontrib.bibtex",
     "sphinxcontrib.mermaid",
 ]
 html_theme_options = {
@@ -26,9 +25,8 @@ html_theme_options = {
     "use_fullscreen_button": True,
     "use_repository_button": True,
 }
-# bibtex_bibfiles = ["refs.bib"]
-# bibtex_default_style = "unsrt"
-# bibtex_reference_style = "label"
+bibtex_default_style = "unsrt"
+bibtex_reference_style = "label"
 html_context = {"default_mode": "light"}
 mermaid_d3_zoom = False
 myst_enable_extensions = ["colon_fence"]

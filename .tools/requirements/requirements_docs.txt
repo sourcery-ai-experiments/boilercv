@@ -1,6 +1,5 @@
 # Requirements for documentation.
 
-sphinxcontrib-bibtex==2.6.1
 sphinxcontrib-mermaid==0.9.2
 sphinx-togglebutton==0.3.2
 

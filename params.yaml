@@ -31,6 +31,7 @@ paths:
     generate_reports: src/boilercv/stages/generate_reports.py
     experiments_e230920_subcool_export_all_centers: src/boilercv/stages/experiments/e230920_subcool/export_all_centers.py
     experiments_e230920_subcool_export_all_contours: src/boilercv/stages/experiments/e230920_subcool/export_all_contours.py
+    experiments_e230920_subcool_find_bubbles: src/boilercv/stages/experiments/e230920_subcool/find_bubbles.ipynb
     experiments_e230920_subcool_find_centers: src/boilercv/stages/experiments/e230920_subcool/find_centers.ipynb
     experiments_e230920_subcool_find_collapse: src/boilercv/stages/experiments/e230920_subcool/find_collapse.ipynb
     experiments_e230920_subcool_find_contours: src/boilercv/stages/experiments/e230920_subcool/find_contours.ipynb

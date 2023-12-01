@@ -32,6 +32,8 @@ ALL_THERMAL_DATA = EXP_DATA / f"{DAY}_all_thermal_data.csv"
 """All thermal data for this experiment."""
 THERMAL_DATA = EXP_DATA / f"{DAY}_thermal.h5"
 """Reduced thermal data for this experiment."""
+CENTERS = EXP_DATA / "centers"
+"""Bubble centers."""
 
 
 def get_times(strings: Iterable[str]) -> Iterable[datetime]:
@@ -45,10 +47,9 @@ EXP_TIMES = list(get_times(path.stem for path in (EXP_DATA).iterdir()))
 
 def export_centers(params: Params):
     """Export centers."""
-    dest = EXP_DATA / "centers"
     ns = get_nb_ns(nb=read_exp_nb("find_centers"), params=params)
-    dest.mkdir(exist_ok=True)
-    path = (dest / f"centers_{ns.PATH_TIME}").with_suffix(".h5")
+    CENTERS.mkdir(exist_ok=True)
+    path = (CENTERS / f"centers_{ns.PATH_TIME}").with_suffix(".h5")
     ns.centers.to_hdf(path, key="centers", complib="zlib", complevel=9)
 
 
