@@ -12,6 +12,7 @@ requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
     "boilercore>=0.0.1",
+    "cmasher>=1.7.2",
     "colorcet>=3.0.1",
     "dvc>=3.10.1",
     "geopandas>=0.14.1",
@@ -42,13 +43,8 @@ dependencies = [
     "trackpy>=0.6.1",
     "tqdm>=4.66.1",
     "xarray[accel,io,parallel]>=2023.7.0",
-    # ! https://github.com/ipython/ipython/issues/14255
-    "ipython<8.18",
     # ! Consider switching to pims instead
     "boilercine@git+https://github.com/blakeNaccarato/boilercine@main",
-    # ! Pin the merge commit in master once it is merged
-    # ? https://github.com/1313e/CMasher/tree/mpl_future_proofing
-    "CMasher@git+https://github.com/1313e/CMasher@18d50f4deddf2410a4c51475890329d445fd7e1b",
 ]
 [[project.authors]]
 name = "Blake Naccarato"
