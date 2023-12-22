@@ -8,7 +8,7 @@ ipython==8.17.2
 cachier@git+https://github.com/blakeNaccarato/cachier@0892f53dc8fd9fb8a7f959305a1a9ec692876dc0
 
 # Type checking
-pyright==1.1.336
+pyright==1.1.342
 # Pre-commit common requirements
 ruff==0.1.9
 # Testing
