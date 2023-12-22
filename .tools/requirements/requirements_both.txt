@@ -10,7 +10,7 @@ cachier@git+https://github.com/blakeNaccarato/cachier@0892f53dc8fd9fb8a7f959305a
 # Type checking
 pyright==1.1.336
 # Pre-commit common requirements
-ruff==0.1.6
+ruff==0.1.9
 # Testing
 pytest==7.4.3
 # Testing plugins
