@@ -55,6 +55,12 @@
       "matchPackagePatterns": ["pillow"]
     },
     {
+      "description": "IPython issue https://github.com/ipython/ipython/issues/14255",
+      "matchManagers": ["pip_requirements"],
+      "matchFileNames": [".tools/requirements/*"],
+      "ignoreDeps": ["ipython"]
+    },
+    {
       "description": "Ignore changerelease.yml workflow deps managed by the template",
       "matchManagers": ["github-actions"],
       "matchFileNames": [".github/workflows/*"],
