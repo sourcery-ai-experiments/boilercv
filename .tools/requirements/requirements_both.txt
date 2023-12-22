@@ -19,8 +19,7 @@ pytest-custom-exit-code==0.3.0
 pytest-harvest==1.10.4
 pytest-plt==1.1.0
 pytest-xdist[psutil,setproctitle]==3.4.0
-# Format AND test notebooks
+# Format notebooks
 nb-clean==3.1.0
-nbqa==1.7.0
 
 -r requirements_docs.txt
