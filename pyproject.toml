@@ -69,13 +69,16 @@ boilercore = ["boilercore"]
 ipykernel = ["IPython"]
 
 [tool.pytest.ini_options]
-addopts = """\
-    --strict-config \
-    --strict-markers \
-    --color yes \
-    -p no:legacypaths \
-    -r a \
-    """
+addopts = '''
+    --strict-config
+    --strict-markers
+    --color yes
+    -p no:legacypaths
+    -r a
+    -n logical
+    --dist loadfile
+    --plots tests/plots
+'''
 cache_dir = ".cache/.pytest_cache"
 markers = "slow"
 testpaths = "tests"
@@ -174,6 +177,7 @@ preview = false
 unsafe-fixes = false
 cache-dir = ".cache/.ruff_cache"
 fixable = ["ALL"]
+extend-exclude = ["submodules"]
 extend-include = ["*.ipynb"]
 select = ["ALL"]
 src = ["src", "tests"]
@@ -245,6 +249,7 @@ convention = "google"
     "ARG001", # Allow unused arguments in tests
     "S101",   # Allow assert in tests
     "SIM300", # Allow constants (expectations) on the RHS in tests
+    "SLF001", # Allow private member access in tests
 ]
 
 [tool.ruff.flake8-bugbear]

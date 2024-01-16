@@ -77,7 +77,9 @@ def test_get_thermal_data(ns):
 
 def test_synthesis(nss, plt):
     _, axes = plt.subplots(1, 3)
-    # axes = iter(axes)
-    # nss.test_centers_index._.centers  # .plot(ax=next(axes))
-    # nss.test_find_collapse.small_bubbles.nondimensionalized_departing_long_lived_objects  # .plot(ax=next(axes))
-    # nss.test_get_thermal_data._.data  # .plot(ax=next(axes))
+    axes = iter(axes)
+    nss.test_centers_index._.centers.plot(ax=next(axes))
+    nss.test_find_collapse.small_bubbles.nondimensionalized_departing_long_lived_objects.plot(
+        ax=next(axes)
+    )
+    nss.test_get_thermal_data._.data.plot(ax=next(axes))
