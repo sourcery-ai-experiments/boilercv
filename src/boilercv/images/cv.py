@@ -49,7 +49,7 @@ def binarize(img: Img, block_size: int = 11, thresh_dist_from_mean: int = 2) -> 
 def flood(img: Img) -> ImgBool:
     """Flood the image, returning the resulting flood as a bright mask."""
     seed_point = np.array(img.shape) // 2
-    max_value = np.iinfo(img.dtype).max
+    _max_value = np.iinfo(img.dtype).max
     # OpenCV needs a masked array with a one-pixel pad
     pad_width = 1
     mask = pad(np.zeros_like(img), pad_width, value=1)

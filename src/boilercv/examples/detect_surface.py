@@ -25,7 +25,7 @@ from boilercv.types import DA, ArrInt, Img
 
 def main():
     ds = get_dataset(EXAMPLE_VIDEO_NAME, EXAMPLE_NUM_FRAMES)
-    video = ds[VIDEO]
+    _video = ds[VIDEO]
     roi = ds[ROI]
     wall: DA = apply_to_img_da(get_wall, scale_bool(roi), name="wall")
     boiling_surface, boiling_surface_coords = xr.apply_ufunc(

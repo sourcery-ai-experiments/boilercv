@@ -85,7 +85,6 @@ testpaths = "tests"
 xfail_strict = true
 
 [tool.pyright]
-include = ["src", "tests", "docs"]
 useLibraryCodeForTypes = true
 typeCheckingMode = "strict"
 # Default "true" in strict
@@ -180,11 +179,7 @@ fixable = ["ALL"]
 extend-exclude = ["submodules"]
 extend-include = ["*.ipynb"]
 select = ["ALL"]
-src = ["src", "tests"]
 target-version = "py311"
-extend-unfixable = [
-    "F841", # Unused variables
-]
 extend-ignore = [
     "ANN",     # Don't require type annotations
     "ARG005",  # Allow unused lambda argument. For consistency across df pipelines.

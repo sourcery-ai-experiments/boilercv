@@ -12,6 +12,7 @@ from shutil import rmtree
 from types import SimpleNamespace
 from typing import Any, TypeAlias
 
+import boilercv
 import pytest
 import pytest_harvest
 import seaborn as sns
@@ -19,7 +20,6 @@ from boilercore import WarningFilter, filter_certain_warnings
 from boilercore.notebooks.namespaces import get_cached_minimal_nb_ns
 from boilercore.testing import get_session_path, unwrap_node
 
-import boilercv
 from boilercv_tests import NsArgs
 
 # * -------------------------------------------------------------------------------- * #
