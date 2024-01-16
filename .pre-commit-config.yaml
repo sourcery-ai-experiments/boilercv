@@ -95,12 +95,17 @@ repos:
       - id: "dvc-pre-push"
         additional_dependencies: ["dvc[gs]"]
   # * ------------------------------------------------------------------------------ * #
+  - repo: "https://github.com/DavidAnson/markdownlint-cli2"
+    rev: "v0.11.0"
+    hooks:
+      - id: "markdownlint-cli2-fix"
   - repo: "https://github.com/srstevenson/nb-clean"
     rev: "3.2.0"
     hooks:
       - id: "nb-clean"
         args:
           - "--remove-empty-cells"
+          - "--preserve-notebook-metadata"
           - "--preserve-cell-metadata"
           - "tags"
           - "--"
@@ -114,6 +119,7 @@ repos:
         args:
           - "--remove-empty-cells"
           - "--preserve-cell-outputs"
+          - "--preserve-notebook-metadata"
           - "--preserve-cell-metadata"
           - "tags"
           - "--"
