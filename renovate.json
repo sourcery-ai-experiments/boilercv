@@ -34,7 +34,7 @@
       "description": "Stubs for pandas sometimes lag.",
       "groupName": "pandas",
       "matchManagers": ["pip_requirements"],
-      "matchPackagePatterns": ["pandas"]
+      "matchPackageNames": ["pandas"]
     },
     {
       "description": "Pandas stubs are managed by `.tools/scripts/core_update.py`.",
@@ -46,13 +46,13 @@
       "description": "Imageio sometimes lags pillow.",
       "groupName": "imageio",
       "matchManagers": ["pip_requirements"],
-      "matchPackagePatterns": ["imageio"]
+      "matchPackageNames": ["imageio"]
     },
     {
       "description": "Pillow sometimes leads imageio.",
       "groupName": "pillow",
       "matchManagers": ["pip_requirements"],
-      "matchPackagePatterns": ["pillow"]
+      "matchPackageNames": ["pillow"]
     },
     {
       "description": "IPython issue https://github.com/ipython/ipython/issues/14255",
