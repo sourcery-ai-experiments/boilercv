@@ -1,5 +1,4 @@
 # Latest working requirements of your package, should be ahead of pyproject.toml.
-
 cmasher==1.7.2
 colorcet==3.0.1
 # ? Already specified in `requirements_core.txt`
@@ -8,10 +7,7 @@ colorcet==3.0.1
 dvc[gs]==3.35.0
 geopandas==0.14.1
 imageio[pyav]==2.33.1
-# ? Migrated to `requirements_both.txt` since it's part of package deps
-# ipykernel
-# ? https://github.com/ipython/ipython/issues/14255
-# ipython
+ipykernel==6.29.0
 loguru==0.7.2
 matplotlib==3.8.2
 more_itertools==10.1.0
