@@ -1,4 +1,4 @@
-# Latest working requirements of your package, should be ahead of pyproject.toml.
+# Latest working requirements of your package, should be ahead of pyproject.toml
 cmasher==1.7.2
 colorcet==3.0.1
 # ? Already specified in `requirements_core.txt`

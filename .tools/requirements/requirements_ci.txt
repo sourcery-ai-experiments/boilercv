@@ -1,4 +1,4 @@
-# Requirements for dev environments.
+# Requirements for dev environments
 # * ---------------------------------------------------------------------------------- *
 boilercore@git+https://github.com/blakeNaccarato/boilercore@316eb20a9e303bfdb97dfe6b3d86fb2294e8a780
 # * ---------------------------------------------------------------------------------- *
