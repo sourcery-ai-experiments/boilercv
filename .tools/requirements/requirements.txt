@@ -17,7 +17,7 @@ numpy==1.26.3
 opencv-contrib-python==4.9.0.80
 pandas[hdf5,performance]==2.1.4
 pandas-stubs~=2.1.4
-pillow==10.1.0
+pillow==10.2.0
 ploomber-engine==0.0.31
 pyarrow==14.0.2
 pydantic==2.5.3
