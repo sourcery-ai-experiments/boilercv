@@ -137,7 +137,7 @@ def find_contours(img: Img, method: int = cv.CHAIN_APPROX_NONE) -> list[ArrInt]:
     # Despite images having dims (y, x) and shape (h, w), OpenCV returns contours with
     # dims (point, 1, pair), where dim "pair" has coords (x, y).
     contours = [np.fliplr(contour.reshape(-1, 2)) for contour in contours]
-    return contours
+    return contours  # type: ignore  # pyright 1.1.347
 
 
 def draw_contours(
