@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
+from itertools import chain
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, NamedTuple
@@ -90,3 +92,38 @@ class Case:
     def get_ns(self) -> SimpleNamespace:
         """Get notebook namespace for this check."""
         return get_nb_ns(nb=self.nb, params=self.params, attributes=self.results)
+
+
+def normalize_cases(*cases: Case) -> Iterable[Case]:
+    """Normalize cases to minimize number of caches.
+
+    Assign the same results to cases with the same path and parameters, preserving
+    expectations. Sort parameters and results.
+
+    Args:
+        *cases: Cases to normalize.
+
+    Returns:
+        Normalized cases.
+    """
+    seen: dict[Path, dict[str, Any]] = {}
+    all_cases: list[list[Case]] = []
+    # Find cases with the same path and parameters and sort parameters
+    for c in cases:
+        for i, (path, params) in enumerate(seen.items()):
+            if c.path == path and c.params == params:
+                all_cases[i].append(c)
+                break
+        else:
+            # If the loop doesn't break, no match was found
+            seen[c.path] = c.params
+            all_cases.append([c])
+        c.params = dict(sorted(c.params.items()))
+    # Assign the same results to common casees and sort results
+    for cs in all_cases:
+        all_results: set[str] = set()
+        all_results.update(chain.from_iterable(c.results.keys() for c in cs))
+        for c in cs:
+            c.results |= {r: None for r in all_results if r not in c.results}
+            c.results = dict(sorted(c.results.items()))
+    return cases
