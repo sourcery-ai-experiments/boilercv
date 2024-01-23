@@ -1,11 +1,15 @@
 """Helper functions for tests."""
 
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import NamedTuple
+from types import SimpleNamespace
+from typing import Any, NamedTuple
 
 import pytest
 from _pytest.mark.structures import ParameterSet
-from boilercore.notebooks.namespaces import NO_PARAMS, Params
+from boilercore.notebooks.namespaces import NO_PARAMS, Params, get_nb_ns
 from boilercore.paths import get_module_rel, walk_modules
 
 
@@ -49,3 +53,40 @@ for module in walk_modules(boilercv_dir):
     STAGES.append(
         pytest.param(module, id=get_module_rel(module, "boilercv"), marks=marks)
     )
+
+
+@dataclass
+class Case:
+    """Notebook test case.
+
+    Args:
+        path: Path to the notebook.
+        suffix: Test ID suffix.
+        params: Parameters to pass to the notebook.
+        results: Variable names to retrieve and optional expectations on their values.
+    """
+
+    path: Path
+    """Path to the notebook."""
+    suffix: str
+    """Test ID suffix."""
+    params: dict[str, Any] = field(default_factory=dict)
+    """Parameters to pass to the notebook."""
+    results: dict[str, Any] = field(default_factory=dict)
+    """Variable names to retrieve and optional expectations on their values."""
+
+    @property
+    def id(self) -> str:  # noqa: A003  # Okay to shadow in this limited context
+        """Test ID."""
+        return "_".join(
+            [p for p in (*self.path.with_suffix("").parts, self.suffix) if p]
+        )
+
+    @property
+    def nb(self) -> str:
+        """Jupyter notebook contents associated with this user's attempt."""
+        return self.path.read_text(encoding="utf-8") if self.path.exists() else ""
+
+    def get_ns(self) -> SimpleNamespace:
+        """Get notebook namespace for this check."""
+        return get_nb_ns(nb=self.nb, params=self.params, attributes=self.results)

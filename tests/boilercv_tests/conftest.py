@@ -19,6 +19,8 @@ import seaborn as sns
 from boilercore import WarningFilter, filter_certain_warnings
 from boilercore.notebooks.namespaces import get_cached_minimal_nb_ns
 from boilercore.testing import get_session_path, unwrap_node
+from matplotlib.axis import Axis
+from matplotlib.figure import Figure
 
 from boilercv_tests import NsArgs
 
@@ -36,16 +38,18 @@ def _project_session_path(tmp_path_factory):
 @pytest.fixture(autouse=True)
 def _filter_certain_warnings():
     """Filter certain warnings."""
-    filter_certain_warnings([
-        WarningFilter(
-            message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
-            category=RuntimeWarning,
-        ),
-        WarningFilter(
-            message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
-            category=FutureWarning,
-        ),
-    ])
+    filter_certain_warnings(
+        [
+            WarningFilter(
+                message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+                category=RuntimeWarning,
+            ),
+            WarningFilter(
+                message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
+                category=FutureWarning,
+            ),
+        ]
+    )
 
 
 # * -------------------------------------------------------------------------------- * #
@@ -107,15 +111,22 @@ def update_fixture_stores(
 
 @pytest.fixture(scope="session")
 def fixtures(nested_fixture_store) -> SimpleNamespace:
-    return SimpleNamespace(**{
-        key: SimpleNamespace(**{
-            key: SimpleNamespace(**{
-                key: SimpleNamespace(**value) for key, value in value.items()
-            })
-            for key, value in value.items()
-        })
-        for key, value in nested_fixture_store.items()
-    })
+    return SimpleNamespace(
+        **{
+            key: SimpleNamespace(
+                **{
+                    key: SimpleNamespace(
+                        **{
+                            key: SimpleNamespace(**value)
+                            for key, value in value.items()
+                        }
+                    )
+                    for key, value in value.items()
+                }
+            )
+            for key, value in nested_fixture_store.items()
+        }
+    )
 
 
 @pytest.fixture(scope="session")
@@ -193,19 +204,19 @@ def plt(plt):
 
 
 @pytest.fixture()
-def fig_ax(plt):
-    """Plot."""
+def fig_ax(plt) -> tuple[Figure, Axis]:
+    """Plot figure and axis."""
     fig, ax = plt.subplots()
     return fig, ax
 
 
 @pytest.fixture()
-def fig(fig_ax):
-    """Plot."""
+def fig(fig_ax) -> Figure:
+    """Plot figure."""
     return fig_ax[0]
 
 
 @pytest.fixture()
-def ax(fig_ax):
-    """Plot."""
+def ax(fig_ax) -> Axis:
+    """Plot axis."""
     return fig_ax[1]
