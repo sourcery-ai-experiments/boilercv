@@ -25,6 +25,9 @@ from matplotlib.figure import Figure
 
 from boilercv_tests import Case, normalize_cases
 
+CASES_VAR = "CASES"
+"""Module-level variable in test modules containing notebook cases for that module."""
+
 # * -------------------------------------------------------------------------------- * #
 # * Autouse
 
@@ -60,7 +63,7 @@ def _filter_certain_warnings():
 @pytest.fixture(scope="module", autouse=True)
 def _get_ns_attrs(request):
     module = request.module
-    cases = getattr(module, "CASES", [])
+    cases = getattr(module, CASES_VAR, [])
     notebook_namespace_tests = (
         node
         for node in request.node.collect()
