@@ -93,6 +93,7 @@
   "jupyter.showVariableViewWhenDebugging": true,
   //* Pylance
   "python.languageServer": "Pylance",
+  "python.analysis.typeCheckingMode": "strict",
   "python.analysis.autoFormatStrings": true,
   "python.analysis.autoImportCompletions": true,
   "python.analysis.completeFunctionParens": true,
@@ -130,8 +131,15 @@
   "yaml.format.printWidth": 88,
   //* ruff (PY, IPYNB)
   "ruff.importStrategy": "fromEnvironment",
+  //? https://github.com/astral-sh/ruff-vscode/issues/232#issuecomment-1866961267
+  "ruff.lint.args": [
+    "--extend-exclude=/usr/**/*.py",
+    "--extend-exclude=/opt/**/*.py",
+    "--extend-exclude=c:/msys/**/*.py",
+    "--extend-exclude=c:/program*/**/*.py",
+    "--extend-exclude=c:Users/*/AppData/Local/Programs/Python/Python*/Lib/**/*.py"
+  ],
   "ruff.format.args": [],
-  "ruff.lint.args": [],
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.wordWrap": "off"

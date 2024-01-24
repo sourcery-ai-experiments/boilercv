@@ -7,23 +7,16 @@ from dataclasses import dataclass, field
 from itertools import chain
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, NamedTuple
+from typing import Any
 
 import pytest
 from _pytest.mark.structures import ParameterSet
-from boilercore.notebooks.namespaces import NO_PARAMS, Params, get_nb_ns
+from boilercore.notebooks.namespaces import get_nb_ns
 from boilercore.paths import get_module_rel, walk_modules
 
 
 def get_nb(exp: Path, name: str) -> Path:
-    return exp / f"{name}.ipynb"
-
-
-class NsArgs(NamedTuple):
-    """Indirect parameters for notebook namespace fixture."""
-
-    nb: Path
-    params: Params = NO_PARAMS
+    return (exp / name).with_suffix(".ipynb")
 
 
 boilercv_dir = Path("src") / "boilercv"
@@ -70,19 +63,14 @@ class Case:
 
     path: Path
     """Path to the notebook."""
-    suffix: str
+    id: str = "_"  # noqa: A003
     """Test ID suffix."""
     params: dict[str, Any] = field(default_factory=dict)
     """Parameters to pass to the notebook."""
     results: dict[str, Any] = field(default_factory=dict)
     """Variable names to retrieve and optional expectations on their values."""
-
-    @property
-    def id(self) -> str:  # noqa: A003  # Okay to shadow in this limited context
-        """Test ID."""
-        return "_".join(
-            [p for p in (*self.path.with_suffix("").parts, self.suffix) if p]
-        )
+    marks: list[pytest.Mark] = field(default_factory=list)
+    """Pytest marks."""
 
     @property
     def nb(self) -> str:
@@ -127,3 +115,10 @@ def normalize_cases(*cases: Case) -> Iterable[Case]:
             c.results |= {r: None for r in all_results if r not in c.results}
             c.results = dict(sorted(c.results.items()))
     return cases
+
+
+def parametrize_by_cases(*cases: Case):
+    """Parametrize this test by cases."""
+    return pytest.mark.parametrize(
+        "ns", [pytest.param(c, marks=c.marks, id=c.id) for c in cases], indirect=["ns"]
+    )

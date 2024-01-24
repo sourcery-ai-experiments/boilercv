@@ -16,13 +16,14 @@ import boilercv
 import pytest
 import pytest_harvest
 import seaborn as sns
+from _pytest.python import Function
 from boilercore import WarningFilter, filter_certain_warnings
-from boilercore.notebooks.namespaces import get_cached_minimal_nb_ns
-from boilercore.testing import get_session_path, unwrap_node
+from boilercore.notebooks.namespaces import get_cached_nb_ns, get_ns_attrs
+from boilercore.testing import get_session_path
 from matplotlib.axis import Axis
 from matplotlib.figure import Figure
 
-from boilercv_tests import NsArgs
+from boilercv_tests import Case, normalize_cases
 
 # * -------------------------------------------------------------------------------- * #
 # * Autouse
@@ -56,15 +57,28 @@ def _filter_certain_warnings():
 # * Notebook namespaces
 
 
+@pytest.fixture(scope="module", autouse=True)
+def _get_ns_attrs(request):
+    module = request.module
+    cases = getattr(module, "CASES", [])
+    notebook_namespace_tests = (
+        node
+        for node in request.node.collect()
+        if isinstance(node, Function) and "ns" in node.fixturenames
+    )
+    for case, test in zip(cases, notebook_namespace_tests, strict=True):
+        name = getattr(module, test.originalname)
+        case.results |= {r: None for r in get_ns_attrs(name)}
+    normalize_cases(*cases)
+
+
 @pytest.fixture()
 @pytest_harvest.saved_fixture
 def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
     """Notebook namespace."""
-    namespace: NsArgs = request.param
-    yield get_cached_minimal_nb_ns(
-        nb=namespace.nb.read_text(encoding="utf-8"),
-        receiver=unwrap_node(request.node),
-        params=namespace.params,
+    case: Case = request.param
+    yield get_cached_nb_ns(
+        nb=case.nb, params=case.params, attributes=case.results.keys()
     )
     update_fixture_stores(
         fixture_stores,
@@ -149,7 +163,9 @@ def fixture_stores(fixture_store) -> FixtureStores:
 # #   https://github.com/smarie/python-pytest-harvest/issues/46#issuecomment-742367746
 # #   https://smarie.github.io/python-pytest-harvest/#pytest-x-dist
 
-RESULTS_PATH = Path(f".xdist_harvested/{getpid()}")
+HARVEST_ROOT = Path(".xdist_harvested")
+HARVEST_ROOT.mkdir(exist_ok=True)
+RESULTS_PATH = HARVEST_ROOT / str(getpid())
 RESULTS_PATH.mkdir(exist_ok=True)
 
 
