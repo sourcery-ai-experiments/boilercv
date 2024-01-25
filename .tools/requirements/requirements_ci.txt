@@ -1,6 +1,6 @@
 # Requirements for dev environments
 # * ---------------------------------------------------------------------------------- *
-boilercore@git+https://github.com/blakeNaccarato/boilercore@b0037b84d6e0a1346f0ecde859f3d7129d5d96ba
+boilercore@git+https://github.com/blakeNaccarato/boilercore@aa8cb94acce632cb47cb970cd8188b56e0d961a9
 # * ---------------------------------------------------------------------------------- *
 # Publishing
 flit==3.9.0
