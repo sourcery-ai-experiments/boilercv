@@ -22,13 +22,10 @@ from boilercv.types import DfOrS
 
 PRECISION = 4
 """The desired precision."""
-
 FLOAT_SPEC = f"#.{PRECISION}g"
 """The desired float specification for formatted output."""
-
 HIDE = display()
 """Hide unsuppressed output. Can't use semicolon due to black autoformatter."""
-
 DISPLAY_ROWS = 20
 """The number of rows to display in a dataframe."""
 
@@ -136,17 +133,19 @@ def truncate(df: DfOrS, head: bool = False) -> tuple[pd.DataFrame, bool]:
     df.columns = [str(col) for col in df.columns]
     # Resolves ValueError: Length of names must match number of levels in MultiIndex.
     ellipsis_index = ("...",) * df.index.nlevels
-    df = pd.concat([
-        df.head(pd.options.display.min_rows // 2),
-        df.iloc[[0]]  # Resolves ValueError: cannot handle a non-unique multi-index!
-        .reindex(
-            pd.MultiIndex.from_tuples([ellipsis_index], names=df.index.names)
-            if isinstance(df.index, pd.MultiIndex)
-            else pd.Index(ellipsis_index, name=df.index.name)
-        )
-        .assign(**{col: "..." for col in df.columns}),
-        df.tail(pd.options.display.min_rows // 2),
-    ])
+    df = pd.concat(
+        [
+            df.head(pd.options.display.min_rows // 2),
+            df.iloc[[0]]  # Resolves ValueError: cannot handle a non-unique multi-index!
+            .reindex(
+                pd.MultiIndex.from_tuples([ellipsis_index], names=df.index.names)
+                if isinstance(df.index, pd.MultiIndex)
+                else pd.Index(ellipsis_index, name=df.index.name)
+            )
+            .assign(**{col: "..." for col in df.columns}),
+            df.tail(pd.options.display.min_rows // 2),
+        ]
+    )
     return df, True
 
 

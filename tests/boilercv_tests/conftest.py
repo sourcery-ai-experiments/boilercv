@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from logging import warning
 from os import getpid
 from pathlib import Path
-from re import compile
+from re import fullmatch
 from shutil import rmtree
 from types import SimpleNamespace
 from typing import Any, TypeAlias
@@ -15,7 +15,6 @@ from typing import Any, TypeAlias
 import boilercv
 import pytest
 import pytest_harvest
-import seaborn as sns
 from _pytest.python import Function
 from boilercore import WarningFilter, filter_certain_warnings
 from boilercore.notebooks.namespaces import get_cached_nb_ns, get_ns_attrs
@@ -51,6 +50,10 @@ def _filter_certain_warnings():
             WarningFilter(
                 message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
                 category=FutureWarning,
+            ),
+            WarningFilter(
+                message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
+                category=UserWarning,
             ),
         ]
     )
@@ -107,10 +110,6 @@ class FixtureStores:
     """Fixture for test cases, nested by fixture name, module, then node."""
 
 
-TEST_CASE = compile(r"(?P<node>[^\[]+)\[(?P<case>[^\]]+)\]")
-"""Pattern for e.g. `test[case]`."""
-
-
 def update_fixture_stores(
     fixture_stores: FixtureStores, fixturename: str, test: str, path: Path
 ):
@@ -120,7 +119,8 @@ def update_fixture_stores(
         .with_suffix("")
         .as_posix()
     ]
-    if match := TEST_CASE.fullmatch(test):
+    # Pattern for e.g. `test[case]`
+    if match := fullmatch(pattern=r"(?P<node>[^\[]+)\[(?P<case>[^\]]+)\]", string=test):
         node, case = match.groups()
         key = f"{path.relative_to(Path.cwd()).as_posix()}::{test}"
         module[node][case] = fixture_stores.flat[fixturename][key]
@@ -128,6 +128,7 @@ def update_fixture_stores(
 
 @pytest.fixture(scope="session")
 def fixtures(nested_fixture_store) -> SimpleNamespace:
+    """Fixtures from `pytest-harvest`."""
     return SimpleNamespace(
         **{
             key: SimpleNamespace(
@@ -148,11 +149,13 @@ def fixtures(nested_fixture_store) -> SimpleNamespace:
 
 @pytest.fixture(scope="session")
 def nested_fixture_store(fixture_stores) -> FixtureStore:
+    """Nested fixture store."""
     return fixture_stores.nested
 
 
 @pytest.fixture(scope="session")
 def fixture_stores(fixture_store) -> FixtureStores:
+    """Flat fixture store from `pytest-harvest` and nested fixture store."""
     return FixtureStores(
         flat=fixture_store,
         nested=defaultdict(
@@ -162,13 +165,64 @@ def fixture_stores(fixture_store) -> FixtureStores:
 
 
 # * -------------------------------------------------------------------------------- * #
+# * Plotting
+
+
+@pytest.fixture()
+def figs(request, pytestconfig) -> Iterator[list[Figure]]:
+    """Append to this list of Matplotlib figures to save them after the test run."""
+    plots = Path(pytestconfig.option.plots)
+    plots.mkdir(exist_ok=True)
+    path = plots / f"{request.node.nodeid.replace('/', '.').replace(':', '-')}.png"
+    figs = []
+    yield figs
+    path.unlink(missing_ok=True)
+    figs = iter(figs)
+    if first_fig := next(figs, None):
+        first_fig.savefig(path)
+    for i, fig in enumerate(figs):
+        path = path.with_stem(f"{path.stem}_{i}")
+        path.unlink(missing_ok=True)
+        fig.savefig(path)
+
+
+@pytest.fixture()
+def plt(plt):
+    """Plot."""
+    yield plt
+    plt.saveas = f"{plt.saveas[:-4]}.png"
+
+
+@pytest.fixture()
+def fig_ax(plt) -> tuple[Figure, Axis]:
+    """Plot figure and axis."""
+    fig, ax = plt.subplots()
+    return fig, ax
+
+
+@pytest.fixture()
+def fig(fig_ax) -> Figure:
+    """Plot figure."""
+    return fig_ax[0]
+
+
+@pytest.fixture()
+def ax(fig_ax) -> Axis:
+    """Plot axis."""
+    return fig_ax[1]
+
+
+# * -------------------------------------------------------------------------------- * #
 # * Harvest hooks
 # #   https://github.com/smarie/python-pytest-harvest/issues/46#issuecomment-742367746
 # #   https://smarie.github.io/python-pytest-harvest/#pytest-x-dist
 
 HARVEST_ROOT = Path(".xdist_harvested")
-HARVEST_ROOT.mkdir(exist_ok=True)
+"""Root directory for harvested results."""
 RESULTS_PATH = HARVEST_ROOT / str(getpid())
+"""Path to harvested results for a given `pytest-xdist` subprocess."""
+
+HARVEST_ROOT.mkdir(exist_ok=True)
 RESULTS_PATH.mkdir(exist_ok=True)
 
 
@@ -206,36 +260,3 @@ def pytest_harvest_xdist_load():
 def pytest_harvest_xdist_cleanup():
     """Don't clean up. Fails to delete directories often."""
     return True
-
-
-# * -------------------------------------------------------------------------------- * #
-# * Plot
-
-
-@pytest.fixture()
-def plt(plt):
-    """Plot."""
-    sns.set_theme(
-        context="notebook", style="whitegrid", palette="bright", font="sans-serif"
-    )
-    yield plt
-    plt.saveas = f"{plt.saveas[:-4]}.png"
-
-
-@pytest.fixture()
-def fig_ax(plt) -> tuple[Figure, Axis]:
-    """Plot figure and axis."""
-    fig, ax = plt.subplots()
-    return fig, ax
-
-
-@pytest.fixture()
-def fig(fig_ax) -> Figure:
-    """Plot figure."""
-    return fig_ax[0]
-
-
-@pytest.fixture()
-def ax(fig_ax) -> Axis:
-    """Plot axis."""
-    return fig_ax[1]

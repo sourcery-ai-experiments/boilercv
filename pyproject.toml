@@ -75,7 +75,7 @@ addopts = '''
     --color yes
     -p no:legacypaths
     -r a
--n logical
+    -n logical
     --dist loadfile
     --plots tests/plots
 '''

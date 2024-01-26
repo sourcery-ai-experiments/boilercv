@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from itertools import chain
 from pathlib import Path
@@ -13,6 +13,26 @@ import pytest
 from _pytest.mark.structures import ParameterSet
 from boilercore.notebooks.namespaces import get_nb_ns
 from boilercore.paths import get_module_rel, walk_modules
+from matplotlib.pyplot import style
+from seaborn import color_palette, set_theme
+
+MPLSTYLE = Path("data/plotting/base.mplstyle")
+"""Styling for test plots."""
+
+
+def init():
+    """Initialize test plot formats.
+
+    Implementation copied from `boilercv.docs.init` for now, to avoid circular imports.
+    """
+    set_theme(
+        context="notebook", style="whitegrid", palette="bright", font="sans-serif"
+    )
+    color_palette("deep")
+    style.use(style=MPLSTYLE)
+
+
+init()
 
 
 def get_nb(exp: Path, name: str) -> Path:
@@ -65,11 +85,11 @@ class Case:
     """Path to the notebook."""
     id: str = "_"  # noqa: A003
     """Test ID suffix."""
-    params: dict[str, Any] = field(default_factory=dict)
+    params: Mapping[str, Any] = field(default_factory=dict)
     """Parameters to pass to the notebook."""
-    results: dict[str, Any] = field(default_factory=dict)
+    results: Mapping[str, Any] = field(default_factory=dict)
     """Variable names to retrieve and optional expectations on their values."""
-    marks: list[pytest.Mark] = field(default_factory=list)
+    marks: Iterable[pytest.Mark] = field(default_factory=list)
     """Pytest marks."""
 
     @property
