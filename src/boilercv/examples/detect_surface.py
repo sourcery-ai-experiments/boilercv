@@ -104,12 +104,9 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     xpx_left = points.xpx.min()
     xpx_right = points.xpx.max()
     ypx_horizontal = np.round(points.ypx.mean()).astype(int)
-    boiling_surface_coords = np.array([
-        ypx_horizontal,
-        xpx_left,
-        ypx_horizontal,
-        xpx_right,
-    ]).astype(int)
+    boiling_surface_coords = np.array(
+        [ypx_horizontal, xpx_left, ypx_horizontal, xpx_right]
+    ).astype(int)
 
     if PREVIEW:
         view_images(
