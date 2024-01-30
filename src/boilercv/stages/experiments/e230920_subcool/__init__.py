@@ -34,6 +34,8 @@ THERMAL_DATA = EXP_DATA / f"{DAY}_thermal.h5"
 """Reduced thermal data for this experiment."""
 CENTERS = EXP_DATA / "centers"
 """Bubble centers."""
+OBJECTS = EXP_DATA / "objects"
+"""Objects."""
 
 
 def get_times(strings: Iterable[str]) -> Iterable[datetime]:
