@@ -38,7 +38,9 @@ def main():
     config = loads(PYPROJECT.read_text("utf-8"))
     # Write pyrightconfig.json
     pyright = config["tool"]["pyright"]
-    data = dumps(add_pyright_includes(pyright, [Path("../boilercore/src")]), indent=2)
+    data = dumps(
+        add_pyright_includes(pyright, [".", Path("../boilercore/src")]), indent=2
+    )
     PYRIGHTCONFIG.write_text(encoding="utf-8", data=f"{data}\n")
     # Write pytest.ini
     pytest = config["tool"]["pytest"]["ini_options"]
