@@ -45,7 +45,7 @@ def new_videos_to_preview(
         received_previews = list(received_previews.values())
         new_ds = get_preview_ds(received_video_names, received_previews)
 
-        if destination.exists():
+        if not reprocess and destination.exists():
             with xr.open_dataset(destination) as existing_ds:
                 if new_ds[VIDEO].shape == existing_ds[VIDEO].shape:
                     # Combine datasets if they're the same shape
