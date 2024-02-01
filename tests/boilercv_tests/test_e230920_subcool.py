@@ -1,6 +1,6 @@
 """Tests for experiment `e230920_subcool`."""
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -21,16 +21,16 @@ EMPTY_LIST = []
 def C(  # noqa: N802  # A classy function
     name: str,
     id: str = "_",  # noqa: A002
-    params: Mapping[str, Any] = EMPTY_DICT,
-    results: Mapping[str, Any] | Iterable[Any] = EMPTY_DICT,
-    marks: Iterable[pytest.Mark] = EMPTY_LIST,
+    params: dict[str, Any] = EMPTY_DICT,
+    results: dict[str, Any] | Iterable[Any] = EMPTY_DICT,
+    marks: Sequence[pytest.Mark] = EMPTY_LIST,
 ) -> Case:
     """Shorthand for cases."""
     case = Case(
         get_nb(EXP, name),
         id,
         params,
-        results if isinstance(results, Mapping) else {a: None for a in results},
+        results if isinstance(results, dict) else {a: None for a in results},
         marks,
     )
     CASES.append(case)

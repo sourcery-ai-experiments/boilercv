@@ -7,12 +7,12 @@ import pandas as pd
 import xarray as xr
 from numpy import typing as npt
 
-T = TypeVar("T")
-
 DF: TypeAlias = pd.DataFrame
 DA: TypeAlias = xr.DataArray
 DS: TypeAlias = xr.Dataset
 DfOrS: TypeAlias = pd.DataFrame | pd.Series  # type: ignore  # pyright 1.1.333
+
+DA_T = TypeVar("DA_T", bound=DA)
 
 
 class SupportsMul(Protocol):

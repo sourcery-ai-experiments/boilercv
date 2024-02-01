@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from itertools import chain
 from pathlib import Path
@@ -85,11 +85,11 @@ class Case:
     """Path to the notebook."""
     id: str = "_"  # noqa: A003
     """Test ID suffix."""
-    params: Mapping[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     """Parameters to pass to the notebook."""
-    results: Mapping[str, Any] = field(default_factory=dict)
+    results: dict[str, Any] = field(default_factory=dict)
     """Variable names to retrieve and optional expectations on their values."""
-    marks: Iterable[pytest.Mark] = field(default_factory=list)
+    marks: Sequence[pytest.Mark] = field(default_factory=list)
     """Pytest marks."""
 
     @property

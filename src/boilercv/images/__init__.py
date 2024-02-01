@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from boilercv import DEBUG
 from boilercv.colors import BLACK, BLACK3, RED, WHITE, WHITE3
-from boilercv.types import Img, ImgLike, T
+from boilercv.types import DA_T, Img, ImgLike
 
 if DEBUG:
     from PIL import ImageShow  # noqa: F401
@@ -21,7 +21,7 @@ if DEBUG:
 # * PURE NUMPY - TYPE PRESERVING
 
 
-def scale_float(img: T, dtype: npt.DTypeLike = np.uint8) -> T:
+def scale_float(img: DA_T, dtype: npt.DTypeLike = np.uint8) -> DA_T:
     """Return the input as `dtype` multiplied by the max value of `dtype`.
 
     Useful for scaling float-valued arrays to integer-valued images.
@@ -30,7 +30,7 @@ def scale_float(img: T, dtype: npt.DTypeLike = np.uint8) -> T:
     return scaled.astype(dtype) * np.iinfo(dtype).max
 
 
-def unpad(img: T, pad_width: int) -> T:
+def unpad(img: Img, pad_width: int) -> Img:
     """Remove padding from an image."""
     return img[pad_width:-pad_width, pad_width:-pad_width]
 
@@ -54,7 +54,7 @@ FONT = ImageFont.truetype(findfont(FontProperties(family="dejavu sans")), 24)
 PAD = 10
 
 
-def draw_text(image: ImgLike, text: str = "") -> ImgLike:
+def draw_text(image: Img, text: str = "") -> ImgLike:
     """Draw text in the top-right corner of an image.
 
     Args:
@@ -74,16 +74,13 @@ def draw_text(image: ImgLike, text: str = "") -> ImgLike:
     p0 = (text_p0[0] - PAD, text_p0[1] - PAD)
     p1 = (text_p0[0] + PAD + font_bbox_width, text_p0[1] + PAD + font_bbox_height)
     draw = ImageDraw.Draw(pil_image)
-    draw.rectangle((p0, p1), fill=rectangle_fill)
-    draw.text(text_p0, text, font=FONT, fill=font_fill)
+    draw.rectangle((p0, p1), fill=rectangle_fill)  # type: ignore  # pyright 1.1.348, pillow 10.2.0
+    draw.text(text_p0, text, font=FONT, fill=font_fill)  # type: ignore  # pyright 1.1.348, pillow 10.2.0
     return np.asarray(pil_image)
 
 
 def overlay(
-    image: ImgLike,
-    overlay: ImgLike,
-    color: tuple[int, int, int] = RED,
-    alpha: float = 0.3,
+    image: ImgLike, overlay: Img, color: tuple[int, int, int] = RED, alpha: float = 0.3
 ) -> Img:
     """Color an image given an overlay.
 
@@ -96,11 +93,10 @@ def overlay(
     background = Image.fromarray(image).convert("RGBA")
     objects = Image.fromarray(overlay)
     if overlay.ndim == 2:
-        objects = ImageOps.colorize(objects, WHITE3, color)
+        objects = ImageOps.colorize(objects, WHITE3, color)  # type: ignore  # pyright 1.1.348, pillow 10.2.0
         mask = Image.fromarray(~(overlay * alpha).astype(np.uint8))
     else:
-        mask = Image.fromarray(
-            ~(bool(np.mean(overlay, axis=-1)) * alpha).astype(np.uint8)
-        )
+        avg: Img = np.mean(overlay, axis=-1)
+        mask = Image.fromarray(np.invert(avg.astype(bool) * alpha).astype(np.uint8))
     composite = Image.composite(background, objects, mask)
     return np.asarray(composite)
