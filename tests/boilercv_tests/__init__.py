@@ -83,7 +83,7 @@ class Case:
 
     path: Path
     """Path to the notebook."""
-    id: str = "_"  # noqa: A003
+    id: str = "_"
     """Test ID suffix."""
     params: dict[str, Any] = field(default_factory=dict)
     """Parameters to pass to the notebook."""

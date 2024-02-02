@@ -28,7 +28,7 @@ def main():
     _video = ds[VIDEO]
     roi = ds[ROI]
     wall: DA = apply_to_img_da(get_wall, scale_bool(roi), name="wall")
-    boiling_surface, boiling_surface_coords = xr.apply_ufunc(
+    boiling_surface, _boiling_surface_coords = xr.apply_ufunc(
         find_boiling_surface,
         scale_bool(wall),
         input_core_dims=[YX_PX],
@@ -104,9 +104,12 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     xpx_left = points.xpx.min()
     xpx_right = points.xpx.max()
     ypx_horizontal = np.round(points.ypx.mean()).astype(int)
-    boiling_surface_coords = np.array(
-        [ypx_horizontal, xpx_left, ypx_horizontal, xpx_right]
-    ).astype(int)
+    boiling_surface_coords = np.array([
+        ypx_horizontal,
+        xpx_left,
+        ypx_horizontal,
+        xpx_right,
+    ]).astype(int)
 
     if PREVIEW:
         view_images(

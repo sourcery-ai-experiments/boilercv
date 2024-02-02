@@ -41,22 +41,20 @@ def _project_session_path(tmp_path_factory):
 @pytest.fixture(autouse=True)
 def _filter_certain_warnings():
     """Filter certain warnings."""
-    filter_certain_warnings(
-        [
-            WarningFilter(
-                message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
-                category=RuntimeWarning,
-            ),
-            WarningFilter(
-                message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
-                category=FutureWarning,
-            ),
-            WarningFilter(
-                message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
-                category=UserWarning,
-            ),
-        ]
-    )
+    filter_certain_warnings([
+        WarningFilter(
+            message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+            category=RuntimeWarning,
+        ),
+        WarningFilter(
+            message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
+            category=FutureWarning,
+        ),
+        WarningFilter(
+            message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
+            category=UserWarning,
+        ),
+    ])
 
 
 # * -------------------------------------------------------------------------------- * #
@@ -74,7 +72,7 @@ def _get_ns_attrs(request):
     )
     for case, test in zip(cases, notebook_namespace_tests, strict=True):
         name = getattr(module, test.originalname)
-        case.results |= {r: None for r in get_ns_attrs(name)}
+        case.results |= dict.fromkeys(get_ns_attrs(name))
     normalize_cases(*cases)
 
 
@@ -129,22 +127,15 @@ def update_fixture_stores(
 @pytest.fixture(scope="session")
 def fixtures(nested_fixture_store) -> SimpleNamespace:
     """Fixtures from `pytest-harvest`."""
-    return SimpleNamespace(
-        **{
-            key: SimpleNamespace(
-                **{
-                    key: SimpleNamespace(
-                        **{
-                            key: SimpleNamespace(**value)
-                            for key, value in value.items()
-                        }
-                    )
-                    for key, value in value.items()
-                }
-            )
-            for key, value in nested_fixture_store.items()
-        }
-    )
+    return SimpleNamespace(**{
+        key: SimpleNamespace(**{
+            key: SimpleNamespace(**{
+                key: SimpleNamespace(**value) for key, value in value.items()
+            })
+            for key, value in value.items()
+        })
+        for key, value in nested_fixture_store.items()
+    })
 
 
 @pytest.fixture(scope="session")

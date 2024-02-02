@@ -184,8 +184,7 @@ def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore  # 
         # One-channel
         images.ndim == 2
         # Up to four-channel
-        or images.ndim == 3
-        and images.shape[-1] <= 4
+        or (images.ndim == 3 and images.shape[-1] <= 4)
     )
     images: MutableViewable = [images] if flat_image else list(images)
     shapes = pd.DataFrame(

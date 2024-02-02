@@ -85,7 +85,7 @@ class Op(Enum):
     erode = cv.MORPH_ERODE
     gradient = cv.MORPH_GRADIENT
     hitmiss = cv.MORPH_HITMISS
-    open = cv.MORPH_OPEN  # noqa: A003
+    open = cv.MORPH_OPEN
     rect = cv.MORPH_RECT
     top_hat = cv.MORPH_TOPHAT
 

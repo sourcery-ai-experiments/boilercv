@@ -30,7 +30,7 @@ def C(  # noqa: N802  # A classy function
         get_nb(EXP, name),
         id,
         params,
-        results if isinstance(results, dict) else {a: None for a in results},
+        results if isinstance(results, dict) else dict.fromkeys(results),
         marks,
     )
     CASES.append(case)

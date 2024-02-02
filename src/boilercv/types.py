@@ -18,8 +18,7 @@ DA_T = TypeVar("DA_T", bound=DA)
 class SupportsMul(Protocol):
     """Protocol for types that support multiplication."""
 
-    def __mul__(self, other: Any) -> Any:
-        ...
+    def __mul__(self, other: Any) -> Any: ...
 
 
 SupportsMul_T = TypeVar("SupportsMul_T", bound=SupportsMul)

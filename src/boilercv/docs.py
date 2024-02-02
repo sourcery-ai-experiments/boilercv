@@ -33,7 +33,7 @@ DISPLAY_ROWS = 20
 def init():
     """Initialize notebook formats."""
 
-    from boilercv.models.params import PARAMS
+    from boilercv.models.params import PARAMS  # noqa: PLC0415
 
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
@@ -60,7 +60,7 @@ def nowarn(capture: bool = False):
 def keep_viewer_in_scope():
     """Keep the image viewer in scope so it doesn't get garbage collected."""
 
-    from boilercv.captivate.previews import image_viewer
+    from boilercv.captivate.previews import image_viewer  # noqa: PLC0415
 
     with image_viewer([]) as viewer:
         return viewer
@@ -133,19 +133,17 @@ def truncate(df: DfOrS, head: bool = False) -> tuple[pd.DataFrame, bool]:
     df.columns = [str(col) for col in df.columns]
     # Resolves ValueError: Length of names must match number of levels in MultiIndex.
     ellipsis_index = ("...",) * df.index.nlevels
-    df = pd.concat(
-        [
-            df.head(pd.options.display.min_rows // 2),
-            df.iloc[[0]]  # Resolves ValueError: cannot handle a non-unique multi-index!
-            .reindex(
-                pd.MultiIndex.from_tuples([ellipsis_index], names=df.index.names)
-                if isinstance(df.index, pd.MultiIndex)
-                else pd.Index(ellipsis_index, name=df.index.name)
-            )
-            .assign(**{col: "..." for col in df.columns}),
-            df.tail(pd.options.display.min_rows // 2),
-        ]
-    )
+    df = pd.concat([
+        df.head(pd.options.display.min_rows // 2),
+        df.iloc[[0]]  # Resolves ValueError: cannot handle a non-unique multi-index!
+        .reindex(
+            pd.MultiIndex.from_tuples([ellipsis_index], names=df.index.names)
+            if isinstance(df.index, pd.MultiIndex)
+            else pd.Index(ellipsis_index, name=df.index.name)
+        )
+        .assign(**dict.fromkeys(df.columns, "...")),
+        df.tail(pd.options.display.min_rows // 2),
+    ])
     return df, True
 
 

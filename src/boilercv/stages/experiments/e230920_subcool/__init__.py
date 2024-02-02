@@ -134,13 +134,11 @@ WIDTH = 10
 
 
 def get_hists(df: pd.DataFrame, groupby: str, cols: list[str]) -> pd.DataFrame:
-    df = df.groupby(groupby, **GBC).agg(
-        **{
-            # type: ignore  # pyright 1.1.333
-            col: pd.NamedAgg(column=col, aggfunc=sparkhist)
-            for col in cols
-        }
-    )
+    df = df.groupby(groupby, **GBC).agg(**{
+        # type: ignore  # pyright 1.1.333
+        col: pd.NamedAgg(column=col, aggfunc=sparkhist)
+        for col in cols
+    })
     # Can't one-shot this because of the comprehension {...: ... for col in hist_cols}
     return df.assign(**{col: df[col].str.center(WIDTH, "▁") for col in cols})
 
@@ -149,7 +147,7 @@ def sparkhist(grp: pd.DataFrame) -> str:
     """Render a sparkline histogram."""
     num_lines = 1  # Sparklines don't render properly across multiple lines
     bins = min(WIDTH - 2, int(np.sqrt(grp.count())))
-    histogram, edges_ = np.histogram(grp, bins=bins)
+    histogram, _edges = np.histogram(grp, bins=bins)
     return "\n".join(sparklines(histogram, num_lines))
 
 
@@ -168,12 +166,10 @@ class Col:
 
 
 def transform_cols(df: pd.DataFrame, cols: list[Col]) -> pd.DataFrame:
-    return df.assign(
-        **{
-            col.new: df[col.old] if col.scale == 1 else df[col.old] * col.scale
-            for col in cols
-        }
-    )[[col.new for col in cols]]
+    return df.assign(**{
+        col.new: df[col.old] if col.scale == 1 else df[col.old] * col.scale
+        for col in cols
+    })[[col.new for col in cols]]
 
 
 class Conversion(TypedDict):

@@ -116,13 +116,11 @@ def get_dataset(
             xr.Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(
                 path=unc_source, encoding={VIDEO: {"zlib": False}}
             )
-        return xr.Dataset(
-            {
-                VIDEO: unpack(ds[VIDEO].sel(frame=frame)),
-                ROI: roi_ds[ROI],
-                HEADER: ds[HEADER],
-            }
-        )
+        return xr.Dataset({
+            VIDEO: unpack(ds[VIDEO].sel(frame=frame)),
+            ROI: roi_ds[ROI],
+            HEADER: ds[HEADER],
+        })
 
 
 def get_stage(name: str, stage: Stage = STAGE_DEFAULT) -> tuple[Path, Path]:

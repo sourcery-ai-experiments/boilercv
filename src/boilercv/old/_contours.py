@@ -67,16 +67,14 @@ def _get_contours(
 
 
 def interact_with_images(_input_image, _masked, thresholded, contoured):
-    _plt, ax = subplot_mosaic(
+    _plt, ax = subplot_mosaic([
         [
-            [
-                # "input",
-                # "masked",
-                "thresholded",
-                "contoured",
-            ]
+            # "input",
+            # "masked",
+            "thresholded",
+            "contoured",
         ]
-    )
+    ])
     for ax_ in ax.values():
         ax_.axis("off")
     # ax["input"].imshow(input_image, cmap="gray")
