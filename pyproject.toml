@@ -226,6 +226,7 @@ extend-ignore = [
     "PLR2004", # Allow magic values. This check is too sensitive
     "PLR6201", # Don't require set literal for membership checks
     "PLR6301", # Allow methods that don't reference self, may be overridden
+    "PLW0108", # Don't warn about unnecessary lambda. Often needed in pandas chains
     "PLW2901", # For loop variable
     "RET",     # Return checks are flaky, Sourcery does fine analysing these paths
     "S301",    # Don't warn about pickling.

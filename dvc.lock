@@ -380,6 +380,6 @@ stages:
     deps:
     - path: src/boilercv/stages/experiments
       hash: md5
-      md5: 543e2aa21e63fc2805fda403e9cef8e7.dir
-      size: 91098
-      nfiles: 11
+      md5: a94f3ca6f37fb68038954910972c2911.dir
+      size: 100909
+      nfiles: 13

@@ -55,6 +55,14 @@ def export_centers(params: Params):
     ns.centers.to_hdf(path, key="centers", complib="zlib", complevel=9)
 
 
+def export_objects(params: Params):
+    """Export object centers and sizes."""
+    ns = get_nb_ns(nb=read_exp_nb("find_objects"), params=params)
+    OBJECTS.mkdir(exist_ok=True)
+    path = (OBJECTS / f"objects_{ns.PATH_TIME}").with_suffix(".h5")
+    ns.objects.to_hdf(path, key="objects", complib="zlib", complevel=9)
+
+
 def export_contours(params: Params):
     """Export contours."""
     dest = EXP_DATA / "contours"
