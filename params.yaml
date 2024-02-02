@@ -32,13 +32,14 @@ paths:
     experiments_e230920_subcool_export_all_centers: src/boilercv/stages/experiments/e230920_subcool/export_all_centers.py
     experiments_e230920_subcool_export_all_contours: src/boilercv/stages/experiments/e230920_subcool/export_all_contours.py
     experiments_e230920_subcool_export_all_objects: src/boilercv/stages/experiments/e230920_subcool/export_all_objects.py
+    experiments_e230920_subcool_export_all_tracks: src/boilercv/stages/experiments/e230920_subcool/export_all_tracks.py
     experiments_e230920_subcool_find_bubbles: src/boilercv/stages/experiments/e230920_subcool/find_bubbles.ipynb
     experiments_e230920_subcool_find_centers: src/boilercv/stages/experiments/e230920_subcool/find_centers.ipynb
     experiments_e230920_subcool_find_collapse: src/boilercv/stages/experiments/e230920_subcool/find_collapse.ipynb
     experiments_e230920_subcool_find_contours: src/boilercv/stages/experiments/e230920_subcool/find_contours.ipynb
     experiments_e230920_subcool_find_objects: src/boilercv/stages/experiments/e230920_subcool/find_objects.ipynb
+    experiments_e230920_subcool_find_tracks: src/boilercv/stages/experiments/e230920_subcool/find_tracks.ipynb
     experiments_e230920_subcool_get_thermal_data: src/boilercv/stages/experiments/e230920_subcool/get_thermal_data.ipynb
-    experiments_e230920_subcool_track_bubbles: src/boilercv/stages/experiments/e230920_subcool/track_bubbles.ipynb
     experiments_e230920_subcool: src/boilercv/stages/experiments/e230920_subcool/__main__.py
     preview_preview_binarized: src/boilercv/stages/preview/preview_binarized.py
     preview_preview_filled: src/boilercv/stages/preview/preview_filled.py

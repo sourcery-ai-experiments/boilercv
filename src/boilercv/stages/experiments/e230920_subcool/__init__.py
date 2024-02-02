@@ -35,7 +35,9 @@ THERMAL_DATA = EXP_DATA / f"{DAY}_thermal.h5"
 CENTERS = EXP_DATA / "centers"
 """Bubble centers."""
 OBJECTS = EXP_DATA / "objects"
-"""Objects."""
+"""Objects in each frame."""
+TRACKS = EXP_DATA / "tracks"
+"""Object tracks."""
 
 
 def get_times(strings: Iterable[str]) -> Iterable[datetime]:
@@ -61,6 +63,16 @@ def export_objects(params: Params):
     OBJECTS.mkdir(exist_ok=True)
     path = (OBJECTS / f"objects_{ns.PATH_TIME}").with_suffix(".h5")
     ns.objects.to_hdf(path, key="objects", complib="zlib", complevel=9)
+
+
+def export_tracks(params: Params):
+    """Export object centers and sizes."""
+    ns = get_nb_ns(nb=read_exp_nb("find_tracks"), params=params)
+    TRACKS.mkdir(exist_ok=True)
+    path = (TRACKS / f"tracks_{ns.PATH_TIME}").with_suffix(".h5")
+    ns.nondimensionalized_departing_long_lived_objects.to_hdf(
+        path, key="tracks", complib="zlib", complevel=9
+    )
 
 
 def export_contours(params: Params):
