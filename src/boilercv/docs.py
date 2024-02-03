@@ -20,6 +20,8 @@ from boilercv.types import DfOrS
 # * -------------------------------------------------------------------------------- * #
 # * COMMON TO ROOT AND DVC-TRACKED DOCUMENTATION
 
+FONT_SCALE = 1.3
+"""Plot font scale."""
 PRECISION = 4
 """The desired precision."""
 FLOAT_SPEC = f"#.{PRECISION}g"
@@ -30,7 +32,7 @@ DISPLAY_ROWS = 20
 """The number of rows to display in a dataframe."""
 
 
-def init():
+def init(font_scale: float = FONT_SCALE):
     """Initialize notebook formats."""
 
     from boilercv.models.params import PARAMS  # noqa: PLC0415
@@ -43,9 +45,12 @@ def init():
     np.set_printoptions(precision=PRECISION)
 
     sns.set_theme(
-        context="notebook", style="whitegrid", palette="bright", font="sans-serif"
+        context="notebook",
+        style="whitegrid",
+        palette="deep",
+        font="sans-serif",
+        font_scale=font_scale,
     )
-    sns.color_palette("deep")
     plt.style.use(style=PARAMS.paths.mpl_base)
 
 
