@@ -57,9 +57,6 @@ Home = "https://github.com/blakeNaccarato/boilercv"
 Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 
 [tool.fawltydeps]
-output_format = "human_detailed"
-code = ["src"]
-deps = ["pyproject.toml"]
 ignore_unused = [
     "nbdime",  # boilercv.stages.generate_experiment_docs.different
     "pyarrow", # boilercv.init: pd.set_option("mode.string_storage", "pyarrow")
@@ -182,6 +179,7 @@ force-exclude = true
 show-fixes = true
 output-format = "grouped"
 preview = true
+src = ["src"]
 unsafe-fixes = false
 
 [tool.ruff.lint]
