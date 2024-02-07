@@ -25,8 +25,8 @@ repos:
         entry: "pwsh -Command python .tools/scripts/local_dev_configs.py"
         files: |
           (?x)^(
-            pyproject.toml
-            .tools/scripts/local_dev_configs.py
+            pyproject\.toml
+            |\.tools/scripts/local_dev_configs.py
           )$
       - id: "synchronize-params"
         name: "synchronize-params"
@@ -56,7 +56,7 @@ repos:
         files: |
           (?x)^(
             pyproject\.toml
-            src/.*
+            |src/.*
             |tests/.*
             |\.tools/requirements/.*
           )$
