@@ -8,6 +8,8 @@ ci:
     # * ---------------------------------------------------------------------------- * #
     - "core-update"
     - "pytest-fast-only"
+    - "check-undeclared"
+    - "check-unused"
   autoupdate_schedule: "quarterly"
 
 repos:
