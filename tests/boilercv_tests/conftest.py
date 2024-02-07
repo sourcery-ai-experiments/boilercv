@@ -22,7 +22,7 @@ from matplotlib.axis import Axis
 from matplotlib.figure import Figure
 
 import boilercv
-from boilercv_tests import PACKAGE, Case, normalize_cases
+from boilercv_tests import Case, normalize_cases
 
 CASES_VAR = "CASES"
 """Module-level variable in test modules containing notebook cases for that module."""
@@ -42,7 +42,7 @@ def _project_session_path(tmp_path_factory):
 def _filter_certain_warnings():
     """Filter certain warnings."""
     filter_certain_warnings(
-        package=PACKAGE,
+        package=boilercv,
         other_warnings=[
             WarningFilter(
                 message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",

@@ -60,6 +60,11 @@ repos:
             |tests/.*
             |\.tools/requirements/.*
           )$
+  - repo: "https://github.com/pre-commit/pre-commit-hooks"
+    rev: "v4.5.0"
+    hooks:
+      - id: "end-of-file-fixer"
+      - id: "trailing-whitespace"
   - repo: "https://github.com/iterative/dvc"
     rev: "3.39.0"
     hooks:
