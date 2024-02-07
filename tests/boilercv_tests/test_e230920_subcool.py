@@ -73,8 +73,8 @@ def nss(fixtures):
 def test_synthesis(nss, plt):
     _, axes = plt.subplots(1, 3)
     axes = iter(axes)
-    nss.test_centers_index._.centers.plot(ax=next(axes))
-    nss.test_find_collapse.small_bubbles.nondimensionalized_departing_long_lived_objects.plot(
-        ax=next(axes)
+    nss.test_centers_index._.centers.plot.scatter(ax=next(axes), x="x", y="y")
+    nss.test_find_collapse.small_bubbles.nondimensionalized_departing_long_lived_objects.plot.scatter(
+        ax=next(axes), x="xpx", y="ypx"
     )
     nss.test_get_thermal_data._.data.plot(ax=next(axes))

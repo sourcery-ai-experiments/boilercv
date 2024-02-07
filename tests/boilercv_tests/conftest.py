@@ -12,7 +12,6 @@ from shutil import rmtree
 from types import SimpleNamespace
 from typing import Any, TypeAlias
 
-import boilercv
 import pytest
 import pytest_harvest
 from _pytest.python import Function
@@ -22,7 +21,8 @@ from boilercore.testing import get_session_path
 from matplotlib.axis import Axis
 from matplotlib.figure import Figure
 
-from boilercv_tests import Case, normalize_cases
+import boilercv
+from boilercv_tests import PACKAGE, Case, normalize_cases
 
 CASES_VAR = "CASES"
 """Module-level variable in test modules containing notebook cases for that module."""
@@ -41,20 +41,23 @@ def _project_session_path(tmp_path_factory):
 @pytest.fixture(autouse=True)
 def _filter_certain_warnings():
     """Filter certain warnings."""
-    filter_certain_warnings([
-        WarningFilter(
-            message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
-            category=RuntimeWarning,
-        ),
-        WarningFilter(
-            message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
-            category=FutureWarning,
-        ),
-        WarningFilter(
-            message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
-            category=UserWarning,
-        ),
-    ])
+    filter_certain_warnings(
+        package=PACKAGE,
+        other_warnings=[
+            WarningFilter(
+                message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+                category=RuntimeWarning,
+            ),
+            WarningFilter(
+                message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
+                category=FutureWarning,
+            ),
+            WarningFilter(
+                message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
+                category=UserWarning,
+            ),
+        ],
+    )
 
 
 # * -------------------------------------------------------------------------------- * #

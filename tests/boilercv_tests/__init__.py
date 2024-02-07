@@ -12,10 +12,14 @@ from typing import Any
 import pytest
 from _pytest.mark.structures import ParameterSet
 from boilercore.notebooks.namespaces import get_nb_ns
-from boilercore.paths import get_module_rel, walk_modules
+from boilercore.paths import get_module_name, get_module_rel, walk_modules
 from matplotlib.pyplot import style
 from seaborn import color_palette, set_theme
 
+import boilercv
+
+PACKAGE = get_module_name(boilercv)
+"""Name of the package to test."""
 MPLSTYLE = Path("data/plotting/base.mplstyle")
 """Styling for test plots."""
 
@@ -39,7 +43,7 @@ def get_nb(exp: Path, name: str) -> Path:
     return (exp / name).with_suffix(".ipynb")
 
 
-boilercv_dir = Path("src") / "boilercv"
+boilercv_dir = Path("src") / PACKAGE
 STAGES: list[ParameterSet] = []
 for module in walk_modules(boilercv_dir):
     if module.startswith("boilercv.manual"):
@@ -50,7 +54,7 @@ for module in walk_modules(boilercv_dir):
             case _:
                 marks = []
         STAGES.append(
-            pytest.param(module, id=get_module_rel(module, "boilercv"), marks=marks)
+            pytest.param(module, id=get_module_rel(module, PACKAGE), marks=marks)
         )
         continue
     if not module.startswith("boilercv.stages"):
@@ -65,9 +69,7 @@ for module in walk_modules(boilercv_dir):
             marks = [pytest.mark.skip(reason="Implementation trivially does nothing.")]
         case _:
             marks = []
-    STAGES.append(
-        pytest.param(module, id=get_module_rel(module, "boilercv"), marks=marks)
-    )
+    STAGES.append(pytest.param(module, id=get_module_rel(module, PACKAGE), marks=marks))
 
 
 @dataclass
