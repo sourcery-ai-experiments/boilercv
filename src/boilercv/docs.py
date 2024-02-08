@@ -158,7 +158,7 @@ def truncate(df: DfOrS, head: bool = False) -> tuple[pd.DataFrame, bool]:
 
 def main():
     """Insert `hide-input` tag to all notebooks in `docs/examples`."""
-    for notebook in Path("docs").glob("**/.ipynb"):
+    for notebook in Path("docs").rglob("*.ipynb"):
         insert_tags(notebook, ["hide-input"])
 
 
