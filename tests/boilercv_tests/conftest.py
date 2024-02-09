@@ -16,13 +16,13 @@ import pytest
 import pytest_harvest
 from _pytest.python import Function
 from boilercore import WarningFilter, filter_certain_warnings
-from boilercore.notebooks.namespaces import get_cached_nb_ns, get_nb_ns, get_ns_attrs
+from boilercore.notebooks.namespaces import get_nb_ns, get_ns_attrs
 from boilercore.testing import get_session_path
 from matplotlib.axis import Axis
 from matplotlib.figure import Figure
 
 import boilercv
-from boilercv_tests import TEST_TEMP_NBS, Case, normalize_cases
+from boilercv_tests import Case, get_cached_nb_ns, normalize_cases
 
 CASER = "C"
 """Module-level variable in test modules containing notebook cases for that module."""
@@ -35,17 +35,6 @@ CASER = "C"
 def _project_session_path(tmp_path_factory):
     """Set project directory."""
     get_session_path(tmp_path_factory, boilercv)
-
-
-@pytest.fixture(autouse=True, scope="session")
-def _test_nbs():
-    """Set test notebook directory, cleaning up afterwards."""
-    if environ.get("CI"):
-        yield
-    else:
-        TEST_TEMP_NBS.mkdir(exist_ok=True)
-        yield
-        rmtree(TEST_TEMP_NBS)
 
 
 # Can't be session scope
@@ -80,6 +69,7 @@ def _get_ns_attrs(request):
     module = request.module
     caser = getattr(module, CASER, None)
     if not caser:
+        yield
         return
     cases = caser.cases
     notebook_namespace_tests = (
@@ -91,6 +81,9 @@ def _get_ns_attrs(request):
         name = getattr(module, test.originalname)
         case.results |= dict.fromkeys(get_ns_attrs(name))
     normalize_cases(*cases)
+    yield
+    for nb in [c.clean_path for c in cases if c.clean_path]:
+        nb.unlink(missing_ok=True)
 
 
 @pytest.fixture()
@@ -100,11 +93,10 @@ def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
     case: Case = request.param
     if environ.get("CI"):
         yield get_nb_ns(nb=case.nb, params=case.params, attributes=case.results.keys())
-    else:
-        with case.clean_nb() as nb:
-            yield get_cached_nb_ns(
-                nb=nb, params=case.params, attributes=case.results.keys()
-            )
+        return
+    yield get_cached_nb_ns(
+        nb=case.clean_nb(), params=case.params, attributes=case.results.keys()
+    )
     update_fixture_stores(
         fixture_stores,
         request.fixturename,

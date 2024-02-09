@@ -2,20 +2,22 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator, Sequence
-from contextlib import contextmanager
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
+from functools import partial
 from itertools import chain
 from pathlib import Path
 from shutil import copy
 from tempfile import _RandomNameSequence  # type: ignore
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, TypeAlias
 
 import pytest
 from _pytest.mark.structures import ParameterSet
+from boilercore.hashes import hash_args
 from boilercore.notebooks.namespaces import get_nb_ns
 from boilercore.paths import get_module_name, get_module_rel, walk_modules
+from cachier import cachier
 from matplotlib.pyplot import style
 from seaborn import color_palette, set_theme
 
@@ -30,6 +32,7 @@ NAMER = _RandomNameSequence()
 """Random name sequence for case files."""
 TEST_TEMP_NBS = Path("docs/temp")
 """Temporary notebooks directory."""
+TEST_TEMP_NBS.mkdir(exist_ok=True)
 
 
 def init():
@@ -49,6 +52,20 @@ init()
 
 def get_nb(exp: Path, name: str) -> Path:
     return (exp / name).with_suffix(".ipynb")
+
+
+Params: TypeAlias = Mapping[str, Any]
+Attributes: TypeAlias = Iterable[str]
+
+NO_PARAMS = {}
+NO_ATTRS = []
+
+
+@cachier(hash_func=partial(hash_args, get_nb_ns), separate_files=True)
+def get_cached_nb_ns(
+    nb: str, params: Params = NO_PARAMS, attributes=NO_ATTRS
+) -> SimpleNamespace:
+    return get_nb_ns(nb, params, attributes)
 
 
 boilercv_dir = Path("src") / PACKAGE
@@ -95,6 +112,8 @@ class Case:
 
     path: Path
     """Path to the notebook."""
+    clean_path: Path | None = field(default=None, init=False)
+    """Path to the cleaned notebook."""
     id: str = "_"
     """Test ID suffix."""
     params: dict[str, Any] = field(default_factory=dict)
@@ -109,14 +128,12 @@ class Case:
         """Notebook contents."""
         return self.path.read_text(encoding="utf-8") if self.path.exists() else ""
 
-    @contextmanager
-    def clean_nb(self) -> Iterator[str]:
+    def clean_nb(self) -> str:
         """Cleaned notebook contents."""
-        temp_nb = (TEST_TEMP_NBS / next(NAMER)).with_suffix(".ipynb")
-        copy(self.path, temp_nb)
-        clean_notebooks(temp_nb)
-        yield temp_nb.read_text(encoding="utf-8")
-        temp_nb.unlink()
+        self.clean_path = (TEST_TEMP_NBS / next(NAMER)).with_suffix(".ipynb")
+        copy(self.path, self.clean_path)
+        clean_notebooks(self.clean_path)
+        return self.clean_path.read_text(encoding="utf-8")
 
     def get_ns(self) -> SimpleNamespace:
         """Get notebook namespace for this check."""
