@@ -1,8 +1,13 @@
-"""Generate documentation from experiment notebooks."""
+"""Generate documentation from experiment notebooks.
+
+Not using this stage currently. Instead, keep experiment notebooks directly in the docs.
+"""
 
 from collections.abc import Iterator
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from shlex import split
+from subprocess import run
 
 from boilercore.paths import fold, modified
 from ploomber_engine import execute_notebook
@@ -19,10 +24,11 @@ E230920 = "experiments_e230920"
 
 
 def main():
-    if nbs := get_changed_e230920_notebooks():
-        clean_notebooks(nbs)
-    else:
+    nbs = get_changed_e230920_notebooks()
+    if not nbs:
         return
+    clean_notebooks(*nbs)
+    run(split(f"git add {nbs}"), check=True)  # noqa: S603
     docs_nbs: list[str] = []
     with ProcessPoolExecutor() as executor:
         for nb in get_changed_e230920_notebooks():
@@ -34,7 +40,8 @@ def main():
     for docs_nb in docs_nbs:
         insert_tags(Path(docs_nb), ["hide-input"])
     if docs_nbs:
-        clean_notebooks(docs_nbs)
+        clean_notebooks(*docs_nbs)
+        run(split(f"git add {nbs}"), check=True)  # noqa: S603
 
 
 def get_changed_e230920_notebooks() -> Iterator[str]:

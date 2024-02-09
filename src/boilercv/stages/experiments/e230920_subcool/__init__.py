@@ -36,6 +36,7 @@ CENTERS = EXP_DATA / "centers"
 """Bubble centers."""
 OBJECTS = EXP_DATA / "objects"
 """Objects in each frame."""
+TRACKPY_OBJECTS = EXP_DATA / "trackpy_objects"
 TRACKS = EXP_DATA / "tracks"
 """Object tracks."""
 

@@ -1,19 +1,18 @@
 """Utilities for generating documentation."""
 
-from collections.abc import Iterable
+from pathlib import Path
 from shlex import join, split
 from subprocess import run
 
 
-def clean_notebooks(nbs: Iterable[str]):  # type: ignore  # `nbs` redefined
-    nbs: str = join(nbs)
+def clean_notebooks(*nbs: Path | str):  # type: ignore  # `nbs` redefined
+    nbs: str = join(str(nb) for nb in nbs)
     files = f"--files {nbs}"
     for cmd in [
         split(f".venv/scripts/pre-commit run {subcmd}")
         for subcmd in [f"nb-clean {files}", f"ruff {files}", f"ruff-format {files}"]
     ]:
         run(cmd, check=False)  # noqa: S603
-    run(split(f"git add {nbs}"), check=True)  # noqa: S603
 
 
 def different(nb: str, docs_nb: str) -> bool:

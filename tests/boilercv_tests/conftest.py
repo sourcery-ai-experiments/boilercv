@@ -22,9 +22,9 @@ from matplotlib.axis import Axis
 from matplotlib.figure import Figure
 
 import boilercv
-from boilercv_tests import Case, normalize_cases
+from boilercv_tests import TEST_TEMP_NBS, Case, normalize_cases
 
-CASES_VAR = "CASES"
+CASER = "C"
 """Module-level variable in test modules containing notebook cases for that module."""
 
 # * -------------------------------------------------------------------------------- * #
@@ -35,6 +35,14 @@ CASES_VAR = "CASES"
 def _project_session_path(tmp_path_factory):
     """Set project directory."""
     get_session_path(tmp_path_factory, boilercv)
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _test_nbs():
+    """Set test notebook directory, cleaning up afterwards."""
+    TEST_TEMP_NBS.mkdir(exist_ok=True)
+    yield
+    rmtree(TEST_TEMP_NBS)
 
 
 # Can't be session scope
@@ -67,7 +75,10 @@ def _filter_certain_warnings():
 @pytest.fixture(scope="module", autouse=True)
 def _get_ns_attrs(request):
     module = request.module
-    cases = getattr(module, CASES_VAR, [])
+    caser = getattr(module, CASER, None)
+    if not caser:
+        return
+    cases = caser.cases
     notebook_namespace_tests = (
         node
         for node in request.node.collect()
@@ -84,9 +95,10 @@ def _get_ns_attrs(request):
 def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
     """Notebook namespace."""
     case: Case = request.param
-    yield get_cached_nb_ns(
-        nb=case.nb, params=case.params, attributes=case.results.keys()
-    )
+    with case.clean_nb() as nb:
+        yield get_cached_nb_ns(
+            nb=nb, params=case.params, attributes=case.results.keys()
+        )
     update_fixture_stores(
         fixture_stores,
         request.fixturename,

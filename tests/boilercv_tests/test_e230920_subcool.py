@@ -1,40 +1,14 @@
 """Tests for experiment `e230920_subcool`."""
 
-from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any
 
 import pytest
 from pandas.testing import assert_index_equal
 
-from boilercv_tests import Case, get_nb, parametrize_by_cases
+from boilercv_tests import Caser, parametrize_by_cases
 
 pytestmark = pytest.mark.slow
-
-EXP = Path("src/boilercv/stages/experiments/e230920_subcool")
-CASES: list[Case] = []
-
-EMPTY_DICT = {}
-EMPTY_LIST = []
-
-
-def C(  # noqa: N802  # A classy function
-    name: str,
-    id: str = "_",  # noqa: A002
-    params: dict[str, Any] = EMPTY_DICT,
-    results: dict[str, Any] | Iterable[Any] = EMPTY_DICT,
-    marks: Sequence[pytest.Mark] = EMPTY_LIST,
-) -> Case:
-    """Shorthand for cases."""
-    case = Case(
-        get_nb(EXP, name),
-        id,
-        params,
-        results if isinstance(results, dict) else dict.fromkeys(results),
-        marks,
-    )
-    CASES.append(case)
-    return case
+C = Caser(Path("docs/experiments/e230920_subcool"))
 
 
 @parametrize_by_cases(C("find_centers"))
@@ -51,9 +25,9 @@ def test_centers_index(ns):
     reason="Radius estimate cannot account for large and small bubbles alike",
 )
 @parametrize_by_cases(
-    C("find_collapse", "small_bubbles", {"TIME": "2023-09-20T17:14:18"})
+    C("find_tracks_trackpy", "small_bubbles", {"TIME": "2023-09-20T17:14:18"})
 )
-def test_find_collapse(ns, figs):
+def test_find_tracks_trackpy(ns, figs):
     figs.extend(ns.figures)
     objects = ns.nondimensionalized_departing_long_lived_objects
     assert objects["Dimensionless bubble diameter"].min() < 0.2
@@ -74,7 +48,7 @@ def test_synthesis(nss, plt):
     _, axes = plt.subplots(1, 3)
     axes = iter(axes)
     nss.test_centers_index._.centers.plot.scatter(ax=next(axes), x="x", y="y")
-    nss.test_find_collapse.small_bubbles.nondimensionalized_departing_long_lived_objects.plot.scatter(
+    nss.test_find_tracks_trackpy.small_bubbles.nondimensionalized_departing_long_lived_objects.plot.scatter(
         ax=next(axes), x="xpx", y="ypx"
     )
     nss.test_get_thermal_data._.data.plot(ax=next(axes))

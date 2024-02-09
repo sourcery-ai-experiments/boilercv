@@ -1,11 +1,9 @@
 # Latest working requirements of your package, should be ahead of pyproject.toml
 cmasher==1.7.2
-colorcet==3.0.1
 # ? Already specified in `requirements_core.txt`
 # dulwich
 # ? Required by `boilercv.pre_repro`
 dvc[gs]==3.39.0
-geopandas==0.14.2
 imageio[pyav]==2.33.1
 ipykernel==6.29.0
 loguru==0.7.2
@@ -21,7 +19,6 @@ pillow==10.2.0
 ploomber-engine==0.0.31
 pyarrow==14.0.2
 pydantic==2.5.3
-pyjanitor==0.26.0
 pyqtgraph==0.13.3
 pyside6==6.6.1
 pytz==2023.3.post1
@@ -29,10 +26,8 @@ ruamel.yaml==0.18.5
 scikit-image==0.22.0
 scipy==1.11.4
 seaborn==0.13.1
-shapely==2.0.2
 sparklines==0.4.2
 sympy==1.12
-trackpy==0.6.1
 tqdm==4.66.1
 xarray[accel,io,parallel]==2023.12.0
 # ! Consider switching to pims instead

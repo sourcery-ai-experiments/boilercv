@@ -1,8 +1,13 @@
-"""Update experiment notebooks from documentation."""
+"""Update experiment notebooks from documentation.
+
+Not using this stage currently. Instead, keep experiment notebooks directly in the docs.
+"""
 
 from collections.abc import Iterator
 from pathlib import Path
+from shlex import split
 from shutil import copy
+from subprocess import run
 
 from boilercore.paths import fold
 
@@ -22,7 +27,9 @@ def main():
         fold(PARAMS.paths.docs / Path(nb).relative_to(ROOT)): nb
         for nb in get_e230920_notebooks()
     }
-    clean_notebooks([docs_nb for docs_nb in nbs if Path(docs_nb).exists()])
+    clean_notebooks(*[docs_nb for docs_nb in nbs if Path(docs_nb).exists()])
+    run(split(f"git add {nbs}"), check=True)  # noqa: S603
+
     for docs_nb, nb in nbs.items():
         if not Path(docs_nb).exists():
             continue
@@ -30,7 +37,8 @@ def main():
             continue
         copy(docs_nb, nb)
         remove_tags(Path(nb), ["hide-input"])
-    clean_notebooks(nbs.values())
+    clean_notebooks(*nbs.values())
+    run(split(f"git add {nbs}"), check=True)  # noqa: S603
 
 
 def get_e230920_notebooks() -> Iterator[str]:

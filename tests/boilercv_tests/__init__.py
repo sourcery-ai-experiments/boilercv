@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from itertools import chain
 from pathlib import Path
+from shutil import copy
+from tempfile import _RandomNameSequence  # type: ignore
 from types import SimpleNamespace
 from typing import Any
 
@@ -17,11 +20,16 @@ from matplotlib.pyplot import style
 from seaborn import color_palette, set_theme
 
 import boilercv
+from boilercv.docs_generation import clean_notebooks
 
 PACKAGE = get_module_name(boilercv)
 """Name of the package to test."""
 MPLSTYLE = Path("data/plotting/base.mplstyle")
 """Styling for test plots."""
+NAMER = _RandomNameSequence()
+"""Random name sequence for case files."""
+TEST_TEMP_NBS = Path("src/tests")
+"""Temporary notebooks directory."""
 
 
 def init():
@@ -49,6 +57,8 @@ for module in walk_modules(boilercv_dir):
     if module.startswith("boilercv.manual"):
         stage = get_module_rel(module, "manual")
         match stage.split("."):
+            case ("generate_experiment_docs", *_):
+                marks = [pytest.mark.skip(reason="Local-only documentation.")]
             case ("update_experiments_from_docs", *_):
                 marks = [pytest.mark.skip(reason="Local-only documentation.")]
             case _:
@@ -63,8 +73,8 @@ for module in walk_modules(boilercv_dir):
     match stage.split("."):
         case ("experiments", "e230920_subcool", *_):
             marks = [pytest.mark.skip(reason="Test data missing.")]
-        case ("generate_reports" | "generate_experiment_docs", *_):
-            marks = [pytest.mark.skip(reason="Local-only documentation generation.")]
+        case ("generate_reports", *_):
+            marks = [pytest.mark.skip(reason="Local-only documentation.")]
         case ("compare_theory" | "find_tracks" | "find_unobstructed", *_):
             marks = [pytest.mark.skip(reason="Implementation trivially does nothing.")]
         case _:
@@ -96,8 +106,17 @@ class Case:
 
     @property
     def nb(self) -> str:
-        """Jupyter notebook contents associated with this user's attempt."""
+        """Notebook contents."""
         return self.path.read_text(encoding="utf-8") if self.path.exists() else ""
+
+    @contextmanager
+    def clean_nb(self) -> Iterator[str]:
+        """Cleaned notebook contents."""
+        temp_nb = (TEST_TEMP_NBS / next(NAMER)).with_suffix(".ipynb")
+        copy(self.path, temp_nb)
+        clean_notebooks(temp_nb)
+        yield temp_nb.read_text(encoding="utf-8")
+        temp_nb.unlink()
 
     def get_ns(self) -> SimpleNamespace:
         """Get notebook namespace for this check."""
@@ -144,3 +163,33 @@ def parametrize_by_cases(*cases: Case):
     return pytest.mark.parametrize(
         "ns", [pytest.param(c, marks=c.marks, id=c.id) for c in cases], indirect=["ns"]
     )
+
+
+EMPTY_DICT = {}
+"""Empty dictionary."""
+EMPTY_LIST = []
+"""Empty list."""
+
+
+@dataclass
+class Caser:
+    exp: Path
+    cases: list[Case] = field(default_factory=list)
+
+    def __call__(
+        self,
+        name: str,
+        id: str = "_",  # noqa: A002
+        params: dict[str, Any] = EMPTY_DICT,
+        results: dict[str, Any] | Iterable[Any] = EMPTY_DICT,
+        marks: Sequence[pytest.Mark] = EMPTY_LIST,
+    ) -> Case:
+        case = Case(
+            get_nb(self.exp, name),
+            id,
+            params,
+            results if isinstance(results, dict) else dict.fromkeys(results),
+            marks,
+        )
+        self.cases.append(case)
+        return case
