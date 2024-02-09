@@ -28,7 +28,7 @@ MPLSTYLE = Path("data/plotting/base.mplstyle")
 """Styling for test plots."""
 NAMER = _RandomNameSequence()
 """Random name sequence for case files."""
-TEST_TEMP_NBS = Path("src/tests")
+TEST_TEMP_NBS = Path("docs/temp")
 """Temporary notebooks directory."""
 
 

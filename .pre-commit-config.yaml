@@ -118,20 +118,8 @@ repos:
         files: |
           (?x)^(
             src/.*
+            |docs/.*
             |tests/.*
-          )$
-      - id: "nb-clean"
-        name: "nb-clean-docs"
-        args:
-          - "--remove-empty-cells"
-          - "--preserve-cell-outputs"
-          - "--preserve-notebook-metadata"
-          - "--preserve-cell-metadata"
-          - "tags"
-          - "--"
-        files: |
-          (?x)^(
-            docs/.*
           )$
   - repo: "https://github.com/DavidAnson/markdownlint-cli2"
     rev: "v0.11.0"

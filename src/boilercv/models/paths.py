@@ -84,6 +84,3 @@ class Paths(CreatePathsModel):
     binarized_preview: Path = previews / "binarized.nc"
     filled_preview: Path = previews / "filled.nc"
     gray_preview: Path = previews / "gray.nc"
-
-    # * Git-tracked results
-    docs: DirectoryPath = project / "docs"

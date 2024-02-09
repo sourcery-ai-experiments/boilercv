@@ -59,4 +59,3 @@ paths:
   binarized_preview: data/previews/binarized.nc
   filled_preview: data/previews/filled.nc
   gray_preview: data/previews/gray.nc
-  docs: docs

@@ -3,33 +3,14 @@
 Avoid activating Rich features that break functionality outside of the REPL.
 """
 
+from collections.abc import Sequence
 from itertools import chain
-from pathlib import Path
 from typing import Literal, NamedTuple, TypeAlias
 from warnings import filterwarnings
 
 
 def init():
-    filter_certain_warnings()
-
-    from rich import inspect, traceback  # noqa: F401, PLC0415
-
-    traceback.install()
-
-    if not is_notebook_or_ipython():
-        from rich import pretty, print  # noqa: F401, PLC0415
-
-        pretty.install()
-
-
-# https://stackoverflow.com/a/39662359
-def is_notebook_or_ipython() -> bool:
-    try:
-        shell = get_ipython().__class__.__name__  # type: ignore  # pyright 1.1.333
-    except NameError:
-        return False  # Probably standard Python interpreter
-    else:
-        return shell == "TerminalInteractiveShell"
+    filter_certain_warnings("boilercv")
 
 
 Action: TypeAlias = Literal["default", "error", "ignore", "always", "module", "once"]
@@ -46,25 +27,56 @@ class WarningFilter(NamedTuple):
     append: bool = False
 
 
-def filter_certain_warnings():
+DEFAULT_CATEGORIES = [DeprecationWarning, PendingDeprecationWarning, EncodingWarning]
+ERROR = "error"
+DEFAULT = "default"
+NO_WARNINGS = []
+
+
+def filter_certain_warnings(
+    package: str,
+    categories: Sequence[type[Warning]] = DEFAULT_CATEGORIES,
+    root_action: Action | None = ERROR,
+    package_action: Action = ERROR,
+    other_action: Action = DEFAULT,
+    other_warnings: Sequence[WarningFilter] = NO_WARNINGS,
+):
     """Filter certain warnings for a package."""
-    filterwarnings("default")
-    for filt in chain.from_iterable(
-        get_default_warnings_for_src(category)
-        for category in [DeprecationWarning, PendingDeprecationWarning, EncodingWarning]
-    ):
+    for filt in [
+        # Optionally filter warnings with the root action
+        *([WarningFilter(action=root_action)] if root_action else []),
+        # Filter certain categories with a package action, and third-party action otherwise
+        *chain.from_iterable(
+            filter_package_warnings(
+                package=package,
+                category=category,
+                action=package_action,
+                other_action=other_action,
+            )
+            for category in categories
+        ),
+        # Ignore this as it crops up only during test time under some configurations
+        WarningFilter(
+            message=r"ImportDenier\.find_spec\(\) not found; falling back to find_module\(\)",
+            category=ImportWarning,
+        ),
+        # Additionally filter these other warnings
+        *other_warnings,
+    ]:
         filterwarnings(*filt)
 
 
-def get_default_warnings_for_src(
+def filter_package_warnings(
+    package: str,
     category: type[Warning],
+    action: Action = ERROR,
+    other_action: Action = DEFAULT,
 ) -> tuple[WarningFilter, WarningFilter]:
-    """Get filter which sets default warning behavior only for the package in `src`."""
-    package = next(path for path in Path("src").iterdir() if path.is_dir()).name
+    """Get filter which filters warnings differently for the package."""
     all_package_modules = rf"{package}\..*"
     return (
-        WarningFilter(action="ignore", category=category),
-        WarningFilter(action="default", category=category, module=all_package_modules),
+        WarningFilter(action=other_action, category=category),
+        WarningFilter(action=action, category=category, module=all_package_modules),
     )
 
 

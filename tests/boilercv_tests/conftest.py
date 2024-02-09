@@ -237,8 +237,7 @@ RESULTS_PATH.mkdir(exist_ok=True)
 
 def pytest_harvest_xdist_init():
     """Reset the recipient folder."""
-    if RESULTS_PATH.exists():
-        rmtree(RESULTS_PATH)
+    rmtree(RESULTS_PATH, ignore_errors=True)
     RESULTS_PATH.mkdir(exist_ok=False)
     return True
 
