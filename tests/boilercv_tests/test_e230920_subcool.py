@@ -1,5 +1,6 @@
 """Tests for experiment `e230920_subcool`."""
 
+from os import environ
 from pathlib import Path
 
 import pytest
@@ -44,6 +45,7 @@ def nss(fixtures):
     return fixtures.ns.test_e230920_subcool
 
 
+@pytest.mark.skipif(bool(environ.get("CI")))
 def test_synthesis(nss, plt):
     _, axes = plt.subplots(1, 3)
     axes = iter(axes)
