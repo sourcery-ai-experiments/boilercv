@@ -8,12 +8,16 @@ from shutil import copy, copytree
 def init_docs():
     """Ensure we're in the docs directory. Then, copy dependencies."""
     for key in [
-        "PIP_DISABLE_PIP_VERSION_CHECK",
-        "PYTHONIOENCODING",
-        "PYTHONSTARTUP",
-        "PYTHONUTF8",
-        "PYTHONWARNDEFAULTENCODING",
-        "PYTHONWARNINGS",
+        key
+        for key in [
+            "PIP_DISABLE_PIP_VERSION_CHECK",
+            "PYTHONIOENCODING",
+            "PYTHONSTARTUP",
+            "PYTHONUTF8",
+            "PYTHONWARNDEFAULTENCODING",
+            "PYTHONWARNINGS",
+        ]
+        if environ.get(key) is not None
     ]:
         del environ[key]
     if Path.cwd().name != "docs":
