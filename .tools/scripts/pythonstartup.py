@@ -1,7 +1,4 @@
-"""Startup for Python.
-
-Avoid activating Rich features that break functionality outside of the REPL.
-"""
+"""Filters warnings at startup for local Python development."""
 
 from collections.abc import Sequence
 from itertools import chain

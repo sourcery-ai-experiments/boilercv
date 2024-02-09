@@ -14,8 +14,6 @@ pandocfilters==1.5.0
 # * ---------------------------------------------------------------------------------- *
 # Debug
 debugpy==1.8.0
-# For `pythonstartup.py`
-rich==13.7.0
 # Format
 sourcery-cli==1.15.0
 # Profiling
