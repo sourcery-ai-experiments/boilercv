@@ -41,10 +41,11 @@ def _project_session_path(tmp_path_factory):
 def _test_nbs():
     """Set test notebook directory, cleaning up afterwards."""
     if environ.get("CI"):
-        return
-    TEST_TEMP_NBS.mkdir(exist_ok=True)
-    yield
-    rmtree(TEST_TEMP_NBS)
+        yield
+    else:
+        TEST_TEMP_NBS.mkdir(exist_ok=True)
+        yield
+        rmtree(TEST_TEMP_NBS)
 
 
 # Can't be session scope
