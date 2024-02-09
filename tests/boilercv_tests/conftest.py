@@ -99,7 +99,7 @@ def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
     """Notebook namespace."""
     case: Case = request.param
     if environ.get("CI"):
-        get_nb_ns(nb=case.nb, params=case.params, attributes=case.results.keys())
+        yield get_nb_ns(nb=case.nb, params=case.params, attributes=case.results.keys())
     else:
         with case.clean_nb() as nb:
             yield get_cached_nb_ns(
