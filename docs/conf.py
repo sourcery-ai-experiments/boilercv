@@ -47,4 +47,4 @@ html_context = {"default_mode": "light"}
 mermaid_d3_zoom = False
 myst_enable_extensions = ["colon_fence"]
 myst_heading_anchors = 6
-nb_execution_mode = "auto"
+nb_execution_raise_on_error = True
