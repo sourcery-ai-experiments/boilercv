@@ -26,8 +26,11 @@ rich==13.7.0
 sourcery-cli==1.15.0
 # Profiling
 snakeviz==2.2.0
-# Pre-commit
-pre-commit==3.6.0
+# * ---------------------------------------------------------------------------------- *
+# * # Pre-commit
+# * # ? Tracked in `requirements.txt` since it's part of package deps
+# * pre-commit
+# * ---------------------------------------------------------------------------------- *
 # For local publishing to PyPi with flit
 keyring==24.3.0
 

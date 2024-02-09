@@ -321,14 +321,6 @@
     // * OTHER TASKS * //
 
     {
-      "label": "task: format notebook",
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "if ($(Split-Path -Extension '${file}') -eq '.ipynb') {pre-commit run nb-clean --files '${file}'; pre-commit run ruff --files '${file}'}",
-      "icon": { "id": "notebook" },
-      "problemMatcher": []
-    },
-    {
       "label": "task: Run pytest with coverage",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
