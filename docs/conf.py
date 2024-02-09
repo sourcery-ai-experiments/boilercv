@@ -1,20 +1,8 @@
 from datetime import date
-from os import chdir
-from pathlib import Path
-from shutil import copytree, rmtree
 
-if Path.cwd().name != "docs":
-    chdir("docs")
+from boilercv.docs import init_docs
 
-DOCS_DATA = Path("../tests/root/data").resolve()
-
-for dst in [
-    (p / "data").resolve()
-    for p in Path().rglob("")
-    if p.is_dir() and p.name != "_static" and "data" not in p.parts
-]:
-    rmtree(dst, ignore_errors=True)
-    copytree(src=DOCS_DATA, dst=dst)
+init_docs()
 
 project = ""
 html_title = "boilercv"
@@ -47,4 +35,5 @@ html_context = {"default_mode": "light"}
 mermaid_d3_zoom = False
 myst_enable_extensions = ["colon_fence"]
 myst_heading_anchors = 6
+nb_execution_mode = "cache"
 nb_execution_raise_on_error = True

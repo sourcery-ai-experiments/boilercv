@@ -7,8 +7,6 @@ dvc_plots
 tests/plots
 # Don't commit pytest-harvest temporary storage
 .xdist_harvested/
-# Ignore docs data for building
-docs/**/data
 
 # * -------------------------------------------------------------------------------- * #
 # * Template gitignore

@@ -1,4 +1,4 @@
-"""Utilities for root and DVC-tracked documentation."""
+"""Documentation utilities."""
 
 from collections.abc import Callable
 from contextlib import contextmanager, nullcontext
@@ -7,18 +7,15 @@ from pathlib import Path
 from typing import Any
 from warnings import catch_warnings, filterwarnings
 
-import nbformat as nbf
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from IPython.display import display
 from IPython.utils.capture import capture_output
 from matplotlib import pyplot as plt
+from nbformat import NotebookNode
 
 from boilercv.types import DfOrS
-
-# * -------------------------------------------------------------------------------- * #
-# * COMMON TO ROOT AND DVC-TRACKED DOCUMENTATION
 
 FONT_SCALE = 1.3
 """Plot font scale."""
@@ -33,17 +30,20 @@ DISPLAY_ROWS = 20
 
 
 def init(font_scale: float = FONT_SCALE):
-    """Initialize notebook formats."""
-
-    from boilercv.models.params import PARAMS  # noqa: PLC0415
-
+    """Initialize a documentation notebook."""
+    path = Path().cwd()
+    root = Path(path.root).resolve()
+    while not (path / "data").exists():
+        path = path.parent
+    if path == root:
+        raise RuntimeError("Data missing.")
+    chdir(path)
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
     pd.options.display.float_format = f"{{:{FLOAT_SPEC}}}".format
     pd.options.display.min_rows = pd.options.display.max_rows = DISPLAY_ROWS
     np.set_printoptions(precision=PRECISION)
-
     sns.set_theme(
         context="notebook",
         style="whitegrid",
@@ -51,7 +51,7 @@ def init(font_scale: float = FONT_SCALE):
         font="sans-serif",
         font_scale=font_scale,
     )
-    plt.style.use(style=PARAMS.paths.mpl_base)
+    plt.style.use("data/plotting/base.mplstyle")
 
 
 @contextmanager
@@ -69,6 +69,42 @@ def keep_viewer_in_scope():
 
     with image_viewer([]) as viewer:
         return viewer
+
+
+PATCH = "from boilercv.docs.nbs import init\n\ninit()"
+
+
+def foo(notebook: NotebookNode) -> NotebookNode:
+    """..."""
+    first_code_cell = next(cell for cell in notebook.cells if cell.cell_type == "code")
+    content = first_code_cell.get("source", "")
+    if content and not content.startswith(PATCH):
+        first_code_cell["source"] = "\n\n".join((PATCH, content))
+    return notebook
+
+
+def insert_tags(notebook: NotebookNode, tags_to_insert: list[str]) -> NotebookNode:
+    """Insert tags to all code cells in a notebook.
+
+    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
+    """
+    for cell in [cell for cell in notebook.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
+        tags = cell.get("metadata", {}).get("tags", [])
+        cell["metadata"]["tags"] = tags_to_insert + list(
+            set(tags) - set(tags_to_insert)
+        )
+    return notebook
+
+
+def remove_tags(notebook: NotebookNode, tags_to_remove: list[str]) -> NotebookNode:
+    """Remove tags to all code cells in a notebook.
+
+    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
+    """
+    for cell in [cell for cell in notebook.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
+        tags = cell.get("metadata", {}).get("tags", [])
+        cell["metadata"]["tags"] = list(set(tags) - set(tags_to_remove))
+    return notebook
 
 
 # * -------------------------------------------------------------------------------- * #
@@ -150,51 +186,3 @@ def truncate(df: DfOrS, head: bool = False) -> tuple[pd.DataFrame, bool]:
         df.tail(pd.options.display.min_rows // 2),
     ])
     return df, True
-
-
-# * -------------------------------------------------------------------------------- * #
-# * ROOT DOCUMENTATION
-
-
-def main():
-    """Insert `hide-input` tag to all notebooks in `docs/examples`."""
-    for notebook in Path("docs").rglob("*.ipynb"):
-        insert_tags(notebook, ["hide-input"])
-
-
-def patch():
-    """Set the appropriate working directory if in documentation."""
-    path = Path().cwd()
-    while not (path / "conf.py").exists():
-        path = path.parent
-    chdir(path.parent)
-
-
-def remove_tags(notebook: Path, tags_to_remove: list[str]):
-    """Remove tags to all code cells in a notebook.
-
-    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
-    """
-    contents = nbf.read(notebook, nbf.NO_CONVERT)
-    for cell in [cell for cell in contents.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
-        tags = cell.get("metadata", {}).get("tags", [])
-        cell["metadata"]["tags"] = list(set(tags) - set(tags_to_remove))
-    nbf.write(contents, notebook)
-
-
-def insert_tags(notebook: Path, tags_to_insert: list[str]):
-    """Insert tags to all code cells in a notebook.
-
-    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
-    """
-    contents = nbf.read(notebook, nbf.NO_CONVERT)
-    for cell in [cell for cell in contents.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
-        tags = cell.get("metadata", {}).get("tags", [])
-        cell["metadata"]["tags"] = tags_to_insert + list(
-            set(tags) - set(tags_to_insert)
-        )
-    nbf.write(contents, notebook)
-
-
-if __name__ == "__main__":
-    main()
