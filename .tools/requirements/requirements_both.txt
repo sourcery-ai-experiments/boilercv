@@ -4,6 +4,16 @@
 cachier@git+https://github.com/blakeNaccarato/cachier@0892f53dc8fd9fb8a7f959305a1a9ec692876dc0
 # Type checking
 pyright==1.1.348
+# ? Used to execute Jupyter notebooks in docs and doctests
+colorcet==3.0.1
+geopandas==0.14.2
+pyjanitor==0.26.0
+shapely==2.0.2
+trackpy==0.6.1
+# Additional testing plugins
+pytest-harvest==1.10.4
+pytest-plt==1.1.0
+pytest-xdist[psutil,setproctitle]==3.5.0
 # * ---------------------------------------------------------------------------------- *
 # Pre-commit common requirements
 fawltydeps==0.15.0
@@ -13,11 +23,6 @@ pytest==8.0.0
 # Testing plugins
 pytest-cov==4.1.0
 pytest-custom-exit-code==0.3.0
-# * ---------------------------------------------------------------------------------- *
-pytest-harvest==1.10.4
-pytest-plt==1.1.0
-pytest-xdist[psutil,setproctitle]==3.5.0
-# * ---------------------------------------------------------------------------------- *
 # Format notebooks
 nb-clean==3.2.0
 
