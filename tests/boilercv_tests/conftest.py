@@ -5,7 +5,7 @@ from collections import defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass
 from logging import warning
-from os import getpid
+from os import environ, getpid
 from pathlib import Path
 from re import fullmatch
 from shutil import rmtree
@@ -16,7 +16,7 @@ import pytest
 import pytest_harvest
 from _pytest.python import Function
 from boilercore import WarningFilter, filter_certain_warnings
-from boilercore.notebooks.namespaces import get_cached_nb_ns, get_ns_attrs
+from boilercore.notebooks.namespaces import get_cached_nb_ns, get_nb_ns, get_ns_attrs
 from boilercore.testing import get_session_path
 from matplotlib.axis import Axis
 from matplotlib.figure import Figure
@@ -95,10 +95,13 @@ def _get_ns_attrs(request):
 def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
     """Notebook namespace."""
     case: Case = request.param
-    with case.clean_nb() as nb:
-        yield get_cached_nb_ns(
-            nb=nb, params=case.params, attributes=case.results.keys()
-        )
+    if environ.get("CI"):
+        get_nb_ns(nb=case.nb, params=case.params, attributes=case.results.keys())
+    else:
+        with case.clean_nb() as nb:
+            yield get_cached_nb_ns(
+                nb=nb, params=case.params, attributes=case.results.keys()
+            )
     update_fixture_stores(
         fixture_stores,
         request.fixturename,
