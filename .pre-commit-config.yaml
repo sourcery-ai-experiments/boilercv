@@ -3,6 +3,7 @@ ci:
     # * ---------------------------------------------------------------------------- * #
     - "local-pyrightconfig"
     - "synchronize-params"
+    - "hide-docs-nb-inputs"
     - "dvc-post-checkout"
     - "dvc-pre-push"
     # * ---------------------------------------------------------------------------- * #
@@ -39,18 +40,25 @@ repos:
             src/boilercv/models/.*
             |params.yaml
           )$
+      - id: "hide-docs-nb-inputs"
+        name: "hide-docs-nb-inputs"
+        language: "system"
+        pass_filenames: false
+        entry: "pwsh -Command python -m boilercv.docs"
+        files: |
+          (?x)^(
+            docs/.*
+          )$
       # * -------------------------------------------------------------------------- * #
       - id: "core-update"
         name: "core-update"
         stages: ["post-commit"]
         always_run: true
-        verbose: true
         pass_filenames: false
         language: "system"
         entry: "pwsh -Command python .tools/scripts/core_update.py"
       - id: "pytest-fast-only"
         name: "pytest-fast-only"
-        verbose: true
         pass_filenames: false
         language: "system"
         entry: |
@@ -67,13 +75,6 @@ repos:
     hooks:
       - id: "end-of-file-fixer"
       - id: "trailing-whitespace"
-  - repo: "https://github.com/iterative/dvc"
-    rev: "3.39.0"
-    hooks:
-      - id: "dvc-post-checkout"
-        additional_dependencies: [".[gs]"]
-      - id: "dvc-pre-push"
-        additional_dependencies: [".[gs]"]
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.5.0"
     hooks:

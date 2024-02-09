@@ -2,7 +2,7 @@
 
 from concurrent.futures import ProcessPoolExecutor
 
-from boilercv.stages.experiments.e230920_subcool import EXP_TIMES, export_objects
+from boilercv.experiments.e230920_subcool import EXP_TIMES, export_objects
 
 
 def main():
