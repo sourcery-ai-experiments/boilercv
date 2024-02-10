@@ -17,6 +17,7 @@ from matplotlib.colors import Colormap, Normalize
 from matplotlib.pyplot import subplots
 from sparklines import sparklines
 
+from boilercv.experiments import get_exp
 from boilercv.images import scale_bool
 from boilercv.images.cv import Op, Transform, transform
 from boilercv.models.params import PARAMS
@@ -26,6 +27,8 @@ EXP = get_module_name(__spec__ or __file__)
 """Name of this experiment."""
 DAY = "2023-09-20"
 """Day of the experiment"""
+EXP_NBS = get_exp(EXP)
+"""Path to experiment notebooks."""
 EXP_DATA = PARAMS.paths.experiments / EXP
 """Experimental data."""
 ALL_THERMAL_DATA = EXP_DATA / f"{DAY}_all_thermal_data.csv"
@@ -47,7 +50,7 @@ def get_times(strings: Iterable[str]) -> Iterable[datetime]:
             yield dt_fromisolike(match)
 
 
-EXP_TIMES = list(get_times(path.stem for path in (EXP_DATA).iterdir()))
+EXP_TIMES = list(get_times(path.stem for path in TRACKPY_OBJECTS.iterdir()))
 
 
 def export_centers(params: Params):
@@ -87,7 +90,7 @@ def export_contours(params: Params):
 
 def read_exp_nb(nb: str) -> str:
     """Read one of the notebooks in this experiment module."""
-    return PARAMS.paths.stages[f"experiments_{EXP}_{nb}"].read_text(encoding="utf-8")
+    return (EXP_NBS / nb).with_suffix(".ipynb").read_text(encoding="utf-8")
 
 
 class GroupByCommon(TypedDict):

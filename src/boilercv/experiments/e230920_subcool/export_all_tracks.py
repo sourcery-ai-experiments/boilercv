@@ -8,14 +8,7 @@ from boilercv.experiments.e230920_subcool import EXP_TIMES, export_tracks
 def main():
     with ProcessPoolExecutor() as executor:
         for dt in EXP_TIMES:
-            executor.submit(
-                export_tracks,
-                params={
-                    "GET_TRACKPY_TRACKS": False,
-                    "TIME": dt.isoformat(),
-                    "FRAMES": None,
-                },
-            )
+            executor.submit(export_tracks, params={"TIME": dt.isoformat()})
 
 
 if __name__ == "__main__":

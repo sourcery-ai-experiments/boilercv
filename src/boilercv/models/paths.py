@@ -50,9 +50,7 @@ class Paths(CreatePathsModel):
     correlations: FilePath = package / "correlations.py"
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"
-    stages: dict[str, FilePath] = map_stages(
-        package / "stages", suffixes=[".py", ".ipynb"]
-    )
+    stages: dict[str, FilePath] = map_stages(package / "stages")
     # ! Plotting config
     plot_config: DirectoryPath = data / "plotting"
     mpl_base: FilePath = plot_config / "base.mplstyle"
