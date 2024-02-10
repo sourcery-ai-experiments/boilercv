@@ -15,7 +15,7 @@ from warnings import catch_warnings, filterwarnings
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from IPython.display import HTML, display
+from IPython.display import HTML, display  # type: ignore
 from IPython.utils.capture import capture_output
 from matplotlib import pyplot as plt
 from myst_parser.parsers.docutils_ import cli_html
