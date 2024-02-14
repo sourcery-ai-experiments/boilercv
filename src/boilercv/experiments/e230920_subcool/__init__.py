@@ -1,10 +1,13 @@
 """Subcooled bubble collapse experiment."""
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
+from concurrent.futures import Future, ProcessPoolExecutor
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TypedDict
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Any, TypeAlias, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -53,44 +56,53 @@ def get_times(strings: Iterable[str]) -> Iterable[datetime]:
 EXP_TIMES = list(get_times(path.stem for path in TRACKPY_OBJECTS.iterdir()))
 
 
-def export_centers(params: Params):
-    """Export centers."""
-    ns = get_nb_ns(nb=read_exp_nb("find_centers"), params=params)
-    CENTERS.mkdir(exist_ok=True)
-    path = (CENTERS / f"centers_{ns.PATH_TIME}").with_suffix(".h5")
-    ns.centers.to_hdf(path, key="centers", complib="zlib", complevel=9)
+NbProcess: TypeAlias = Callable[[Path, SimpleNamespace], None]
+"""Notebook process."""
 
 
-def export_objects(params: Params):
-    """Export object centers and sizes."""
-    ns = get_nb_ns(nb=read_exp_nb("find_objects"), params=params)
-    OBJECTS.mkdir(exist_ok=True)
-    path = (OBJECTS / f"objects_{ns.PATH_TIME}").with_suffix(".h5")
-    ns.objects.to_hdf(path, key="objects", complib="zlib", complevel=9)
-
-
-def export_tracks(params: Params):
-    """Export object centers and sizes."""
-    ns = get_nb_ns(nb=read_exp_nb("find_tracks"), params=params)
-    TRACKS.mkdir(exist_ok=True)
-    path = (TRACKS / f"tracks_{ns.PATH_TIME}").with_suffix(".h5")
-    ns.nondimensionalized_departing_long_lived_objects.to_hdf(
-        path, key="tracks", complib="zlib", complevel=9
+def save_df(path: Path, ns: SimpleNamespace):
+    """Save a DataFrame to HDF5 format, handling invalid types."""
+    name = path.stem
+    getattr(ns, name).to_hdf(
+        (path / f"{name}_{get_path_time(ns.time)}.h5"),
+        key=path.stem,
+        complib="zlib",
+        complevel=9,
     )
 
 
-def export_contours(params: Params):
-    """Export contours."""
-    dest = EXP_DATA / "contours"
-    ns = get_nb_ns(nb=read_exp_nb("find_contours"), params=params)
-    dest.mkdir(exist_ok=True)
-    path = (dest / f"contours_{ns.PATH_TIME}").with_suffix(".h5")
-    ns.contours.to_hdf(path, key="contours", complib="zlib", complevel=9)
+def submit_nb_process(
+    executor: ProcessPoolExecutor,
+    nb: str,
+    name: str,
+    params: Params,
+    process: NbProcess = save_df,
+):
+    """Submit a notebook process to an executor."""
+    return executor.submit(
+        apply_to_nb, nb=nb, name=name, params=params, process=process
+    ).add_done_callback(check_result)
 
 
-def read_exp_nb(nb: str) -> str:
-    """Read one of the notebooks in this experiment module."""
+def check_result(future: Future[Any]):
+    """Resolve a future, reporting an exception if there is one."""
+    future.result()
+
+
+def apply_to_nb(nb: str, name: str, params: Params, process: NbProcess = save_df):
+    """Apply a process to a notebook."""
+    (path := EXP_DATA / name).mkdir(exist_ok=True)
+    process(path=path, ns=get_nb_ns(nb=read_nb(nb), params=params))  # pyright: ignore[reportCallIssue] # pyright 1.1.348
+
+
+def read_nb(nb: str) -> str:
+    """Read a notebook for this experiment."""
     return (EXP_NBS / nb).with_suffix(".ipynb").read_text(encoding="utf-8")
+
+
+def get_path_time(time: str) -> str:
+    """Get a path-friendly time string."""
+    return time.replace(":", "-")
 
 
 class GroupByCommon(TypedDict):

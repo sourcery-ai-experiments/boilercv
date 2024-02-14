@@ -2,18 +2,20 @@
 
 from concurrent.futures import ProcessPoolExecutor
 
-from boilercv.experiments.e230920_subcool import EXP_TIMES, export_centers
+from boilercv.experiments.e230920_subcool import EXP_TIMES, submit_nb_process
 
 
 def main():
     with ProcessPoolExecutor() as executor:
         for dt in EXP_TIMES:
-            executor.submit(
-                export_centers,
+            submit_nb_process(
+                executor=executor,
+                nb="find_centers",
+                name="centers",
                 params={
+                    "FRAMES": None,
                     "GET_TRACKPY_CENTERS": False,
                     "TIME": dt.isoformat(),
-                    "FRAMES": None,
                 },
             )
 

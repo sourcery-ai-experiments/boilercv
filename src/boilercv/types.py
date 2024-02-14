@@ -63,9 +63,3 @@ Vid: TypeAlias = Img
 
 VidBool: TypeAlias = ImgBool
 """A boolean array representing a video mask."""
-
-Float: TypeAlias = ArrFloat | float
-"""A scalar number or number array."""
-
-Int: TypeAlias = ArrInt | int
-"""A scalar number or integer number array."""
