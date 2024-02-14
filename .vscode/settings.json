@@ -61,6 +61,11 @@
   "git.inputValidationLength": 1e100,
   "editor.wordWrapColumn": 88,
   "editor.rulers": [88],
+  "scm.inputMaxLineCount": 50,
+  "scm.inputMinLineCount": 3,
+  "[scminput]": {
+    "editor.rulers": [88]
+  },
   //! pytest
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
@@ -131,15 +136,6 @@
   "yaml.format.printWidth": 88,
   //* ruff (PY, IPYNB)
   "ruff.importStrategy": "fromEnvironment",
-  //? https://github.com/astral-sh/ruff-vscode/issues/232#issuecomment-1866961267
-  "ruff.lint.args": [
-    "--extend-exclude=/usr/**/*.py",
-    "--extend-exclude=/opt/**/*.py",
-    "--extend-exclude=c:/msys/**/*.py",
-    "--extend-exclude=c:/program*/**/*.py",
-    "--extend-exclude=c:Users/*/AppData/Local/Programs/Python/Python*/Lib/**/*.py"
-  ],
-  "ruff.format.args": [],
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.wordWrap": "off"

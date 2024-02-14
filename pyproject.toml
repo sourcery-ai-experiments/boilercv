@@ -108,6 +108,7 @@ enableExperimentalFeatures = false
 reportMissingModuleSource = "warning"
 # Default "error" in strict
 reportMissingImports = "warning"
+reportInvalidTypeForm = "warning"
 reportUndefinedVariable = "warning"
 reportAssertAlwaysTrue = "warning"
 reportInvalidStringEscapeSequence = "warning"
@@ -117,21 +118,36 @@ reportSelfClsParameterName = "warning"
 reportUnsupportedDunderAll = "warning"
 reportUnusedExpression = "none"                # Handled by Ruff
 reportWildcardImportFromLibrary = "warning"
+reportAbstractUsage = "warning"
+reportArgumentType = "warning"
+reportAssertTypeFailure = "warning"
+reportAssignmentType = "warning"
+reportAttributeAccessIssue = "warning"
+reportCallIssue = "warning"
 reportGeneralTypeIssues = "warning"
+reportInconsistentOverload = "warning"
+reportIndexIssue = "warning"
+reportInvalidTypeArguments = "warning"
+reportNoOverloadImplementation = "warning"
+reportOperatorIssue = "warning"
 reportOptionalSubscript = "warning"
 reportOptionalMemberAccess = "warning"
 reportOptionalCall = "warning"
 reportOptionalIterable = "warning"
 reportOptionalContextManager = "warning"
 reportOptionalOperand = "warning"
+reportRedeclaration = "warning"
+reportReturnType = "warning"
 reportTypedDictNotRequiredAccess = "warning"
 reportPrivateImportUsage = "none"              # Flaky regarding "not exported"
 reportUnboundVariable = "warning"
 reportUnusedCoroutine = "none"                 # Handled by Ruff
+reportUnusedExcept = "warning"
 reportFunctionMemberAccess = "warning"
 reportIncompatibleMethodOverride = "warning"
 reportIncompatibleVariableOverride = "warning"
 reportOverlappingOverload = "warning"
+reportPossiblyUnboundVariable = "warning"
 reportConstantRedefinition = "none"
 reportDeprecated = "warning"
 reportDuplicateImport = "warning"
@@ -176,17 +192,15 @@ reportUnusedCallResult = "none"
 cache-dir = ".cache/.ruff_cache"
 extend-exclude = ["submodules"]
 extend-include = ["*.ipynb"]
-fix = true
-force-exclude = true
-show-fixes = true
-output-format = "grouped"
-preview = true
 src = ["src"]
-unsafe-fixes = false
-
-[tool.ruff.lint]
+output-format = "grouped"
+fix = true
+preview = true
+show-fixes = true
 fixable = ["ALL"]
 select = ["ALL"]
+
+[tool.ruff.lint]
 extend-ignore = [
     "ANN",     # Don't require type annotations
     "ARG005",  # Allow unused lambda argument. For consistency across df pipelines.
@@ -238,10 +252,10 @@ extend-ignore = [
     "W2",      # Allow whitespace issues. Fixed automatically by black.
 ]
 
-[tool.ruff.format]
-skip-magic-trailing-comma = true
 [tool.ruff.lint.isort]
 split-on-trailing-comma = false
+[tool.ruff.format]
+skip-magic-trailing-comma = true
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
