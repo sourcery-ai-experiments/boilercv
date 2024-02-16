@@ -33,7 +33,7 @@ html_theme_options = {
     "path_to_docs": "docs",
     "repository_branch": "main",
     "repository_url": "https://github.com/blakeNaccarato/boilercv",
-    "show_navbar_depth": 3,
+    "show_navbar_depth": 2,
     "show_toc_level": 4,
     "use_download_button": True,
     "use_fullscreen_button": True,
@@ -63,16 +63,17 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
 nitpick_ignore = [
-    # ? OpenCV
-    ("py:class", "cv2.LineSegmentDetector")
+    ("py:class", "cv2.LineSegmentDetector"),
+    ("py:class", "boilercv.correlations.T"),
+    ("py:class", "boilercv.data.sets.Stage"),
+    ("py:class", "boilercv.experiments.e230920_subcool.NbProcess"),
 ]
 nitpick_ignore_regex = [
+    # ? Type aliases
+    ("py:.*", r"boilercv\.types\..*"),
+    ("py:.*", r"boilercv\.captivate\.previews\..*"),
     # ? Ignore until I'm using autodoc there, too
     ("py:.*", r"boilercore\..*"),
-    # ? Ignore until I'm using autodoc there, too
-    ("py:.*", r"cv2\..*"),
-    # # ? Something to do with my imports, might be fixable
-    ("py:.*", r"boilercv\..*"),
     # ? Typing portion not found
     ("py:.*", r"numpy\.typing\..*"),
     # ? Until we're done with Pydantic v1
