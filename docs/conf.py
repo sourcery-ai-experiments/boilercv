@@ -21,6 +21,7 @@ extensions = [
     "sphinx_togglebutton",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.mermaid",
 ]
