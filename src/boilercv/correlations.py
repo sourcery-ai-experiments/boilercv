@@ -51,24 +51,17 @@ def fourier(liquid_thermal_diffusivity: T, initial_bubble_diameter: T, time: T) 
 
 
 def dimensionless_bubble_diameter_florschuetz(jakob: T, fourier: T) -> T:
-    """Bubble history correlation for condensation of a stagnant bubble.
-
-    References:
-        tangReviewDirectContact2022 <https://doi.org/10.1007/s42757-020-0100-4>
-        florschuetzMechanicsVaporBubble1965 <https://doi.org/10.1115/1.3689075>
-    """
+    """Bubble history correlation for condensation of a stagnant bubble. {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`"""
     return 1 - 4 * jakob * np.sqrt(fourier / np.pi)
 
 
 def dimensionless_bubble_diameter_tang(
     bubble_initial_reynolds: T, liquid_prandtl: T, bubble_jakob: T, bubble_fourier: T
 ) -> T:
-    """Bubble history correlation for condensation of a stagnant bubble.
-
-    References:
-        tangReviewDirectContact2022 <https://doi.org/10.1007/s42757-020-0100-4>
-        <https://doi.org/10.1115/1.3689075>
-    """
+    """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`"""
+    # assert 1_000 < bubble_initial_reynolds < 30_000
+    # assert 45 < bubble_jakob < 80
+    # assert 2.1 < liquid_prandtl < 4.3
     return (
         1
         - 12.29
@@ -82,37 +75,32 @@ def dimensionless_bubble_diameter_tang(
 def dimensionless_bubble_diameter_yuan(
     bubble_initial_reynolds: T, liquid_prandtl: T, bubble_jakob: T, bubble_fourier: T
 ) -> T:
-    """Bubble history correlation for condensation of a stagnant bubble.
-
-    References:
-        tangReviewDirectContact2022 <https://doi.org/10.1007/s42757-020-0100-4>
-        <https://doi.org/10.1115/1.3689075>
-    """
+    """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`"""
+    # assert 335 < bubble_initial_reynolds < 1770
+    # assert 0 < bubble_jakob < 60
+    # assert 1.71 < liquid_prandtl < 1.75
     return (
         1
         - 1.8
-        * bubble_initial_reynolds ** (1 / 2)
+        * bubble_initial_reynolds**0.5
         * liquid_prandtl ** (1 / 3)
         * bubble_jakob
         * bubble_fourier
-        * (1 - 0.5 * bubble_jakob ** (1 / 10) * bubble_fourier)
+        * (1 - 0.5 * bubble_jakob**0.1 * bubble_fourier)
     ) ** (2 / 3)
 
 
 def dimensionless_bubble_diameter_inaba(
     bubble_initial_reynolds: T, liquid_prandtl: T, bubble_jakob: T, bubble_fourier: T
 ) -> T:
-    """Bubble history correlation for condensation of a stagnant bubble.
-
-    References:
-        tangReviewDirectContact2022 <https://doi.org/10.1007/s42757-020-0100-4>
-        <https://doi.org/10.1115/1.3689075>
-    """
+    """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`."""
+    # assert 7_000 < bubble_initial_reynolds < 70_000
+    # assert 0.24 < bubble_jakob < 27
     return (
         1
         - 1.1
         * bubble_initial_reynolds**0.86
         * liquid_prandtl ** (2 / 3)
-        * bubble_jakob ** (1 / 5)
+        * bubble_jakob**0.2
         * bubble_fourier
     )

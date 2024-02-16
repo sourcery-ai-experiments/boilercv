@@ -64,7 +64,7 @@ def save_df(path: Path, ns: SimpleNamespace):
     """Save a DataFrame to HDF5 format, handling invalid types."""
     name = path.stem
     getattr(ns, name).to_hdf(
-        (path / f"{name}_{get_path_time(ns.time)}.h5"),
+        (path / f"{name}_{get_path_time(ns.TIME)}.h5"),
         key=path.stem,
         complib="zlib",
         complevel=9,
@@ -92,7 +92,7 @@ def check_result(future: Future[Any]):
 def apply_to_nb(nb: str, name: str, params: Params, process: NbProcess = save_df):
     """Apply a process to a notebook."""
     (path := EXP_DATA / name).mkdir(exist_ok=True)
-    process(path=path, ns=get_nb_ns(nb=read_nb(nb), params=params))  # pyright: ignore[reportCallIssue] # pyright 1.1.348
+    process(path, get_nb_ns(nb=read_nb(nb), params=params))
 
 
 def read_nb(nb: str) -> str:
@@ -220,7 +220,7 @@ M_TO_MM = Conversion(old_unit="m", new_unit="mm", scale=1000)
 
 
 def get_cat_colorbar(
-    ax: Axes, col: str, palette: Colormap, data: pd.DataFrame
+    ax: Axes, col: str, palette: Any, data: pd.DataFrame, alpha: float = 1.0
 ) -> tuple[list[tuple[float, float, float]], pd.DataFrame]:
     if isinstance(data[col].dtype, pd.CategoricalDtype):
         data[col] = data[col].cat.remove_unused_categories()
@@ -230,13 +230,13 @@ def get_cat_colorbar(
     palette = get_first_from_palette(palette, num_colors)
     mappable = ScalarMappable(cmap=palette, norm=Normalize(0, num_colors))
     mappable.set_array([])
-    colorbar = ax.figure.colorbar(  # type: ignore  # pyright 1.1.333
-        ax=ax, mappable=mappable, label=col
-    )
+    colorbar = ax.figure.colorbar(ax=ax, mappable=mappable, label=col, alpha=alpha)  # pyright: ignore[reportOptionalMemberAccess]  # pyright: 1.1.348  # matplotlib: 3.8.2
     colorbar.set_ticks([])
-    return palette.colors, data  # type: ignore  # pyright 1.1.333
+    return palette.colors, data
 
 
-def get_first_from_palette(palette: Colormap, n: int) -> Colormap:
+def get_first_from_palette(palette: Any, n: int) -> Colormap:
     """Get the first `n` colors from a palette."""
-    return get_sub_cmap(palette, start=0, stop=n / palette.N, N=n)  # type: ignore  # pyright 1.1.333
+    return get_sub_cmap(
+        palette, start=0, stop=n / (getattr(palette, "N", None) or len(palette)), N=n
+    )

@@ -88,7 +88,7 @@
   },
   "notebook.codeActionsOnSave": {
     "notebook.source.fixAll": "explicit",
-    "source.organizeImports": "explicit"
+    "notebook.source.organizeImports": "explicit"
   },
   //! Extensions
   //* GitHub Actions
@@ -96,6 +96,8 @@
   //* Jupyter Notebooks
   "jupyter.notebookFileRoot": "${workspaceFolder}",
   "jupyter.showVariableViewWhenDebugging": true,
+  //* MyST
+  "myst.preview.extensions": ["colon_fence", "dollarmath"],
   //* Pylance
   "python.languageServer": "Pylance",
   "python.analysis.typeCheckingMode": "strict",

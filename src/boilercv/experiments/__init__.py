@@ -3,6 +3,7 @@
 from pathlib import Path
 
 EXPERIMENTS = Path("docs/experiments")
+"""Path to experiment documents."""
 
 
 def get_exp(exp: str) -> Path:

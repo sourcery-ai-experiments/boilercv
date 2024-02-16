@@ -1,4 +1,5 @@
 # Latest working requirements of your package, should be ahead of pyproject.toml
+colorcet==3.0.1
 cmasher==1.7.2
 # ? Already specified in `requirements_core.txt`
 # dulwich

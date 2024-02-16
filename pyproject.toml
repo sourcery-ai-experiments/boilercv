@@ -12,6 +12,7 @@ requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
     "boilercore>=0.0.1",
+    "colorcet>=3.0.1",
     "cmasher>=1.7.2",
     "dvc>=3.10.1",
     "imageio[pyav]>=2.31.1",
@@ -197,10 +198,10 @@ output-format = "grouped"
 fix = true
 preview = true
 show-fixes = true
-fixable = ["ALL"]
-select = ["ALL"]
 
 [tool.ruff.lint]
+fixable = ["ALL"]
+select = ["ALL"]
 extend-ignore = [
     "ANN",     # Don't require type annotations
     "ARG005",  # Allow unused lambda argument. For consistency across df pipelines.
@@ -211,6 +212,7 @@ extend-ignore = [
     "D20",     # Don't reformat docstrings in these ways
     "D213",    # Multi-line docstring summary should start at the second line
     "D402",    # False positives for parens in first line
+    "D415",    # Don't check docstring punctuation, can be flaky for autodoc
     "D412",    # Allow blanks below headers in Google-style docstrings
     "DTZ",     # Timezones are important, but only contextually necessary.
     "E501",    # Don't check line length. Black handles this.

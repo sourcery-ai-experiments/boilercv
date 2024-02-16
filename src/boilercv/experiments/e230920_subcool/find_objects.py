@@ -1,4 +1,4 @@
-"""Export all contours for this experiment."""
+"""Export all centers for this experiment."""
 
 from concurrent.futures import ProcessPoolExecutor
 
@@ -10,11 +10,11 @@ def main():
         for dt in EXP_TIMES:
             submit_nb_process(
                 executor=executor,
-                nb="find_contours",
-                name="contours",
+                nb="find_objects",
+                name="objects",
                 params={
                     "FRAMES": None,
-                    "GET_TRACKPY_CENTERS": False,
+                    "COMPARE_WITH_TRACKPY": False,
                     "TIME": dt.isoformat(),
                 },
             )

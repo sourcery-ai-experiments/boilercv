@@ -19,7 +19,7 @@ def main():
         for dt in EXP_TIMES:
             submit_nb_process(
                 executor=executor,
-                nb="find_tracks",
+                nb="plot_tracks",
                 name="tracks",
                 params={"TIME": dt.isoformat()},
                 process=export_track_plot,
@@ -28,7 +28,7 @@ def main():
 
 def export_track_plot(_path: Path, ns: SimpleNamespace):
     """Export object centers and sizes."""
-    ns.figure.savefig(PLOTS / f"{get_path_time(ns.time)}.png")
+    ns.figure.savefig(PLOTS / f"{get_path_time(ns.TIME)}.png")
 
 
 if __name__ == "__main__":

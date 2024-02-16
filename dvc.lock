@@ -329,8 +329,8 @@ stages:
       nfiles: 1
     - path: src/boilercv/correlations.py
       hash: md5
-      md5: 425fdb56946ddc30b7cb692cecb31b17
-      size: 2949
+      md5: 9de0089bada95e80e579222469ec664c
+      size: 3586
     - path: src/boilercv/stages/compare_theory.py
       hash: md5
       md5: d0f384e7aff32751d19f9b7a4999982c

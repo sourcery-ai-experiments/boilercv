@@ -4,8 +4,6 @@
 cachier@git+https://github.com/blakeNaccarato/cachier@0892f53dc8fd9fb8a7f959305a1a9ec692876dc0
 # Type checking
 pyright==1.1.348
-# ? Used to execute Jupyter notebooks in docs and doctests
-colorcet==3.0.1
 geopandas==0.14.2
 pyjanitor==0.26.0
 shapely==2.0.2
