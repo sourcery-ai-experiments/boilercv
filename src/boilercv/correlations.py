@@ -75,7 +75,7 @@ def dimensionless_bubble_diameter_tang(
 def dimensionless_bubble_diameter_yuan(
     bubble_initial_reynolds: T, liquid_prandtl: T, bubble_jakob: T, bubble_fourier: T
 ) -> T:
-    """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`"""
+    """Bubble history correlation for condensation of a stagnant bubble. {cite}`yuandewenCondensationHeatTransfer2009,tangReviewDirectContact2022`"""
     # assert 335 < bubble_initial_reynolds < 1770
     # assert 0 < bubble_jakob < 60
     # assert 1.71 < liquid_prandtl < 1.75

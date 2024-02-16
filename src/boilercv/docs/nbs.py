@@ -15,12 +15,14 @@ from warnings import catch_warnings, filterwarnings
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from boilercore import WarningFilter, filter_certain_warnings
 from IPython.display import HTML, display  # type: ignore
 from IPython.utils.capture import capture_output
 from matplotlib import pyplot as plt
 from myst_parser.parsers.docutils_ import cli_html
 from nbformat import NotebookNode
 
+import boilercv
 from boilercv.types import DfOrS
 
 FONT_SCALE = 1.3
@@ -37,6 +39,31 @@ DISPLAY_ROWS = 20
 
 def init(font_scale: float = FONT_SCALE):
     """Initialize a documentation notebook."""
+    filter_certain_warnings(
+        package=boilercv,
+        other_warnings=[
+            WarningFilter(
+                message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
+                category=FutureWarning,
+            ),
+            WarningFilter(
+                message=r"invalid value encountered in power", category=RuntimeWarning
+            ),
+            WarningFilter(
+                message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+                category=RuntimeWarning,
+            ),
+            WarningFilter(
+                message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
+                category=UserWarning,
+            ),
+            WarningFilter(
+                message=r"The palette list has more values \(\d+\) than needed \(\d+\), which may not be intended\.",
+                category=UserWarning,
+            ),
+        ],
+    )
+
     path = Path().cwd()
     root = Path(path.root).resolve()
     while not (path / "data").exists():
