@@ -1,7 +1,7 @@
 # Requirements for the dev environment
 # * ---------------------------------------------------------------------------------- *
 # ? For data/scripts/filt.py
-pandocfilters==1.5.0
+pandocfilters==1.5.1
 # ? For using the latest version of this core package during development
 -e ../boilercore
 # * ---------------------------------------------------------------------------------- *
