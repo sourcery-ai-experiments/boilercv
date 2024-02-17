@@ -5,7 +5,7 @@ cmasher==1.7.2
 # dulwich
 # ? Required by `boilercv.pre_repro`
 dvc[gs]==3.39.0
-imageio[pyav]==2.33.1
+imageio[pyav]==2.34.0
 ipykernel==6.29.0
 loguru==0.7.2
 matplotlib==3.8.2
