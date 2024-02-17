@@ -32,7 +32,7 @@ seaborn==0.13.1
 sparklines==0.4.2
 sympy==1.12
 tqdm==4.66.1
-xarray[accel,io,parallel]==2023.12.0
+xarray[accel,io,parallel]==2024.1.1
 # ! Consider switching to pims instead
 boilercine@git+https://github.com/blakeNaccarato/boilercine@main
 # ! boilercore specified differently in dev and CI to allow editable package in dev
