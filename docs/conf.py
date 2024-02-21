@@ -6,7 +6,7 @@ from boilercv.docs import init_docs
 
 init_docs()
 
-# Basics
+# ! Basics
 project = ""
 copyright = f"{date.today().year}, Blake Naccarato, Kwang Jin Kim"  # noqa: A001
 version = "0.0.1"
@@ -25,10 +25,12 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinxcontrib.mermaid",
 ]
-
-# Theme
+# ! Theme
 html_title = "boilercv"
 html_favicon = "_static/favicon.ico"
+html_logo = "_static/favicon.ico"
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 html_theme = "sphinx_book_theme"
 html_theme_options = {
     "path_to_docs": "docs",
@@ -40,20 +42,42 @@ html_theme_options = {
     "use_fullscreen_button": True,
     "use_repository_button": True,
 }
-# Required when using `sphinx_tippy` with `sphinx_book_theme`
-# See: https://sphinx-tippy.readthedocs.io/en/latest/#usage
-html_css_files = ["tippy.css"]
-html_static_path = ["_static"]
-
-# MyST
-myst_enable_extensions = ["colon_fence", "dollarmath"]
+# ! MyST
+myst_enable_extensions = ["colon_fence", "dollarmath", "attrs_block", "linkify"]
 myst_heading_anchors = 6
-
-# Autodoc and intersphinx
+# ! Autodoc, intersphinx, tippy
+# ? Autodoc
 nitpicky = True
 autodoc2_packages = ["../src/boilercv"]
-python_use_unqualified_type_names = True
 autodoc2_render_plugin = "myst"
+python_use_unqualified_type_names = True
+# ? Tippy
+# * Won't do anything until math is fixed
+# * https://github.com/sphinx-extensions2/sphinx-tippy/pull/14
+tippy_enable_mathjax = True
+# * https://sphinx-tippy.readthedocs.io/en/latest/index.html#confval-tippy_anchor_parent_selector
+tippy_anchor_parent_selector = "article.bd-article"
+# * Mermaid tips don't work
+tippy_skip_anchor_classes = ["mermaid"]
+# * https://github.com/sphinx-extensions2/sphinx-tippy/issues/6#issuecomment-1627820276
+tippy_tip_selector = """\
+        aside,
+        div.admonition,
+        div.literal-block-wrapper,
+        figure,
+        img,
+        div.math,
+        p,
+        table
+        """
+# ? All
+
+tippy_rtd_urls = [
+    "https://docs.opencv.org/2.4",
+    "https://nbformat.readthedocs.io/en/stable",
+    "https://numpy.org/doc/stable",
+    "https://pyqtgraph.readthedocs.io/en/latest",
+]
 intersphinx_mapping = {
     "cv2": ("https://docs.opencv.org/2.4", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
@@ -82,14 +106,12 @@ nitpick_ignore_regex = [
     # ? https://bugreports.qt.io/browse/PYSIDE-2215
     ("py:.*", r"PySide6\..*"),
 ]
-
-# Other
+# ! BibTeX
 bibtex_bibfiles = ["refs.bib"]
 bibtex_reference_style = "label"
 bibtex_default_style = "unsrt"
-mermaid_d3_zoom = False
+# ! NB
 nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
-tippy_enable_mathjax = True
-tippy_skip_anchor_classes = ("headerlink", "sd-stretched-link", "sd-rounded-pill")
-tippy_anchor_parent_selector = "article.bd-article"
+# ! Other
+mermaid_d3_zoom = False

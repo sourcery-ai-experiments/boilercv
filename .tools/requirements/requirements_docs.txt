@@ -1,5 +1,6 @@
 # Requirements for documentation
 # * ---------------------------------------------------------------------------------- *
+linkify-it-py==2.0.3
 myst-nb==1.0.0
 nbformat==5.9.2
 sphinx-tippy==0.4.1

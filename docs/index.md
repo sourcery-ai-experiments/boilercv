@@ -8,10 +8,12 @@ Computer vision routines suitable for nucleate pool boiling bubble analysis. See
 
 Overlay of the external contours detected in one frame of a high-speed video. Represents output from the "fill" step of the data process.
 
-:::{image} _static/multicolor.png
-:alt: Bubbles highlighted with different colors
-:width: 360px
-:align: center
+:::{figure} _static/multicolor.png
+:name: fig-detected-contours
+:alt: Grayscale image of vapor bubbles rising from a heated surface. Background is white. A translucent false color overlay fills individual contours with various colors, so as to distinguish them from one another. Contours tend to represent single bubbles or groups of overlapping bubbles.
+:width: 70%
+
+Vapor bubbles with false-color overlay to distinguish detected contours. Contours tend to represent single bubbles or groups of overlapping bubbles.
 :::
 
 ## Overview
