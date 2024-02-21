@@ -1,12 +1,36 @@
 """Docs config."""
 
+import hashlib
 from datetime import date
+from pathlib import Path
+
+from sphinx.application import Sphinx
 
 from boilercv.docs import init_docs
 
-init_docs()
+# ! Setup
+# ! https://github.com/executablebooks/MyST-Parser/blob/978e845543b5bcb7af0ff89cac9f798cb8c16ab3/docs/conf.py
+
+
+def setup(app: Sphinx):
+    """Add functions to the Sphinx setup."""
+    init_docs()
+    app.connect("html-page-context", add_version_to_css)
+
+
+def add_version_to_css(app: Sphinx, _pagename, _templatename, context, _doctree):
+    """Add the version number to the local.css file, to bust the cache for changes."""
+    if app.builder.name != "html":
+        return
+    if "_static/local.css" in context.get("css_files", {}):
+        css = Path(app.srcdir, "_static/local.css").read_text("utf8")
+        hashed = hashlib.sha256(css.encode("utf-8")).hexdigest()
+        index = context["css_files"].index("_static/local.css")
+        context["css_files"][index] = f"_static/local.css?hash={hashed}"
+
 
 # ! Basics
+
 project = ""
 copyright = f"{date.today().year}, Blake Naccarato, Kwang Jin Kim"  # noqa: A001
 version = "0.0.1"
@@ -30,7 +54,7 @@ html_title = "boilercv"
 html_favicon = "_static/favicon.ico"
 html_logo = "_static/favicon.ico"
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
+html_css_files = ["local.css"]
 html_theme = "sphinx_book_theme"
 html_theme_options = {
     "path_to_docs": "docs",
@@ -52,26 +76,23 @@ autodoc2_packages = ["../src/boilercv"]
 autodoc2_render_plugin = "myst"
 python_use_unqualified_type_names = True
 # ? Tippy
-# * Won't do anything until math is fixed
-# * https://github.com/sphinx-extensions2/sphinx-tippy/pull/14
 tippy_enable_mathjax = True
 # * https://sphinx-tippy.readthedocs.io/en/latest/index.html#confval-tippy_anchor_parent_selector
 tippy_anchor_parent_selector = "article.bd-article"
 # * Mermaid tips don't work
 tippy_skip_anchor_classes = ["mermaid"]
 # * https://github.com/sphinx-extensions2/sphinx-tippy/issues/6#issuecomment-1627820276
-tippy_tip_selector = """\
-        aside,
-        div.admonition,
-        div.literal-block-wrapper,
-        figure,
-        img,
-        div.math,
-        p,
-        table
-        """
+tippy_tip_selector = """
+    aside,
+    div.admonition,
+    div.literal-block-wrapper,
+    figure,
+    img,
+    div.math,
+    p,
+    table
+    """
 # ? All
-
 tippy_rtd_urls = [
     "https://docs.opencv.org/2.4",
     "https://nbformat.readthedocs.io/en/stable",
