@@ -167,8 +167,8 @@ def setup(app: Sphinx):
 
 def init_deps():
     """Initialize documentation dependencies."""
-    copy(DEPS / "params.yaml", dst=Path.cwd())
-    copytree(src=DEPS / "data", dst=Path.cwd() / "data", dirs_exist_ok=True)
+    copy(DEPS / "params.yaml", dst=DOCS)
+    copytree(src=DEPS / "data", dst=DOCS / "data", dirs_exist_ok=True)
     Path("params_schema.json").unlink(missing_ok=True)
 
 
