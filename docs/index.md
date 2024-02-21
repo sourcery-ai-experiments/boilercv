@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/503551174.svg)](https://zenodo.org/badge/latestdoi/503551174)
 
-Computer vision routines suitable for nucleate pool boiling bubble analysis. See the [documentation](https://blakenaccarato.github.io/boilercv/) for more detail.
+Computer vision routines suitable for nucleate pool boiling bubble analysis.
 
 ## Example
 

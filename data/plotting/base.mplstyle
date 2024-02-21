@@ -8,13 +8,12 @@ image.cmap: gray
 # ? Make legend opaque
 legend.framealpha: None
 
-#! Commented out for now, propagated from boilerdata but not necessarily best settings
-# # * Saving figures
-# # ? Fix whitespace around axes
-# savefig.bbox: tight
-# savefig.pad_inches: 0.2
-# # ? Both are necessary to enforce a white figure background on save
-# savefig.transparent: False
-# savefig.facecolor: white
-# # ? DPI for saving figures only
-# savefig.dpi: 300
+# * Saving figures
+# ? Fix whitespace around axes
+savefig.bbox: tight
+savefig.pad_inches: 0.2
+# ? Both are necessary to enforce a white figure background on save
+savefig.transparent: False
+savefig.facecolor: white
+# ? DPI for saving figures only
+savefig.dpi: 300
