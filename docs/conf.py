@@ -27,6 +27,51 @@ NBFORMAT = "https://nbformat.readthedocs.io/en/stable"
 NUMPY = "https://numpy.org/doc/stable"
 PYQTGRAPH = "https://pyqtgraph.readthedocs.io/en/latest"
 
+# ! Setup
+
+
+def setup(app: Sphinx):
+    """Add functions to Sphinx setup."""
+    init_deps()
+    init_nb_env()
+    app.connect("html-page-context", add_version_to_css)
+
+
+def init_deps():
+    """Initialize documentation dependencies."""
+    copy(DEPS / "params.yaml", dst=DOCS)
+    copytree(src=DEPS / "data", dst=DOCS / "data", dirs_exist_ok=True)
+    Path("params_schema.json").unlink(missing_ok=True)
+
+
+def init_nb_env():
+    """Initialize the environment which will be inherited for notebook execution."""
+    for key in [
+        key
+        for key in [
+            "PIP_DISABLE_PIP_VERSION_CHECK",
+            "PYTHONIOENCODING",
+            "PYTHONSTARTUP",
+            "PYTHONUTF8",
+            "PYTHONWARNDEFAULTENCODING",
+            "PYTHONWARNINGS",
+        ]
+        if environ.get(key) is not None
+    ]:
+        del environ[key]
+
+
+def add_version_to_css(app: Sphinx, _pagename, _templatename, ctx, _doctree):
+    """Add the version number to the local.css file, to bust the cache for changes.
+
+    See: https://github.com/executablebooks/MyST-Parser/blob/978e845543b5bcb7af0ff89cac9f798cb8c16ab3/docs/conf.py#L241-L249
+    """
+    if app.builder.name != "html":
+        return
+    css = dpath(CSS)
+    if css in ctx.get((k := "css_files"), {}):
+        ctx[k][ctx[k].index(css)] = f"{css}?hash={sha256(CSS.read_bytes()).hexdigest()}"
+
 
 def dpaths(*paths: Path, rel: Path = DOCS) -> list[str]:
     """Get the string-representation of paths relative to docs for Sphinx config.
@@ -154,48 +199,3 @@ nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
 # ! Other
 mermaid_d3_zoom = False
-
-# ! Setup
-
-
-def setup(app: Sphinx):
-    """Add functions to Sphinx setup."""
-    init_deps()
-    init_nb_env()
-    app.connect("html-page-context", add_version_to_css)
-
-
-def init_deps():
-    """Initialize documentation dependencies."""
-    copy(DEPS / "params.yaml", dst=DOCS)
-    copytree(src=DEPS / "data", dst=DOCS / "data", dirs_exist_ok=True)
-    Path("params_schema.json").unlink(missing_ok=True)
-
-
-def init_nb_env():
-    """Initialize the environment which will be inherited for notebook execution."""
-    for key in [
-        key
-        for key in [
-            "PIP_DISABLE_PIP_VERSION_CHECK",
-            "PYTHONIOENCODING",
-            "PYTHONSTARTUP",
-            "PYTHONUTF8",
-            "PYTHONWARNDEFAULTENCODING",
-            "PYTHONWARNINGS",
-        ]
-        if environ.get(key) is not None
-    ]:
-        del environ[key]
-
-
-def add_version_to_css(app: Sphinx, _pagename, _templatename, ctx, _doctree):
-    """Add the version number to the local.css file, to bust the cache for changes.
-
-    See: https://github.com/executablebooks/MyST-Parser/blob/978e845543b5bcb7af0ff89cac9f798cb8c16ab3/docs/conf.py#L241-L249
-    """
-    if app.builder.name != "html":
-        return
-    css = dpath(CSS)
-    if css in ctx.get((k := "css_files"), {}):
-        ctx[k][ctx[k].index(css)] = f"{css}?hash={sha256(CSS.read_bytes()).hexdigest()}"
