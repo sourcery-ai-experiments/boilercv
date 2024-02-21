@@ -1,7 +1,7 @@
 """Old approach to detecting the boiling surface."""
 
-import numpy as np
-import pandas as pd
+from numpy import arctan2, degrees, nonzero
+from pandas import MultiIndex, Series, concat
 
 from boilercv import DEBUG
 from boilercv.captivate.previews import view_images
@@ -17,9 +17,9 @@ def _find_boiling_surface(image: DA, preview: bool = DEBUG) -> ArrInt:
     # Find corners and set index to contour points for later concatenation
     (height, width) = image.shape
     corns_ = apply_to_img_da(find_boiling_surface, image)
-    corns = df_points(np.nonzero(corns_.values))
+    corns = df_points(nonzero(corns_.values))
     corns = (
-        corns.set_index(pd.MultiIndex.from_frame(corns))
+        corns.set_index(MultiIndex.from_frame(corns))
         .drop(axis="columns", labels=YX_PX)
         .assign(**dict(corner=True))
     )
@@ -29,22 +29,22 @@ def _find_boiling_surface(image: DA, preview: bool = DEBUG) -> ArrInt:
     roi_poly = df_points(roi_poly_)
     distances = roi_poly.diff()
     angles = (
-        pd.Series(np.degrees(np.arctan2(distances.ypx, distances.xpx)))
+        Series(degrees(arctan2(distances.ypx, distances.xpx)))
         .rolling(window=2)
         .mean()
         .bfill()
     ).rename("deg")
     # Concatenate contour points with their angles
     roi_poly = (
-        pd.concat(axis="columns", keys=["dim", "angle"], objs=[roi_poly, angles])
-        .set_index(pd.MultiIndex.from_frame(roi_poly))
+        concat(axis="columns", keys=["dim", "angle"], objs=[roi_poly, angles])
+        .set_index(MultiIndex.from_frame(roi_poly))
         .drop(axis="columns", labels="dim")
     )
     # Set the index to the contour points and concatenate with corners
     # Compute distance from midplanes for candidate corner selection
     roi_poly = roi_poly.set_axis(axis="columns", labels=roi_poly.columns.droplevel(1))
     corns = (
-        pd.concat(axis="columns", objs=[roi_poly, corns])
+        concat(axis="columns", objs=[roi_poly, corns])
         .dropna()
         .drop(axis="columns", labels="corner")
         .sort_index()
@@ -81,9 +81,9 @@ def _find_boiling_surface2(image):
     midpoints = df_points([lines.ypx.T.mean(), lines.xpx.T.mean()])
     distances = df_points([lines.ypx[1] - lines.ypx[0], lines.xpx[1] - lines.xpx[0]])
     lengths = distances.T.pow(2).sum().pow(1 / 2).rename("px")
-    angles = pd.Series(np.arctan2(distances.ypx, distances.xpx)).rename("deg")
+    angles = Series(arctan2(distances.ypx, distances.xpx)).rename("deg")
     lines = (
-        pd.concat(
+        concat(
             axis="columns",
             keys=["line", "midpoint", "length", "angle"],
             objs=[

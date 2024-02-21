@@ -2,8 +2,8 @@
 
 from importlib import import_module
 
-import numpy as np
 import pytest
+from numpy import allclose, array, linspace
 
 from boilercv_tests import STAGES
 
@@ -27,11 +27,11 @@ def test_correlations():
         ),
         fourier(
             liquid_thermal_diffusivity=1.43e-7,  # m^2/s
-            time=np.linspace(0, 0.2, 10),  # s
+            time=linspace(0, 0.2, 10),  # s
             initial_bubble_diameter=0.001,  # m
         ),
     )
-    expected = np.array(  # m/m
+    expected = array(  # m/m
         [
             1.00000000,
             0.40681224,
@@ -45,7 +45,7 @@ def test_correlations():
             -0.77956329,
         ]
     )
-    assert np.allclose(result, expected)
+    assert allclose(result, expected)
 
 
 @pytest.mark.slow()

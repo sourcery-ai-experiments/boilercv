@@ -1,9 +1,9 @@
 """Fill bubble contours."""
 
-import numpy as np
-import pandas as pd
-import xarray as xr
 from loguru import logger
+from numpy import empty, uint8
+from pandas import DataFrame
+from xarray import zeros_like
 
 from boilercv import PREVIEW
 from boilercv.captivate.previews import view_images
@@ -18,15 +18,13 @@ TRY_EMPTY = False
 
 def main():
     if TRY_EMPTY:
-        all_contours = np.empty((0, 4))
-        df = pd.DataFrame(
+        all_contours = empty((0, 4))
+        df = DataFrame(
             all_contours, columns=["frame", "contour", "ypx", "xpx"]
         ).set_index(["frame", "contour"])
     else:
         df = get_contours_df(EXAMPLE_VIDEO_NAME)
-    ds = xr.zeros_like(
-        get_dataset(EXAMPLE_VIDEO_NAME, EXAMPLE_NUM_FRAMES), dtype=np.uint8
-    )
+    ds = zeros_like(get_dataset(EXAMPLE_VIDEO_NAME, EXAMPLE_NUM_FRAMES), dtype=uint8)
     video = ds[VIDEO]
     if not df.empty:
         for frame_num, frame in enumerate(video):

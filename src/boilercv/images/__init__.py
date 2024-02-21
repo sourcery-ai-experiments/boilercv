@@ -5,9 +5,9 @@
 
 from typing import Any
 
-import numpy as np
 from matplotlib.font_manager import FontProperties, findfont
-from numpy import typing as npt
+from numpy import asarray, iinfo, invert, mean, uint8
+from numpy.typing import DTypeLike
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from boilercv import DEBUG
@@ -21,13 +21,13 @@ if DEBUG:
 # * PURE NUMPY - TYPE PRESERVING
 
 
-def scale_float(img: DA_T, dtype: npt.DTypeLike = np.uint8) -> DA_T:
+def scale_float(img: DA_T, dtype: DTypeLike = uint8) -> DA_T:
     """Return the input as `dtype` multiplied by the max value of `dtype`.
 
     Useful for scaling float-valued arrays to integer-valued images.
     """
     scaled = (img - img.min()) / (img.max() - img.min())
-    return scaled.astype(dtype) * np.iinfo(dtype).max
+    return scaled.astype(dtype) * iinfo(dtype).max
 
 
 def unpad(img: Img, pad_width: int) -> Img:
@@ -39,12 +39,12 @@ def unpad(img: Img, pad_width: int) -> Img:
 # * PURE NUMPY - NOT ALWAYS TYPE PRESERVING
 
 
-def scale_bool(img: Any, dtype: npt.DTypeLike = np.uint8) -> Any:
+def scale_bool(img: Any, dtype: DTypeLike = uint8) -> Any:
     """Return the input as `dtype` multiplied by the max value of `dtype`.
 
     Useful for functions (such as in OpenCV) which expect numeric bools.
     """
-    return img.astype(dtype) * np.iinfo(dtype).max
+    return img.astype(dtype) * iinfo(dtype).max
 
 
 # * -------------------------------------------------------------------------------- * #
@@ -76,7 +76,7 @@ def draw_text(image: Img, text: str = "") -> ImgLike:
     draw = ImageDraw.Draw(pil_image)
     draw.rectangle((p0, p1), fill=rectangle_fill)  # type: ignore  # pyright 1.1.348, pillow 10.2.0
     draw.text(text_p0, text, font=FONT, fill=font_fill)  # type: ignore  # pyright 1.1.348, pillow 10.2.0
-    return np.asarray(pil_image)
+    return asarray(pil_image)
 
 
 def overlay(
@@ -94,9 +94,9 @@ def overlay(
     objects = Image.fromarray(overlay)
     if overlay.ndim == 2:
         objects = ImageOps.colorize(objects, WHITE3, color)  # type: ignore  # pyright 1.1.348, pillow 10.2.0
-        mask = Image.fromarray(~(overlay * alpha).astype(np.uint8))
+        mask = Image.fromarray(~(overlay * alpha).astype(uint8))
     else:
-        avg: Img = np.mean(overlay, axis=-1)
-        mask = Image.fromarray(np.invert(avg.astype(bool) * alpha).astype(np.uint8))
+        avg: Img = mean(overlay, axis=-1)
+        mask = Image.fromarray(invert(avg.astype(bool) * alpha).astype(uint8))
     composite = Image.composite(background, objects, mask)
-    return np.asarray(composite)
+    return asarray(composite)

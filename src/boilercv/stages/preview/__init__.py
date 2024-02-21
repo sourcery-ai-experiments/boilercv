@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
-import xarray as xr
+from xarray import combine_by_coords, open_dataset
 
 from boilercv.captivate.previews import pad_images
 from boilercv.data import VIDEO, VIDEO_NAME, XPX, YPX, assign_ds
@@ -28,7 +28,7 @@ def new_videos_to_preview(
         # Get the names missing from the destination
         existing_names: list[str] = []
         if destination.exists():
-            with xr.open_dataset(destination) as existing_ds:
+            with open_dataset(destination) as existing_ds:
                 existing_names.extend(list(existing_ds[VIDEO_NAME].values))
         new_video_names = [name for name in ALL_STEMS if name not in existing_names]
     videos_to_preview = dict.fromkeys(new_video_names)
@@ -46,10 +46,10 @@ def new_videos_to_preview(
         new_ds = get_preview_ds(received_video_names, received_previews)
 
         if not reprocess and destination.exists():
-            with xr.open_dataset(destination) as existing_ds:
+            with open_dataset(destination) as existing_ds:
                 if new_ds[VIDEO].shape == existing_ds[VIDEO].shape:
                     # Combine datasets if they're the same shape
-                    new_ds = xr.combine_by_coords([existing_ds, new_ds])
+                    new_ds = combine_by_coords([existing_ds, new_ds])
                 else:
                     # Otherwise: destructure, pad, and rebuild them together
                     existing_names = list(existing_ds[VIDEO_NAME].values)

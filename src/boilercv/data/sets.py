@@ -5,8 +5,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Literal, TypeAlias
 
-import pandas as pd
-import xarray as xr
+from pandas import read_hdf
+from xarray import Dataset, open_dataset
 
 from boilercv.data import HEADER, ROI, VIDEO
 from boilercv.data.packing import unpack
@@ -86,8 +86,8 @@ def inspect_dataset(name: str, stage: Stage = STAGE_DEFAULT) -> DS:
     cmp_source, unc_source = get_stage(name, stage)
     source = unc_source if unc_source.exists() else cmp_source
     if stage == "large_sources":
-        return xr.open_dataset(source) if source.exists() else xr.Dataset()
-    with xr.open_dataset(source) as ds:
+        return open_dataset(source) if source.exists() else Dataset()
+    with open_dataset(source) as ds:
         return ds
 
 
@@ -98,25 +98,25 @@ def get_dataset(
     stage: Stage = STAGE_DEFAULT,
 ) -> DS:
     """Load a video dataset."""
-    # Can't use `xr.open_mfdataset` because it requires dask
+    # Can't use `xarray.open_mfdataset` because it requires dask
     # Unpacking is incompatible with dask
     frame = slice_frames(num_frames, frame)
     cmp_source, unc_source = get_stage(name, stage)
     source = unc_source if unc_source.exists() else cmp_source
     if stage == "large_sources":
-        ds = xr.open_dataset(source)
+        ds = open_dataset(source)
         return (
-            xr.Dataset({VIDEO: ds[VIDEO].sel(frame=frame), HEADER: ds[HEADER]})
+            Dataset({VIDEO: ds[VIDEO].sel(frame=frame), HEADER: ds[HEADER]})
             if source.exists()
-            else xr.Dataset()
+            else Dataset()
         )
     roi = PARAMS.paths.rois / f"{name}.nc"
-    with xr.open_dataset(source) as ds, xr.open_dataset(roi) as roi_ds:
+    with open_dataset(source) as ds, open_dataset(roi) as roi_ds:
         if not unc_source.exists():
-            xr.Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(
+            Dataset({VIDEO: ds[VIDEO], HEADER: ds[HEADER]}).to_netcdf(
                 path=unc_source, encoding={VIDEO: {"zlib": False}}
             )
-        return xr.Dataset({
+        return Dataset({
             VIDEO: unpack(ds[VIDEO].sel(frame=frame)),
             ROI: roi_ds[ROI],
             HEADER: ds[HEADER],
@@ -142,7 +142,7 @@ def get_contours_df(name: str) -> DF:
     """Load contours from a dataset."""
     unc_cont = PARAMS.paths.uncompressed_contours / f"{name}.h5"
     contour = unc_cont if unc_cont.exists() else PARAMS.paths.contours / f"{name}.h5"
-    contour_df: DF = pd.read_hdf(contour)  # type: ignore  # pyright 1.1.333
+    contour_df: DF = read_hdf(contour)  # type: ignore  # pyright 1.1.333
     if not unc_cont.exists():
         contour_df.to_hdf(unc_cont, key="contours", complevel=None, complib=None)
     return contour_df

@@ -1,6 +1,6 @@
 """Examples, experiments, and demonstrations."""
 
-import xarray as xr
+from xarray import open_dataset
 
 from boilercv.data import VIDEO
 from boilercv.models.params import PARAMS
@@ -14,7 +14,7 @@ EXAMPLE_ROI = PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}_roi.yaml"
 
 
 def get_images() -> DA:
-    with xr.open_dataset(PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}.nc") as ds:
+    with open_dataset(PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}.nc") as ds:
         return ds[VIDEO].sel(frame=slice(None, EXAMPLE_NUM_FRAMES))
 
 

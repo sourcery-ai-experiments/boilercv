@@ -1,8 +1,8 @@
 """Binarize all videos and export their ROIs."""
 
-import xarray as xr
 from loguru import logger
 from tqdm import tqdm
+from xarray import open_dataset
 
 from boilercv.data import FRAME, ROI, VIDEO, apply_to_img_da
 from boilercv.data.packing import pack
@@ -19,7 +19,7 @@ def main():
         destination = PARAMS.paths.sources / f"{source.stem}.nc"
         if destination.exists():
             continue
-        with xr.open_dataset(source) as ds:
+        with open_dataset(source) as ds:
             video = ds[VIDEO]
             maximum = video.max(FRAME)
             flooded: DA = apply_to_img_da(flood, maximum)

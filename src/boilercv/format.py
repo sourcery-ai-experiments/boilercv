@@ -1,12 +1,13 @@
-# type: ignore  # pyright 1.1.333
+"""Formatting and display utilities."""
+
 from collections.abc import Mapping
 from contextlib import contextmanager
 from typing import Any
 
-import matplotlib as mpl
-import pandas as pd
 from IPython.core.display import Markdown, Math
 from IPython.display import display
+from matplotlib import rc_context
+from pandas import DataFrame
 from sympy import FiniteSet
 from sympy.printing.latex import latex
 
@@ -42,11 +43,11 @@ def math_mod(expr, long_frac_ratio=3, **kwargs):
 @contextmanager
 def manual_subplot_spacing():
     """Context manager that allows custom spacing of subplots."""
-    with mpl.rc_context({"figure.autolayout": False}):
+    with rc_context({"figure.autolayout": False}):
         yield
 
 
-def tex_wrap(df: pd.DataFrame) -> tuple[pd.DataFrame, Mapping[str, str]]:
+def tex_wrap(df: DataFrame) -> tuple[DataFrame, Mapping[str, str]]:
     """Wrap column titles in LaTeX flags if they contain underscores ($)."""
     mapper: dict[str, str] = {}
     for src_col in df.columns:

@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from os import environ
 from pathlib import Path
 
-import cv2 as cv
+from cv2 import VideoCapture
 
 from boilercv.types import Img
 
@@ -28,7 +28,7 @@ def check_samples_env_var():
 
 def capture_images(path: Path) -> Iterator[Img]:
     """Load images from a video file."""
-    video_capture = cv.VideoCapture(str(path))
+    video_capture = VideoCapture(str(path))
     while True:
         read_is_successful, image = video_capture.read()
         if not read_is_successful:

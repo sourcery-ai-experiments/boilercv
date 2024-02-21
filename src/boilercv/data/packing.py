@@ -1,7 +1,7 @@
 """Packing and unpacking of binarized video data."""
 
-import numpy as np
-import xarray as xr
+from numpy import packbits, unpackbits
+from xarray import apply_ufunc
 
 from boilercv.data import (
     DIMS,
@@ -18,8 +18,8 @@ from boilercv.types import DA
 def pack(da: DA) -> DA:
     """Pack the bits in dimension of the data array."""
     return (
-        xr.apply_ufunc(
-            np.packbits,
+        apply_ufunc(
+            packbits,
             da,
             kwargs=dict(axis=PACKED_DIM_INDEX),
             input_core_dims=[DIMS],
@@ -35,8 +35,8 @@ def pack(da: DA) -> DA:
 def unpack(da: DA) -> DA:
     """Unpack the bits of the last image dimension of a data array."""
     return (
-        xr.apply_ufunc(
-            np.unpackbits,
+        apply_ufunc(
+            unpackbits,
             da,
             kwargs=dict(axis=PACKED_DIM_INDEX),
             input_core_dims=[PACKED_DIMS],

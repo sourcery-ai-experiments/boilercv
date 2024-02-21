@@ -2,8 +2,9 @@
 
 from pathlib import Path
 
-import cv2 as cv
-import numpy as np
+from cv2 import COLOR_BGR2RGB
+from cv2.samples import findFile
+from numpy import stack
 
 from boilercv import PREVIEW
 from boilercv.captivate.previews import view_images
@@ -13,8 +14,8 @@ from boilercv.types import Vid
 
 
 def main(preview: bool = PREVIEW) -> Vid:
-    images = capture_images(Path(cv.samples.findFile("vtest.avi")))
-    video = np.stack([convert_image(image, cv.COLOR_BGR2RGB) for image in images])
+    images = capture_images(Path(findFile("vtest.avi")))
+    video = stack([convert_image(image, COLOR_BGR2RGB) for image in images])
     if preview:
         view_images(video)
     return video

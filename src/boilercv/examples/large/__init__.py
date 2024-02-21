@@ -3,7 +3,7 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-import xarray as xr
+from xarray import open_dataset
 
 from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
@@ -36,7 +36,7 @@ def example_dataset(
         else EXAMPLE
     )
     _destination = PARAMS.paths.large_examples / f"{EXAMPLE.stem}_{destination}.nc"
-    with xr.open_dataset(_source) as ds:
+    with open_dataset(_source) as ds:
         original = ds[VIDEO]
         try:
             yield ds

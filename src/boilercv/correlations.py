@@ -2,7 +2,7 @@
 
 from typing import Any
 
-import numpy as np
+from numpy import pi, sqrt
 
 T = Any
 """Can't figure out typing of these for now, will revisit later."""
@@ -52,7 +52,7 @@ def fourier(liquid_thermal_diffusivity: T, initial_bubble_diameter: T, time: T) 
 
 def dimensionless_bubble_diameter_florschuetz(jakob: T, fourier: T) -> T:
     """Bubble history correlation for condensation of a stagnant bubble. {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`"""
-    return 1 - 4 * jakob * np.sqrt(fourier / np.pi)
+    return 1 - 4 * jakob * sqrt(fourier / pi)
 
 
 def dimensionless_bubble_diameter_tang(

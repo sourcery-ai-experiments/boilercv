@@ -1,6 +1,6 @@
 """Preview detected regions on an image from the dataset."""
 
-import xarray as xr
+from xarray import open_dataset
 
 from boilercv import PREVIEW, WRITE
 from boilercv.captivate.captures import write_image
@@ -17,9 +17,7 @@ from boilercv.models.params import PARAMS
 def main():
     ds = get_dataset(_EXAMPLE)
     gray = (
-        xr.open_dataset(PARAMS.paths.gray_preview)[VIDEO]
-        .sel(video_name=_EXAMPLE)
-        .values
+        open_dataset(PARAMS.paths.gray_preview)[VIDEO].sel(video_name=_EXAMPLE).values
     )
     roi = ds[ROI].values
     highlighted_roi = overlay(gray, scale_bool(roi), color=BLUE, alpha=0.2)
@@ -30,9 +28,7 @@ def main():
     )
 
     filled = (
-        xr.open_dataset(PARAMS.paths.filled_preview)[VIDEO]
-        .sel(video_name=_EXAMPLE)
-        .values
+        open_dataset(PARAMS.paths.filled_preview)[VIDEO].sel(video_name=_EXAMPLE).values
     )
     highlighted_bubbles = overlay(
         highlighted_surface, scale_bool(filled), color=GREEN, alpha=0.4

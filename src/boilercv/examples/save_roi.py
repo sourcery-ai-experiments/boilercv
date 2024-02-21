@@ -2,7 +2,7 @@
 
 from warnings import warn
 
-import cv2 as cv
+from cv2 import CHAIN_APPROX_SIMPLE
 
 from boilercv.captivate.previews import save_roi
 from boilercv.data import ROI, apply_to_img_da
@@ -17,7 +17,7 @@ def main():
     ds = get_dataset(EXAMPLE_VIDEO_NAME)
     roi = ds[ROI]
     wall: DA = apply_to_img_da(get_wall, scale_bool(roi), name="wall")
-    contours = find_contours(scale_bool(wall.values), method=cv.CHAIN_APPROX_SIMPLE)
+    contours = find_contours(scale_bool(wall.values), method=CHAIN_APPROX_SIMPLE)
     if len(contours) > 1:
         warn("More than one contour found when searching for the ROI.", stacklevel=1)
     save_roi(contours[0], EXAMPLE_ROI)

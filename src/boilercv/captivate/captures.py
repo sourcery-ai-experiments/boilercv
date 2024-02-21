@@ -3,8 +3,8 @@
 from pathlib import Path
 
 import imageio
-import numpy as np
 from loguru import logger
+from numpy import integer, issubdtype
 
 from boilercv import FFMPEG_LOG_LEVEL, FRAMERATE_CONT
 from boilercv.images import scale_bool
@@ -59,9 +59,9 @@ def coerce_input(imgs: Img | ImgBool | DA) -> Img:
     Args:
         imgs: Image or video to coerce.
     """
-    if np.issubdtype(imgs.dtype, np.integer):
+    if issubdtype(imgs.dtype, integer):
         viewable: Img = imgs.values if isinstance(imgs, DA) else imgs  # type: ignore  # pyright 1.1.333
-    elif np.issubdtype(imgs.dtype, bool):
+    elif issubdtype(imgs.dtype, bool):
         viewable: Img = (
             scale_bool(imgs.values) if isinstance(imgs, DA) else scale_bool(imgs)
         )

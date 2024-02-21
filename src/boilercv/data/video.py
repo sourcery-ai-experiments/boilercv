@@ -3,9 +3,9 @@
 from dataclasses import asdict
 from pathlib import Path
 
-import xarray as xr
 from boilercine import get_cine_attributes, get_cine_images
 from scipy.spatial.distance import euclidean
+from xarray import DataArray
 
 from boilercv.captivate.previews import load_roi
 from boilercv.data import (
@@ -36,7 +36,7 @@ def prepare_dataset(
     header, utc_arr = get_cine_attributes(
         cine_source, TIMEZONE, num_frames, start_frame
     )
-    header_da = xr.DataArray(name=HEADER, attrs=asdict(header))
+    header_da = DataArray(name=HEADER, attrs=asdict(header))
 
     # Dimensions
     frame_dim = Dimension(dim=FRAME, long_name="Frame number")

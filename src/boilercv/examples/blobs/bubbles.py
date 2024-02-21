@@ -1,6 +1,6 @@
 """Find bubbles as blobs."""
 
-import cv2 as cv
+from cv2 import COLOR_GRAY2RGB
 
 from boilercv.captivate.previews import edit_roi, view_images
 from boilercv.colors import RED
@@ -32,7 +32,7 @@ def main():
         ]
         sequence = zip(all_blobs, all_results, strict=True)
         for blobs, results in sequence:
-            result = convert_image(input_image, cv.COLOR_GRAY2RGB)
+            result = convert_image(input_image, COLOR_GRAY2RGB)
             for blob in blobs:
                 draw_blobs(result, blob, RED)
             results.append(result)

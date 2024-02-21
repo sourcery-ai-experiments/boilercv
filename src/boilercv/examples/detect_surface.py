@@ -2,15 +2,15 @@
 
 from warnings import warn
 
-import cv2 as cv
-import numpy as np
-import xarray as xr
+from cv2 import CHAIN_APPROX_SIMPLE, blur, cornerHarris
+from numpy import array, count_nonzero, round
 from scipy.ndimage import (
     center_of_mass,
     generate_binary_structure,
     label,
     labeled_comprehension,
 )
+from xarray import apply_ufunc
 
 from boilercv import PREVIEW
 from boilercv.captivate.previews import get_calling_scope_name, save_roi, view_images
@@ -28,13 +28,13 @@ def main():
     _video = ds[VIDEO]
     roi = ds[ROI]
     wall: DA = apply_to_img_da(get_wall, scale_bool(roi), name="wall")
-    boiling_surface, _boiling_surface_coords = xr.apply_ufunc(
+    boiling_surface, _boiling_surface_coords = apply_ufunc(
         find_boiling_surface,
         scale_bool(wall),
         input_core_dims=[YX_PX],
         output_core_dims=[YX_PX, ["test"]],
     )
-    contours = find_contours(scale_bool(wall.values), method=cv.CHAIN_APPROX_SIMPLE)
+    contours = find_contours(scale_bool(wall.values), method=CHAIN_APPROX_SIMPLE)
     if len(contours) > 1:
         warn("More than one contour found when searching for the ROI.", stacklevel=1)
     save_roi(contours[0], EXAMPLE_ROI)
@@ -58,14 +58,14 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     xpx_max = xpx_mid + xpx_max_dist
 
     # Find prominent horizontal lines
-    corners = cv.cornerHarris(src=img, blockSize=2, ksize=3, k=0.04)
+    corners = cornerHarris(src=img, blockSize=2, ksize=3, k=0.04)
     lines = -1 * corners  # type: ignore  # pyright 1.1.333
-    blurred = cv.blur(lines, ksize=wide_rectangular_ksize)
+    blurred = blur(lines, ksize=wide_rectangular_ksize)
     scaled = (blurred - blurred.min()) / (blurred.max() - blurred.min())
     binarized = scaled > threshold
 
     # Find connected components and their centers
-    # ? cv.connectedComponents and cv.moments could also be used
+    # ? cv2.connectedComponents and cv2.moments could also be used
     # ? Consider re-implementing if slow
     find_diag_conns = generate_binary_structure(rank=2, connectivity=2)
     labeled_img, num_objects = label(input=binarized, structure=find_diag_conns)  # type: ignore  # pyright 1.1.333
@@ -74,13 +74,13 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
         input=binarized,
         labels=labeled_img,
         index=labels,
-        func=np.count_nonzero,
+        func=count_nonzero,
         out_dtype=int,
         default=0,
     )
     objs = (
         df_points(
-            np.array(center_of_mass(input=binarized, labels=labeled_img, index=labels))
+            array(center_of_mass(input=binarized, labels=labeled_img, index=labels))
             .round()
             .astype(int)  # Not img dtype. df contains coords, not pixel values
         )
@@ -100,11 +100,11 @@ def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     boiling_surface = labeled_img == label_largest_in_range
 
     # Get a line segment corresponding to the boiling surface
-    points = df_points(np.array(boiling_surface.nonzero()).T)
+    points = df_points(array(boiling_surface.nonzero()).T)
     xpx_left = points.xpx.min()
     xpx_right = points.xpx.max()
-    ypx_horizontal = np.round(points.ypx.mean()).astype(int)
-    boiling_surface_coords = np.array([
+    ypx_horizontal = round(points.ypx.mean()).astype(int)
+    boiling_surface_coords = array([
         ypx_horizontal,
         xpx_left,
         ypx_horizontal,

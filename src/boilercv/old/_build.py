@@ -2,6 +2,6 @@
 
 from pathlib import Path
 
-import cv2 as cv
+from cv2 import getBuildInformation
 
-Path("build.txt").write_text(encoding="utf-8", data=cv.getBuildInformation())
+Path("build.txt").write_text(encoding="utf-8", data=getBuildInformation())

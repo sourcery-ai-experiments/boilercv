@@ -2,15 +2,15 @@
 
 from typing import Any, Protocol, TypeAlias, TypeVar
 
-import numpy as np
-import pandas as pd
-import xarray as xr
-from numpy import typing as npt
+from numpy import bool_, datetime64, floating, generic, integer, number, timedelta64
+from numpy.typing import ArrayLike, NBitBase, NDArray
+from pandas import DataFrame, Series
+from xarray import DataArray, Dataset
 
-DF: TypeAlias = pd.DataFrame
-DA: TypeAlias = xr.DataArray
-DS: TypeAlias = xr.Dataset
-DfOrS: TypeAlias = pd.DataFrame | pd.Series  # type: ignore  # pyright 1.1.333
+DF: TypeAlias = DataFrame
+DA: TypeAlias = DataArray
+DS: TypeAlias = Dataset
+DfOrS: TypeAlias = DataFrame | Series  # type: ignore  # pyright 1.1.333
 
 DA_T = TypeVar("DA_T", bound=DA)
 
@@ -23,30 +23,30 @@ class SupportsMul(Protocol):
 
 SupportsMul_T = TypeVar("SupportsMul_T", bound=SupportsMul)
 
-ArrLike: TypeAlias = npt.ArrayLike
+ArrLike: TypeAlias = ArrayLike
 
-NBit: TypeAlias = npt.NBitBase
+NBit: TypeAlias = NBitBase
 """A number with arbitrary precision."""
 
-Arr: TypeAlias = npt.NDArray[np.generic]
+Arr: TypeAlias = NDArray[generic]
 """Generic array type. Consistent with OpenCV's type annotations."""
 
-ArrBool: TypeAlias = npt.NDArray[np.bool_]
+ArrBool: TypeAlias = NDArray[bool_]
 """A boolean array."""
 
-ArrFloat: TypeAlias = npt.NDArray[np.floating[NBit]]
+ArrFloat: TypeAlias = NDArray[floating[NBit]]
 """An integer array with arbitrary bit depth."""
 
-ArrInt: TypeAlias = npt.NDArray[np.integer[NBit]]
+ArrInt: TypeAlias = NDArray[integer[NBit]]
 """An integer array."""
 
-ArrNum: TypeAlias = npt.NDArray[np.number[NBit]]
+ArrNum: TypeAlias = NDArray[number[NBit]]
 """A number array."""
 
-ArrDT: TypeAlias = npt.NDArray[np.datetime64]
+ArrDT: TypeAlias = NDArray[datetime64]
 """Datetime array type."""
 
-ArrTD: TypeAlias = npt.NDArray[np.timedelta64]
+ArrTD: TypeAlias = NDArray[timedelta64]
 """Timedelta array type."""
 
 Img: TypeAlias = ArrInt

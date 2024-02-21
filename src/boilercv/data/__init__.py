@@ -4,10 +4,10 @@ from collections.abc import Callable, Sequence
 from itertools import chain
 from typing import Any, TypedDict
 
-import numpy as np
-import pandas as pd
-import xarray as xr
+from numpy import full
+from pandas import IndexSlice
 from pytz import timezone
+from xarray import DataArray, Dataset, apply_ufunc
 
 from boilercv.data.models import Dimension, get_dims
 from boilercv.types import DA, DS, ArrLike
@@ -64,24 +64,24 @@ LENGTH = "um"
 SAMPLE_DIAMETER_UM = 9_525_000
 """Sample diameter in micrometers."""
 
-islice = pd.IndexSlice
+islice = IndexSlice
 """Helper for slicing multi-index dataframes."""
 
 
 def identity_da(da: DA, dim: str) -> DA:
     """Construct a data array that maps a dimension's coordinates to itself.
 
-    Useful to apply `xr.apply_ufunc` along coordinate values.
+    Useful to apply `xarray.apply_ufunc` along coordinate values.
 
     Args:
         da: Data array.
         dim: The dimension to extract.
     """
-    return xr.DataArray(dims=(dim), coords={dim: da[dim].values}, data=da[dim])
+    return DataArray(dims=(dim), coords={dim: da[dim].values}, data=da[dim])
 
 
 class CommonKwargs(TypedDict):
-    """Keyword arguments common to `xr.apply_ufunc` calls."""
+    """Keyword arguments common to `xarray.apply_ufunc` calls."""
 
     input_core_dims: list[list[str]]
     """Dimensions which will remain after the function is applied."""
@@ -110,7 +110,7 @@ def apply_to_img_da(
         kwargs=kwargs,
     )
     if returns and returns > 0:
-        result = xr.apply_ufunc(
+        result = apply_ufunc(
             func, *args, **common_kwargs, output_core_dims=core_dims * returns
         )
         if name and returns == 1:
@@ -121,7 +121,7 @@ def apply_to_img_da(
             )
         return result
     if not returns or returns == 0:
-        xr.apply_ufunc(func, *args, **common_kwargs)
+        apply_ufunc(func, *args, **common_kwargs)
 
 
 def assign_ds(
@@ -137,7 +137,7 @@ def assign_ds(
 ) -> DS:
     """Build a data array and assign it to a dataset."""
     if not ds:
-        ds = xr.Dataset()
+        ds = Dataset()
     da = build_da(
         name,
         data,
@@ -175,13 +175,11 @@ def build_da(
                 shape.append(1)
             else:
                 shape.append(len(dim.coords))
-        data = np.full(shape, None)
+        data = full(shape, None)
     attrs = {"long_name": long_name}
     if units:
         attrs["units"] = units
-    da = xr.DataArray(
-        name=name, dims=get_dims(*all_primary_dims), data=data, attrs=attrs
-    )
+    da = DataArray(name=name, dims=get_dims(*all_primary_dims), data=data, attrs=attrs)
     for dim in chain(all_fixed_dims, all_variable_dims):
         da = dim.assign_to(da)
     return da

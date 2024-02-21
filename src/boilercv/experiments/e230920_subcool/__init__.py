@@ -9,8 +9,6 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, TypeAlias, TypedDict
 
-import numpy as np
-import pandas as pd
 from boilercore.notebooks.namespaces import Params, get_nb_ns
 from boilercore.paths import ISOLIKE, dt_fromisolike, get_module_name
 from cmasher import get_sub_cmap
@@ -18,6 +16,8 @@ from matplotlib.axes import Axes
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.pyplot import subplots
+from numpy import any, histogram, sqrt, where
+from pandas import CategoricalDtype, DataFrame, NamedAgg
 from sparklines import sparklines
 
 from boilercv.experiments import get_exp
@@ -155,10 +155,10 @@ def bounded_ax(img: Img, ax: Axes | None = None) -> Iterator[Axes]:
 def get_image_boundaries(img) -> tuple[tuple[int, int], tuple[int, int]]:
     # https://stackoverflow.com/a/44734377/20430423
     dilated = transform(scale_bool(img), Transform(Op.dilate, 12))
-    cols = np.any(dilated, axis=0)
-    rows = np.any(dilated, axis=1)
-    ylim = tuple(np.where(rows)[0][[0, -1]])
-    xlim = tuple(np.where(cols)[0][[0, -1]])
+    cols = any(dilated, axis=0)
+    rows = any(dilated, axis=1)
+    ylim = tuple(where(rows)[0][[0, -1]])
+    xlim = tuple(where(cols)[0][[0, -1]])
     return ylim, xlim  # type: ignore  # pyright 1.1.333
 
 
@@ -169,22 +169,22 @@ def crop_image(img, ylim, xlim):
 WIDTH = 10
 
 
-def get_hists(df: pd.DataFrame, groupby: str, cols: list[str]) -> pd.DataFrame:
+def get_hists(df: DataFrame, groupby: str, cols: list[str]) -> DataFrame:
     df = df.groupby(groupby, **GBC).agg(**{
         # type: ignore  # pyright 1.1.333
-        col: pd.NamedAgg(column=col, aggfunc=sparkhist)
+        col: NamedAgg(column=col, aggfunc=sparkhist)
         for col in cols
     })
     # Can't one-shot this because of the comprehension {...: ... for col in hist_cols}
     return df.assign(**{col: df[col].str.center(WIDTH, "▁") for col in cols})
 
 
-def sparkhist(grp: pd.DataFrame) -> str:
+def sparkhist(grp: DataFrame) -> str:
     """Render a sparkline histogram."""
     num_lines = 1  # Sparklines don't render properly across multiple lines
-    bins = min(WIDTH - 2, int(np.sqrt(grp.count())))
-    histogram, _edges = np.histogram(grp, bins=bins)
-    return "\n".join(sparklines(histogram, num_lines))
+    bins = min(WIDTH - 2, int(sqrt(grp.count())))
+    histogram_, _edges = histogram(grp, bins=bins)
+    return "\n".join(sparklines(histogram_, num_lines))
 
 
 @dataclass
@@ -201,7 +201,7 @@ class Col:
         self.new = f"{self.new} ({self.new_unit})" if self.new_unit else self.new
 
 
-def transform_cols(df: pd.DataFrame, cols: list[Col]) -> pd.DataFrame:
+def transform_cols(df: DataFrame, cols: list[Col]) -> DataFrame:
     return df.assign(**{
         col.new: df[col.old] if col.scale == 1 else df[col.old] * col.scale
         for col in cols
@@ -220,9 +220,9 @@ M_TO_MM = Conversion(old_unit="m", new_unit="mm", scale=1000)
 
 
 def get_cat_colorbar(
-    ax: Axes, col: str, palette: Any, data: pd.DataFrame, alpha: float = 1.0
-) -> tuple[list[tuple[float, float, float]], pd.DataFrame]:
-    if isinstance(data[col].dtype, pd.CategoricalDtype):
+    ax: Axes, col: str, palette: Any, data: DataFrame, alpha: float = 1.0
+) -> tuple[list[tuple[float, float, float]], DataFrame]:
+    if isinstance(data[col].dtype, CategoricalDtype):
         data[col] = data[col].cat.remove_unused_categories()
         num_colors = len(data[col].cat.categories)
     else:

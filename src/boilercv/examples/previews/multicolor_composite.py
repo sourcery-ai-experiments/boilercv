@@ -2,10 +2,10 @@
 
 from itertools import cycle
 
-import cv2 as cv
-import numpy as np
-import seaborn as sns
-from matplotlib import pyplot as plt
+from cv2 import COLOR_BGR2RGB, COLOR_GRAY2BGR
+from matplotlib.pyplot import show
+from numpy import zeros_like
+from seaborn import color_palette, palplot
 
 from boilercv import DEBUG, PREVIEW, WRITE
 from boilercv.captivate.captures import write_image
@@ -20,7 +20,7 @@ from boilercv.types import ArrInt
 
 _NUM_FRAMES = 1
 
-_PALETTE = [c for c in sns.color_palette("Set1") if not c[0] == c[1] == c[2]]  # type: ignore  # pyright 1.1.333
+_PALETTE = [c for c in color_palette("Set1") if not c[0] == c[1] == c[2]]  # type: ignore  # pyright 1.1.333
 _PALETTE_CV = [(int(255 * c[2]), int(255 * c[1]), int(255 * c[0])) for c in _PALETTE]
 
 
@@ -37,15 +37,15 @@ def main():
         .groupby("contour")
         .apply(lambda grp: grp.values)  # type: ignore  # pyright 1.1.333
     )
-    highlighted = np.zeros_like(convert_image(gray, cv.COLOR_GRAY2BGR))
+    highlighted = zeros_like(convert_image(gray, COLOR_GRAY2BGR))
     for contour, color in zip(contours, cycle(_PALETTE_CV), strict=False):
         highlighted = draw_contours(highlighted, [contour], color=color)
-    highlighted = convert_image(highlighted, cv.COLOR_BGR2RGB)
+    highlighted = convert_image(highlighted, COLOR_BGR2RGB)
     composed = overlay(gray, highlighted, alpha=0.7)
     if PREVIEW:
         if DEBUG:
-            sns.palplot(_PALETTE)
-        plt.show()
+            palplot(_PALETTE)
+        show()
         view_images(composed)
     if WRITE:
         path = PARAMS.paths.media / "examples" / _EXAMPLE / "multicolor"

@@ -5,9 +5,9 @@ from os import environ
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
 from cv2 import version
 from loguru import logger
+from pandas import set_option
 
 PROJECT_PATH = Path()
 """Path to the project root, where `params.yaml` will go."""
@@ -35,9 +35,9 @@ def init():
     if DEBUG:
         logger.add(sink="boilercv.log")
     check_contrib()
-    pd.set_option("mode.copy_on_write", True)
-    pd.set_option("mode.chained_assignment", "raise")
-    pd.set_option("mode.string_storage", "pyarrow")
+    set_option("mode.copy_on_write", True)
+    set_option("mode.chained_assignment", "raise")
+    set_option("mode.string_storage", "pyarrow")
 
 
 _CONTRIB_MSG = """\

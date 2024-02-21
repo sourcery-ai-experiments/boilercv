@@ -12,15 +12,15 @@ from textwrap import dedent
 from typing import Any
 from warnings import catch_warnings, filterwarnings
 
-import numpy as np
-import pandas as pd
-import seaborn as sns
 from boilercore import WarningFilter, filter_certain_warnings
 from IPython.display import HTML, display  # type: ignore
 from IPython.utils.capture import capture_output
-from matplotlib import pyplot as plt
+from matplotlib.pyplot import style
 from myst_parser.parsers.docutils_ import cli_html
 from nbformat import NotebookNode
+from numpy import set_printoptions
+from pandas import DataFrame, Index, MultiIndex, Series, concat, options
+from seaborn import set_theme
 
 import boilercv
 from boilercv.types import DfOrS
@@ -74,17 +74,17 @@ def init(font_scale: float = FONT_SCALE):
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
-    pd.options.display.float_format = f"{{:{FLOAT_SPEC}}}".format
-    pd.options.display.min_rows = pd.options.display.max_rows = DISPLAY_ROWS
-    np.set_printoptions(precision=PRECISION)
-    sns.set_theme(
+    options.display.float_format = f"{{:{FLOAT_SPEC}}}".format
+    options.display.min_rows = options.display.max_rows = DISPLAY_ROWS
+    set_printoptions(precision=PRECISION)
+    set_theme(
         context="notebook",
         style="whitegrid",
         palette="deep",
         font="sans-serif",
         font_scale=font_scale,
     )
-    plt.style.use("data/plotting/base.mplstyle")
+    style.use("data/plotting/base.mplstyle")
 
 
 @contextmanager
@@ -211,7 +211,7 @@ def display_dfs(*dfs: DfOrS, head: bool = False):
 
 
 def get_df_formatter(
-    df: pd.DataFrame, truncated: bool
+    df: DataFrame, truncated: bool
 ) -> Callable[..., str] | dict[str, Callable[..., str]]:
     """Get formatter for the dataframe."""
     if truncated:
@@ -235,29 +235,29 @@ def get_formatter(instance: Any) -> Callable[..., str]:
             return lambda cell: f"{cell}"
 
 
-def truncate(df: DfOrS, head: bool = False) -> tuple[pd.DataFrame, bool]:
+def truncate(df: DfOrS, head: bool = False) -> tuple[DataFrame, bool]:
     """Truncate long dataframes, showing only the head and tail."""
-    if isinstance(df, pd.Series):
+    if isinstance(df, Series):
         df = df.to_frame()
-    if len(df) <= pd.options.display.max_rows:
+    if len(df) <= options.display.max_rows:
         return df, False
     if head:
-        return df.head(pd.options.display.min_rows), True
+        return df.head(options.display.min_rows), True
     df = df.copy()
     # Resolves case when column names are not strings for latter assignment, e.g. when
     # the column axis is a RangeIndex.
     df.columns = [str(col) for col in df.columns]
     # Resolves ValueError: Length of names must match number of levels in MultiIndex.
     ellipsis_index = ("...",) * df.index.nlevels
-    df = pd.concat([
-        df.head(pd.options.display.min_rows // 2),
+    df = concat([
+        df.head(options.display.min_rows // 2),
         df.iloc[[0]]  # Resolves ValueError: cannot handle a non-unique multi-index!
         .reindex(
-            pd.MultiIndex.from_tuples([ellipsis_index], names=df.index.names)
-            if isinstance(df.index, pd.MultiIndex)
-            else pd.Index(ellipsis_index, name=df.index.name)
+            MultiIndex.from_tuples([ellipsis_index], names=df.index.names)
+            if isinstance(df.index, MultiIndex)
+            else Index(ellipsis_index, name=df.index.name)
         )
         .assign(**dict.fromkeys(df.columns, "...")),
-        df.tail(pd.options.display.min_rows // 2),
+        df.tail(options.display.min_rows // 2),
     ])
     return df, True

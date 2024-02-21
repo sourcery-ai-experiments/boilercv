@@ -1,8 +1,8 @@
 """Fill bubble contours."""
 
-import xarray as xr
 from loguru import logger
 from tqdm import tqdm
+from xarray import zeros_like
 
 from boilercv.data import ROI, VIDEO
 from boilercv.data.packing import pack
@@ -19,7 +19,7 @@ def main():
         for name in tqdm(videos_to_process):
             df = get_contours_df(name)
             source_ds = get_dataset(name)
-            ds = xr.zeros_like(source_ds, dtype=source_ds[VIDEO].dtype)
+            ds = zeros_like(source_ds, dtype=source_ds[VIDEO].dtype)
             video = ds[VIDEO]
             if not df.empty:
                 for frame_num, frame in enumerate(video):

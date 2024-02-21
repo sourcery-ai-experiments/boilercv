@@ -6,9 +6,19 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Literal, TypeAlias
 
-import numpy as np
-import pandas as pd
-import pyqtgraph as pg
+from numpy import array, ceil, fliplr, issubdtype, ndarray, ones, sqrt
+from pandas import DataFrame
+from pyqtgraph import (
+    GraphicsLayoutWidget,
+    ImageView,
+    LineSegmentROI,
+    PolyLineROI,
+    TextItem,
+    mkBrush,
+    mkPen,
+    mkQApp,
+    setConfigOption,
+)
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLayout, QPushButton
@@ -26,7 +36,7 @@ yaml.preserve_quotes = True
 
 def init():
     """Initialize `boilercv.gui`."""
-    pg.setConfigOption("imageAxisOrder", "row-major")
+    setConfigOption("imageAxisOrder", "row-major")
 
 
 Viewable: TypeAlias = Any  # The true type is a complex union of lots of array types
@@ -126,12 +136,12 @@ def image_viewer(images: AllViewable, name: str = "", framerate: int = FRAMERATE
 
 def make_window(name: str = ""):
     """Start a PyQtGraph app and prepare an app window with a default layout."""
-    # Isolate pg.ImageView in a layout cell. It is complicated to directly modify the UI
-    # of pg.ImageView. Can't use the convenient pg.LayoutWidget because
+    # Isolate ImageView in a layout cell. It is complicated to directly modify the UI
+    # of ImageView. Can't use the convenient LayoutWidget because
     # GraphicsLayoutWidget cannot contain it, and GraphicsLayoutWidget is convenient on
     # its own.
-    app = pg.mkQApp()
-    image_views: list[pg.ImageView] = []
+    app = mkQApp()
+    image_views: list[ImageView] = []
     layout = QGridLayout()
     button_layout = QHBoxLayout()
     window = GraphicsLayoutWidgetWithKeySignal(size=WINDOW_SIZE)
@@ -142,13 +152,13 @@ def make_window(name: str = ""):
 
 def get_grid_coordinates(shape: tuple[int, int]) -> list[tuple[int, int]]:
     """Get the coordinates of a grid."""
-    (y, x) = np.ones(shape).nonzero()
+    (y, x) = ones(shape).nonzero()
     return list(zip(y, x, strict=True))
 
 
 def get_square_grid(num_views: int) -> tuple[int, int]:
     """Get the dimensions of a square grid for the given number of views."""
-    minimum_side_length = np.ceil(np.sqrt(num_views))
+    minimum_side_length = ceil(sqrt(num_views))
     side_length = int(minimum_side_length)
     (height, width) = (side_length,) * 2
     return height, width
@@ -158,36 +168,33 @@ def coerce_images(images: AllViewable) -> NamedViewable:
     """Coerce images to a mapping of title to image."""
     if isinstance(images, Mapping):
         images_ = images
-    elif isinstance(images, np.ndarray | DA):
+    elif isinstance(images, ndarray | DA):
         images_ = [images]
     elif isinstance(images, Sequence):
         # If given a sequence that could be a video or a set of images/videos to
         # compare, assume it is a video if it is too long to be a set of comparisons.
         largest_grid = 16
-        if len(images) > largest_grid:
-            images_ = [np.array(pad_images(images))]
-        else:
-            images_ = images
+        images_ = [array(pad_images(images))] if len(images) > largest_grid else images
     else:
         raise TypeError(f"Unsupported type for images: {type(images)}")
 
     return (
-        {title: np.array(pad_images(viewable)) for title, viewable in images_.items()}
+        {title: array(pad_images(viewable)) for title, viewable in images_.items()}
         if isinstance(images_, Mapping)
-        else {i: np.array(pad_images(viewable)) for i, viewable in enumerate(images_)}
+        else {i: array(pad_images(viewable)) for i, viewable in enumerate(images_)}
     )
 
 
 def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore  # pyright 1.1.333
     """Pad images to a common size and pack into an array."""
-    flat_image = isinstance(images, np.ndarray | DA) and (
+    flat_image = isinstance(images, ndarray | DA) and (
         # One-channel
         images.ndim == 2
         # Up to four-channel
         or (images.ndim == 3 and images.shape[-1] <= 4)
     )
     images: MutableViewable = [images] if flat_image else list(images)
-    shapes = pd.DataFrame(
+    shapes = DataFrame(
         columns=["height", "width"], data=list({image.shape[:2] for image in images})
     ).set_index(["height", "width"], drop=False)
     if len(shapes) == 1:
@@ -201,24 +208,24 @@ def pad_images(images: MultipleViewable) -> MutableViewable:  # type: ignore  # 
         hpad, wpad = pad
         zero_pad_for_additional_dims = ((0, 0),) * (image.ndim - 2)
         pad_width = ((hpad, hpad), (wpad, wpad), *zero_pad_for_additional_dims)
-        images[i] = np.pad(image, pad_width)  # type: ignore  # pyright 1.1.333
+        images[i] = pad(image, pad_width)  # type: ignore  # pyright 1.1.333
     return images
 
 
 def set_images(
-    images: NamedViewable, image_views: list[pg.ImageView]
-) -> dict[str | int, pg.ImageView]:
+    images: NamedViewable, image_views: list[ImageView]
+) -> dict[str | int, ImageView]:
     """Set images into the image views."""
     for (title, viewable), image_view in zip(images.items(), image_views, strict=False):
-        if np.issubdtype(viewable.dtype, bool):
+        if issubdtype(viewable.dtype, bool):
             viewable = scale_bool(viewable)
         image_view.setImage(viewable.squeeze())
         if isinstance(title, str):
-            image_view.addItem(pg.TextItem(title, fill=pg.mkBrush("black")))
+            image_view.addItem(TextItem(title, fill=mkBrush("black")))
     return dict(zip(images.keys(), image_views, strict=False))
 
 
-class GraphicsLayoutWidgetWithKeySignal(pg.GraphicsLayoutWidget):
+class GraphicsLayoutWidgetWithKeySignal(GraphicsLayoutWidget):
     """Emit key signals on `key_signal`."""
 
     key_signal = Signal(QKeyEvent)
@@ -236,9 +243,9 @@ def add_button(layout: QLayout, label: str, func: Callable[..., Any]) -> QPushBu
     return button
 
 
-def get_image_view(framerate: int = FRAMERATE_CONT) -> pg.ImageView:
+def get_image_view(framerate: int = FRAMERATE_CONT) -> ImageView:
     """Get an image view suitable for previewing images."""
-    image_view = pg.ImageView()
+    image_view = ImageView()
     image_view.playRate = framerate
     image_view.ui.histogram.hide()
     image_view.ui.roiBtn.hide()
@@ -285,16 +292,16 @@ def edit_roi(
 
     with image_viewer(image) as (image_views, _app, window, _layout, button_layout):
         common_roi_args = dict(
-            pen=pg.mkPen("red"),
-            hoverPen=pg.mkPen("magenta"),
-            handlePen=pg.mkPen("blue"),
-            handleHoverPen=pg.mkPen("magenta"),
-            positions=np.fliplr(load_roi(image, roi_path, roi_type)),
+            pen=mkPen("red"),
+            hoverPen=mkPen("magenta"),
+            handlePen=mkPen("blue"),
+            handleHoverPen=mkPen("magenta"),
+            positions=fliplr(load_roi(image, roi_path, roi_type)),
         )
         roi = (
-            pg.PolyLineROI(**common_roi_args, closed=True)
+            PolyLineROI(**common_roi_args, closed=True)
             if roi_type == "poly"
-            else pg.LineSegmentROI(**common_roi_args)
+            else LineSegmentROI(**common_roi_args)
         )
 
         def main():
@@ -318,7 +325,7 @@ def edit_roi(
 
         def get_roi_vertices() -> ArrInt:
             """Get the vertices of the ROI."""
-            return np.fliplr(np.array(roi.saveState()["points"], dtype=int))
+            return fliplr(array(roi.saveState()["points"], dtype=int))
 
         main()
 
@@ -340,7 +347,7 @@ def load_roi(
             if roi_type == "poly"
             else [(0, 0), (height, width)]
         )
-    return np.array(vertices, dtype=int)
+    return array(vertices, dtype=int)
 
 
 # * -------------------------------------------------------------------------------- * #

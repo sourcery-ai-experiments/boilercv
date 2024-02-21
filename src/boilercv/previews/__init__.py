@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import xarray as xr
+from xarray import Dataset, apply_ufunc, open_dataset
 
 from boilercv import DEBUG
 from boilercv.colors import RED
@@ -20,8 +20,8 @@ def get_preview(path: Path) -> DS:
     Args:
         path: Path to dataset.
     """
-    with xr.open_dataset(path) as ds:
-        return xr.Dataset({VIDEO: ds[VIDEO][slice_frames(_NUM_FRAMES)]})
+    with open_dataset(path) as ds:
+        return Dataset({VIDEO: ds[VIDEO][slice_frames(_NUM_FRAMES)]})
 
 
 def draw_text_da(da: DA) -> DA:
@@ -29,7 +29,7 @@ def draw_text_da(da: DA) -> DA:
     frames_dim = str(da.dims[0])
     if da.ndim == 4:
         # We have a color video
-        return xr.apply_ufunc(
+        return apply_ufunc(
             draw_text,
             da,
             identity_da(da, frames_dim),
@@ -38,7 +38,7 @@ def draw_text_da(da: DA) -> DA:
             vectorize=True,
         )
     else:
-        return xr.apply_ufunc(
+        return apply_ufunc(
             draw_text,
             da,
             identity_da(da, frames_dim),
@@ -56,7 +56,7 @@ def compose_da(da_image: DA, da_overlay: DA, color: tuple[int, int, int] = RED) 
         da_overlay: Overlay data array.
         color: Color for the overlay.
     """
-    return xr.apply_ufunc(
+    return apply_ufunc(
         overlay,
         da_image,
         da_overlay,
