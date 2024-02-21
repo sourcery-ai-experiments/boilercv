@@ -105,6 +105,7 @@ extensions = [
     "myst_nb",
     "sphinx_design",
     "sphinx_tippy",
+    "sphinx_thebe",
     "sphinx_togglebutton",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
@@ -118,10 +119,17 @@ html_logo = "_static/favicon.ico"
 html_static_path = dpaths(STATIC)
 html_css_files = dpaths(CSS, rel=STATIC)
 html_theme = "sphinx_book_theme"
-html_theme_options = {
-    "path_to_docs": dpath(DOCS),
-    "repository_branch": "main",
+html_context = {
+    # ? MyST elements don't look great with dark mode, but allow dark for accessibility.
+    "default_mode": "light"
+}
+COMMON_OPTIONS = {
     "repository_url": f"https://github.com/blakeNaccarato/{PACKAGE}",
+    "path_to_docs": dpath(DOCS),
+}
+html_theme_options = {
+    **COMMON_OPTIONS,
+    "repository_branch": "main",
     "show_navbar_depth": 2,
     "show_toc_level": 4,
     "use_download_button": True,
@@ -131,6 +139,18 @@ html_theme_options = {
 # ! MyST
 myst_enable_extensions = ["colon_fence", "dollarmath", "attrs_block", "linkify"]
 myst_heading_anchors = 6
+# ! BibTeX
+bibtex_bibfiles = dpaths(BIB)
+bibtex_reference_style = "label"
+bibtex_default_style = "unsrt"
+# ! NB
+nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+# ! Thebe
+thebe_config = COMMON_OPTIONS
+# ! Other
+math_eqref_format = "Eq. {number}"
+mermaid_d3_zoom = False
 # ! Autodoc2
 nitpicky = True
 autodoc2_packages = [f"../src/{PACKAGE}"]
@@ -140,27 +160,6 @@ autodoc2_render_plugin = "myst"
 # ? bit prettier.
 # ? https://github.com/sphinx-extensions2/sphinx-autodoc2/issues/58
 maximum_signature_line_length = 88
-# ! Tippy
-# ? https://sphinx-tippy.readthedocs.io/en/latest/index.html#confval-tippy_anchor_parent_selector
-tippy_anchor_parent_selector = "article.bd-article"
-# ? Mermaid tips don't work
-tippy_skip_anchor_classes = ["mermaid"]
-# ? https://github.com/sphinx-extensions2/sphinx-tippy/issues/6#issuecomment-1627820276
-tippy_enable_mathjax = True
-tippy_tip_selector = """
-    aside,
-    div.admonition,
-    div.literal-block-wrapper,
-    figure,
-    img,
-    div.math,
-    p,
-    table
-    """
-# ? Skip Zenodo DOIs as the hover hint doesn't work properly
-tippy_skip_urls = [r"https://doi\.org/10\.5281/zenodo\..+"]
-# ? Other
-tippy_rtd_urls = [OPENCV, NBFORMAT, NUMPY, PYQTGRAPH]
 # ! Intersphinx
 intersphinx_mapping = {
     "cv2": (OPENCV, None),
@@ -190,13 +189,24 @@ nitpick_ignore_regex = [
     # ? https://bugreports.qt.io/browse/PYSIDE-2215
     ("py:.*", r"PySide6\..*"),
 ]
-# ! BibTeX
-bibtex_bibfiles = dpaths(BIB)
-bibtex_reference_style = "label"
-bibtex_default_style = "unsrt"
-# ! NB
-nb_execution_mode = "cache"
-nb_execution_raise_on_error = True
-# ! Other
-math_eqref_format = "Eq. {number}"
-mermaid_d3_zoom = False
+# ! Tippy
+# ? https://sphinx-tippy.readthedocs.io/en/latest/index.html#confval-tippy_anchor_parent_selector
+tippy_anchor_parent_selector = "article.bd-article"
+# ? Mermaid tips don't work
+tippy_skip_anchor_classes = ["mermaid"]
+# ? https://github.com/sphinx-extensions2/sphinx-tippy/issues/6#issuecomment-1627820276
+tippy_enable_mathjax = True
+tippy_tip_selector = """
+    aside,
+    div.admonition,
+    div.literal-block-wrapper,
+    figure,
+    img,
+    div.math,
+    p,
+    table
+    """
+# ? Skip Zenodo DOIs as the hover hint doesn't work properly
+tippy_skip_urls = [r"https://doi\.org/10\.5281/zenodo\..+"]
+# ? Other
+tippy_rtd_urls = [OPENCV, NBFORMAT, NUMPY, PYQTGRAPH]

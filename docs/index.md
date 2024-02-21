@@ -4,6 +4,18 @@
 
 Computer vision routines suitable for nucleate pool boiling bubble analysis.
 
+::::
+:::{code-block} python
+:class: thebe
+print("hello world!")
+:::
+::::
+
+::::
+:::{thebe-button}
+:::
+::::
+
 ## Example
 
 Overlay of the external contours detected in one frame of a high-speed video. Represents output from the "fill" step of the data process.
