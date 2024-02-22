@@ -107,7 +107,7 @@ def commit_dependency(name: str, url: str) -> Pattern[str]:
     return compile_dependency(
         rf"""
         (?P<before_commit>      # Everything up to the commit hash
-            {name}@git\+{url}/      # e.g. name@git+https://github.com/
+            {name}\s@\sgit\+{url}/      # e.g. name@git+https://github.com/
             (?P<org>[^/]+/)         # org/
             {name}@                 # name@
         )

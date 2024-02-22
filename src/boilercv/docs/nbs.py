@@ -49,7 +49,7 @@ class Paths:
     deps: Path
 
 
-warnings = [
+filters = [
     WarningFilter(
         message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
         category=FutureWarning,
@@ -74,19 +74,20 @@ warnings = [
 
 def init(font_scale: float = FONT_SCALE) -> Paths:
     """Initialize a documentation notebook."""
-
-    filter_certain_warnings(
-        package=boilercv, package_action="ignore", other_warnings=warnings
-    )
+    # sourcery skip: extract-method
+    filter_certain_warnings(package=boilercv, other_warnings=filters)
     path = Path().cwd()
-    while not (path / DOCS).exists() and not (path / DEPS).exists():
-        if path == (path := path.parent):
-            raise RuntimeError("Either documentation or dependencies are missing.")
+    already_at_root = is_root(path)
+    if not already_at_root:
+        while not is_root(path):
+            if path == (path := path.parent):
+                raise RuntimeError("Either documentation or dependencies are missing.")
     paths = Paths(*[p.resolve() for p in (path, path / DOCS, path / DEPS)])
-    chdir(paths.root)
-    copy(paths.deps / "params.yaml", dst=paths.docs)
-    copytree(src=paths.deps / "data", dst=paths.docs / "data", dirs_exist_ok=True)
-    chdir(paths.docs)
+    if not already_at_root:
+        chdir(paths.root)
+        copy(paths.deps / "params.yaml", dst=paths.docs)
+        copytree(src=paths.deps / "data", dst=paths.docs / "data", dirs_exist_ok=True)
+        chdir(paths.docs)
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
@@ -102,6 +103,11 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
     )
     style.use("data/plotting/base.mplstyle")
     return paths
+
+
+def is_root(path: Path) -> bool:
+    """Check if the path is the root of the project."""
+    return (path / DOCS).exists() and (path / DEPS).exists()
 
 
 @contextmanager

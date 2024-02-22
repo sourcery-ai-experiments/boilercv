@@ -1,9 +1,11 @@
 # Requirements for dev environments
 # * ---------------------------------------------------------------------------------- *
-boilercore@git+https://github.com/blakeNaccarato/boilercore@973a0967b0c9922abd47b5f6ec876aac0df6a0c9
+boilercore @ git+https://github.com/blakeNaccarato/boilercore@973a0967b0c9922abd47b5f6ec876aac0df6a0c9
 # * ---------------------------------------------------------------------------------- *
 # Publishing
 flit==3.9.0
+# Updating Binder lock
+pip-tools==7.4.0
 # Annotate test failures in PRs
 pytest-github-actions-annotate-failures==0.2.0
 

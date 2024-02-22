@@ -1,6 +1,6 @@
 # Latest working requirements of the package, should be ahead of pyproject.toml
 # ! Consider switching to pims instead
-boilercine@git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5
+boilercine @ git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5
 # ! boilercore specified differently in dev and CI to allow editable package in dev
 # boilercore==...
 colorcet==3.0.1
