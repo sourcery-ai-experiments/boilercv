@@ -11,6 +11,8 @@ license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
+    # ! Consider switching to pims instead
+    "boilercine@git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5",
     "boilercore>=0.0.1",
     "colorcet>=3.0.1",
     "cmasher>=1.7.2",
@@ -41,8 +43,6 @@ dependencies = [
     "sympy>=1.12",
     "tqdm>=4.66.1",
     "xarray[accel,io,parallel]>=2023.7.0",
-    # ! Consider switching to pims instead
-    "boilercine@git+https://github.com/blakeNaccarato/boilercine@main",
 ]
 [[project.authors]]
 name = "Blake Naccarato"

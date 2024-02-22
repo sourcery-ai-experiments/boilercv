@@ -4,10 +4,6 @@
 cachier@git+https://github.com/blakeNaccarato/cachier@0892f53dc8fd9fb8a7f959305a1a9ec692876dc0
 # Type checking
 pyright==1.1.350
-geopandas==0.14.3
-pyjanitor==0.26.0
-shapely==2.0.3
-trackpy==0.6.1
 # Additional testing plugins
 pytest-harvest==1.10.4
 pytest-plt==1.1.1
