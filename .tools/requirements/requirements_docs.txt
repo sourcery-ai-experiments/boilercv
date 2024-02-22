@@ -1,7 +1,8 @@
 # Requirements for documentation
 # * ---------------------------------------------------------------------------------- *
 linkify-it-py==2.0.3
-myst-nb==1.0.0
+# ! myst-nb required in experiments for `glue`
+# myst-nb==...
 nbformat==5.9.2
 sphinx-tippy==0.4.1
 sphinx-togglebutton==0.3.2

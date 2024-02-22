@@ -36,6 +36,7 @@ sympy==1.12
 tqdm==4.66.2
 xarray[accel,io,parallel]==2024.1.1
 # ! Experiments in `docs`
+myst-nb==1.0.0
 geopandas==0.14.3
 shapely==2.0.3
 trackpy==0.6.1
