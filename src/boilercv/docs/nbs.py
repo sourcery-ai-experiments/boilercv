@@ -7,6 +7,7 @@ from collections.abc import Callable
 from contextlib import contextmanager, nullcontext, redirect_stdout
 from os import chdir
 from pathlib import Path
+from shutil import copy, copytree
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
 from typing import Any
@@ -25,6 +26,10 @@ from seaborn import set_theme
 import boilercv
 from boilercv.types import DfOrS
 
+DOCS = Path("docs")
+"""Docs directory."""
+DEPS = Path("tests/root")
+"""Dependencies shared with tests."""
 FONT_SCALE = 1.3
 """Plot font scale."""
 PRECISION = 4
@@ -41,6 +46,7 @@ def init(font_scale: float = FONT_SCALE):
     """Initialize a documentation notebook."""
     filter_certain_warnings(
         package=boilercv,
+        package_action="ignore",
         other_warnings=[
             WarningFilter(
                 message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
@@ -63,14 +69,16 @@ def init(font_scale: float = FONT_SCALE):
             ),
         ],
     )
-
     path = Path().cwd()
-    root = Path(path.root).resolve()
-    while not (path / "data").exists():
-        path = path.parent
-    if path == root:
-        raise RuntimeError("Data missing.")
-    chdir(path)
+    if not (path / "src").exists():
+        root = Path(path.root).resolve()
+        while not (path / "data").exists():
+            path = path.parent
+        if path == root:
+            raise RuntimeError("Data missing.")
+        chdir(path.parent)
+        init_deps()
+        chdir(path.name)
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
@@ -85,6 +93,13 @@ def init(font_scale: float = FONT_SCALE):
         font_scale=font_scale,
     )
     style.use("data/plotting/base.mplstyle")
+
+
+def init_deps():
+    """Initialize documentation dependencies."""
+    copy(DEPS / "params.yaml", dst=DOCS)
+    copytree(src=DEPS / "data", dst=DOCS / "data", dirs_exist_ok=True)
+    Path("params_schema.json").unlink(missing_ok=True)
 
 
 @contextmanager

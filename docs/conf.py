@@ -4,16 +4,13 @@ from datetime import date
 from hashlib import sha256
 from os import environ
 from pathlib import Path
-from shutil import copy, copytree
 
 from sphinx.application import Sphinx
 
+from boilercv.docs.nbs import DOCS, init_deps
+
 PACKAGE = "boilercv"
 """Package name."""
-DOCS = Path("docs")
-"""Docs directory."""
-DEPS = Path("tests/root")
-"""Dependencies shared with tests."""
 STATIC = DOCS / "_static"
 """Static assets folder, used in configs and setup."""
 CSS = STATIC / "local.css"
@@ -35,13 +32,6 @@ def setup(app: Sphinx):
     init_deps()
     init_nb_env()
     app.connect("html-page-context", add_version_to_css)
-
-
-def init_deps():
-    """Initialize documentation dependencies."""
-    copy(DEPS / "params.yaml", dst=DOCS)
-    copytree(src=DEPS / "data", dst=DOCS / "data", dirs_exist_ok=True)
-    Path("params_schema.json").unlink(missing_ok=True)
 
 
 def init_nb_env():
