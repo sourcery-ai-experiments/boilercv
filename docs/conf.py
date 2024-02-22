@@ -139,7 +139,8 @@ nb_execution_raise_on_error = True
 # ! Thebe
 thebe_config = {
     **COMMON_OPTIONS,
-    "repository_branch": "7473b91eeeebc7270437ad5fd6a2d8437cb93b05",
+    "selector": "div.highlight",
+    "always_load": True,
 }
 # ! Other
 math_eqref_format = "Eq. {number}"
