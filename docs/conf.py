@@ -136,11 +136,8 @@ bibtex_default_style = "unsrt"
 nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
 # ! Thebe
-thebe_config = {
-    **COMMON_OPTIONS,
-    "repository_branch": "e083b583ae4ab2743c31001995c61bfcf183db81",
-    "selector": "div.highlight",
-}
+rev = Path("requirements.in").read_text(encoding="utf-8").splitlines()[0].split("@")[-1]
+thebe_config = {**COMMON_OPTIONS, "repository_branch": rev, "selector": "div.highlight"}
 # ! Other
 math_eqref_format = "Eq. {number}"
 mermaid_d3_zoom = False
