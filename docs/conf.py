@@ -7,7 +7,7 @@ from pathlib import Path
 
 from sphinx.application import Sphinx
 
-from boilercv.docs.nbs import DOCS, init_deps
+from boilercv.docs.nbs import DOCS
 
 PACKAGE = "boilercv"
 """Package name."""
@@ -29,7 +29,6 @@ PYQTGRAPH = "https://pyqtgraph.readthedocs.io/en/latest"
 
 def setup(app: Sphinx):
     """Add functions to Sphinx setup."""
-    init_deps()
     init_nb_env()
     app.connect("html-page-context", add_version_to_css)
 
@@ -41,7 +40,6 @@ def init_nb_env():
         for key in [
             "PIP_DISABLE_PIP_VERSION_CHECK",
             "PYTHONIOENCODING",
-            "PYTHONSTARTUP",
             "PYTHONUTF8",
             "PYTHONWARNDEFAULTENCODING",
             "PYTHONWARNINGS",
@@ -49,6 +47,7 @@ def init_nb_env():
         if environ.get(key) is not None
     ]:
         del environ[key]
+    environ["PYDEVD_DISABLE_FILE_VALIDATION"] = "1"
 
 
 def add_version_to_css(app: Sphinx, _pagename, _templatename, ctx, _doctree):
@@ -137,11 +136,7 @@ bibtex_default_style = "unsrt"
 nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
 # ! Thebe
-thebe_config = {
-    **COMMON_OPTIONS,
-    "selector": "div.highlight",
-    "always_load": True,
-}
+thebe_config = {**COMMON_OPTIONS, "selector": "div.highlight"}
 # ! Other
 math_eqref_format = "Eq. {number}"
 mermaid_d3_zoom = False

@@ -5,6 +5,7 @@ import os
 import re
 from collections.abc import Callable
 from contextlib import contextmanager, nullcontext, redirect_stdout
+from dataclasses import dataclass
 from os import chdir
 from pathlib import Path
 from shutil import copy, copytree
@@ -18,7 +19,6 @@ from IPython.display import HTML, display  # type: ignore
 from IPython.utils.capture import capture_output
 from matplotlib.pyplot import style
 from myst_parser.parsers.docutils_ import cli_html
-from nbformat import NotebookNode
 from numpy import set_printoptions
 from pandas import DataFrame, Index, MultiIndex, Series, concat, options
 from seaborn import set_theme
@@ -42,41 +42,51 @@ DISPLAY_ROWS = 20
 """The number of rows to display in a dataframe."""
 
 
-def init(font_scale: float = FONT_SCALE):
+@dataclass
+class Paths:
+    root: Path
+    docs: Path
+    deps: Path
+
+
+warnings = [
+    WarningFilter(
+        message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
+        category=FutureWarning,
+    ),
+    WarningFilter(
+        message=r"invalid value encountered in power", category=RuntimeWarning
+    ),
+    WarningFilter(
+        message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+        category=RuntimeWarning,
+    ),
+    WarningFilter(
+        message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
+        category=UserWarning,
+    ),
+    WarningFilter(
+        message=r"The palette list has more values \(\d+\) than needed \(\d+\), which may not be intended\.",
+        category=UserWarning,
+    ),
+]
+
+
+def init(font_scale: float = FONT_SCALE) -> Paths:
     """Initialize a documentation notebook."""
+
     filter_certain_warnings(
-        package=boilercv,
-        package_action="ignore",
-        other_warnings=[
-            WarningFilter(
-                message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
-                category=FutureWarning,
-            ),
-            WarningFilter(
-                message=r"invalid value encountered in power", category=RuntimeWarning
-            ),
-            WarningFilter(
-                message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
-                category=RuntimeWarning,
-            ),
-            WarningFilter(
-                message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
-                category=UserWarning,
-            ),
-            WarningFilter(
-                message=r"The palette list has more values \(\d+\) than needed \(\d+\), which may not be intended\.",
-                category=UserWarning,
-            ),
-        ],
+        package=boilercv, package_action="ignore", other_warnings=warnings
     )
     path = Path().cwd()
-    while not (has_docs := (path / DOCS).exists()):
-        if path.is_mount():
-            raise RuntimeError("Docs not found")
-        path = path.parent
-    chdir(path)
-    init_deps()
-    chdir(path / DOCS)
+    while not (path / DOCS).exists() and not (path / DEPS).exists():
+        if path == (path := path.parent):
+            raise RuntimeError("Either documentation or dependencies are missing.")
+    paths = Paths(*[p.resolve() for p in (path, path / DOCS, path / DEPS)])
+    chdir(paths.root)
+    copy(paths.deps / "params.yaml", dst=paths.docs)
+    copytree(src=paths.deps / "data", dst=paths.docs / "data", dirs_exist_ok=True)
+    chdir(paths.docs)
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
@@ -91,13 +101,7 @@ def init(font_scale: float = FONT_SCALE):
         font_scale=font_scale,
     )
     style.use("data/plotting/base.mplstyle")
-
-
-def init_deps():
-    """Initialize documentation dependencies."""
-    copy(DEPS / "params.yaml", dst=DOCS)
-    copytree(src=DEPS / "data", dst=DOCS / "data", dirs_exist_ok=True)
-    Path("params_schema.json").unlink(missing_ok=True)
+    return paths
 
 
 @contextmanager
@@ -115,42 +119,6 @@ def keep_viewer_in_scope():
 
     with image_viewer([]) as viewer:
         return viewer
-
-
-PATCH = "from boilercv.docs.nbs import init\n\ninit()"
-
-
-def foo(notebook: NotebookNode) -> NotebookNode:
-    """..."""
-    first_code_cell = next(cell for cell in notebook.cells if cell.cell_type == "code")
-    content = first_code_cell.get("source", "")
-    if content and not content.startswith(PATCH):
-        first_code_cell["source"] = "\n\n".join((PATCH, content))
-    return notebook
-
-
-def insert_tags(notebook: NotebookNode, tags_to_insert: list[str]) -> NotebookNode:
-    """Insert tags to all code cells in a notebook.
-
-    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
-    """
-    for cell in [cell for cell in notebook.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
-        tags = cell.get("metadata", {}).get("tags", [])
-        cell["metadata"]["tags"] = tags_to_insert + list(
-            set(tags) - set(tags_to_insert)
-        )
-    return notebook
-
-
-def remove_tags(notebook: NotebookNode, tags_to_remove: list[str]) -> NotebookNode:
-    """Remove tags to all code cells in a notebook.
-
-    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
-    """
-    for cell in [cell for cell in notebook.cells if cell.cell_type == "code"]:  # type: ignore  # pyright 1.1.333
-        tags = cell.get("metadata", {}).get("tags", [])
-        cell["metadata"]["tags"] = list(set(tags) - set(tags_to_remove))
-    return notebook
 
 
 # * -------------------------------------------------------------------------------- * #
