@@ -49,33 +49,34 @@ class Paths:
     deps: Path
 
 
-filters = [
-    WarningFilter(
-        message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
-        category=FutureWarning,
-    ),
-    WarningFilter(
-        message=r"invalid value encountered in power", category=RuntimeWarning
-    ),
-    WarningFilter(
-        message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
-        category=RuntimeWarning,
-    ),
-    WarningFilter(
-        message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
-        category=UserWarning,
-    ),
-    WarningFilter(
-        message=r"The palette list has more values \(\d+\) than needed \(\d+\), which may not be intended\.",
-        category=UserWarning,
-    ),
-]
-
-
 def init(font_scale: float = FONT_SCALE) -> Paths:
     """Initialize a documentation notebook."""
     # sourcery skip: extract-method
-    filter_certain_warnings(package=boilercv, other_warnings=filters)
+    filter_certain_warnings(
+        package=boilercv,
+        other_action="ignore",
+        other_warnings=[
+            WarningFilter(
+                category=FutureWarning,
+                message=r"A grouping was used that is not in the columns of the DataFrame and so was excluded from the result\. This grouping will be included in a future version of pandas\. Add the grouping as a column of the DataFrame to silence this warning\.",
+            ),
+            WarningFilter(
+                category=RuntimeWarning, message=r"invalid value encountered in power"
+            ),
+            WarningFilter(
+                category=RuntimeWarning,
+                message=r"numpy\.ndarray size changed, may indicate binary incompatibility\. Expected \d+ from C header, got \d+ from PyObject",
+            ),
+            WarningFilter(
+                category=UserWarning,
+                message=r"The palette list has more values \(\d+\) than needed \(\d+\), which may not be intended\.",
+            ),
+            WarningFilter(
+                category=UserWarning,
+                message=r"To output multiple subplots, the figure containing the passed axes is being cleared\.",
+            ),
+        ],
+    )
     path = Path().cwd()
     already_at_root = is_root(path)
     if not already_at_root:
