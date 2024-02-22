@@ -136,7 +136,11 @@ bibtex_default_style = "unsrt"
 nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
 # ! Thebe
-thebe_config = {**COMMON_OPTIONS, "selector": "div.highlight"}
+thebe_config = {
+    **COMMON_OPTIONS,
+    "repository_branch": "0e1bb44f9416998c85898604904f636216e1a79e",
+    "selector": "div.highlight",
+}
 # ! Other
 math_eqref_format = "Eq. {number}"
 mermaid_d3_zoom = False
