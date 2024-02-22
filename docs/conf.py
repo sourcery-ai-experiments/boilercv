@@ -138,7 +138,7 @@ nb_execution_raise_on_error = True
 # ! Thebe
 thebe_config = {
     **COMMON_OPTIONS,
-    "repository_branch": "0e1bb44f9416998c85898604904f636216e1a79e",
+    "repository_branch": "e083b583ae4ab2743c31001995c61bfcf183db81",
     "selector": "div.highlight",
 }
 # ! Other
