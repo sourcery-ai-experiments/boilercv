@@ -1,3 +1,3 @@
-boilercv @ https://github.com/blakeNaccarato/boilercv@9cfffa6bfbc8a2cfc383a751e5b38fd2a5536f51
+boilercv @ https://github.com/blakeNaccarato/boilercv@9b72a445f7f0b38ca28eef9a35af800b044c80c5
 --requirement .tools/requirements/requirements.txt
 boilercore @ git+https://github.com/blakeNaccarato/boilercore@973a0967b0c9922abd47b5f6ec876aac0df6a0c9
