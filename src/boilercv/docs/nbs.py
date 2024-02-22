@@ -70,15 +70,13 @@ def init(font_scale: float = FONT_SCALE):
         ],
     )
     path = Path().cwd()
-    if not (path / "src").exists():
-        root = Path(path.root).resolve()
-        while not (path / "data").exists():
-            path = path.parent
-        if path == root:
-            raise RuntimeError("Data missing.")
-        chdir(path.parent)
-        init_deps()
-        chdir(path.name)
+    while not (has_docs := (path / DOCS).exists()):
+        if path.is_mount():
+            raise RuntimeError("Docs not found")
+        path = path.parent
+    chdir(path)
+    init_deps()
+    chdir(path / DOCS)
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
