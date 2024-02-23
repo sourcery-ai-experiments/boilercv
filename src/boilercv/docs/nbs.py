@@ -79,24 +79,26 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
     )
     path = Path().cwd()
     was_already_at_root = is_root(path)
-    if not was_already_at_root:
-        while not is_root(path):
-            if path == (path := path.parent):
-                raise RuntimeError("Either documentation or dependencies are missing.")
+    while not is_root(path):
+        if path == (path := path.parent):
+            raise RuntimeError("Either documentation or dependencies are missing.")
     paths = Paths(*[p.resolve() for p in (path, path / DOCS, path / DEPS)])
-    if not was_already_at_root:
-        chdir(paths.root)
-    in_binder = environ.get("BINDER_LAUNCH_HOST", None)
-    in_thebe = was_already_at_root and in_binder
     params = paths.deps / "params.yaml"
     data = paths.deps / "data"
-    if in_binder:
-        copy(params, dst=paths.root)
-        copytree(src=data, dst=paths.root / "data", dirs_exist_ok=True)
-    elif in_thebe:
-        copy(params, dst=paths.docs)
-        copytree(src=data, dst=paths.docs / "data", dirs_exist_ok=True)
+    if _in_binder := environ.get("BINDER_LAUNCH_HOST", False):
+        chdir(paths.root)
+        copy(params, paths.root)
+        copytree(data, paths.root / "data", dirs_exist_ok=True)
+    if any((
+        _in_ci := environ.get("CI", False),
+        _in_dev := was_already_at_root,
+        _in_local_docs := not was_already_at_root,
+    )):
         chdir(paths.docs)
+        copy(params, paths.docs)
+        copytree(data, paths.docs / "data", dirs_exist_ok=True)
+    else:
+        raise RuntimeError("Can't determine notebook environment.")
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
