@@ -83,22 +83,33 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
         if path == (path := path.parent):
             raise RuntimeError("Either documentation or dependencies are missing.")
     paths = Paths(*[p.resolve() for p in (path, path / DOCS, path / DEPS)])
-    params = paths.deps / "params.yaml"
-    data = paths.deps / "data"
     if _in_binder := environ.get("BINDER_LAUNCH_HOST", False):
-        chdir(paths.root)
-        copy(params, paths.root)
-        copytree(data, paths.root / "data", dirs_exist_ok=True)
+        copy_deps(paths.deps, paths.root)
     if any((
         _in_ci := environ.get("CI", False),
         _in_dev := was_already_at_root,
         _in_local_docs := not was_already_at_root,
     )):
-        chdir(paths.docs)
-        copy(params, paths.docs)
-        copytree(data, paths.docs / "data", dirs_exist_ok=True)
+        copy_deps(paths.deps, paths.docs)
     else:
         raise RuntimeError("Can't determine notebook environment.")
+    set_display_options(font_scale)
+    return paths
+
+
+def is_root(path: Path) -> bool:
+    """Check if the path is the root of the project."""
+    return (path / DOCS).exists() and (path / DEPS).exists()
+
+
+def copy_deps(src, dst):
+    """Copy dependencies to the destination directory."""
+    chdir(dst)
+    copy(src / "params.yaml", dst)
+    copytree(src / "data", dst / "data", dirs_exist_ok=True)
+
+
+def set_display_options(font_scale):
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
@@ -113,12 +124,6 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
         font_scale=font_scale,
     )
     style.use("data/plotting/base.mplstyle")
-    return paths
-
-
-def is_root(path: Path) -> bool:
-    """Check if the path is the root of the project."""
-    return (path / DOCS).exists() and (path / DEPS).exists()
 
 
 @contextmanager
