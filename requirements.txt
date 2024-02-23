@@ -1,4 +1,4 @@
 # Binder
-boilercv @ git+https://github.com/blakeNaccarato/boilercv@d93c04335c7e513ef6afcbcf593d761a26851d2e
+boilercv @ git+https://github.com/blakeNaccarato/boilercv@c939cce6ae836fb77515c95bf72ba8add0313a9e
 --requirement .tools/requirements/requirements.txt
 boilercore @ git+https://github.com/blakeNaccarato/boilercore@973a0967b0c9922abd47b5f6ec876aac0df6a0c9
