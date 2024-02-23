@@ -33,7 +33,9 @@ CASER = "C"
 @pytest.fixture(autouse=True, scope="session")
 def _project_session_path(tmp_path_factory):
     """Set project directory."""
-    get_session_path(tmp_path_factory, boilercv)
+    path = get_session_path(tmp_path_factory, boilercv)
+    # We only have this for docs, and don't want to test it
+    (path / "data/sources/2023-09-20T17-14-18.nc").unlink()
 
 
 # * -------------------------------------------------------------------------------- * #
