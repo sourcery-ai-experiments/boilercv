@@ -4,8 +4,6 @@ boilercore @ git+https://github.com/blakeNaccarato/boilercore@973a0967b0c9922abd
 # * ---------------------------------------------------------------------------------- *
 # Publishing
 flit==3.9.0
-# Updating Binder lock
-pip-tools==7.4.0
 # Annotate test failures in PRs
 pytest-github-actions-annotate-failures==0.2.0
 
