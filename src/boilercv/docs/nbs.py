@@ -84,13 +84,18 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
             if path == (path := path.parent):
                 raise RuntimeError("Either documentation or dependencies are missing.")
     paths = Paths(*[p.resolve() for p in (path, path / DOCS, path / DEPS)])
-    if environ.get("BINDER_LAUNCH_HOST", None):
-        copy(paths.deps / "params.yaml", dst=paths.root)
-        copytree(src=paths.deps / "data", dst=paths.root / "data", dirs_exist_ok=True)
-    elif not was_already_at_root:
+    if not was_already_at_root:
         chdir(paths.root)
-        copy(paths.deps / "params.yaml", dst=paths.docs)
-        copytree(src=paths.deps / "data", dst=paths.docs / "data", dirs_exist_ok=True)
+    in_binder = environ.get("BINDER_LAUNCH_HOST", None)
+    in_thebe = was_already_at_root and in_binder
+    params = paths.deps / "params.yaml"
+    data = paths.deps / "data"
+    if in_binder:
+        copy(params, dst=paths.root)
+        copytree(src=data, dst=paths.root / "data", dirs_exist_ok=True)
+    elif in_thebe:
+        copy(params, dst=paths.docs)
+        copytree(src=data, dst=paths.docs / "data", dirs_exist_ok=True)
         chdir(paths.docs)
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
