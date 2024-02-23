@@ -139,7 +139,7 @@ nb_execution_raise_on_error = True
 thebe_config = {
     **COMMON_OPTIONS,
     "repository_branch": (
-        Path("../requirements.in")
+        Path("../requirements.txt")
         .read_text(encoding="utf-8")
         .splitlines()[0]
         .split("@")[-1]
