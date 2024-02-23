@@ -11,6 +11,7 @@ from re import fullmatch
 from shutil import rmtree
 from types import SimpleNamespace
 from typing import Any, TypeAlias
+from warnings import resetwarnings
 
 import pytest
 import pytest_harvest
@@ -36,6 +37,9 @@ def _project_session_path(tmp_path_factory):
     path = get_session_path(tmp_path_factory, boilercv)
     # We only have this for docs, and don't want to test it
     (path / "data/sources/2023-09-20T17-14-18.nc").unlink()
+    yield
+    # Reset warnings at session teardown to avoid raising on internal warnings
+    resetwarnings()
 
 
 # * -------------------------------------------------------------------------------- * #
