@@ -1,8 +1,8 @@
 # boilercv
 
-[![DOI](https://zenodo.org/badge/503551174.svg)](https://zenodo.org/badge/latestdoi/503551174) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blakeNaccarato/boilercv/HEAD?labpath=docs%2Fexperiments%2Fe230920_subcool%2Ffind_centers.ipynb)
+[![DOI](https://zenodo.org/badge/503551174.svg)](https://zenodo.org/badge/latestdoi/503551174)
 
-Computer vision routines suitable for nucleate pool boiling bubble analysis. See the [documentation](https://blakenaccarato.github.io/boilercv/) for more detail. Click the "launch binder" badge above and you will be able to run the notebooks in `docs/experiments` in your browser with different parameters, and even create your own notebooks.
+Computer vision routines suitable for nucleate pool boiling bubble analysis. See the [documentation](https://blakenaccarato.github.io/boilercv/) for more detail, including a [Binder](https://jupyter.org/binder) for running code live. Click the "launch binder" badge above and you will be able to run the notebooks in `docs/experiments` in your browser with different parameters, and even create your own notebooks.
 
 ## Example
 

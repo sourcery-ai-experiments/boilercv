@@ -17,6 +17,13 @@ CSS = STATIC / "local.css"
 """Local CSS file, used in configs and setup."""
 BIB = DOCS / "refs.bib"
 """Bibliography file."""
+REV = (
+    Path("../requirements.txt")
+    .read_text(encoding="utf-8")
+    .splitlines()[1]
+    .split("@")[-1]
+)
+"""Binder revision."""
 
 # ! URLs for autodoc, intersphinx, and tippy
 OPENCV = "https://docs.opencv.org/2.4"
@@ -126,8 +133,17 @@ html_theme_options = {
     "use_repository_button": True,
 }
 # ! MyST
-myst_enable_extensions = ["colon_fence", "dollarmath", "attrs_block", "linkify"]
+myst_enable_extensions = [
+    "colon_fence",
+    "dollarmath",
+    "attrs_block",
+    "linkify",
+    "substitution",
+]
 myst_heading_anchors = 6
+myst_substitutions = {
+    "binder": f"[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blakeNaccarato/{PACKAGE}/{REV}?labpath=docs%2Fexperiments%2Fe230920_subcool%2Ffind_centers.ipynb)"
+}
 # ! BibTeX
 bibtex_bibfiles = dpaths(BIB)
 bibtex_reference_style = "label"
@@ -136,16 +152,7 @@ bibtex_default_style = "unsrt"
 nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
 # ! Thebe
-thebe_config = {
-    **COMMON_OPTIONS,
-    "repository_branch": (
-        Path("../requirements.txt")
-        .read_text(encoding="utf-8")
-        .splitlines()[0]
-        .split("@")[-1]
-    ),
-    "selector": "div.highlight",
-}
+thebe_config = {**COMMON_OPTIONS, "repository_branch": REV, "selector": "div.highlight"}
 # ! Other
 math_eqref_format = "Eq. {number}"
 mermaid_d3_zoom = False
