@@ -6,7 +6,7 @@ import re
 from collections.abc import Callable
 from contextlib import contextmanager, nullcontext, redirect_stdout
 from dataclasses import dataclass
-from os import chdir
+from os import chdir, environ
 from pathlib import Path
 from shutil import copy, copytree
 from tempfile import NamedTemporaryFile
@@ -78,13 +78,16 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
         ],
     )
     path = Path().cwd()
-    already_at_root = is_root(path)
-    if not already_at_root:
+    was_already_at_root = is_root(path)
+    if not was_already_at_root:
         while not is_root(path):
             if path == (path := path.parent):
                 raise RuntimeError("Either documentation or dependencies are missing.")
     paths = Paths(*[p.resolve() for p in (path, path / DOCS, path / DEPS)])
-    if not already_at_root:
+    if environ.get("BINDER_LAUNCH_HOST", None):
+        copy(paths.deps / "params.yaml", dst=paths.root)
+        copytree(src=paths.deps / "data", dst=paths.root / "data", dirs_exist_ok=True)
+    elif not was_already_at_root:
         chdir(paths.root)
         copy(paths.deps / "params.yaml", dst=paths.docs)
         copytree(src=paths.deps / "data", dst=paths.docs / "data", dirs_exist_ok=True)

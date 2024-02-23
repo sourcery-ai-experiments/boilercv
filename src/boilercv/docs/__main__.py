@@ -5,6 +5,9 @@ from textwrap import dedent
 
 from nbformat import NO_CONVERT, NotebookNode, read, write
 
+EXCLUDE_THEBE = [
+    Path(p) for p in ["docs/experiments/e230920_subcool/find_tracks_trackpy.ipynb"]
+]
 SRC = "source"
 CODE = "code"
 MD = "markdown"
@@ -13,21 +16,23 @@ MD = "markdown"
 def main():
     for path in Path("docs").rglob("*.ipynb"):
         nb: NotebookNode = read(path, NO_CONVERT)  # type: ignore  # pyright 1.1.348,  # nbformat: 5.9.2
-        # Patch the first Markdown cell
-        i, first_md_cell = get_first(nb, MD)
-        nb.cells[i][SRC] = patch(
-            first_md_cell.get(SRC, ""),
-            """
-            ::::
-            :::{thebe-button}
-            :::
-            ::::
-            """,
-        )
-        # Insert tags to the first Markdown cell
-        nb.cells[i] = insert_tag(first_md_cell, ["thebe-init"])
-        # Patch the first code cell
+        if path not in EXCLUDE_THEBE:
+            # Patch the first Markdown cell
+            i, first_md_cell = get_first(nb, MD)
+            nb.cells[i][SRC] = patch(
+                first_md_cell.get(SRC, ""),
+                """
+                ::::
+                :::{thebe-button}
+                :::
+                ::::
+                """,
+            )
         i, first_code_cell = get_first(nb, CODE)
+        if path not in EXCLUDE_THEBE:
+            # Insert Thebe tags to the first code cell
+            nb.cells[i] = insert_tag(first_code_cell, ["thebe-init"])
+        # Patch the first code cell
         nb.cells[i][SRC] = patch(
             first_code_cell.get(SRC, ""),
             """
