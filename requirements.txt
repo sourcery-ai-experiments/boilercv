@@ -74,7 +74,7 @@ boilercore @ git+https://github.com/blakeNaccarato/boilercore@973a0967b0c9922abd
     # via
     #   -r requirements.in
     #   boilercv
-boilercv @ git+https://github.com/blakeNaccarato/boilercv@23e38adc291f987c349cd85e9c8208ecb16002d3
+boilercv @ git+https://github.com/blakeNaccarato/boilercv@49c301ab3f3246d757e8195a40be5d5f65048620
     # via -r requirements.in
 bokeh==3.3.4
     # via dask
