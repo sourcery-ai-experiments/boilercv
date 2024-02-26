@@ -30,6 +30,8 @@ jobs:
           sudo apt update
           sudo apt install libegl1
       # * -------------------------------------------------------------------------- * #
+      # ! Need to specify `cov-config` as below.
+      # ! See https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
       - run: "pytest --cov --cov-config=pyproject.toml"
       - uses: "codecov/codecov-action@v3.1.4"
   fawltydeps:
