@@ -1,8 +1,6 @@
 # Requirements for dev environments
 # * ---------------------------------------------------------------------------------- *
 boilercore @ git+https://github.com/blakeNaccarato/boilercore@973a0967b0c9922abd47b5f6ec876aac0df6a0c9
-# ? Sidestep #166 in CI for now
-pluggy==1.3.0
 # * ---------------------------------------------------------------------------------- *
 # Publishing
 flit==3.9.0
