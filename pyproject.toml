@@ -86,6 +86,7 @@ xfail_strict = true
 
 [tool.coverage.run]
 branch = true
+config = ".coveragerc"
 parallel = true
 source = ["boilercv"]
 [tool.coverage.report]
