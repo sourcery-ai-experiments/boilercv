@@ -122,10 +122,6 @@ repos:
             |docs/.*
             |tests/.*
           )$
-  - repo: "https://github.com/DavidAnson/markdownlint-cli2"
-    rev: "v0.11.0"
-    hooks:
-      - id: "markdownlint-cli2-fix"
   - repo: "https://github.com/charliermarsh/ruff-pre-commit"
     rev: "v0.2.1"
     hooks:
