@@ -3,27 +3,27 @@ name: "lock"
 on: ["workflow_dispatch"]
 
 jobs:
-  compile:
+  lock:
     env:
       uv: "uv pip install --system --break-system-packages"
       req: "-r .tools/requirements"
     strategy:
       matrix:
         github_actions_runner:
-          - "macos-12"
+          # - "macos-12"
           - "ubuntu-22.04"
-          - "windows-2022"
+          # - "windows-2022"
         python_version:
           - "3.11"
-          - "3.12"
+          # - "3.12"
         resolution_strategy:
           - "lower"
-          - "upper"
-          - "latest"
+          # - "upper"
+          # - "latest"
         cv_flavor:
-          - "opencv-python"
-          - "opencv-contrib-python"
-          - "opencv-python-headless"
+          # - "opencv-python"
+          # - "opencv-contrib-python"
+          # - "opencv-python-headless"
           - "opencv-contrib-python-headless"
     runs-on: "${{ matrix.github_actions_runner }}"
     steps:
@@ -36,4 +36,4 @@ jobs:
       - run: "python -m pip install ${{ env.req }}/core.in"
       - run: "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
       - run: "python .tools/scripts/core.py sync"
-      - run: ""
+      - run: "python .tools/scripts/core.py lock"
