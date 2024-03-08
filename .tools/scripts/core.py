@@ -3,7 +3,7 @@
 from contextlib import closing
 from dataclasses import dataclass
 from pathlib import Path
-from re import MULTILINE, VERBOSE, Pattern, compile
+from re import MULTILINE, VERBOSE, Pattern, compile, sub
 from shlex import split
 from subprocess import run
 from sys import executable
@@ -17,6 +17,8 @@ app = App()
 
 UV = next(Path(executable).parent.glob("uv*")).as_posix()
 """Path to the `uv` executable."""
+CV = Path(".tools/requirements/cv.in")
+"""Path to the `cv` requirements file."""
 
 # * -------------------------------------------------------------------------------- * #
 
@@ -183,6 +185,8 @@ class Environment:
     """Resolution strategy."""
     cv_flavor: CvFlavor
     """Flavor of OpenCV."""
+    requirements: list[Path]
+    """Requirements files."""
 
 
 GitHubActionsRunner: TypeAlias = Literal["macos-12", "ubuntu-22.04", "windows-2022"]
@@ -196,26 +200,34 @@ RUNNERS: dict[GitHubActionsRunner, System] = {
 
 @app.command()
 def lock(
-    runner: GitHubActionsRunner,
-    python_version: PythonVersion,
-    resolution_strategy: ResolutionStrategy,
-    cv_flavor: CvFlavor,
+    runner: GitHubActionsRunner, python_version: PythonVersion, cv_flavor: CvFlavor
 ):
     env = Environment(
         system=RUNNERS[runner],
         python_version=python_version,
-        resolution_strategy=resolution_strategy,
+        resolution_strategy="lower",
         cv_flavor=cv_flavor,
+        requirements=[Path(".tools/requirements/cv.in")],
     )
-    print(lock_(env.python_version, Path("pyproject.toml")))  # noqa: T201
+    print(lock_(env))  # noqa: T201
 
 
-def lock_(python_version: PythonVersion, requirements: Path) -> str:
+def lock_(env: Environment) -> str:
+    cv = ""
+    if CV in env.requirements:
+        for line in CV.read_text("utf-8").splitlines():
+            if line.startswith("opencv"):
+                cv = sub(r"(opencv-[\w-]+)(==.+)", rf"{env.cv_flavor}\2", line)
+        env.requirements = list(set(env.requirements) - {CV})
+    resolution = "lowest-direct" if env.resolution_strategy == "lower" else "highest"
     result = run(
+        input=cv,
         args=split(
             " ".join([
-                f"{UV} pip compile --python-version {python_version}",
-                f"--resolution lowest-direct {requirements.as_posix()}",
+                f"{UV} pip compile --python-version {env.python_version}",
+                f"--resolution {resolution}",
+                *[r.as_posix() for r in env.requirements],
+                "-",
             ])
         ),
         check=False,
@@ -238,6 +250,7 @@ def dev():
             python_version="3.11",
             resolution_strategy="lower",
             cv_flavor="opencv-contrib-python",
+            requirements=[Path(".tools/requirements/cv.in")],
         )
         for sys in ("mac", "unix", "windows")
     ]

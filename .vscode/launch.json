@@ -108,7 +108,7 @@
       "type": "debugpy",
       "request": "launch",
       "program": ".tools/scripts/core.py",
-      "args": ["lock", "windows-2022", "3.11", "lower", "opencv-python"]
+      "args": ["lock", "windows-2022", "3.11", "opencv-python"]
     },
     {
       //? Needs to be "pytest" adapter for now.

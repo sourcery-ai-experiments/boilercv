@@ -13,14 +13,10 @@ jobs:
         github_actions_runner:
           # - "macos-12"
           - "ubuntu-22.04"
-          - "windows-2022"
+          # - "windows-2022"
         python_version:
           - "3.11"
           # - "3.12"
-        resolution_strategy:
-          - "lower"
-          # - "upper"
-          # - "latest"
         cv_flavor:
           # - "opencv-python"
           # - "opencv-contrib-python"
@@ -39,7 +35,6 @@ jobs:
       - run: "python .tools/scripts/core.py sync"
       - run: |
           python .tools/scripts/core.py lock \
-            ${{ matrix.github_actions_runner }} \
-            ${{ matrix.python_version }} \
-            ${{ matrix.resolution_strategy }} \
-            ${{ matrix.cv_flavor }} \
+            --runner ${{ matrix.github_actions_runner }} \
+            --python-version ${{ matrix.python_version }} \
+            --cv-flavor ${{ matrix.cv_flavor }} \
