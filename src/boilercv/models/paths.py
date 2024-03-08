@@ -56,13 +56,6 @@ class Paths(CreatePathsModel):
     mpl_base: FilePath = plot_config / "base.mplstyle"
     mpl_hide_title: FilePath = plot_config / "hide_title.mplstyle"
 
-    # * DVC-tracked imports
-    scripts: DirectoryPath = data / "scripts"
-    csl: FilePath = scripts / "international-journal-of-heat-and-mass-transfer.csl"
-    filt: FilePath = scripts / "filt.py"
-    template: FilePath = scripts / "template.dotx"
-    zotero: FilePath = scripts / "zotero.lua"
-
     # * DVC-tracked inputs
     experiments: DirectoryPath = data / "experiments"
     notebooks: DirectoryPath = data / "notebooks"

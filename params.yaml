@@ -34,11 +34,6 @@ paths:
   plot_config: data/plotting
   mpl_base: data/plotting/base.mplstyle
   mpl_hide_title: data/plotting/hide_title.mplstyle
-  scripts: data/scripts
-  csl: data/scripts/international-journal-of-heat-and-mass-transfer.csl
-  filt: data/scripts/filt.py
-  template: data/scripts/template.dotx
-  zotero: data/scripts/zotero.lua
   experiments: data/experiments
   notebooks: data/notebooks
   rois: data/rois
