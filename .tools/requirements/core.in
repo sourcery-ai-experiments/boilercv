@@ -1,0 +1,5 @@
+# Requirements for running `tools/scripts/core_update.py`
+copier==9.1.0
+cyclopts==2.4.1
+dulwich==0.21.7
+uv==0.1.16

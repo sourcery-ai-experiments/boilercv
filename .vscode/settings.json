@@ -48,7 +48,6 @@
     ".pylintrc": "ini",
     ".root": "plaintext",
     ".sourcery.yaml": "yaml",
-    "*requirements*.txt": "pip-requirements",
     "*ipython-input*": "python",
     "pyrightconfig.json": "jsonc"
   },

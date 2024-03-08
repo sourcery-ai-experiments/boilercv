@@ -4,16 +4,24 @@ from contextlib import closing
 from dataclasses import dataclass
 from pathlib import Path
 from re import MULTILINE, VERBOSE, Pattern, compile
+from typing import Literal, TypeAlias
 
+from cyclopts import App
 from dulwich.porcelain import submodule_list
 from dulwich.repo import Repo
 
+app = App()
 
-def main():
+# * -------------------------------------------------------------------------------- * #
+# * Sync
+
+
+@app.command()
+def sync():
     *_, submodule_deps = get_submodules()
     requirements_files = [
         Path("pyproject.toml"),
-        *sorted(Path(".tools/requirements").glob("requirements*.txt")),
+        *sorted(Path(".tools/requirements").glob("*.in")),
     ]
     for file in requirements_files:
         original_content = content = file.read_text("utf-8")
@@ -135,5 +143,81 @@ def compile_dependency(pattern: str) -> Pattern[str]:
     )
 
 
+# * -------------------------------------------------------------------------------- * #
+# * Locks
+
+System: TypeAlias = Literal["mac", "unix", "windows"]
+PythonSystem: TypeAlias = Literal["macos", "linux", "windows"]
+PythonVersion: TypeAlias = Literal["3.11", "3.12"]
+ResolutionStrategy: TypeAlias = Literal["lower", "upper", "latest"]
+CvFlavor: TypeAlias = Literal[
+    "opencv-python",
+    "opencv-contrib-python",
+    "opencv-python-headless",
+    "opencv-contrib-python-headless",
+]
+
+
+@dataclass
+class Environment:
+    """An environment.
+
+    Args:
+        system: Operating system.
+        python_version: Python version.
+        resolution_strategy: Resolution strategy.
+        cv_contrib: Use `python_opencv_contrib`.
+        cv_headless: Use `python_opencv_headless`.
+    """
+
+    system: System
+    """Operating system."""
+    python_version: PythonVersion
+    """Python version."""
+    resolution_strategy: ResolutionStrategy
+    """Resolution strategy."""
+    cv_flavor: CvFlavor
+    """Flavor of OpenCV."""
+
+
+GitHubActionsRunner: TypeAlias = Literal["macos-12", "ubuntu-22.04", "windows-2022"]
+
+RUNNERS: dict[GitHubActionsRunner, System] = {
+    "macos-12": "mac",
+    "ubuntu-22.04": "unix",
+    "windows-2022": "windows",
+}
+
+
+@app.command()
+def lock(
+    runner: GitHubActionsRunner,
+    python_version: PythonVersion,
+    resolution_strategy: ResolutionStrategy,
+    cv_flavor: CvFlavor,
+):
+    env = Environment(
+        system=RUNNERS[runner],
+        python_version=python_version,
+        resolution_strategy=resolution_strategy,
+        cv_flavor=cv_flavor,
+    )
+    print(env)  # noqa: T201
+
+
+@app.command()
+def dev():
+    dev_envs = [
+        Environment(
+            system=sys,
+            python_version="3.11",
+            resolution_strategy="lower",
+            cv_flavor="opencv-contrib-python",
+        )
+        for sys in ("mac", "unix", "windows")
+    ]
+    print(dev_envs)  # noqa: T201
+
+
 if __name__ == "__main__":
-    main()
+    app()
