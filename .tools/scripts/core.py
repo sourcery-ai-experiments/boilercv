@@ -4,6 +4,8 @@ from contextlib import closing
 from dataclasses import dataclass
 from pathlib import Path
 from re import MULTILINE, VERBOSE, Pattern, compile
+from shlex import split
+from subprocess import PIPE, run
 from typing import Literal, TypeAlias
 
 from cyclopts import App
@@ -13,7 +15,6 @@ from dulwich.repo import Repo
 app = App()
 
 # * -------------------------------------------------------------------------------- * #
-# * Sync
 
 
 @app.command()
@@ -202,12 +203,25 @@ def lock(
         resolution_strategy=resolution_strategy,
         cv_flavor=cv_flavor,
     )
-    print(env)  # noqa: T201
+    print(lock_(env.python_version, ["pandas"]))  # noqa: T201
+
+
+def lock_(python_version: PythonVersion, dependencies: list[str]) -> str:
+    return run(
+        input="\n".join(dependencies),
+        args=split(f"uv pip compile {python_version} --resolution lowest-direct -"),
+        check=True,
+        text=True,
+        stdout=PIPE,
+    ).stdout
+
+
+# * -------------------------------------------------------------------------------- * #
 
 
 @app.command()
 def dev():
-    dev_envs = [
+    dev_envs = [  # noqa: F841
         Environment(
             system=sys,
             python_version="3.11",
@@ -216,8 +230,9 @@ def dev():
         )
         for sys in ("mac", "unix", "windows")
     ]
-    print(dev_envs)  # noqa: T201
 
+
+# * -------------------------------------------------------------------------------- * #
 
 if __name__ == "__main__":
     app()
