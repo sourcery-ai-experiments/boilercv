@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from re import MULTILINE, VERBOSE, Pattern, compile
 from shlex import split
-from subprocess import PIPE, run
+from subprocess import run
+from sys import executable
 from typing import Literal, TypeAlias
 
 from cyclopts import App
@@ -13,6 +14,9 @@ from dulwich.porcelain import submodule_list
 from dulwich.repo import Repo
 
 app = App()
+
+UV = next(Path(executable).parent.glob("uv*")).as_posix()
+"""Path to the `uv` executable."""
 
 # * -------------------------------------------------------------------------------- * #
 
@@ -203,17 +207,24 @@ def lock(
         resolution_strategy=resolution_strategy,
         cv_flavor=cv_flavor,
     )
-    print(lock_(env.python_version, ["pandas"]))  # noqa: T201
+    print(lock_(env.python_version, Path("pyproject.toml")))  # noqa: T201
 
 
-def lock_(python_version: PythonVersion, dependencies: list[str]) -> str:
-    return run(
-        input="\n".join(dependencies),
-        args=split(f"uv pip compile {python_version} --resolution lowest-direct -"),
-        check=True,
+def lock_(python_version: PythonVersion, requirements: Path) -> str:
+    result = run(
+        args=split(
+            " ".join([
+                f"{UV} pip compile --python-version {python_version}",
+                f"--resolution lowest-direct {requirements.as_posix()}",
+            ])
+        ),
+        check=False,
         text=True,
-        stdout=PIPE,
-    ).stdout
+        capture_output=True,
+    )
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    return result.stdout
 
 
 # * -------------------------------------------------------------------------------- * #

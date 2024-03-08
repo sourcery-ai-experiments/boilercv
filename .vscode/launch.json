@@ -104,6 +104,13 @@
       }
     },
     {
+      "name": "Python: Lock",
+      "type": "debugpy",
+      "request": "launch",
+      "program": ".tools/scripts/core.py",
+      "args": ["lock", "windows-2022", "3.11", "lower", "opencv-python"]
+    },
+    {
       //? Needs to be "pytest" adapter for now.
       //? "debugpy" adapter isn't seen, to toggle "justMyCode" in test configuration
       //? https://github.com/microsoft/vscode-python-debugger/issues/112

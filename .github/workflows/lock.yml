@@ -8,6 +8,7 @@ jobs:
       uv: "uv pip install --system --break-system-packages"
       req: "-r .tools/requirements"
     strategy:
+      fail-fast: false
       matrix:
         github_actions_runner:
           # - "macos-12"
