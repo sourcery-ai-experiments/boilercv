@@ -1,4 +1,4 @@
-name: "main"
+name: "lock"
 
 on: ["workflow_dispatch"]
 
