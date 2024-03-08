@@ -12,7 +12,7 @@ jobs:
         github_actions_runner:
           # - "macos-12"
           - "ubuntu-22.04"
-          # - "windows-2022"
+          - "windows-2022"
         python_version:
           - "3.11"
           # - "3.12"
@@ -37,8 +37,8 @@ jobs:
       - run: "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
       - run: "python .tools/scripts/core.py sync"
       - run: |
-          python .tools/scripts/core.py lock
-            ${{ matrix.github_actions_runner }}
-            ${{ matrix.python_version }}
-            ${{ matrix.resolution_strategy }}
-            ${{ matrix.cv_flavor }}
+          python .tools/scripts/core.py lock \
+            ${{ matrix.github_actions_runner }} \
+            ${{ matrix.python_version }} \
+            ${{ matrix.resolution_strategy }} \
+            ${{ matrix.cv_flavor }} \
