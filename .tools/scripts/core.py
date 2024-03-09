@@ -18,10 +18,12 @@ app = App()
 
 UV = next(Path(executable).parent.glob("uv*"))
 """Path to the `uv` executable."""
-CV_REQ = Path(".tools/requirements/cv.in")
+LOCK = Path(".lock")
+"""Path to the lock directory."""
+CV_REGEX = r"^opencv(?:-contrib)?-python(?:-headless)?(.*)$"
+"""Pattern to match the various OpenCV options."""
+CV_REQS = Path(".tools/requirements/cv.in")
 """Path to the `cv` requirements file."""
-REQUIREMENTS = Path(".tools/requirements/requirements2.txt")
-"""Path to the locked `requirements.txt` file."""
 
 # * -------------------------------------------------------------------------------- * #
 
@@ -210,27 +212,52 @@ def lock(
         python_version=python_version,
         resolution_strategy="lower",
         cv_flavor=cv_flavor,
-        requirements=[Path(".tools/requirements/cv.in")],
+        requirements=[Path(f".tools/requirements/{p}.in") for p in ["core", "cv"]],
     )
-    REQUIREMENTS.write_text(encoding="utf-8", data=lock_(env))
-
-
-CV_RE = r"^opencv(?:-contrib)?-python(?:-headless)?(.*)$"
-"""Pattern to match the various OpenCV options."""
+    reqs = env.requirements
+    override = CV_REQS.with_stem(f"{CV_REQS.stem}_override")
+    override.write_text(
+        encoding="utf-8",
+        data="\n".join([
+            sub(CV_REGEX, rf"{env.cv_flavor}\1", line)
+            for line in CV_REQS.read_text("utf-8").splitlines()
+        ]),
+    )
+    reqs[reqs.index(CV_REQS)] = override
+    resolution = "lowest-direct" if env.resolution_strategy == "lower" else "highest"
+    lock_result = run(
+        args=split(
+            " ".join([
+                f"{UV.as_posix()} pip compile --python-version {env.python_version}",
+                f"--resolution {resolution}",
+                *[r.as_posix() for r in reqs],
+                f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
+            ])
+        ),
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if lock_result.returncode:
+        raise RuntimeError(lock_result.stderr)
+    LOCK.mkdir(exist_ok=True, parents=True)
+    (LOCK / f"requirements_{runner}_{python_version}_{cv_flavor}.txt").write_text(
+        encoding="utf-8", data=lock_result.stdout
+    )
 
 
 def lock_(env: Environment) -> str:
     reqs = env.requirements
-    if CV_REQ in reqs:
-        override = CV_REQ.with_stem(f"{CV_REQ.stem}_override")
+    if CV_REQS in reqs:
+        override = CV_REQS.with_stem(f"{CV_REQS.stem}_override")
         override.write_text(
             encoding="utf-8",
             data="\n".join([
-                sub(CV_RE, rf"{env.cv_flavor}\1", line)
-                for line in CV_REQ.read_text("utf-8").splitlines()
+                sub(CV_REGEX, rf"{env.cv_flavor}\1", line)
+                for line in CV_REQS.read_text("utf-8").splitlines()
             ]),
         )
-        reqs[reqs.index(CV_REQ)] = override
+        reqs[reqs.index(CV_REQS)] = override
     resolution = "lowest-direct" if env.resolution_strategy == "lower" else "highest"
     result = run(
         args=split(
