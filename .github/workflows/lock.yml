@@ -38,3 +38,12 @@ jobs:
             --runner ${{ matrix.github_actions_runner }} \
             --python-version ${{ matrix.python_version }} \
             --cv-flavor ${{ matrix.cv_flavor }} \
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 #v4.3.1
+        with:
+          name: |
+            requirements_\
+            ${{ matrix.github_actions_runner }}\
+            ${{ matrix.python_version }}\
+            ${{ matrix.cv_flavor }}\
+            .txt
+          path: ".tools/requirements/requirements2.txt"

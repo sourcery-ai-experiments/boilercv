@@ -2,6 +2,7 @@
 
 from contextlib import closing
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from re import MULTILINE, VERBOSE, Pattern, compile, sub
 from shlex import split
@@ -15,10 +16,12 @@ from dulwich.repo import Repo
 
 app = App()
 
-UV = next(Path(executable).parent.glob("uv*")).as_posix()
+UV = next(Path(executable).parent.glob("uv*"))
 """Path to the `uv` executable."""
-CV = Path(".tools/requirements/cv.in")
+CV_REQ = Path(".tools/requirements/cv.in")
 """Path to the `cv` requirements file."""
+REQUIREMENTS = Path(".tools/requirements/requirements2.txt")
+"""Path to the locked `requirements.txt` file."""
 
 # * -------------------------------------------------------------------------------- * #
 
@@ -209,30 +212,38 @@ def lock(
         cv_flavor=cv_flavor,
         requirements=[Path(".tools/requirements/cv.in")],
     )
-    print(lock_(env))  # noqa: T201
+    REQUIREMENTS.write_text(encoding="utf-8", data=lock_(env))
+
+
+CV_RE = r"^opencv(?:-contrib)?-python(?:-headless)?(.*)$"
+"""Pattern to match the various OpenCV options."""
 
 
 def lock_(env: Environment) -> str:
-    cv = ""
-    if CV in env.requirements:
-        for line in CV.read_text("utf-8").splitlines():
-            if line.startswith("opencv"):
-                cv = sub(r"(opencv-[\w-]+)(==.+)", rf"{env.cv_flavor}\2", line)
-        env.requirements = list(set(env.requirements) - {CV})
+    reqs = env.requirements
+    if CV_REQ in reqs:
+        override = CV_REQ.with_stem(f"{CV_REQ.stem}_override")
+        override.write_text(
+            encoding="utf-8",
+            data="\n".join([
+                sub(CV_RE, rf"{env.cv_flavor}\1", line)
+                for line in CV_REQ.read_text("utf-8").splitlines()
+            ]),
+        )
+        reqs[reqs.index(CV_REQ)] = override
     resolution = "lowest-direct" if env.resolution_strategy == "lower" else "highest"
     result = run(
-        input=cv,
         args=split(
             " ".join([
-                f"{UV} pip compile --python-version {env.python_version}",
+                f"{UV.as_posix()} pip compile --python-version {env.python_version}",
                 f"--resolution {resolution}",
-                *[r.as_posix() for r in env.requirements],
-                "-",
+                *[r.as_posix() for r in reqs],
+                f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
             ])
         ),
+        capture_output=True,
         check=False,
         text=True,
-        capture_output=True,
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
