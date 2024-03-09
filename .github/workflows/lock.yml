@@ -41,6 +41,8 @@ jobs:
   commit:
     needs: ["lock"]
     runs-on: "ubuntu-22.04"
+    env:
+      lock: ".lock/requirements_ubuntu-22.04_3.11_opencv-contrib-python-headless.txt"
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
@@ -52,10 +54,10 @@ jobs:
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
           python-version: "3.11"
-      - run: "python -m pip install -r .tools/requirements/core.in"
+      - run: "python -m pip install $(grep uv== ${{ env.lock }})"
+      - run: "uv pip install --system --break-system-packages -r ${{ env.lock }}"
       - run: "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
       - run: "python .tools/scripts/core.py sync"
-      - run: "uv pip install --system --break-system-packages -r .lock/requirements_ubuntu-22.04_3.11_opencv-contrib-python-headless.txt"
       - uses: "stefanzweifel/git-auto-commit-action@v5.0.0"
         with:
           commit_message: "Lock requirements."
