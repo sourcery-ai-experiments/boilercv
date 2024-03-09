@@ -97,11 +97,6 @@ repos:
           (?x)^(
             src/.*
           )$
-      - id: "check-unused"
-        files: |
-          (?x)^(
-            pyproject\.toml
-          )$
   - repo: "https://github.com/DavidAnson/markdownlint-cli2"
     rev: "v0.11.0"
     hooks:

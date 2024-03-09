@@ -12,10 +12,11 @@ requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
     # ! Consider switching to pims instead
+    # ? Contains pycine deps except for OpenCV
     "boilercine@git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5",
     "boilercore>=0.0.1",
-    "colorcet>=3.0.1",
     "cmasher>=1.7.2",
+    "colorcet>=3.0.1",
     "dvc>=3.10.1",
     "imageio[pyav]>=2.31.1",
     "ipykernel>=6.29.0",
@@ -47,22 +48,119 @@ dependencies = [
 [[project.authors]]
 name = "Blake Naccarato"
 email = "blake.naccarato@gmail.com"
-
 [project.urls]
 Changes = "https://blakeNaccarato.github.io/boilercv/changelog.html"
 Docs = "https://blakeNaccarato.github.io/boilercv"
 Home = "https://github.com/blakeNaccarato/boilercv"
 Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
+[project.optional-dependencies]
+cv = [
+    # ? Allow users to install their own OpenCV flavor, which may be different
+    "opencv-python-headless>=4.9.0.80",
+]
+# ! All optional dependency groups below are removed prior to PyPI releases
+core = [
+    # ? For environment bootstrapping with `.tools/scripts/core.py`
+    "copier==9.1.0",
+    "cyclopts==2.4.1",
+    "dulwich==0.21.7",
+    "uv==0.1.16",
+]
+nodeps = [
+    #? Forces a flavor of OpenCV. We fix that with `boilercine` in `dependencies`
+    "pycine @ git+https://github.com/ottomatic-io/pycine@815cfca06cafc50745a43b2cd0168982225c6dca",
+]
+dev = [
+    # * Like `dependencies`, but may move up the lower bound
+    "opencv-python-headless==4.9.0.80",
+    # ? SHA synced by `.tools/scripts/core.py`
+    "boilercine @ git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5",
+    # ? SHA synced by `.tools/scripts/core.py`
+    "boilercore @ git+https://github.com/blakeNaccarato/boilercore@6253cdac7207e469fdafb2fd5fe8b43a0d543d11",
+    "cmasher==1.7.2",
+    "colorcet==3.0.1",
+    # ? Required by `boilercv.pre_repro`
+    "dvc[gs]==3.45.0",
+    "imageio[pyav]==2.34.0",
+    "ipykernel==6.29.0",
+    "loguru==0.7.2",
+    "matplotlib==3.8.3",
+    "myst-parser==2.0.0",
+    "nbdime==4.0.1",
+    "nbformat==5.9.2",
+    "numpy==1.26.4",
+    "opencv-contrib-python==4.9.0.80",
+    "pandas[hdf5,performance]==2.2.0",
+    # ? Synced by `.tools/scripts/core.py`
+    "pandas-stubs~=2.2.0",
+    "pillow==10.2.0",
+    "ploomber-engine==0.0.32",
+    "pre-commit==3.6.0",
+    "pyarrow==15.0.0",
+    "pydantic==2.6.1",
+    "pyqtgraph==0.13.3",
+    "pyside6==6.6.2",
+    "pytz==2024.1",
+    "ruamel.yaml==0.18.6",
+    "scikit-image==0.22.0",
+    "scipy==1.12.0",
+    "seaborn==0.13.2",
+    "sparklines==0.4.2",
+    "sympy==1.12",
+    "tqdm==4.66.2",
+    "xarray[accel,io,parallel]==2024.1.1",
+    # * Documentation
+    "geopandas==0.14.3",
+    "linkify-it-py==2.0.3",
+    "myst-nb==1.0.0",
+    "nbformat==5.9.2",
+    "shapely==2.0.3",
+    "sphinx-autobuild==2024.2.4",
+    "sphinx-autodoc2==0.5.0",
+    "sphinx-book-theme==1.1.2",
+    "sphinx-design==0.5.0",
+    "sphinx-thebe==0.3.1",
+    "sphinx-tippy==0.4.1",
+    "sphinx-togglebutton==0.3.2",
+    "sphinxcontrib-bibtex==2.6.2",
+    "sphinxcontrib-mermaid==0.9.2",
+    "trackpy==0.6.1",
+    # * Also in pre-commit
+    "fawltydeps==0.15.0",
+    "nb-clean==3.2.0",
+    "ruff==0.2.1",
+    # * Type checking
+    "pyright==1.1.350",
+    # * Testing
+    "pytest==8.0.0",
+    # * Publishing
+    "flit==3.9.0",
+    # ? For caching with dill, unlike stock PyPI version
+    "cachier @ git+https://github.com/blakeNaccarato/cachier@0892f53dc8fd9fb8a7f959305a1a9ec692876dc0",
+    # ? Plugins
+    "pytest-cov==4.1.0",
+    "pytest-custom-exit-code==0.3.0",
+    "pytest-harvest==1.10.4",
+    "pytest-plt==1.1.1",
+    "pytest-xdist[psutil,setproctitle]==3.5.0",
+    # ? Annotate test failures in PRs
+    "pytest-github-actions-annotate-failures==0.2.0",
+    # * Local dev machine
+    # ? Debugging
+    "debugpy==1.8.0",
+    # ? Format
+    "sourcery-cli==1.15.0",
+    # ? Profiling
+    "snakeviz==2.2.0",
+    # ? For local publishing to PyPi with flit
+    "keyring==24.3.0",
+]
 
 [tool.fawltydeps]
+actions = ["check_undeclared"]
 deps = ["pyproject.toml"]
 code = ["src"]
 # * ---------------------------------------------------------------------------------- *
-ignore_unused = [
-    "pre-commit", # boilercv.docs_generation.clean_notebooks
-    "nbdime",     # boilercv.docs_generation.different
-    "pyarrow",    # boilercv.init: pd.set_option("mode.string_storage", "pyarrow")
-]
 [tool.fawltydeps.custom_mapping]
 ipykernel = ["IPython"]
 boilercore = ["boilercore"]
