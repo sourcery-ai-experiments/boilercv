@@ -38,8 +38,6 @@ def sync():
 
 PLATFORM = platform(terse=True).casefold().split("-")[0]
 
-print(f"welp {PLATFORM}")  # noqa: T201
-
 match PLATFORM:
     case "macos":
         RUNNER = "macos-12"
@@ -68,8 +66,9 @@ match version_info[:2]:
 
 DEV = Path(".tools/requirements/dev.in")
 NODEPS = Path(".tools/requirements/nodeps.in")
-LOCK = Path(".lock")
-LOCK.mkdir(exist_ok=True, parents=True)
+LOCKFILE = Path(".lock") / (
+    "_".join(["requirements", RUNNER, PYTHON_VERSION.replace(".", "")]) + ".txt"
+)
 
 
 @app.command()
@@ -97,15 +96,7 @@ def lock(highest: bool = False):
     )
     if lock_result.returncode:
         raise RuntimeError(lock_result.stderr)
-    path = LOCK / Path(
-        "_".join([
-            "requirements",
-            RUNNER,
-            PYTHON_VERSION.replace(".", ""),
-            *([] if highest else ["dev"]),
-        ])
-    ).with_suffix(".txt")
-    path.write_text(
+    get_lockfile(highest).write_text(
         encoding="utf-8",
         data="\n".join([
             r.strip() for r in [lock_result.stdout, NODEPS.read_text(encoding="utf-8")]
@@ -114,26 +105,36 @@ def lock(highest: bool = False):
     )
 
 
-LOCKFILE = Path(".tools/lock.json")
+LOCKS = Path(".tools/locks.json")
 
 
 @app.command()
 def combine_locks():
-    LOCKFILE.write_text(
+    LOCKS.write_text(
         encoding="utf-8",
-        data=json.dumps({
-            lock.stem: lock.read_text(encoding="utf-8") for lock in LOCK.iterdir()
-        })
+        data=json.dumps(
+            indent=2,
+            obj={
+                lockfile.stem: lockfile.read_text(encoding="utf-8")
+                for lockfile in LOCKS.iterdir()
+            },
+        )
         + "\n",
     )
 
 
 @app.command()
 def get_lock():
-    name = "_".join(["requirements", RUNNER, PYTHON_VERSION.replace(".", ""), "dev"])
-    (LOCK / Path(name).with_suffix(".txt")).write_text(
-        encoding="utf-8", data=json.loads(LOCKFILE.read_text("utf-8"))[name]
+    LOCKS.parent.mkdir(exist_ok=True, parents=True)
+    lockfile = get_lockfile()
+    lockfile.write_text(
+        encoding="utf-8", data=json.loads(LOCKS.read_text("utf-8"))[lockfile.stem]
     )
+
+
+def get_lockfile(highest: bool = False):
+    LOCKFILE.parent.mkdir(exist_ok=True, parents=True)
+    return LOCKFILE.with_stem(f"{LOCKFILE.stem}_dev" if highest else LOCKFILE.stem)
 
 
 @dataclass
