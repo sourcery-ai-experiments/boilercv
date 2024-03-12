@@ -5,7 +5,6 @@ from os import environ
 from pathlib import Path
 from typing import Any
 
-from cv2 import version
 from loguru import logger
 from pandas import set_option
 
@@ -34,27 +33,9 @@ def init():
     """Initialize `boilercv`."""
     if DEBUG:
         logger.add(sink="boilercv.log")
-    check_contrib()
     set_option("mode.copy_on_write", True)
     set_option("mode.chained_assignment", "raise")
     set_option("mode.string_storage", "pyarrow")
-
-
-_CONTRIB_MSG = """\
-OpenCV is not installed with extras. A dependent package may have pinned `opencv-pyhon`
-and clobbered your installed version.
-"""
-
-
-def check_contrib():
-    """Ensure the installed version of OpenCV has extras.
-
-    Dependencies can specify a different version of OpenCV than the one required in this
-    project, unintentionally clobbering the installed version of OpenCV. Detect whether
-    a non-`contrib` version is installed by a dependency.
-    """
-    if not version.contrib:
-        raise ImportError(_CONTRIB_MSG)
 
 
 def run_example(func: Callable[..., Any], preview: bool = False) -> tuple[str, Any]:

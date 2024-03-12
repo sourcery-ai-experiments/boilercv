@@ -49,6 +49,7 @@
     ".root": "plaintext",
     ".sourcery.yaml": "yaml",
     "*ipython-input*": "python",
+    "*requirements*.in": "pip-requirements",
     "pyrightconfig.json": "jsonc"
   },
   //! Git

@@ -96,19 +96,13 @@
       "name": "Python: Current file with args",
       "type": "debugpy",
       "request": "launch",
-      "program": "${file} ${input:input}",
+      "program": "${file}",
+      "args": ["${input:input}"],
       "console": "internalConsole",
       "env": {
         "BOILERCV_DEBUG": "True",
         "BOILERCV_PREVIEW": "True"
       }
-    },
-    {
-      "name": "Python: Lock",
-      "type": "debugpy",
-      "request": "launch",
-      "program": ".tools/scripts/core.py",
-      "args": ["lock", "windows-2022", "3.11", "opencv-python"]
     },
     {
       //? Needs to be "pytest" adapter for now.

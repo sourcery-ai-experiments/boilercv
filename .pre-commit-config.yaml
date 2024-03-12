@@ -2,6 +2,7 @@ ci:
   skip:
     # * ---------------------------------------------------------------------------- * #
     - "local-pyrightconfig"
+    - "sync"
     - "synchronize-params"
     - "hide-docs-nb-inputs"
     - "dvc-post-checkout"
@@ -30,6 +31,12 @@ repos:
             pyproject\.toml
             |\.tools/scripts/local_dev_configs.py
           )$
+      - id: "sync"
+        name: "sync"
+        language: "system"
+        entry: "pwsh .tools/sync.ps1"
+        pass_filenames: false
+        always_run: true
       - id: "synchronize-params"
         name: "synchronize-params"
         language: "system"
@@ -55,7 +62,7 @@ repos:
         always_run: true
         pass_filenames: false
         language: "system"
-        entry: "pwsh -Command python .tools/scripts/core_update.py"
+        entry: "pwsh -Command python -m boilercv_tools sync"
       - id: "pytest-fast-only"
         name: "pytest-fast-only"
         pass_filenames: false
@@ -96,6 +103,11 @@ repos:
           (?x)^(
             src/.*
           )$
+      - id: "check-unused"
+        files: |
+          (?x)^(
+            pyproject\.toml
+          )$
   - repo: "https://github.com/DavidAnson/markdownlint-cli2"
     rev: "v0.11.0"
     hooks:
@@ -120,6 +132,7 @@ repos:
     rev: "v0.2.1"
     hooks:
       - id: "ruff"
+        args: ["--fixable", "PIE790"]
         types_or: ["python", "pyi", "jupyter"]
       - id: "ruff-format"
         types_or: ["python", "pyi", "jupyter"]
