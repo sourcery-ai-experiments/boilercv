@@ -70,7 +70,7 @@ NODEPS = Path(".tools/requirements/nodeps.in").as_posix()
 DEV = Path(".tools/requirements/dev.in").as_posix()
 LOCK = Path(".lock")
 """Path to the lock directory."""
-LOCK.mkdir(exist_ok=True, parents=True)
+(LOCK / RUNNER).mkdir(exist_ok=True, parents=True)
 
 
 @app.command()
