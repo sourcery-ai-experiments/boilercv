@@ -45,8 +45,10 @@ match PLATFORM:
         RUNNER = "macos-12"
     case "windows":
         RUNNER = "windows-2022"
-    case _:
+    case "linux":
         RUNNER = "ubuntu-22.04"
+    case _:
+        raise ValueError(f"Unsupported platform: {PLATFORM}")
 
 match version_info[:2]:
     case (3, 8):
