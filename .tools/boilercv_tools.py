@@ -69,7 +69,9 @@ match version_info[:2]:
 DEV = Path(".tools/requirements/dev.in")
 NODEPS = Path(".tools/requirements/nodeps.in")
 LOCK = Path(".lock") / RUNNER
+print("welp2", LOCK)  # noqa: T201
 LOCK.mkdir(exist_ok=True, parents=True)
+print("welp3", LOCK)  # noqa: T201
 
 
 @app.command()
@@ -106,7 +108,9 @@ def lock(highest: bool = False):
             *([] if highest else ["dev"]),
         ])
     ).with_suffix(".txt")
-    print("welp2", path.as_posix())  # noqa: T201
+    print("welp4", path)  # noqa: T201
+    print("welp5", LOCK.exists())  # noqa: T201
+    print("welp6", path.exists())  # noqa: T201
     path.write_text(
         encoding="utf-8",
         data="\n".join([
