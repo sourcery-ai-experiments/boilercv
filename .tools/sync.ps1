@@ -15,22 +15,23 @@ function Main {
     $lock = '.lock'
     $Py = Get-Python
     Invoke-Expression "$Py -m pip install uv"
-    Invoke-Expression "$Py -m uv pip install -e .tools/."
     if ($Env:CI) {
+        Invoke-Expression "$Py -m uv pip install --system --break-system-packages -e .tools/."
         Invoke-Expression "$Py copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
         Invoke-Expression "$Py -m boilercv_tools sync"
         if ($Env:LOCK) {
             Invoke-Expression "$Py -m boilercv_tools lock"
-            Invoke-Expression "$Py -m uv pip sync $(Get-ChildItem $lock)"
+            Invoke-Expression "$Py -m uv pip sync --system --break-system-packages $(Get-ChildItem $lock)"
             Invoke-Expression "$Py -m boilercv_tools lock --highest"
-            Invoke-Expression "$Py -m pytest"
         }
+        if ($Env:LOCK) { Invoke-Expression "$Py -m pytest" }
         elseif ($Env:COMBINE) {
             Invoke-Expression "$Py -m boilercv_tools combine-locks"
         }
         return
     }
-    if (Test-Path $lock) {Remove-Item -Recurse $lock}
+    Invoke-Expression "$Py -m uv pip install -e .tools/."
+    if (Test-Path $lock) { Remove-Item -Recurse $lock }
     Invoke-Expression "$Py -m boilercv_tools get-lock"
     Invoke-Expression "$Py -m uv pip sync $(Get-ChildItem $lock)"
 }
