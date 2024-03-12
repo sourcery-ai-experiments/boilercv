@@ -38,7 +38,7 @@ def sync():
 
 PLATFORM = platform(terse=True).casefold().split("-")[0]
 
-print(f"⚠️ {PLATFORM}")  # noqa: T201
+print(f"welp {PLATFORM}")  # noqa: T201
 
 match PLATFORM:
     case "macos":
