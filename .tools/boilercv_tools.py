@@ -19,13 +19,13 @@ from tomlkit.items import Array
 
 app = App()
 
-PYPROJECT = Path("pyproject.toml").as_posix()
+PYPROJECT = Path("pyproject.toml")
 
 
 @app.command()
 def sync():
     *_, submodule_deps = get_submodules()
-    original_content = content = Path(PYPROJECT).read_text("utf-8")
+    original_content = content = PYPROJECT.read_text("utf-8")
     pyproject = tomlkit.loads(content)
     deps: Array = pyproject["project"]["optional-dependencies"]["dev"]  # pyright: ignore[reportAssignmentType, reportIndexIssue]  # pyright==1.1.350, packaging==24.0
     sync_paired_dependency(deps, "pandas", "pandas-stubs")
@@ -33,7 +33,7 @@ def sync():
         sync_submodule_dependency(deps, dep)
     content = tomlkit.dumps(pyproject)
     if content != original_content:
-        Path(PYPROJECT).write_text(encoding="utf-8", data=content)
+        PYPROJECT.write_text(encoding="utf-8", data=content)
 
 
 PLATFORM = platform(terse=True).casefold().split("-")[0]
@@ -66,10 +66,9 @@ match version_info[:2]:
     case _:
         PYTHON_VERSION = "3.11"
 
-NODEPS = Path(".tools/requirements/nodeps.in").as_posix()
-DEV = Path(".tools/requirements/dev.in").as_posix()
+DEV = Path(".tools/requirements/dev.in")
+NODEPS = Path(".tools/requirements/nodeps.in")
 LOCK = Path(".lock") / RUNNER
-"""Path to the lock directory."""
 LOCK.mkdir(exist_ok=True, parents=True)
 
 
@@ -88,8 +87,8 @@ def lock(highest: bool = False):
                 f"--resolution {'highest' if highest else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
                 "--extra cv" if highest else "--all-extras",
-                PYPROJECT,
-                DEV,
+                PYPROJECT.as_posix(),
+                DEV.as_posix(),
             ])
         ),
         capture_output=True,
@@ -98,8 +97,9 @@ def lock(highest: bool = False):
     )
     if lock_result.returncode:
         raise RuntimeError(lock_result.stderr)
-    path = LOCK / Path(
-        "_".join([
+    path = (
+        LOCK
+        / "_".join([
             "requirements",
             RUNNER,
             PYTHON_VERSION.replace(".", ""),
@@ -110,8 +110,7 @@ def lock(highest: bool = False):
     path.write_text(
         encoding="utf-8",
         data="\n".join([
-            r.strip()
-            for r in [lock_result.stdout, Path(NODEPS).read_text(encoding="utf-8")]
+            r.strip() for r in [lock_result.stdout, NODEPS.read_text(encoding="utf-8")]
         ])
         + "\n",
     )
