@@ -19,8 +19,8 @@ jobs:
           # - "3.13"
     runs-on: "${{ matrix.github_actions_runner }}"
     env:
-      lock: true
-      test: true
+      LOCK: true
+      TEST: true
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
@@ -37,7 +37,7 @@ jobs:
     needs: ["lock"]
     runs-on: "ubuntu-22.04"
     env:
-      combine: true
+      COMBINE: true
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
