@@ -63,12 +63,12 @@ function Get-GlobalPython {
     <#.SYNOPSIS
     Get the global Python interpreter for a certain Python version.
     #>
-    if (Get-Command 'py') {
+    if (Get-Command 'py' -ErrorAction Ignore) {
         if (py --list | Select-String -Pattern "^\s?-V:$([Regex]::Escape($Version))") {
             return "py -$Version"
         }
     }
-    elseif (Get-Command "python$Version") {
+    elseif (Get-Command "python$Version" -ErrorAction Ignore) {
         return "python$Version"
     }
     Write-Warning "Python $Version does not appear to be installed. Download and install from 'https://www.python.org/downloads/'."
