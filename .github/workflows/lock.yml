@@ -28,6 +28,7 @@ jobs:
         with:
           python-version: "${{ matrix.python_version }}"
       - run: ".tools/sync.ps1"
+        shell: "pwsh"
       - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" #v4.3.1
         with:
           path: ".lock/*"
@@ -48,6 +49,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: ".tools/sync.ps1"
-      - uses: "stefanzweifel/git-auto-commit-action@v5.0.0"
+        shell: "pwsh"
+      - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
           commit_message: "Lock requirements."
