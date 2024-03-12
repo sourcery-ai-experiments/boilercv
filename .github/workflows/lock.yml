@@ -22,14 +22,12 @@ jobs:
       LOCK: true
       TEST: true
     steps:
-      # * -------------------------------------------------------------------------- * #
       - if: startsWith(matrix.github_actions_runner, 'ubuntu-')
         name: Install PySide6 system dependencies
         run: |
           # https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
           sudo apt update
           sudo apt install libegl1
-      # * -------------------------------------------------------------------------- * #
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
           submodules: True

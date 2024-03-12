@@ -98,8 +98,9 @@ def lock(highest: bool = False):
     )
     if lock_result.returncode:
         raise RuntimeError(lock_result.stderr)
-    (
+    path = (
         LOCK
+        / RUNNER
         / Path(
             "_".join([
                 "requirements",
@@ -108,7 +109,9 @@ def lock(highest: bool = False):
                 *([] if highest else ["dev"]),
             ])
         ).with_suffix(".txt")
-    ).write_text(
+    )
+    print("welp2", path.as_posix())  # noqa: T201
+    path.write_text(
         encoding="utf-8",
         data="\n".join([
             r.strip()
@@ -135,7 +138,7 @@ def combine_locks():
 @app.command()
 def get_lock():
     name = "_".join(["requirements", RUNNER, PYTHON_VERSION.replace(".", ""), "dev"])
-    (LOCK / Path(name).with_suffix(".txt")).write_text(
+    (LOCK / RUNNER / Path(name).with_suffix(".txt")).write_text(
         encoding="utf-8", data=json.loads(LOCKFILE.read_text("utf-8"))[name]
     )
 
