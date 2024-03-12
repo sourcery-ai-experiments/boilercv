@@ -35,7 +35,7 @@ function Main {
     }
     Invoke-Expression "$Py -m uv pip install -e .tools/."
     if (Test-Path $lock) { Remove-Item -Recurse $lock }
-    Invoke-Expression "$Py -m boilercv_tools get-lock"
+    Invoke-Expression "$Py -m boilercv_tools get-existing-lock"
     Invoke-Expression "$Py -m uv pip sync $(Get-ChildItem $lock)"
 }
 
