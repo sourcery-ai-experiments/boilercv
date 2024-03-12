@@ -119,6 +119,7 @@ def lock(highest: bool = False):
         ])
         + "\n",
     )
+    print("welp7")  # noqa: T201
 
 
 LOCKFILE = Path(".tools/lock.json")
