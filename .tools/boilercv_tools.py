@@ -111,6 +111,7 @@ def lock(highest: bool = False):
     print("welp4", path)  # noqa: T201
     print("welp5", LOCK.exists())  # noqa: T201
     print("welp6", path.exists())  # noqa: T201
+    path.touch()
     path.write_text(
         encoding="utf-8",
         data="\n".join([
