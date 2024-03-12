@@ -17,11 +17,9 @@ function Main {
     Invoke-Expression "$Py -m pip install uv"
     if ($Env:CI) {
         $ErrorActionPreference = 'Stop'
+        $PSNativeCommandUseErrorActionPreference = $true
         pwsh --version
-        $Env:CI
-        $Env:LOCK
-        $Env:TESTP
-        $Env:COMBINE
+        Get-ChildItem Env:
         Invoke-Expression "$Py -m uv pip install --system --break-system-packages -e .tools/."
         Invoke-Expression "$Py -m copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
         Invoke-Expression "$Py -m boilercv_tools sync"
