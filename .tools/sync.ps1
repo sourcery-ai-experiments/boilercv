@@ -12,12 +12,13 @@ function Main {
     <#.SYNOPSIS
     Runs when this script is invoked.
     #>
+    pwsh --version
     $lock = '.lock'
     $Py = Get-Python
     Invoke-Expression "$Py -m pip install uv"
     if ($Env:CI) {
         Invoke-Expression "$Py -m uv pip install --system --break-system-packages -e .tools/."
-        Invoke-Expression "$Py copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
+        Invoke-Expression "$Py -m copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
         Invoke-Expression "$Py -m boilercv_tools sync"
         if ($Env:LOCK) {
             Invoke-Expression "$Py -m boilercv_tools lock"
