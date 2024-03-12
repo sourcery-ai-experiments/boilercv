@@ -36,7 +36,11 @@ def sync():
         Path(PYPROJECT).write_text(encoding="utf-8", data=content)
 
 
-match platform(terse=True).casefold().split("-")[0]:
+PLATFORM = platform(terse=True).casefold().split("-")[0]
+
+print(f"⚠️ {PLATFORM}")  # noqa: T201
+
+match PLATFORM:
     case "macos":
         RUNNER = "macos-12"
     case "windows":
