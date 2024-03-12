@@ -68,9 +68,9 @@ match version_info[:2]:
 
 NODEPS = Path(".tools/requirements/nodeps.in").as_posix()
 DEV = Path(".tools/requirements/dev.in").as_posix()
-LOCK = Path(".lock")
+LOCK = Path(".lock") / RUNNER
 """Path to the lock directory."""
-(LOCK / RUNNER).mkdir(exist_ok=True, parents=True)
+LOCK.mkdir(exist_ok=True, parents=True)
 
 
 @app.command()
@@ -98,18 +98,14 @@ def lock(highest: bool = False):
     )
     if lock_result.returncode:
         raise RuntimeError(lock_result.stderr)
-    path = (
-        LOCK
-        / RUNNER
-        / Path(
-            "_".join([
-                "requirements",
-                RUNNER,
-                PYTHON_VERSION.replace(".", ""),
-                *([] if highest else ["dev"]),
-            ])
-        ).with_suffix(".txt")
-    )
+    path = LOCK / Path(
+        "_".join([
+            "requirements",
+            RUNNER,
+            PYTHON_VERSION.replace(".", ""),
+            *([] if highest else ["dev"]),
+        ])
+    ).with_suffix(".txt")
     print("welp2", path.as_posix())  # noqa: T201
     path.write_text(
         encoding="utf-8",
