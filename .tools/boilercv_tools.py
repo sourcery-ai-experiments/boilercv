@@ -99,15 +99,15 @@ def lock(highest: bool = False):
     )
     if lock_result.returncode:
         raise RuntimeError(lock_result.stderr)
-    path = (
-        LOCK
-        / "_".join([
+    path = LOCK / (
+        "_".join([
             "requirements",
             RUNNER,
             PYTHON_VERSION.replace(".", ""),
             *([] if highest else ["dev"]),
         ])
-    ).with_suffix(".txt")
+        + ".txt"
+    )
     print("welp4", path)  # noqa: T201
     print("welp5", LOCK.exists())  # noqa: T201
     print("welp6", path.exists())  # noqa: T201

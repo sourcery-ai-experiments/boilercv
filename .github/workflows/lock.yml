@@ -9,7 +9,7 @@ jobs:
         github_actions_runner:
           # - "macos-12"
           - "ubuntu-22.04"
-          - "windows-2022"
+          # - "windows-2022"
         python_version:
           # - "3.8"
           # - "3.9"
