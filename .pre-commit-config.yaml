@@ -2,7 +2,6 @@ ci:
   skip:
     # * ---------------------------------------------------------------------------- * #
     - "local-pyrightconfig"
-    - "sync"
     - "synchronize-params"
     - "hide-docs-nb-inputs"
     - "dvc-post-checkout"
@@ -32,12 +31,6 @@ repos:
             pyproject\.toml
             |\.tools/scripts/local_dev_configs.py
           )$
-      - id: "sync"
-        name: "sync"
-        language: "system"
-        entry: "pwsh .tools/sync.ps1"
-        pass_filenames: false
-        always_run: true
       - id: "synchronize-params"
         name: "synchronize-params"
         language: "system"

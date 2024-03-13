@@ -3,10 +3,12 @@ Synchronize the Python environment with this project's locked dependencies.
 #>
 
 Param(
-    # Python version to install or expect.
-    [string]$Version = (Get-Content '.copier-answers.yml' |
-            Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value
+    # Job to run
+    [Parameter(Mandatory, ValueFromPipeline)][string]$Job
 )
+
+$Version = (Get-Content '.copier-answers.yml' |
+        Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value
 
 $PSNativeCommandUseErrorActionPreference = $true
 $PSNativeCommandUseErrorActionPreference | Out-Null
@@ -88,7 +90,7 @@ function inst {
 function sync {
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
     if ($Env:CI) {
-        run "uv pip sync  --system --break-system-packages $String"
+        run "uv pip sync --system --break-system-packages $String"
     }
     else {
         run "uv pip sync $String"
@@ -100,36 +102,49 @@ function tools {
     run "boilercv_tools $String"
 }
 
-function SETUP {
+
+function Initialize-Job {
     run 'pip install uv'
     inst '-e .tools/.'
-    run "$tools find-lock"
+}
+
+$lock = tools 'get-lockfile'
+
+
+function Initialize-LocalJob {
+    Initialize-Job
+    tools find-lock
     sync $lock
 }
 
-function CI_ONLY_SETUP {
-    run "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
-    run "$tools sync"
+function Initialize-CiJob {
+    Initialize-Job
+    # run "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
+    tools sync
 }
 
-function LOCK {
-    $lock = tools 'get-lockfile'
-    run "$tools lock"
+function Invoke-Lock {
+    Initialize-CiJob
+    tools 'lock'
     sync $lock
-    run "$tools lock --highest"
-    elseif ($Env:TEST) {
-        run 'pytest'
-    }
+    tools 'lock --highest'
 }
 
-function TEST {
-    run 'pytest'
+function Invoke-Combine {
+    Initialize-CiJob
+    tools 'lock'
+    sync $lock
+    tools 'lock --highest'
 }
 
-# * -------------------------------------------------------------------------------- * #
+# function TEST {
+#     run 'pytest'
+# }
 
-function COMBINE {
+if ($Job -eq 'LOCK') {
+    Invoke-Lock
+}
+elseif ($Job -eq 'COMBINE') {
+    Invoke-Combine
     tools 'combine-locks'
-    run "$tools sync"
-    run "$tools combine-locks"
 }

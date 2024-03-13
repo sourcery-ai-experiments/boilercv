@@ -130,7 +130,7 @@ def combine_locks():
             indent=2,
             obj={
                 lockfile.stem: lockfile.read_text(encoding="utf-8")
-                for lockfile in PLATFORM_LOCKS.iterdir()
+                for lockfile in PLATFORM_LOCKS.rglob("requirements_*.txt")
             },
         )
         + "\n",
