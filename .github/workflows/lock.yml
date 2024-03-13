@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         github_actions_runner:
-          - "macos-12"
+          - "macos-14"
           - "ubuntu-22.04"
           - "windows-2022"
         python_version:
@@ -38,7 +38,8 @@ jobs:
       # ! Need to specify `cov-config` as below.
       # ! See https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
       - run: "pytest --cov --cov-config=pyproject.toml"
-      - uses: "codecov/codecov-action@v3.1.4"
+      - if: startsWith(matrix.github_actions_runner, 'ubuntu-') && matrix.python_version == '3.11'
+        uses: "codecov/codecov-action@v3.1.4"
       - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" #v4.3.1
         with:
           path: ".lock"
