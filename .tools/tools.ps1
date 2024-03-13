@@ -59,7 +59,7 @@ function Get-Python {
         if (! $globalPy) {
             throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again."
         }
-        Invoke-Expression "$globalPy -m venv $Py"
+        Invoke-Expression "$globalPy -m venv $venv"
     }
     $Py = Start-PythonEnv $venv
     $foundVersion = Invoke-Expression "$Py --version"
