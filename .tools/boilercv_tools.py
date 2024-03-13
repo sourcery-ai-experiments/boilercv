@@ -65,8 +65,10 @@ match version_info[:2]:
     case _:
         PYTHON_VERSION = "3.11"
 
-DEV = Path(".tools/requirements/dev.in")
-NODEPS = Path(".tools/requirements/nodeps.in")
+REQS = Path(".tools/requirements")
+DEV = REQS / "dev.in"
+UV = REQS / "uv.in"
+NODEPS = REQS / "nodeps.in"
 PLATFORM_LOCKS = Path(".lock")
 ENVIRONMENT = "_".join(["requirements", RUNNER, PYTHON_VERSION])
 ENVIRONMENT_LOCK = PLATFORM_LOCKS / ENVIRONMENT
@@ -100,6 +102,7 @@ def lock(highest: bool = False):
                 "--extra cv" if highest else "--all-extras",
                 PYPROJECT.as_posix(),
                 DEV.as_posix(),
+                UV.as_posix(),
             ])
         ),
         capture_output=True,

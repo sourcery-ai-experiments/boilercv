@@ -21,5 +21,4 @@ dependencies = [
     "snakeviz==2.2.0",
     "sourcery-cli==1.15.0",
     "tomlkit==0.12.4",
-    "uv==0.1.17",
 ]
