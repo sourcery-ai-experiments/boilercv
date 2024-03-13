@@ -64,13 +64,12 @@ function Sync-PythonEnv {
     if ($Env:CI) {
         if ($Combine) {
             tools 'combine-locks'
-            return Get-Lockfile | sync
         }
         else {
             tools 'lock'
             tools 'lock --highest'
-            return
         }
+        return Get-Lockfile | sync
     }
     return Get-Lockfile -Create | sync
 }
