@@ -108,13 +108,10 @@ function Initialize-Job {
     inst '-e .tools/.'
 }
 
-$lock = tools 'get-lockfile'
-
-
 function Initialize-LocalJob {
     Initialize-Job
     tools find-lock
-    sync $lock
+    sync $(tools 'get-lockfile')
 }
 
 function Initialize-CiJob {
@@ -126,14 +123,14 @@ function Initialize-CiJob {
 function Invoke-Lock {
     Initialize-CiJob
     tools 'lock'
-    sync $lock
+    sync $(tools 'get-lockfile')
     tools 'lock --highest'
 }
 
 function Invoke-Combine {
     Initialize-CiJob
     tools 'lock'
-    sync $lock
+    sync $(tools 'get-lockfile')
     tools 'lock --highest'
 }
 
