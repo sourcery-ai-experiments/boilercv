@@ -29,10 +29,6 @@
     //? Attempt to prevent picking up temporary Pylance files in Problems pane
     "**/*pylance-notebook-cell*": true
   },
-  "search.exclude": {
-    //? Don't clutter search with submodule contents
-    "submodules": true
-  },
   //! File nesting
   "explorer.sortOrder": "foldersNestsFiles",
   "explorer.fileNesting.enabled": true,
