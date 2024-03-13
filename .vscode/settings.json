@@ -4,14 +4,6 @@
   "yaml.schemas": {
     "params_schema.json": "params.yaml"
   },
-  "git.ignoredRepositories": [
-    "/home/user/.cache",
-    "/home/user/opencv-python",
-    "/home/user/opencv-python/multibuild",
-    "/home/user/opencv-python/opencv_contrib",
-    "/home/user/opencv-python/opencv_extra",
-    "/home/user/opencv-python/opencv"
-  ],
   // * ----------------------------------------------------------------------------- * #
   //! Terminal
   //? Use PowerShell on all platforms, facilitates running template scripts
@@ -28,6 +20,10 @@
     "**/.pytest_cache/": true,
     //? Attempt to prevent picking up temporary Pylance files in Problems pane
     "**/*pylance-notebook-cell*": true
+  },
+  "search.exclude": {
+    //? Don't clutter search with type stubs
+    "submodules/typings": true
   },
   //! File nesting
   "explorer.sortOrder": "foldersNestsFiles",
@@ -129,7 +125,12 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "off"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "off"
   },
   "yaml.format.printWidth": 88,
   //* ruff (PY, IPYNB)
