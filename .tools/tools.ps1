@@ -104,7 +104,7 @@ function tools {
 
 
 function Initialize-Job {
-    run "pip install ${Get-Content '.tools/requirements/uv.in'}"
+    run "pip install $(Get-Content '.tools/requirements/uv.in')"
     inst '-e .tools/.'
 }
 
