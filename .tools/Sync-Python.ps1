@@ -4,7 +4,7 @@ Synchronize Python dependencies.
 
 Param(
     # Python version.
-    $Version = (Get-Content '.copier-answers.yml' |
+    [string]$Version = (Get-Content '.copier-answers.yml' |
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
     # Sync to highest pinned dependencies.
     [switch]$Highest,
@@ -170,7 +170,7 @@ function Get-GlobalPython {
     <#.SYNOPSIS
     Get global Python interpreter.
     #>
-    if ((! $Env:CI) -and (Test-Command 'py')) {
+    if (Test-Command 'py') {
         if (py --list | Select-String -Pattern "^\s?-V:$RE_VERSION") {
             return "py -$Version"
         }
