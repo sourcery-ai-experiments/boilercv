@@ -25,9 +25,9 @@ $PSNativeCommandUseErrorActionPreference | Out-Null
 $RE_VERSION = $([Regex]::Escape($Version))
 $VENV = '.venv'
 # ? Command modifier for `uv` if running in CI.
-$UV_MOD = '--system --break-system-packages' ? $Env:CI : ''
+$UV_MOD = $Env:CI ? '--system --break-system-packages' : ''
 # ? CLI flag for highest pinned dependencies.
-$HIGHEST_ARG = "--$('' ? $Highest : 'no-')highest"
+$HIGHEST_ARG = "--$($Highest ? '' : 'no-')highest"
 # ? $PY is a CI-aware Python interpreter defined later but usable in Initialize-Python
 
 # * -------------------------------------------------------------------------------- * #
