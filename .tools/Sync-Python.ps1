@@ -35,7 +35,7 @@ $HIGHEST_ARG = "--$('' ? $Highest : 'no-')highest"
 
 function Sync-Python {
     <#.SYNOPSIS
-    Initialize Python.
+    Synchronize Python dependencies.
     #>
     Initialize-Job
     if ($Combine) {

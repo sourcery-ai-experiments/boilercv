@@ -15,7 +15,7 @@ jobs:
           # - "3.9"
           # - "3.10"
           - "3.11"
-          # - "3.12"
+          - "3.12"
           # - "3.13"
     runs-on: "${{ matrix.github_actions_runner }}"
     env:
@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1"
+        run: ".tools/Sync-Python.ps1 -Version ${{ matrix.python_version }}"
       - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" #v4.3.1
         with:
           path: ".lock"
@@ -54,7 +54,7 @@ jobs:
           path: ".lock"
           merge-multiple: True
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1 --Combine"
+        run: ".tools/Sync-Python.ps1 -Combine"
       - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
           commit_message: "Lock."
