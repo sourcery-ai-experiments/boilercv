@@ -8,36 +8,60 @@ Param(
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value
 )
 
+$PSNativeCommandUseErrorActionPreference = $true
+
 function Main {
-    <#.SYNOPSIS
-    Runs when this script is invoked.
-    #>
-    $lock = '.lock'
-    $Py = Get-Python
-    Invoke-Expression "$Py -m pip install uv"
-    if ($Env:CI) {
-        $ErrorActionPreference = 'Stop'
-        $PSNativeCommandUseErrorActionPreference = $true
-        pwsh --version
-        Invoke-Expression "$Py -m uv pip install --system --break-system-packages -e .tools/."
-        # ! Invoke-Expression "$Py -m copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
-        Invoke-Expression "$Py -m boilercv_tools sync"
-        if ($Env:LOCK) {
-            Invoke-Expression "$Py -m boilercv_tools lock"
-            Invoke-Expression "$Py -m uv pip sync --system --break-system-packages $(Get-ChildItem $lock)"
-            Invoke-Expression "$Py -m boilercv_tools lock --highest"
+    function Main {
+        run "pip install uv"
+        inst "-e .tools/."
+        $tools = 'boilercv_tools'
+        $lock = run "$tools get-lockfile"
+        if ($Env:CI) {
+            run "$tools sync"
+            if ($Env:LOCK) {
+                run "$tools lock"
+                sync $lock
+                run "$tools lock --highest"
+            }
+            # ! Invoke-Expression "$Py -m copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
+            #! if ($Env:TEST) { Invoke-Expression "$Py -m pytest" }
+            elseif ($Env:COMBINE) {
+                Invoke-Expression "$Py -m boilercv_tools combine-locks"
+            }
+            return
         }
-        #! if ($Env:TEST) { Invoke-Expression "$Py -m pytest" }
-        elseif ($Env:COMBINE) {
-            Invoke-Expression "$Py -m boilercv_tools combine-locks"
-        }
-        return
+        run "$tools find-lock"
+        sync $lock
     }
-    Invoke-Expression "$Py -m uv pip install -e .tools/."
-    if (Test-Path $lock) { Remove-Item -Recurse $lock }
-    Invoke-Expression "$Py -m boilercv_tools get-existing-lock"
-    Invoke-Expression "$Py -m uv pip sync $(Get-ChildItem $lock)"
+
+    $Py = Get-Python
+
+    function run {
+        Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
+        Invoke-Expression "$Py -m $String"
+    }
+    function inst {
+        Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
+        if ($Env:CI) {
+            run "$Py -m uv pip install --system --break-system-packages $String"
+        }
+        else {
+            run "uv pip install $String"
+        }
+    }
+    function sync {
+        Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
+        if ($Env:CI) {
+            run "$Py -m uv pip sync  --system --break-system-packages $String"
+        }
+        else {
+            run "uv pip sync $String"
+        }
+    }
+
+    Main
 }
+
 
 function Get-Python {
     <#.SYNOPSIS

@@ -68,9 +68,19 @@ match version_info[:2]:
 DEV = Path(".tools/requirements/dev.in")
 NODEPS = Path(".tools/requirements/nodeps.in")
 PLATFORM_LOCKS = Path(".lock")
-PLATFORM_LOCK = PLATFORM_LOCKS / (
-    "_".join(["requirements", RUNNER, PYTHON_VERSION.replace(".", "")]) + ".txt"
-)
+ENVIRONMENT = "_".join(["requirements", RUNNER, PYTHON_VERSION.replace(".", "")])
+ENVIRONMENT_LOCK = PLATFORM_LOCKS / ENVIRONMENT
+LOCK = ENVIRONMENT_LOCK / f"{ENVIRONMENT}.txt"
+
+
+@app.command(name="get-lockfile")
+def get_lockfile_cli():
+    print(LOCK.resolve().as_posix())  # noqa: T201
+
+
+def get_lockfile(highest: bool = False):
+    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
+    return LOCK.with_stem(f"{LOCK.stem}_dev" if highest else LOCK.stem)
 
 
 @app.command()
@@ -98,7 +108,7 @@ def lock(highest: bool = False):
     )
     if lock_result.returncode:
         raise RuntimeError(lock_result.stderr)
-    PLATFORM_LOCKS.mkdir(exist_ok=True, parents=True)
+    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
     get_lockfile(highest).write_text(
         encoding="utf-8",
         data="\n".join([
@@ -113,7 +123,7 @@ LOCKS = Path(".tools/locks.json")
 
 @app.command()
 def combine_locks():
-    PLATFORM_LOCKS.mkdir(exist_ok=True, parents=True)
+    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
     LOCKS.write_text(
         encoding="utf-8",
         data=json.dumps(
@@ -128,19 +138,12 @@ def combine_locks():
 
 
 @app.command()
-def get_existing_lock():
-    rmtree(PLATFORM_LOCKS)
-    PLATFORM_LOCKS.mkdir(exist_ok=True, parents=True)
+def find_lock():
+    rmtree(PLATFORM_LOCKS, ignore_errors=True)
+    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
     lockfile = get_lockfile()
     lockfile.write_text(
         encoding="utf-8", data=json.loads(LOCKS.read_text("utf-8"))[lockfile.stem]
-    )
-
-
-def get_lockfile(highest: bool = False):
-    PLATFORM_LOCK.parent.mkdir(exist_ok=True, parents=True)
-    return PLATFORM_LOCK.with_stem(
-        f"{PLATFORM_LOCK.stem}_dev" if highest else PLATFORM_LOCK.stem
     )
 
 
