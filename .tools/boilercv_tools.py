@@ -39,7 +39,7 @@ PLATFORM = platform(terse=True)
 """Platform identifier."""
 match PLATFORM.casefold().split("-")[0]:
     case "macos":
-        _runner = "macos-14"
+        _runner = "macos-13"
     case "windows":
         _runner = "windows-2022"
     case "linux":

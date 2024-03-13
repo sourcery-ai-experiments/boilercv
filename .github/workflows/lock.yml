@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         github_actions_runner:
-          - "macos-14"
+          - "macos-13" # ? PyTables doesn't support macos-14
           - "ubuntu-22.04"
           - "windows-2022"
         python_version:
@@ -29,12 +29,10 @@ jobs:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
         run: ".tools/Sync-Python.ps1 -Version '${{ matrix.python_version }}'"
+      # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
       - if: startsWith(matrix.github_actions_runner, 'ubuntu-')
         name: Install PySide6 system dependencies
-        run: |
-          # https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
-          sudo apt update
-          sudo apt install libegl1
+        run: sudo apt update && sudo apt install libegl1
       # ! Need to specify `cov-config` as below.
       # ! See https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
       - run: "pytest --cov --cov-config=pyproject.toml"
