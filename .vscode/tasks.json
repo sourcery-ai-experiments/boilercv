@@ -246,7 +246,7 @@
       "label": "setup: Setup or sync virtual environment",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh" } },
-      "command": ".tools/sync.ps1",
+      "command": ".tools/Sync-Python.ps1",
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": [],
       "runOptions": { "runOn": "folderOpen" }

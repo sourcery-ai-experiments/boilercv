@@ -1,212 +1,216 @@
 """Update script to run after tool dependencies are installed, but before others."""
 
 import json
-from contextlib import closing
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from platform import platform
 from shlex import split
-from shutil import rmtree
 from subprocess import run
 from sys import executable, version_info
 
 import tomlkit
 from cyclopts import App
-from dulwich.porcelain import submodule_list
-from dulwich.repo import Repo
 from packaging.requirements import Requirement
 from tomlkit.items import Array
 
-app = App()
+# * -------------------------------------------------------------------------------- * #
+# * Constants
 
+APP = App()
+"""Cyclopts CLI."""
+TOOLS = Path(".tools")
+"""Path to tools directory."""
+
+# ! Requirements
 PYPROJECT = Path("pyproject.toml")
+"""Path to `pyproject.toml`."""
+EXTRAS = ["cv"]
+"""User-facing extras (e.g. not development-only extras) in `pyproject.toml`."""
+_reqs = TOOLS / "requirements"
+UV = _reqs / "uv.in"
+"""Requirements file containing `uv` version pin."""
+DEV = _reqs / "dev.in"
+"""Development requirements, including editable local package installs."""
+NODEPS = _reqs / "nodeps.in"
+"""Requirements that should be appended to locks without solving for dependencies."""
+
+# ! Platform
+PLATFORM = platform(terse=True).casefold().split("-")[0]
+"""Platform identifier."""
+match PLATFORM:
+    case "macos":
+        _runner = "macos-12"
+    case "windows":
+        _runner = "windows-2022"
+    case "linux":
+        _runner = "ubuntu-22.04"
+    case _:
+        raise ValueError(f"Unsupported platform: {PLATFORM}")
+RUNNER = _runner
+"""Runner associated with this platform."""
+match version_info[:2]:
+    case (3, 8):
+        _python_version = "3.8"
+    case (3, 9):
+        _python_version = "3.9"
+    case (3, 10):
+        _python_version = "3.10"
+    case (3, 11):
+        _python_version = "3.11"
+    case (3, 12):
+        _python_version = "3.12"
+    case (3, 13):
+        _python_version = "3.13"
+    case _:
+        _python_version = "3.11"
+VERSION = _python_version
+"""Python version associated with this platform."""
+
+# ! Locks
+LOCKS = Path(".lock")
+"""Locks computed or retrieved for this platform."""
+ENVIRONMENT = "_".join(["requirements", RUNNER, VERSION])
+"""Unique environment identifier, also used for the artifact name."""
+LOCKFILE = Path(".tools/locks.json")
+"""Combined locks for all platforms."""
+
+# * -------------------------------------------------------------------------------- * #
+# * Module-level initialization
 
 
-@app.command()
-def sync():
-    *_, submodule_deps = get_submodules()
-    original_content = content = PYPROJECT.read_text("utf-8")
+def init():
+    """Initialize module."""
+    LOCKS.mkdir(exist_ok=True, parents=True)
+
+
+init()
+
+# * -------------------------------------------------------------------------------- * #
+# * CLI
+
+
+@APP.command()
+def sync_paired_deps():
+    """Synchronize paired dependencies within a TOMLKit array."""
+    content = PYPROJECT.read_text("utf-8")
     pyproject = tomlkit.loads(content)
-    deps: Array = pyproject["project"]["optional-dependencies"]["dev"]  # pyright: ignore[reportAssignmentType, reportIndexIssue]  # pyright==1.1.350, packaging==24.0
-    sync_paired_dependency(deps, "pandas", "pandas-stubs")
-    for dep in submodule_deps:
-        sync_submodule_dependency(deps, dep)
-    content = tomlkit.dumps(pyproject)
-    if content != original_content:
+    sync_paired_dependency(
+        deps=pyproject["project"]["optional-dependencies"]["dev"],  # pyright: ignore[reportArgumentType, reportIndexIssue]  # pyright==1.1.350, packaging==24.0
+        src="pandas",
+        dst="pandas-stubs",
+    )
+    if content != (content := tomlkit.dumps(pyproject)):
         PYPROJECT.write_text(encoding="utf-8", data=content)
 
 
-PLATFORM = platform(terse=True).casefold().split("-")[0]
-
-match PLATFORM:
-    case "macos":
-        RUNNER = "macos-12"
-    case "windows":
-        RUNNER = "windows-2022"
-    case "linux":
-        RUNNER = "ubuntu-22.04"
-    case _:
-        raise ValueError(f"Unsupported platform: {PLATFORM}")
-
-match version_info[:2]:
-    case (3, 8):
-        PYTHON_VERSION = "3.8"
-    case (3, 9):
-        PYTHON_VERSION = "3.9"
-    case (3, 10):
-        PYTHON_VERSION = "3.10"
-    case (3, 11):
-        PYTHON_VERSION = "3.11"
-    case (3, 12):
-        PYTHON_VERSION = "3.12"
-    case (3, 13):
-        PYTHON_VERSION = "3.13"
-    case _:
-        PYTHON_VERSION = "3.11"
-
-REQS = Path(".tools/requirements")
-DEV = REQS / "dev.in"
-UV = REQS / "uv.in"
-NODEPS = REQS / "nodeps.in"
-# PLATFORM_LOCKS = Path(".lock")
-PLATFORM_LOCKS = Path.cwd()
-ENVIRONMENT = "_".join(["requirements", RUNNER, PYTHON_VERSION])
-ENVIRONMENT_LOCK = PLATFORM_LOCKS / ENVIRONMENT
-LOCK = ENVIRONMENT_LOCK / f"{ENVIRONMENT}.txt"
-
-
-@app.command(name="get-lockfile")
-def get_lockfile_cli():
-    print(LOCK.resolve().as_posix())  # noqa: T201
-
-
-def get_lockfile(highest: bool = False):
-    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
-    return LOCK.with_stem(f"{LOCK.stem}_dev" if highest else LOCK.stem)
-
-
-@app.command()
+@APP.command()
 def lock(highest: bool = False):
     """Lock the requirements for the given environment.
 
     Args:
-        highest: Whether to lock the highest dependencies.
+        highest: Lock for the highest dependencies.
     """
-    lock_result = run(
+    result = run(
         args=split(
             " ".join([
                 f"{Path(executable).as_posix()} -m uv",
-                f"pip compile --python-version {PYTHON_VERSION}",
+                f"pip compile --python-version {VERSION}",
                 f"--resolution {'highest' if highest else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
-                "--extra cv" if highest else "--all-extras",
-                PYPROJECT.as_posix(),
-                DEV.as_posix(),
-                UV.as_posix(),
+                (
+                    " ".join([f"--extra {e}" for e in EXTRAS])
+                    if highest
+                    else "--all-extras"
+                ),
+                " ".join([p.as_posix() for p in [PYPROJECT, DEV, UV]]),
             ])
         ),
         capture_output=True,
         check=False,
         text=True,
     )
-    if lock_result.returncode:
-        raise RuntimeError(lock_result.stderr)
-    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
+    if result.returncode:
+        raise RuntimeError(result.stderr)
     get_lockfile(highest).write_text(
         encoding="utf-8",
-        data="\n".join([
-            r.strip() for r in [lock_result.stdout, NODEPS.read_text(encoding="utf-8")]
-        ])
+        data=log(
+            "\n".join([r.strip() for r in [result.stdout, NODEPS.read_text("utf-8")]])
+        )
         + "\n",
     )
 
 
-LOCKS = Path(".tools/locks.json")
-
-
-@app.command()
+@APP.command()
 def combine_locks():
-    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
-    LOCKS.write_text(
+    log(LOCKFILE).write_text(
         encoding="utf-8",
         data=json.dumps(
             indent=2,
             obj={
-                lockfile.stem: lockfile.read_text(encoding="utf-8")
-                for lockfile in PLATFORM_LOCKS.rglob("requirements_*.txt")
+                lock.stem: lock.read_text("utf-8")
+                for lock in LOCKS.rglob("requirements_*.txt")
             },
         )
         + "\n",
     )
 
 
-@app.command()
-def find_lock():
-    rmtree(PLATFORM_LOCKS, ignore_errors=True)
-    ENVIRONMENT_LOCK.mkdir(exist_ok=True, parents=True)
-    lockfile = get_lockfile()
+@APP.command()
+def get_lockfile(highest: bool = False) -> Path:
+    """Get lockfile for the given environment.
+
+    Args:
+        highest: Get lockfile for highest pinned dependencies.
+    """
+    lockfile = LOCKS / f"{ENVIRONMENT}{'' if highest else '_dev'}.txt"
+    return log(lockfile)
+
+
+@APP.command()
+def get_existing_lockfile(highest: bool = False) -> Path:
+    """Get an existing lockfile for the given environment.
+
+    Args:
+        highest: Get lockfile for highest pinned dependencies.
+    """
+    lockfile = get_lockfile(highest)
     lockfile.write_text(
-        encoding="utf-8", data=json.loads(LOCKS.read_text("utf-8"))[lockfile.stem]
+        encoding="utf-8", data=json.loads(LOCKFILE.read_text("utf-8"))[lockfile.stem]
     )
+    return lockfile
 
 
-@dataclass
-class Submodule:
-    """Represents a git submodule."""
-
-    _path: str | bytes
-    """Submodule path as reported by the submodule source."""
-    commit: str
-    """Commit hash currently tracked by the submodule."""
-    path: Path = Path()
-    """Submodule path."""
-    name: str = ""
-    """Submodule name."""
-
-    def __post_init__(self):
-        """Handle byte strings reported by some submodule sources, like dulwich."""
-        # dulwich.porcelain.submodule_list returns bytes
-        self.path = Path(
-            self._path.decode("utf-8") if isinstance(self._path, bytes) else self._path
-        )
-        self.name = self.path.name
+# * -------------------------------------------------------------------------------- * #
 
 
-def get_submodules() -> tuple[Submodule, Submodule, list[Submodule]]:
-    """Get the special template and typings submodules, as well as the rest."""
-    with closing(repo := Repo(str(Path.cwd()))):
-        all_submodules = [Submodule(*item) for item in list(submodule_list(repo))]
-    submodules: list[Submodule] = []
-    template = typings = None
-    for submodule in all_submodules:
-        if submodule.name == "template":
-            template = submodule
-        elif submodule.name == "typings":
-            typings = submodule
-        else:
-            submodules.append(submodule)
-    if not template or not typings:
-        raise ValueError("Could not find one of the template or typings submodules.")
-    return template, typings, submodules
+def log(obj):
+    """Print an object and also return it."""
+    print(obj)  # noqa: T201  # Send to CLI stdout
+    return obj
 
 
-def sync_paired_dependency(deps: Array, src_name: str, dst_name: str):
-    """Synchronize paired dependencies.
+def sync_paired_dependency(deps: Array, src: str, dst: str):
+    """Synchronize a dependency within a TOMLKit array.
 
-    Synchronize the `dst` dependency version from the `src` dependency version. This
-    allows for certain complicated dependency relationships to be maintained, such as
-    the one between `pandas` and `pandas-stubs`, in which `pandas-stubs` first three
-    version numbers should match those of releases of `pandas`.
+    Synchronize `dst` dependency version from the `src` dependency version to maintain
+    coupled dependency relationships. For example, since the major/minor/patch version
+    numbers should match between `pandas` and `pandas-stubs`, this means that
+    `pandas-stubs` needs a`~=` relationship to the same version that `pandas` has a
+    `==*.*.*` relationship to.
+
+    Args:
+        deps: List of dependencies to synchronize.
+        src: Source dependency name.
+        dst: Destination dependency name.
     """
     reqs = [Requirement(r) for r in deps]
-    src_req = next(r for r in reqs if r.name == src_name)
+    src_req = next(r for r in reqs if r.name == src)
     specs = src_req.specifier
     if len(specs) != 1:
         raise ValueError(f"Expected exactly one specifier in {src_req}.")
     src_ver = next(iter(specs)).version
     for i, dst_req in enumerate(reqs):
-        if dst_req.name != dst_name:
+        if dst_req.name != dst:
             continue
         specs = dst_req.specifier
         if len(specs) != 1:
@@ -215,14 +219,5 @@ def sync_paired_dependency(deps: Array, src_name: str, dst_name: str):
         deps[i] = str(Requirement(f"{dst_req.name}{dst_spec.operator}{src_ver}"))
 
 
-def sync_submodule_dependency(deps: Array, sub: Submodule):
-    """Synchronize commit-pinned dependencies to their respective submodule commit."""
-    for i, req in enumerate(Requirement(r) for r in deps):
-        if req.name != sub.name or not req.url:
-            continue
-        req.url = "@".join([req.url.split("@")[0], sub.commit])
-        deps[i] = str(req).replace("@ git", " @ git")
-
-
 if __name__ == "__main__":
-    app()
+    APP()
