@@ -21,12 +21,6 @@ jobs:
     env:
       artifact_name: "requirements_${{ matrix.github_actions_runner }}_${{ matrix.python_version }}"
     steps:
-      - if: startsWith(matrix.github_actions_runner, 'ubuntu-')
-        name: Install PySide6 system dependencies
-        run: |
-          # https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
-          sudo apt update
-          sudo apt install libegl1
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
           submodules: True
@@ -39,8 +33,84 @@ jobs:
         with:
           path: ".lock"
           name: "${{ env.artifact_name }}"
-  combine:
+  pyright:
     needs: ["lock"]
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        with:
+          path: ".lock"
+          merge-multiple: True
+      - shell: "pwsh"
+        run: ".tools/Sync-Python.ps1 -Combine"
+      - run: pyright
+  ruff:
+    needs: ["lock"]
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        with:
+          path: ".lock"
+          merge-multiple: True
+      - shell: "pwsh"
+        run: ".tools/Sync-Python.ps1 -Combine"
+      - run: "ruff --no-fix --output-format github ."
+  pytest:
+    needs: ["lock"]
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        with:
+          path: ".lock"
+          merge-multiple: True
+      - shell: "pwsh"
+        run: ".tools/Sync-Python.ps1 -Combine"
+      - name: Install PySide6 system dependencies
+        run: |
+          # https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
+          sudo apt update
+          sudo apt install libegl1
+      # ! Need to specify `cov-config` as below.
+      # ! See https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
+      - run: "pytest --cov --cov-config=pyproject.toml"
+      - uses: "codecov/codecov-action@v3.1.4"
+  fawltydeps:
+    needs: ["lock"]
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        with:
+          path: ".lock"
+          merge-multiple: True
+      - shell: "pwsh"
+        run: ".tools/Sync-Python.ps1 -Combine"
+      - run: "fawltydeps"
+  combine:
+    needs: ["pyright", "ruff", "pytest", "fawltydeps"]
     runs-on: "ubuntu-22.04"
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
