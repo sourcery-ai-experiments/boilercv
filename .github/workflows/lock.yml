@@ -7,13 +7,13 @@ jobs:
     strategy:
       matrix:
         github_actions_runner:
-          # - "macos-12"
+          - "macos-12"
           - "ubuntu-22.04"
           - "windows-2022"
         python_version:
           # - "3.8"
           # - "3.9"
-          - "3.10"
+          # - "3.10"  # ? Using some 3.11 features (e.g. datetime.UTC)
           - "3.11"
           # - "3.12"  # ? No support in my commit-pinned fork of cachier
           # - "3.13"
