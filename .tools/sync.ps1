@@ -9,63 +9,41 @@ Param(
 )
 
 $PSNativeCommandUseErrorActionPreference = $true
+$PSNativeCommandUseErrorActionPreference | Out-Null
 
-function Main {
-    function Main {
-        run "pip install uv"
-        inst "-e .tools/."
-        $tools = 'boilercv_tools'
-        $lock = run "$tools get-lockfile"
-        if ($Env:CI) {
-            run "$tools sync"
-            if ($Env:LOCK) {
-                run "$tools lock"
-                sync $lock
-                run "$tools lock --highest"
-            }
-            # ! Invoke-Expression "$Py -m copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
-            #! if ($Env:TEST) { Invoke-Expression "$Py -m pytest" }
-            elseif ($Env:COMBINE) {
-                run "$tools combine-locks"
-            }
-            elseif ($Env:TEST) {
-                run "pytest"
-            }
-            return
-        }
-        run "$tools find-lock"
-        sync $lock
+function Start-PythonEnv {
+    <#.SYNOPSIS
+    Activate a Python virtual environment and return its interpreter.
+    #>
+    Param(
+        # Virtual environment name to activate.
+        [Parameter(ValueFromPipeline)][string]$Name = '.venv'
+    )
+    if ($IsWindows) {
+        . "$Name/Scripts/activate"
+        return "$Env:VIRTUAL_ENV/Scripts/python.exe"
     }
-
-    $Py = Get-Python
-
-    function run {
-        Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
-        Invoke-Expression "$Py -m $String"
+    else {
+        . "$Name/bin/activate"
+        return "$Env:VIRTUAL_ENV/bin/python"
     }
-    function inst {
-        Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
-        if ($Env:CI) {
-            run "uv pip install --system --break-system-packages $String"
-        }
-        else {
-            run "uv pip install $String"
-        }
-    }
-    function sync {
-        Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
-        if ($Env:CI) {
-            run "uv pip sync  --system --break-system-packages $String"
-        }
-        else {
-            run "uv pip sync $String"
-        }
-    }
-
-    Main
 }
 
-
+function Get-GlobalPython {
+    <#.SYNOPSIS
+    Get the global Python interpreter for a certain Python version.
+    #>
+    if (Get-Command 'py' -ErrorAction Ignore) {
+        if (py --list | Select-String -Pattern "^\s?-V:$([Regex]::Escape($Version))") {
+            return "py -$Version"
+        }
+    }
+    elseif (Get-Command "python$Version" -ErrorAction Ignore) {
+        return "python$Version"
+    }
+    Write-Warning "Python $Version does not appear to be installed. Download and install from 'https://www.python.org/downloads/'."
+    return
+}
 function Get-Python {
     <#.SYNOPSIS
     Get Python environment for this project.
@@ -90,38 +68,68 @@ function Get-Python {
     return $Py
 }
 
-function Get-GlobalPython {
-    <#.SYNOPSIS
-    Get the global Python interpreter for a certain Python version.
-    #>
-    if (Get-Command 'py' -ErrorAction Ignore) {
-        if (py --list | Select-String -Pattern "^\s?-V:$([Regex]::Escape($Version))") {
-            return "py -$Version"
-        }
-    }
-    elseif (Get-Command "python$Version" -ErrorAction Ignore) {
-        return "python$Version"
-    }
-    Write-Warning "Python $Version does not appear to be installed. Download and install from 'https://www.python.org/downloads/'."
-    return
+$Py = Get-Python
+
+function run {
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
+    Invoke-Expression "$Py -m $String"
 }
 
-function Start-PythonEnv {
-    <#.SYNOPSIS
-    Activate a Python virtual environment and return its interpreter.
-    #>
-    Param(
-        # Virtual environment name to activate.
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Name = '.venv'
-    )
-    if ($IsWindows) {
-        . "$Name/Scripts/activate"
-        return "$Env:VIRTUAL_ENV/Scripts/python.exe"
+function inst {
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
+    if ($Env:CI) {
+        run "uv pip install --system --break-system-packages $String"
     }
     else {
-        . "$Name/bin/activate"
-        return "$Env:VIRTUAL_ENV/bin/python"
+        run "uv pip install $String"
     }
 }
 
-Main
+function sync {
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
+    if ($Env:CI) {
+        run "uv pip sync  --system --break-system-packages $String"
+    }
+    else {
+        run "uv pip sync $String"
+    }
+}
+
+function tools {
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
+    run "boilercv_tools $String"
+}
+
+function SETUP {
+    run 'pip install uv'
+    inst '-e .tools/.'
+    run "$tools find-lock"
+    sync $lock
+}
+
+function CI_ONLY_SETUP {
+    run "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
+    run "$tools sync"
+}
+
+function LOCK {
+    $lock = tools 'get-lockfile'
+    run "$tools lock"
+    sync $lock
+    run "$tools lock --highest"
+    elseif ($Env:TEST) {
+        run 'pytest'
+    }
+}
+
+function TEST {
+    run 'pytest'
+}
+
+# * -------------------------------------------------------------------------------- * #
+
+function COMBINE {
+    tools 'combine-locks'
+    run "$tools sync"
+    run "$tools combine-locks"
+}

@@ -18,9 +18,6 @@ jobs:
           # - "3.12"
           # - "3.13"
     runs-on: "${{ matrix.github_actions_runner }}"
-    env:
-      LOCK: true
-      TEST: true
     steps:
       - if: startsWith(matrix.github_actions_runner, 'ubuntu-')
         name: Install PySide6 system dependencies
@@ -34,16 +31,22 @@ jobs:
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
           python-version: "${{ matrix.python_version }}"
-      - run: ".tools/sync.ps1"
+      - run: ". .tools/sync.ps1"
+        shell: "pwsh"
+      - run: "SETUP"
+        shell: "pwsh"
+      - run: "CI_ONLY_SETUP"
+        shell: "pwsh"
+      - run: "LOCK"
+        shell: "pwsh"
+      - run: "TEST"
         shell: "pwsh"
       - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" #v4.3.1
         with:
-          path: ".lock/*"
+          path: ".lock/${{ matrix.github_actions_runner }}/${{ matrix.python_version }}"
   combine:
     needs: ["lock"]
     runs-on: "ubuntu-22.04"
-    env:
-      COMBINE: true
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
@@ -55,7 +58,13 @@ jobs:
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
           python-version: "3.11"
-      - run: ".tools/sync.ps1"
+      - run: ". .tools/sync.ps1"
+        shell: "pwsh"
+      - run: "SETUP"
+        shell: "pwsh"
+      - run: "CI_ONLY_SETUP"
+        shell: "pwsh"
+      - run: "COMBINE"
         shell: "pwsh"
       - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:

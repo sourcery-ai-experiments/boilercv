@@ -68,7 +68,7 @@ match version_info[:2]:
 DEV = Path(".tools/requirements/dev.in")
 NODEPS = Path(".tools/requirements/nodeps.in")
 PLATFORM_LOCKS = Path(".lock")
-ENVIRONMENT = "_".join(["requirements", RUNNER, PYTHON_VERSION.replace(".", "")])
+ENVIRONMENT = "_".join(["requirements", RUNNER, PYTHON_VERSION])
 ENVIRONMENT_LOCK = PLATFORM_LOCKS / ENVIRONMENT
 LOCK = ENVIRONMENT_LOCK / f"{ENVIRONMENT}.txt"
 
