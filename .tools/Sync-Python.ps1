@@ -170,13 +170,17 @@ function Get-GlobalPython {
     <#.SYNOPSIS
     Get global Python interpreter.
     #>
-    if (Test-Command 'py') {
+    if ((! $Env:CI) -and (Test-Command 'py')) {
         if (py --list | Select-String -Pattern "^\s?-V:$RE_VERSION") {
             return "py -$Version"
         }
     }
     elseif (Test-Command "python$Version") {
         return "python$Version"
+    }
+    elseif (Test-Command 'python') {
+        Write-Warning "Attempting to invoke Python $Version from 'python' alias."
+        return 'python'
     }
     Write-Warning "Python $Version does not appear to be installed. Download and install from 'https://www.python.org/downloads/'."
     return
