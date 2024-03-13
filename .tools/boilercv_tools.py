@@ -35,9 +35,9 @@ NODEPS = _reqs / "nodeps.in"
 """Requirements that should be appended to locks without solving for dependencies."""
 
 # ! Platform
-PLATFORM = platform(terse=True).casefold().split("-")[0]
+PLATFORM = platform(terse=True)
 """Platform identifier."""
-match PLATFORM:
+match PLATFORM.casefold().split("-")[0]:
     case "macos":
         _runner = "macos-12"
     case "windows":
@@ -92,6 +92,7 @@ init()
 @APP.command()
 def sync_paired_deps():
     """Synchronize paired dependencies within a TOMLKit array."""
+    log(f"{PLATFORM = }")
     content = PYPROJECT.read_text("utf-8")
     pyproject = tomlkit.loads(content)
     sync_paired_dependency(
