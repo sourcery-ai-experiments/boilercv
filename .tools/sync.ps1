@@ -26,7 +26,10 @@ function Main {
             # ! Invoke-Expression "$Py -m copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
             #! if ($Env:TEST) { Invoke-Expression "$Py -m pytest" }
             elseif ($Env:COMBINE) {
-                Invoke-Expression "$Py -m boilercv_tools combine-locks"
+                run "$tools combine-locks"
+            }
+            elseif ($Env:TEST) {
+                run "pytest"
             }
             return
         }
@@ -43,7 +46,7 @@ function Main {
     function inst {
         Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
         if ($Env:CI) {
-            run "$Py -m uv pip install --system --break-system-packages $String"
+            run "uv pip install --system --break-system-packages $String"
         }
         else {
             run "uv pip install $String"
@@ -52,7 +55,7 @@ function Main {
     function sync {
         Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
         if ($Env:CI) {
-            run "$Py -m uv pip sync  --system --break-system-packages $String"
+            run "uv pip sync  --system --break-system-packages $String"
         }
         else {
             run "uv pip sync $String"
