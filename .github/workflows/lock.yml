@@ -13,9 +13,9 @@ jobs:
         python_version:
           # - "3.8"
           # - "3.9"
-          # - "3.10"  # ? Using some 3.11 features (e.g. datetime.UTC)
+          # - "3.10" # ? Using some 3.11 features (e.g. datetime.UTC)
           - "3.11"
-          # - "3.12"  # ? No support in my commit-pinned fork of cachier
+          # - "3.12" # ? No support in my commit-pinned fork of cachier
           # - "3.13"
     runs-on: "${{ matrix.github_actions_runner }}"
     env:
@@ -38,7 +38,7 @@ jobs:
       - run: "pytest --cov --cov-config=pyproject.toml"
       - if: startsWith(matrix.github_actions_runner, 'ubuntu-') && matrix.python_version == '3.11'
         uses: "codecov/codecov-action@v3.1.4"
-      - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" #v4.3.1
+      - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" # v4.3.1
         with:
           path: ".lock"
           name: "${{ env.artifact_name }}"
