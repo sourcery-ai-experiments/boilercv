@@ -49,11 +49,11 @@ function Initialize-PythonEnv {
     #>
     install-uv
     install '-e .tools/.'
-    if ($Env:CI) {
-        run "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
-        # Install `uv` again in case it changed after `copier update`.
-        install-uv
-    }
+    # if ($Env:CI) {
+    #     run "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
+    #     # Install `uv` again in case it changed after `copier update`.
+    #     install-uv
+    # }
     tools 'sync-paired-deps'
 }
 
