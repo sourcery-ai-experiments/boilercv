@@ -6,9 +6,9 @@ Param(
     # Python version.
     $Version = (Get-Content '.copier-answers.yml' |
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
-    # Sync to highest pinned dependencies instead of lowest direct dependencies.
+    # Sync to highest pinned dependencies.
     [switch]$Highest,
-    # Whether to combine lockfiles if in CI.
+    # Combine lockfiles if in CI.
     [switch]$Combine
 )
 
@@ -27,7 +27,6 @@ $VENV = '.venv'
 # ? Command modifier for `uv` if running in CI.
 $UV_MOD = $Env:CI ? '--system --break-system-packages' : ''
 # ? CLI flag for highest pinned dependencies.
-$HIGHEST_ARG = "--$($Highest ? '' : 'no-')highest"
 # ? $PY is a CI-aware Python interpreter defined later but usable in Initialize-Python
 
 # * -------------------------------------------------------------------------------- * #
@@ -37,20 +36,14 @@ function Sync-Python {
     <#.SYNOPSIS
     Synchronize Python dependencies.
     #>
-    Initialize-Job
-    if ($Combine) {
-        Invoke-Combine
-    }
-    else {
-        Invoke-Lock
-    }
+    Initialize-PythonEnv
     Sync-PythonEnv
 }
 
 # * -------------------------------------------------------------------------------- * #
 # * CI-aware jobs
 
-function Initialize-Job {
+function Initialize-PythonEnv {
     <#.SYNOPSIS
     Bootstrap the environment.
     #>
@@ -64,25 +57,45 @@ function Initialize-Job {
     tools 'sync-paired-deps'
 }
 
-function Invoke-Combine {
-    <#.SYNOPSIS
-    Combine existing platform-specific lockfiles.
-    #>
-    if (! $Env:CI) { return }
-    tools 'combine-locks'
-}
-
-function Invoke-Lock {
-    if (! $Env:CI) { return }
-    tools 'lock'
-    tools 'lock --highest'
-}
-
 function Sync-PythonEnv {
     <#.SYNOPSIS
     Synchronize Python environment.
     #>
-    sync $(tools "get-existing-lockfile $HIGHEST_ARG")
+    if ($Env:CI) {
+        if ($Combine) {
+            tools 'combine-locks'
+        }
+        else {
+            tools 'lock'
+            tools 'lock --highest'
+        }
+        return Get-Lockfile | sync
+    }
+    return Get-Lockfile -Create | sync
+}
+
+function Get-Lockfile {
+    <#.SYNOPSIS
+    Get lockfile.
+    #>
+    Param(
+        # Attempt to populate the lockfile with an existing lock.
+        [switch]$Create
+    )
+    return tools "get-lockfile $(Get-Flag 'highest' $Highest) $(Get-Flag 'create' $Create)"
+}
+
+function Get-Flag {
+    <#.SYNOPSIS
+    Get flag suitable for passing to CLI expecting flags like `--flag` and `--no-flag`.
+    #>
+    Param(
+        # Flag.
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Flag,
+        # Enabled.
+        [bool]$Enable
+    )
+    return "--$($Enable ? '' : 'no-')$Flag"
 }
 
 # * -------------------------------------------------------------------------------- * #

@@ -131,18 +131,20 @@ def lock(highest: bool = False):
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    get_lockfile(highest).write_text(
+    lockfile = get_lockfile(highest)
+    lockfile.write_text(
         encoding="utf-8",
-        data=log(
+        data=(
             "\n".join([r.strip() for r in [result.stdout, NODEPS.read_text("utf-8")]])
-        )
-        + "\n",
+            + "\n"
+        ),
     )
+    return lockfile
 
 
 @APP.command()
-def combine_locks():
-    log(LOCKFILE).write_text(
+def combine_locks() -> Path:
+    LOCKFILE.write_text(
         encoding="utf-8",
         data=json.dumps(
             indent=2,
@@ -153,31 +155,24 @@ def combine_locks():
         )
         + "\n",
     )
+    return log(LOCKFILE)
 
 
 @APP.command()
-def get_lockfile(highest: bool = False) -> Path:
+def get_lockfile(highest: bool = False, create: bool = False) -> Path:
     """Get lockfile for the given environment.
 
     Args:
         highest: Get lockfile for highest pinned dependencies.
+        create: Attempt to populate the lockfile with an existing lock.
     """
     lockfile = LOCKS / f"{ENVIRONMENT}{'' if highest else '_dev'}.txt"
+    if create:
+        lockfile.write_text(
+            encoding="utf-8",
+            data=json.loads(LOCKFILE.read_text("utf-8"))[lockfile.stem],
+        )
     return log(lockfile)
-
-
-@APP.command()
-def get_existing_lockfile(highest: bool = False) -> Path:
-    """Get an existing lockfile for the given environment.
-
-    Args:
-        highest: Get lockfile for highest pinned dependencies.
-    """
-    lockfile = get_lockfile(highest)
-    lockfile.write_text(
-        encoding="utf-8", data=json.loads(LOCKFILE.read_text("utf-8"))[lockfile.stem]
-    )
-    return lockfile
 
 
 # * -------------------------------------------------------------------------------- * #
