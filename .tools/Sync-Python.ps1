@@ -7,7 +7,7 @@ Param(
     $Version = (Get-Content '.copier-answers.yml' |
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
     # Sync to highest pinned dependencies instead of lowest direct dependencies.
-    [switch]$Highest
+    [switch]$Highest,
     # Whether to combine lockfiles if in CI.
     [switch]$Combine
 )
