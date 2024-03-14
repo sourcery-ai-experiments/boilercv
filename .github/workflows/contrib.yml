@@ -3,7 +3,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-      ["tools/scripts/**", "tools/boilercv_tools/**", "tools/boilercv_tools*"]
+      [
+        ".tools/scripts/**",
+        ".tools/boilercv_tools/**",
+        ".tools/boilercv_tools*",
+      ]
 jobs:
   contrib:
     runs-on: "ubuntu-22.04"
