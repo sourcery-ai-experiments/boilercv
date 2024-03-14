@@ -221,7 +221,7 @@ function Start-PythonEnv {
         $py = 'python'
     }
     . "$VENV/$bin/activate"
-    return "$Env:VIRTUAL_ENV/Scripts/$py"
+    return "$Env:VIRTUAL_ENV/$bin/$py"
 
 }
 
