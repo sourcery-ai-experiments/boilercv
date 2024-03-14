@@ -30,6 +30,6 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: ".tools/scripts/Sync-Python.ps1 -Lock ${{ matrix.toggle_ci }} ${{ matrix.toggle_ci }}"
+        run: ".tools/scripts/Sync-Python.ps1 -Lock ${{ matrix.toggle_ci }} ${{ matrix.force_venv }}"
       - shell: "pwsh"
-        run: ".tools/scripts/Sync-Python.ps1 -Lock -Merge  ${{ matrix.toggle_ci }} ${{ matrix.toggle_ci }}"
+        run: ".tools/scripts/Sync-Python.ps1 -Lock -Merge  ${{ matrix.toggle_ci }} ${{ matrix.force_venv }}"
