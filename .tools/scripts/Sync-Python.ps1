@@ -143,17 +143,6 @@ function Invoke-PythonModule {
     Invoke-Expression "$PYTHON -m $Arguments"
 }
 
-function Invoke-UvPip {
-    <#.SYNOPSIS
-    CI-aware invocation of `uv pip`.
-    #>
-    Param(
-        [string]$Cmd,
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments
-    )
-    Invoke-PythonModule "uv pip $($Cmd.ToLower()) $System $Arguments"
-}
-
 function Invoke-PythonScript {
     <#.SYNOPSIS
     Invoke Python scripts.
