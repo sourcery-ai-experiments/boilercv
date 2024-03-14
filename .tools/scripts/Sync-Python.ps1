@@ -13,14 +13,14 @@ Param(
     [switch]$Merge,
     # Don't sync.
     [switch]$NoSync,
+    # Don't use global Python in CI. Local runs still always use `.venv`.
+    [switch]$NoGlobalInCI,
     # Toggle CI to behave as local and vice versa. Local runs still always use `.venv`.
     [switch]$ToggleCI,
-    # Force `.venv` even in CI. Local runs still always use `.venv`.
-    [switch]$ForceVenv,
-    # Skip template recopying.
-    [switch]$SkipCopy,
-    # Skip pre-commit hooks.
-    [switch]$SkipHooks
+    # Don't recopy the template.
+    [switch]$NoCopy,
+    # Don't install pre-commit hooks.
+    [switch]$NoHooks
 )
 
 . '.tools/scripts/Set-StrictErrors.ps1'
@@ -42,7 +42,7 @@ function Sync-Python {
     Invoke-UvPip Install '-e .tools/.'
     Write-Progress 'SYNCING PAIRED DEPENDENCIES'
     Invoke-Tools 'sync-paired-deps'
-    if ($CI -and !$SkipCopy) {
+    if ($CI -and !$NoCopy) {
         Write-Progress 'UPDATING FROM TEMPLATE...'
         $head = git rev-parse HEAD:submodules/template
         Invoke-PythonModule "copier update --defaults --vcs-ref $head"
@@ -63,17 +63,9 @@ function Sync-Python {
         Write-Progress 'SYNCING'
         Get-Lock $Sync | Invoke-UvPip Sync
     }
-    if (!$CI -and !$SkipHooks) {
+    if (!$CI -and !$NoHooks) {
         Write-Progress 'INSTALLING PRE-COMMIT HOOKS'
-        $h = '--hook-type'
-        $HookTypes = @(
-            $h, 'commit-msg'
-            $h, 'post-checkout'
-            $h, 'pre-commit'
-            $h, 'pre-merge-commit'
-            $h, 'pre-push'
-        )
-        pre-commit install --install-hooks @HookTypes
+        Invoke-PythonScript 'pre-commit install --install-hooks --hook-type commit-msg --hook-type post-checkout --hook-type pre-commit --hook-type pre-merge-commit --hook-type pre-push'
     }
     Write-Progress '...DONE ***' -Done
 }
@@ -93,7 +85,7 @@ function Write-Progress {
 
 
 # * -------------------------------------------------------------------------------- * #
-# * Shorthand functions for common operations which depend on $PY and Get-Python
+# * Shorthand functions for common operations which depend on $PYTHON and Get-Python
 
 function Install-Uv {
     <#.SYNOPSIS
@@ -150,9 +142,16 @@ function Invoke-PythonModule {
     Invoke a Python module.
     #>
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
-    Invoke-Expression "$Py -m $Arguments"
+    Invoke-Expression "$PYTHON -m $Arguments"
 }
 
+function Invoke-PythonScript {
+    <#.SYNOPSIS
+    Invoke Python scripts.
+    #>
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
+    Invoke-Expression "$SCRIPTS $Arguments"
+}
 
 # * -------------------------------------------------------------------------------- * #
 # * Get the CI-aware Python interpreter and call this script's main function
@@ -168,7 +167,7 @@ function Get-Python {
     #>
     $GlobalPy = Get-GlobalPython
     Write-Progress "GLOBAL PYTHON: $GlobalPy" -Done
-    if ($Env:CI -and $CI -and !$ForceVenv) {
+    if ($Env:CI -and $CI -and !$NoGlobalInCI) {
         Write-Progress 'USING GLOBAL PYTHON' -Done
         return $GlobalPy
     }
@@ -215,14 +214,14 @@ function Start-PythonEnv {
     #>
     if ($IsWindows) {
         $bin = 'Scripts'
-        $py = 'python.exe'
+        $python = 'python.exe'
     }
     else {
         $bin = 'bin'
-        $py = 'python'
+        $python = 'python'
     }
     Invoke-Expression "$VENV_PATH/$bin/Activate.ps1"
-    return "$Env:VIRTUAL_ENV/$bin/$py"
+    return "$Env:VIRTUAL_ENV/$bin/$python"
 }
 
 function Test-Command {
@@ -235,5 +234,6 @@ function Test-Command {
 # * -------------------------------------------------------------------------------- * #
 # * CI-aware Python interpreter and invocation of the main function
 
-$PY = Get-Python
+$PYTHON = Get-Python
+$SCRIPTS = (Get-Item $PYTHON).Parent
 Sync-Python

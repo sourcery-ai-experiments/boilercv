@@ -26,7 +26,6 @@ dependencies = [
     "pandas[hdf5,performance]>=2.0.2",
     "pillow>=10.0.0",
     "ploomber-engine>=0.0.30",
-    "pre-commit>=3.6.0",
     "pyarrow>=14.0.1",
     "pydantic>=2",
     "pyqtgraph>=0.13.3",
@@ -67,7 +66,6 @@ dev = [
     "pandas[hdf5,performance]==2.2.0",
     "pillow==10.2.0",
     "ploomber-engine==0.0.32",
-    "pre-commit==3.6.0",
     "pyarrow==15.0.0",
     "pydantic==2.6.1",
     "pyqtgraph==0.13.3",
@@ -87,8 +85,7 @@ dev = [
 deps = ["pyproject.toml"]
 code = ["src"]
 ignore_unused = [
-    "pre-commit", # Used in `boilercv.docs_generation`
-    "pyarrow",    # Used in `boilercv.__init__`
+    "pyarrow", # Used in `boilercv.__init__`
 ]
 [tool.fawltydeps.custom_mapping]
 ipykernel = ["IPython"]
@@ -229,7 +226,7 @@ show-fixes = true
 fixable = ["ALL"]
 select = ["ALL"]
 unfixable = [
-    "PIE790", # Don't remove `pass`/`...`, obverridden in pre-commit
+    "PIE790", # Don't remove `pass`/`...`, overridden in pre-commit
 ]
 extend-ignore = [
     "ANN",     # Don't require type annotations

@@ -18,9 +18,9 @@ jobs:
         toggle_ci:
           - ""
           - "-ToggleCI"
-        force_venv:
+        no_global_in_ci:
           - ""
-          - "-ForceVenv"
+          - "-NoGlobalInCI"
     runs-on: "${{ matrix.github_actions_runner }}"
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
@@ -30,4 +30,4 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: ".tools/scripts/Sync-Python.ps1 -Lock -Merge -NoSync ${{ matrix.toggle_ci }} ${{ matrix.force_venv }}"
+        run: ".tools/scripts/Sync-Python.ps1 -Lock -Merge -NoSync ${{ matrix.toggle_ci }} ${{ matrix.no_global_in_ci }}"
