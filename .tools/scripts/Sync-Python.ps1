@@ -25,7 +25,10 @@ Param(
 
 . '.tools/scripts/Set-StrictErrors.ps1'
 
-$CI = $Env:CI -xor $ToggleCI
+Write-Progress '*** LOCKING/SYNCING...'
+$ActuallyInCI = $Env:CI
+$CI = $ActuallyInCI -xor $ToggleCI
+if (!$ActuallyInCI -and $CI) { Write-Progress 'BEHAVING AS IF IN CI' -Done }
 
 # * -------------------------------------------------------------------------------- * #
 # * Main function, invoked at the end of this script and has the context of all below
@@ -34,8 +37,6 @@ function Sync-Python {
     <#.SYNOPSIS
     Sync Python dependencies.
     #>
-    Write-Progress '*** LOCKING/SYNCING...'
-    if (!$Env:CI -and $CI) { Write-Progress 'BEHAVING AS IF IN CI' -Done }
     Write-Progress 'INSTALLING UV'
     Install-Uv
     Write-Progress 'INSTALLING TOOLS'
@@ -100,7 +101,7 @@ function Invoke-UvPip {
         [ArgumentCompletions('Install', 'Sync')][string]$Cmd,
         [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments
     )
-    $System = $CI ? '--system --break-system-packages' : ''
+    $System = $ActuallyInCI ? '--system --break-system-packages' : ''
     Invoke-PythonModule "uv pip $($Cmd.ToLower()) $System $Arguments"
 }
 
@@ -178,7 +179,7 @@ function Get-Python {
     #>
     $GlobalPy = Get-GlobalPython
     Write-Progress "GLOBAL PYTHON: $GlobalPy" -Done
-    if ($Env:CI -and $CI -and !$NoGlobalInCI) {
+    if ($ActuallyInCI -and $CI -and !$NoGlobalInCI) {
         Write-Progress 'USING GLOBAL PYTHON' -Done
         return $GlobalPy
     }
