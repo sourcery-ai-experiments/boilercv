@@ -1,3 +1,4 @@
+# Simulate a local dev run of `Sync-Python.ps1`
 name: "contrib"
 on:
   workflow_dispatch:
@@ -10,7 +11,15 @@ on:
       ]
 jobs:
   contrib:
-    runs-on: "ubuntu-22.04"
+    strategy:
+      matrix:
+        github_actions_runner:
+          - "macos-12"
+          - "macos-13"
+          - "macos-14"
+          - "ubuntu-22.04"
+          - "windows-2022"
+    runs-on: "${{ matrix.github_actions_runner }}"
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
