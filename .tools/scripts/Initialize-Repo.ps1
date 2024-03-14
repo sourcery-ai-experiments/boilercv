@@ -2,6 +2,8 @@
 Initialize repository prior to first commit.
 #>
 
+. '.tools/scripts/Set-StrictErrors.ps1'
+
 git add -A
 git commit --no-verify -m 'Prepare template using blakeNaccarato/copier-python'
 git submodule add --force --name template https://github.com/blakeNaccarato/copier-python.git submodules/template

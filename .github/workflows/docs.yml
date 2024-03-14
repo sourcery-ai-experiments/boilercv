@@ -1,17 +1,21 @@
+# Build and publish documentation
 name: "docs"
-on:
-  workflow_dispatch:
-  pull_request:
-  push:
-    branches: ["main"]
-    paths: ["**/pyproject.toml", "**/*.md", ".tools/**", "docs/**"]
 permissions:
   contents: "read"
   pages: "write"
   id-token: "write"
 concurrency:
-  group: "pages"
+  group: "docs"
   cancel-in-progress: true
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    paths:
+      - "**/pyproject.toml"
+      - "**/*.md"
+      - ".tools/**"
+      - "docs/**"
 jobs:
   build:
     runs-on: "ubuntu-22.04"
@@ -35,4 +39,4 @@ jobs:
     needs: "build"
     steps:
       - id: "deployment"
-        uses: "actions/deploy-pages@v4.0.2"
+        uses: "actions/deploy-pages@decdde0ac072f6dcbe43649d82d9c635fff5b4e4" # v4.0.4

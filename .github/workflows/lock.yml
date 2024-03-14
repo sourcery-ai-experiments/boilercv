@@ -1,11 +1,19 @@
+# Lock Python dependencies for various environments
 name: "lock"
-on: ["workflow_dispatch"]
+concurrency:
+  group: "main"
+  cancel-in-progress: true
+permissions:
+  contents: "write"
+on:
+  workflow_dispatch:
 jobs:
   lock:
     strategy:
       matrix:
         github_actions_runner:
-          - "macos-13" # ? PyTables doesn't support macos-14
+          - "macos-13"
+          # - "macos-14" # ? PyTables doesn't support macos-14
           - "ubuntu-22.04"
           - "windows-2022"
         python_version:
@@ -35,7 +43,7 @@ jobs:
       # ! See https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
       - run: "pytest --cov --cov-config=pyproject.toml"
       - if: startsWith(matrix.github_actions_runner, 'ubuntu-') && matrix.python_version == '3.11'
-        uses: "codecov/codecov-action@v3.1.4"
+        uses: "codecov/codecov-action@54bcd8715eee62d40e33596ef5e8f0f48dbbccab" # v3.1.4
       - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" # v4.3.1
         with:
           path: ".lock"

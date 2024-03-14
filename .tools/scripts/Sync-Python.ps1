@@ -1,193 +1,182 @@
 <#.SYNOPSIS
-Synchronize Python dependencies.
+Sync Python dependencies.
 #>
 
 Param(
     # Python version.
-    [string]$Version = (Get-Content '.copier-answers.yml' |
+    [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' |
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
-    # Force local environment.
-    [switch]$Local,
+    # Kind of lock to sync the Python environment with.
+    [ArgumentCompletions('None', 'Dev', 'Low', 'High')][string]$Sync = 'Dev',
     # Lock the environment.
     [switch]$Lock,
-    # Sync to highest pinned dependencies.
-    [switch]$Highest,
-    # Combine lockfiles.
-    [switch]$Combine
+    # Merge existing locks.
+    [switch]$Merge,
+    # Toggle CI to behave as local and vice versa. Local runs still always use `.venv`.
+    [switch]$ToggleCI,
+    # Force `.venv` even in CI. Local runs still always use `.venv`.
+    [switch]$ForceVenv,
+    # Skip template recopying.
+    [switch]$SkipCopy,
+    # Skip pre-commit hooks.
+    [switch]$SkipHooks
 )
 
-# * -------------------------------------------------------------------------------- * #
-# * Configuration
-
-# ? Despite being default since 7.4, this needs to be explicit for some GHA runners
-$PSNativeCommandUseErrorActionPreference = $true
-$PSNativeCommandUseErrorActionPreference | Out-Null
+. '.tools/scripts/Set-StrictErrors.ps1'
 
 # * -------------------------------------------------------------------------------- * #
-# * Constants
-
-if ($Local) {
-    $CI = $false
-}
-elseif ($Env:CI) {
-    $CI = $true
-}
-$RE_VERSION = $([Regex]::Escape($Version))
-$VENV = '.venv'
-# ? Command modifier for `uv` if running in CI.
-$UV_MOD = $CI ? '--system --break-system-packages' : ''
-# ? CLI flag for highest pinned dependencies.
-# ? $PY is a CI-aware Python interpreter defined later but usable in Initialize-Python
-
-# * -------------------------------------------------------------------------------- * #
-# * Main inner function, invoked at the end of this script
+# * Main function, invoked at the end of this script and has the context of all below
 
 function Sync-Python {
     <#.SYNOPSIS
-    Synchronize Python dependencies.
+    Sync Python dependencies.
     #>
-    Initialize-PythonEnv
-    Sync-PythonEnv
-    if (! $CI) { Install-Hooks }
-}
-
-# * -------------------------------------------------------------------------------- * #
-# * CI-aware jobs
-
-function Initialize-PythonEnv {
-    <#.SYNOPSIS
-    Bootstrap the environment.
-    #>
-    install-uv
-    install '-e .tools/.'
-    if ($CI) {
-        run "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
+    Write-Progress '*** LOCKING/SYNCING...'
+    $CI = $Env:CI -xor $ToggleCI
+    if ($CI) { Write-Progress 'BEHAVING AS IF IN CI' -Done }
+    Write-Progress 'INSTALLING UV'
+    Install-Uv
+    Write-Progress 'INSTALLING TOOLS'
+    Invoke-UvPip Install '-e .tools/.'
+    Write-Progress 'SYNCING PAIRED DEPENDENCIES'
+    Invoke-Tools 'sync-paired-deps'
+    if ($CI -and (! $SkipCopy)) {
+        Write-Progress 'UPDATING FROM TEMPLATE...'
+        $head = git rev-parse HEAD:submodules/template
+        Invoke-PythonModule "copier update --defaults --vcs-ref $head"
         # ? Install `uv` again in case it changed after `copier update`.
-        install-uv
+        Install-Uv
     }
-    tools 'sync-paired-deps'
-}
-
-function Sync-PythonEnv {
-    <#.SYNOPSIS
-    Synchronize Python environment.
-    #>
-    if ($CI) {
-        if ($Combine) {
-            tools 'combine-locks'
-            return Get-Lockfile | sync
-        }
-        elseif ($Lock) {
-            tools 'lock'
-            tools 'lock --highest'
-            return Get-Lockfile | sync
-        }
+    if ($Lock) {
+        Write-Progress 'LOCKING...'
+        if ($CI) { 'Dev', 'Low', 'High' | Invoke-Lock }
+        else { Invoke-Lock $Sync }
+        Write-Progress 'LOCKED' -Done
     }
-    return Get-Lockfile -Create | sync
+    if ($Merge) {
+        Write-Progress 'MERGING LOCKS'
+        Invoke-Tools 'merge-locks'
+        Write-Progress 'MERGED'
+    }
+    if ($Sync -ne 'None') {
+        Write-Progress 'SYNCING'
+        Get-Lock $Sync | Invoke-UvPip Sync
+    }
+    if (! ($CI -or $SkipHooks)) {
+        Write-Progress 'INSTALLING PRE-COMMIT HOOKS'
+        $h = '--hook-type'
+        $HookTypes = @(
+            $h, 'commit-msg'
+            $h, 'post-checkout'
+            $h, 'pre-commit'
+            $h, 'pre-merge-commit'
+            $h, 'pre-push'
+        )
+        pre-commit install --install-hooks @HookTypes
+    }
+    Write-Progress '...DONE ***' -Done
 }
 
-function Install-Hooks {
+function Write-Progress {
     <#.SYNOPSIS
-    # Install all types of pre-commit hooks in local environments.
-    #>
-    $h = '--hook-type'
-    $HookTypes = @(
-        $h, 'commit-msg'
-        $h, 'post-checkout'
-        $h, 'pre-commit'
-        $h, 'pre-merge-commit'
-        $h, 'pre-push'
-    )
-    pre-commit install --install-hooks @HookTypes
-}
-
-# * -------------------------------------------------------------------------------- * #
-# * Helper functions
-
-function Get-Lockfile {
-    <#.SYNOPSIS
-    Get lockfile.
+    Write a message in green.
     #>
     Param(
-        # Attempt to populate the lockfile with an existing lock.
-        [switch]$Create
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Message,
+        [switch]$Done
     )
-    return tools "get-lockfile $(Get-Flag 'highest' $Highest) $(Get-Flag 'create' $Create)"
+    Write-Host
+    Write-Host $Message -ForegroundColor $($Done ? 'Green' : 'Yellow')
+
 }
 
-function Get-Flag {
-    <#.SYNOPSIS
-    Get flag suitable for passing to CLI expecting flags like `--flag`.
-    #>
-    Param(
-        # Flag.
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Flag,
-        # Enabled.
-        [bool]$Enable
-    )
-    return $Enable ? "--$Flag" : ''
-}
 
 # * -------------------------------------------------------------------------------- * #
 # * Shorthand functions for common operations which depend on $PY and Get-Python
 
-function run {
-    <#.SYNOPSIS
-    Invoke a Python module.
-    #>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
-    Invoke-Expression "$Py -m $String"
-}
-
-function install-uv {
+function Install-Uv {
     <#.SYNOPSIS
     Install uv.
     #>
-    run "pip install $(Get-Content '.tools/requirements/uv.in')"
+    Invoke-PythonModule "pip install $(Get-Content '.tools/requirements/uv.in')"
 }
 
-function install {
+function Invoke-UvPip {
     <#.SYNOPSIS
-    CI-aware run of `uv pip install`.
+    CI-aware invocation of `uv pip`.
     #>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
-    run "uv pip install $UV_MOD $String"
+    Param(
+        [ArgumentCompletions('Install', 'Sync')][string]$Cmd,
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments
+    )
+    $System = $CI ? '--system --break-system-packages' : ''
+    Invoke-PythonModule "uv pip $($Cmd.ToLower()) $System $Arguments"
 }
 
-function sync {
-    <#.SYNOPSIS
-    CI-aware run of `uv pip sync`.
-    #>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
-    run "uv pip sync $UV_MOD $String"
-}
-
-function tools {
+function Invoke-Tools {
     <#.SYNOPSIS
     Run `boilercv_tools` commands.
     #>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$String)
-    run "boilercv_tools $String"
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
+    Invoke-PythonModule "boilercv_tools $Arguments"
 }
+
+function Invoke-Lock {
+    <#.SYNOPSIS
+    Lock the environment.
+    #>
+    Param(
+        # Kind of lock.
+        [Parameter(Mandatory, ValueFromPipeline)][ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind
+    )
+    return Invoke-Tools "lock $($Kind.ToLower())"
+}
+
+function Get-Lock {
+    <#.SYNOPSIS
+    Get lockfile.
+    #>
+    Param(
+        # Kind of lock.
+        [Parameter(Mandatory, ValueFromPipeline)][ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind
+    )
+    return Invoke-Tools "get-lock $($Kind.ToLower())"
+}
+
+
+function Invoke-PythonModule {
+    <#.SYNOPSIS
+    Invoke a Python module.
+    #>
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
+    Invoke-Expression "$Py -m $Arguments"
+}
+
 
 # * -------------------------------------------------------------------------------- * #
 # * Get the CI-aware Python interpreter and call this script's main function
+
+# ? For regex comparisons
+$RE_VERSION = $([Regex]::Escape($Version))
+# ? Virtual environment path
+$VENV_PATH = '.venv'
 
 function Get-Python {
     <#.SYNOPSIS
     Get Python interpreter, global in CI, or activated virtual environment locally.
     #>
     $GlobalPy = Get-GlobalPython
-    if ($CI) {
+    # ? Use `$Env:CI` here instead of `$CI` to enforce `.venv` locally
+    if ($Env:CI -and (! $ForceVenv)) {
         return $GlobalPy
     }
-    if (! (Test-Path $VENV)) {
+    if (! (Test-Path $VENV_PATH)) {
         if (! $GlobalPy) {
             throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again."
         }
-        Invoke-Expression "$GlobalPy -m venv $VENV"
+        Invoke-Expression "$GlobalPy -m venv $VENV_PATH"
     }
-    $VenvPy = Start-PythonEnv $VENV
+    $VenvPy = Start-PythonEnv $VENV_PATH
     $foundVersion = Invoke-Expression "$VenvPy --version"
     if (! ($foundVersion |
                 Select-String -Pattern "^Python $RE_VERSION\.\d*$")) {
@@ -228,7 +217,7 @@ function Start-PythonEnv {
         $bin = 'bin'
         $py = 'python'
     }
-    . "$VENV/$bin/Activate.ps1"
+    Invoke-Expression "$VENV_PATH/$bin/Activate.ps1"
     return "$Env:VIRTUAL_ENV/$bin/$py"
 }
 
@@ -239,6 +228,8 @@ function Test-Command {
     return Get-Command @args -ErrorAction Ignore
 }
 
-# ? CI-aware Python interpreter and invocation of the main function
+# * -------------------------------------------------------------------------------- * #
+# * CI-aware Python interpreter and invocation of the main function
+
 $PY = Get-Python
 Sync-Python

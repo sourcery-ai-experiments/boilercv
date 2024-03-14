@@ -10,6 +10,9 @@ Param(
     # Whether to skip verifification when committing.
     [switch]$NoVerify
 )
+
+. '.tools/scripts/Set-StrictErrors.ps1'
+
 if ( $Recopy ) {
     copier recopy --overwrite $(if ($Defaults) { '--defaults' })
 }

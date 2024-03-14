@@ -1,4 +1,4 @@
-"""Update script to run after tool dependencies are installed, but before others."""
+"""Tools."""
 
 import json
 from collections.abc import Iterable, Mapping, Sequence
@@ -11,7 +11,7 @@ from shlex import join, split
 from subprocess import run
 from sys import executable, version_info
 from tomllib import loads
-from typing import TypeAlias
+from typing import Literal, TypeAlias
 
 import tomlkit
 from cyclopts import App
@@ -35,16 +35,20 @@ APP = App()
 TOOLS = Path(".tools")
 """Path to tools directory."""
 
-# ! Requirements
+# ! Dependencies in `pyproject.toml`
 PYPROJECT = Path("pyproject.toml")
 """Path to `pyproject.toml`."""
-EXTRAS = ["cv"]
-"""User-facing extras (e.g. not development-only extras) in `pyproject.toml`."""
+USER_EXTRAS = ["cv"]
+"""User-facing extras in `pyproject.toml`."""
+DEV_EXTRAS = ["dev"]
+"""Development-specific pins of main dependencies in `pyproject.toml`."""
+
+# ! Requirements
 _reqs = TOOLS / "requirements"
 UV = _reqs / "uv.in"
-"""Requirements file containing `uv` version pin."""
+"""Requirements file containing the `uv` version pin for bootstrapping installs."""
 DEV = _reqs / "dev.in"
-"""Development requirements, including editable local package installs."""
+"""Other development requirements including editable local package installs."""
 NODEPS = _reqs / "nodeps.in"
 """Requirements that should be appended to locks without solving for dependencies."""
 
@@ -85,7 +89,7 @@ LOCKS = Path(".lock")
 """Locks computed or retrieved for this platform."""
 ENVIRONMENT = "_".join(["requirements", RUNNER, VERSION])
 """Unique environment identifier, also used for the artifact name."""
-LOCKFILE = Path(".tools/locks.json")
+LOCKSFILE = Path(".tools/locks.json")
 """Combined locks for all platforms."""
 
 # ! For local dev config tooling
@@ -97,13 +101,7 @@ PYTEST = Path("pytest.ini")
 # * -------------------------------------------------------------------------------- * #
 # * Module-level initialization
 
-
-def init():
-    """Initialize module."""
-    LOCKS.mkdir(exist_ok=True, parents=True)
-
-
-init()
+LOCKS.mkdir(exist_ok=True, parents=True)
 
 # * -------------------------------------------------------------------------------- * #
 # * CLI
@@ -125,25 +123,34 @@ def sync_paired_deps():
 
 
 @APP.command()
-def lock(highest: bool = False):
-    """Lock the requirements for the given environment.
+def lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
+    """Lock requirements.
 
     Args:
-        highest: Lock for the highest dependencies.
+        kind: Lock kind.
     """
+    match kind:
+        case "dev":
+            resolution = "lowest-direct"
+            extras = USER_EXTRAS + DEV_EXTRAS
+        case "low":
+            resolution = "lowest-direct"
+            extras = USER_EXTRAS
+        case "high":
+            resolution = "highest"
+            extras = USER_EXTRAS
+        case _:  # pyright: ignore[reportUnnecessaryComparison]  # Validate outside of CLI
+            raise ValueError(f'Kind {kind} is not one of "dev", "low", or "high".')
+    sep = " "
     result = run(
         args=split(
-            " ".join([
+            sep.join([
                 f"{Path(executable).as_posix()} -m uv",
                 f"pip compile --python-version {VERSION}",
-                f"--resolution {'highest' if highest else 'lowest-direct'}",
+                f"--resolution {resolution}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
-                (
-                    " ".join([f"--extra {e}" for e in EXTRAS])
-                    if highest
-                    else "--all-extras"
-                ),
-                " ".join([p.as_posix() for p in [PYPROJECT, DEV, UV]]),
+                sep.join([f"--extra {e}" for e in extras]),
+                sep.join([p.as_posix() for p in [PYPROJECT, DEV, UV]]),
             ])
         ),
         capture_output=True,
@@ -152,11 +159,18 @@ def lock(highest: bool = False):
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    lockfile = get_lockfile(highest)
+    lockfile = get_lockfile(kind)
     lockfile.write_text(
         encoding="utf-8",
         data=(
-            "\n".join([r.strip() for r in [result.stdout, NODEPS.read_text("utf-8")]])
+            "\n".join([
+                *[r.strip() for r in [result.stdout]],
+                *[
+                    line.strip()
+                    for line in NODEPS.read_text("utf-8").splitlines()
+                    if not line.strip().startswith("#")
+                ],
+            ])
             + "\n"
         ),
     )
@@ -164,8 +178,9 @@ def lock(highest: bool = False):
 
 
 @APP.command()
-def combine_locks() -> Path:
-    LOCKFILE.write_text(
+def merge_locks() -> Path:
+    """Combine locks into a single file."""
+    LOCKSFILE.write_text(
         encoding="utf-8",
         data=json.dumps(
             indent=2,
@@ -176,24 +191,42 @@ def combine_locks() -> Path:
         )
         + "\n",
     )
-    return log(LOCKFILE)
+    return log(LOCKSFILE)
 
 
 @APP.command()
-def get_lockfile(highest: bool = False, create: bool = False) -> Path:
-    """Get lockfile for the given environment.
+def get_lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
+    """Get lock.
 
     Args:
-        highest: Get lockfile for highest pinned dependencies.
-        create: Attempt to populate the lockfile with an existing lock.
+        kind: Lock kind.
     """
-    lockfile = LOCKS / f"{ENVIRONMENT}{'' if highest else '_dev'}.txt"
-    if create:
-        lockfile.write_text(
-            encoding="utf-8",
-            data=json.loads(LOCKFILE.read_text("utf-8"))[lockfile.stem],
-        )
-    return log(lockfile)
+    lockfile = get_lockfile(kind)
+    try:
+        locksfile_content = LOCKSFILE.read_text("utf-8")
+    except FileNotFoundError as err:
+        raise ValueError(
+            f"{LOCKSFILE} missing. Have you combined locks before?"
+        ) from err
+    locks = json.loads(locksfile_content)
+    try:
+        lock = locks[lockfile.stem]
+    except KeyError as err:
+        raise ValueError(
+            f"No lock for {lockfile.stem}. Have you locked for this platform before?"
+        ) from err
+    lockfile.write_text(encoding="utf-8", data=lock)
+    return lockfile
+
+
+@APP.command()
+def get_lockfile(kind: Literal["dev", "low", "high"] = "dev") -> Path:
+    """Get the path to a lock.
+
+    Args:
+        kind: Lock kind.
+    """
+    return log(LOCKS / f"{ENVIRONMENT}_{kind}.txt")
 
 
 @APP.command()

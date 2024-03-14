@@ -52,7 +52,6 @@ Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 [project.optional-dependencies]
 # * Minimal CV flavor needed, but allow `boilercv` to coexist with different flavors
 cv = ["opencv-python-headless>=4.9.0.80"]
-# ! Optional dependency groups below not included in PyPI releases
 dev = [
     "cmasher==1.7.2",
     "colorcet==3.0.1",
