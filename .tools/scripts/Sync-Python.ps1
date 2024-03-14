@@ -80,7 +80,6 @@ function Write-Progress {
     )
     Write-Host
     Write-Host $Message -ForegroundColor $($Done ? 'Green' : 'Yellow')
-
 }
 
 
