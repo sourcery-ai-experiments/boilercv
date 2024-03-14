@@ -7,7 +7,7 @@ on:
     tags: ["*"]
 jobs:
   changerelease:
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-22.04"
     steps:
       - uses: "dropseed/changerelease@v1.6.0"
         with:

@@ -6,11 +6,13 @@ Param(
     # Python version.
     [string]$Version = (Get-Content '.copier-answers.yml' |
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
+    # Force local environment.
+    [switch]$Local,
     # Lock the environment.
     [switch]$Lock,
     # Sync to highest pinned dependencies.
     [switch]$Highest,
-    # Combine lockfiles if in CI.
+    # Combine lockfiles.
     [switch]$Combine
 )
 
@@ -24,10 +26,16 @@ $PSNativeCommandUseErrorActionPreference | Out-Null
 # * -------------------------------------------------------------------------------- * #
 # * Constants
 
+if ($Local) {
+    $CI = $false
+}
+elseif ($Env:CI) {
+    $CI = $true
+}
 $RE_VERSION = $([Regex]::Escape($Version))
 $VENV = '.venv'
 # ? Command modifier for `uv` if running in CI.
-$UV_MOD = $Env:CI ? '--system --break-system-packages' : ''
+$UV_MOD = $CI ? '--system --break-system-packages' : ''
 # ? CLI flag for highest pinned dependencies.
 # ? $PY is a CI-aware Python interpreter defined later but usable in Initialize-Python
 
@@ -40,7 +48,7 @@ function Sync-Python {
     #>
     Initialize-PythonEnv
     Sync-PythonEnv
-    if (! $Env:CI) { Install-Hooks }
+    if (! $CI) { Install-Hooks }
 }
 
 # * -------------------------------------------------------------------------------- * #
@@ -52,7 +60,7 @@ function Initialize-PythonEnv {
     #>
     install-uv
     install '-e .tools/.'
-    if ($Env:CI) {
+    if ($CI) {
         run "copier update --defaults --vcs-ref $(git rev-parse HEAD:submodules/template)"
         # ? Install `uv` again in case it changed after `copier update`.
         install-uv
@@ -64,7 +72,7 @@ function Sync-PythonEnv {
     <#.SYNOPSIS
     Synchronize Python environment.
     #>
-    if ($Env:CI) {
+    if ($CI) {
         if ($Combine) {
             tools 'combine-locks'
             return Get-Lockfile | sync
@@ -109,7 +117,7 @@ function Get-Lockfile {
 
 function Get-Flag {
     <#.SYNOPSIS
-    Get flag suitable for passing to CLI expecting flags like `--flag` and `--no-flag`.
+    Get flag suitable for passing to CLI expecting flags like `--flag`.
     #>
     Param(
         # Flag.
@@ -117,7 +125,7 @@ function Get-Flag {
         # Enabled.
         [bool]$Enable
     )
-    return "--$($Enable ? '' : 'no-')$Flag"
+    return $Enable ? "--$Flag" : ''
 }
 
 # * -------------------------------------------------------------------------------- * #
@@ -170,7 +178,7 @@ function Get-Python {
     Get Python interpreter, global in CI, or activated virtual environment locally.
     #>
     $GlobalPy = Get-GlobalPython
-    if ($Env:CI) {
+    if ($CI) {
         return $GlobalPy
     }
     if (! (Test-Path $VENV)) {

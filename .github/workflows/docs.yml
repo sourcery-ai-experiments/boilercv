@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-22.04"
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1"
+        run: ".tools/scripts/Sync-Python.ps1"
       - run: "sphinx-build -EaT docs _site"
       - uses: "actions/upload-pages-artifact@v3.0.0"
   deploy:
@@ -31,7 +31,7 @@ jobs:
     environment:
       name: "github-pages"
       url: "${{ steps.deployment.outputs.page_url }}"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-22.04"
     needs: "build"
     steps:
       - id: "deployment"

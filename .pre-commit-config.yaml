@@ -22,7 +22,7 @@ repos:
         name: "sync-python"
         pass_filenames: false
         language: "system"
-        entry: "pwsh .tools/Sync-Python.ps1"
+        entry: "pwsh .tools/scripts/Sync-Python.ps1"
         files: |
           (?x)^(
             .*/pyproject\.toml

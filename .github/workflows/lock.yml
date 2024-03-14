@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1 -Lock -Version '${{ matrix.python_version }}'"
+        run: ".tools/scripts/Sync-Python.ps1 -Lock -Version '${{ matrix.python_version }}'"
       # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
       - if: startsWith(matrix.github_actions_runner, 'ubuntu-')
         name: Install PySide6 system dependencies
@@ -55,7 +55,7 @@ jobs:
           path: ".lock"
           merge-multiple: True
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1 -Combine"
+        run: ".tools/scripts/Sync-Python.ps1 -Combine"
       - run: pyright
   ruff:
     needs: ["lock"]
@@ -72,7 +72,7 @@ jobs:
           path: ".lock"
           merge-multiple: True
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1 -Combine"
+        run: ".tools/scripts/Sync-Python.ps1 -Combine"
       - run: "ruff --no-fix --output-format github ."
   fawltydeps:
     needs: ["lock"]
@@ -89,7 +89,7 @@ jobs:
           path: ".lock"
           merge-multiple: True
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1 -Combine"
+        run: ".tools/scripts/Sync-Python.ps1 -Combine"
       - run: "fawltydeps"
   combine:
     needs: ["pyright", "ruff", "fawltydeps"]
@@ -106,7 +106,7 @@ jobs:
           path: ".lock"
           merge-multiple: True
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1 -Combine"
+        run: ".tools/scripts/Sync-Python.ps1 -Combine"
       - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
           commit_message: "Lock"
