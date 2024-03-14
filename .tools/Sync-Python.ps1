@@ -6,6 +6,8 @@ Param(
     # Python version.
     [string]$Version = (Get-Content '.copier-answers.yml' |
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
+    # Lock the environment.
+    [switch]$Lock,
     # Sync to highest pinned dependencies.
     [switch]$Highest,
     # Combine lockfiles if in CI.
@@ -38,7 +40,7 @@ function Sync-Python {
     #>
     Initialize-PythonEnv
     Sync-PythonEnv
-    Install-Hooks
+    if (! $Env:CI) { Install-Hooks }
 }
 
 # * -------------------------------------------------------------------------------- * #
@@ -65,12 +67,13 @@ function Sync-PythonEnv {
     if ($Env:CI) {
         if ($Combine) {
             tools 'combine-locks'
+            return Get-Lockfile | sync
         }
-        else {
+        elseif ($Lock) {
             tools 'lock'
             tools 'lock --highest'
+            return Get-Lockfile | sync
         }
-        return Get-Lockfile | sync
     }
     return Get-Lockfile -Create | sync
 }
@@ -79,7 +82,6 @@ function Install-Hooks {
     <#.SYNOPSIS
     # Install all types of pre-commit hooks in local environments.
     #>
-    if ($Env:CI) { return }
     $h = '--hook-type'
     $HookTypes = @(
         $h, 'commit-msg'
@@ -90,6 +92,9 @@ function Install-Hooks {
     )
     pre-commit install --install-hooks @HookTypes
 }
+
+# * -------------------------------------------------------------------------------- * #
+# * Helper functions
 
 function Get-Lockfile {
     <#.SYNOPSIS

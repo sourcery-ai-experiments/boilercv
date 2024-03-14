@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
-        run: ".tools/Sync-Python.ps1 -Version '${{ matrix.python_version }}'"
+        run: ".tools/Sync-Python.ps1 -Lock -Version '${{ matrix.python_version }}'"
       # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
       - if: startsWith(matrix.github_actions_runner, 'ubuntu-')
         name: Install PySide6 system dependencies
