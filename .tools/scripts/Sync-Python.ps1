@@ -166,17 +166,21 @@ function Get-Python {
     Get Python interpreter, global in CI, or activated virtual environment locally.
     #>
     $GlobalPy = Get-GlobalPython
+    Write-Progress "GLOBAL PYTHON: $GlobalPy" -Done
     # ? Use `$Env:CI` here instead of `$CI` to enforce `.venv` locally
     if ($Env:CI -and (! $ForceVenv)) {
+        Write-Progress "USING GLOBAL PYTHON" -Done
         return $GlobalPy
     }
     if (! (Test-Path $VENV_PATH)) {
+        Write-Progress "CREATING VIRTUAL ENVIRONMENT..."
         if (! $GlobalPy) {
             throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again."
         }
         Invoke-Expression "$GlobalPy -m venv $VENV_PATH"
     }
     $VenvPy = Start-PythonEnv $VENV_PATH
+    Write-Progress "USING VIRTUAL ENVIRONMENT = $VenvPy" -Done
     $foundVersion = Invoke-Expression "$VenvPy --version"
     if (! ($foundVersion |
                 Select-String -Pattern "^Python $RE_VERSION\.\d*$")) {
