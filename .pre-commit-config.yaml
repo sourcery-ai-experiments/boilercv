@@ -1,18 +1,15 @@
 ci:
   skip:
-    # * ---------------------------------------------------------------------------- * #
-    - "local-pyrightconfig"
+    - "sync-python"
+    - "sync-local-dev-configs"
     - "synchronize-params"
     - "hide-docs-nb-inputs"
+    - "pytest-fast-only"
     - "dvc-post-checkout"
     - "dvc-pre-push"
-    # * ---------------------------------------------------------------------------- * #
-    - "core-update"
-    - "pytest-fast-only"
     - "check-undeclared"
     - "check-unused"
   autoupdate_schedule: "quarterly"
-
 repos:
   - repo: "meta"
     hooks:
@@ -21,18 +18,32 @@ repos:
       - id: "check-useless-excludes"
   - repo: "local"
     hooks:
-      # * -------------------------------------------------------------------------- * #
-      - id: "local-pyrightconfig"
-        name: "local-pyrightconfig"
+      - id: "sync-python"
+        name: "sync-python"
+        pass_filenames: false
         language: "system"
-        entry: "pwsh -Command python .tools/scripts/local_dev_configs.py"
+        entry: "pwsh .tools/Sync-Python.ps1"
         files: |
           (?x)^(
-            pyproject\.toml
-            |\.tools/scripts/local_dev_configs.py
+            .*/pyproject\.toml
+            |\.tools/.*
+          )$
+      - id: "sync-local-dev-configs"
+        name: "sync-local-dev-configs"
+        pass_filenames: false
+        language: "system"
+        entry: "pwsh -Command python -m boilercv_tools sync-local-dev-configs"
+        files: |
+          (?x)^(
+            .*/pyproject\.toml
+            |\.tools/.*
+            |docs/.*
+            |src/.*
+            |tests/.*
           )$
       - id: "synchronize-params"
         name: "synchronize-params"
+        pass_filenames: false
         language: "system"
         entry: "pwsh -Command python -m boilercv.models.params"
         files: |
@@ -42,21 +53,13 @@ repos:
           )$
       - id: "hide-docs-nb-inputs"
         name: "hide-docs-nb-inputs"
-        language: "system"
         pass_filenames: false
+        language: "system"
         entry: "pwsh -Command python -m boilercv.docs"
         files: |
           (?x)^(
-            docs/.*
+            docs/.*\.ipynb
           )$
-      # * -------------------------------------------------------------------------- * #
-      - id: "core-update"
-        name: "core-update"
-        stages: ["post-commit"]
-        always_run: true
-        pass_filenames: false
-        language: "system"
-        entry: "pwsh -Command python -m boilercv_tools sync"
       - id: "pytest-fast-only"
         name: "pytest-fast-only"
         pass_filenames: false
@@ -65,10 +68,11 @@ repos:
           pwsh -Command "pytest -m 'not slow' --suppress-no-test-exit-code"
         files: |
           (?x)^(
-            pyproject\.toml
+            .*/pyproject\.toml
+            |\.tools/.*
+            |docs/.*
             |src/.*
             |tests/.*
-            |\.tools/requirements/.*
           )$
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
     rev: "v4.5.0"
@@ -80,7 +84,6 @@ repos:
     hooks:
       - id: "end-of-file-fixer"
       - id: "trailing-whitespace"
-  # * ------------------------------------------------------------------------------ * #
   - repo: "https://github.com/iterative/dvc"
     rev: "3.45.0"
     hooks:
@@ -88,7 +91,6 @@ repos:
         additional_dependencies: ["dvc[gs]"]
       - id: "dvc-pre-push"
         additional_dependencies: ["dvc[gs]"]
-  # * ------------------------------------------------------------------------------ * #
   - repo: "https://github.com/tweag/FawltyDeps"
     rev: "v0.15.0"
     hooks:
@@ -118,8 +120,8 @@ repos:
           - "--"
         files: |
           (?x)^(
-            src/.*
-            |docs/.*
+            docs/.*
+            |src/.*
             |tests/.*
           )$
   - repo: "https://github.com/charliermarsh/ruff-pre-commit"

@@ -1,10 +1,8 @@
 name: "minimum"
-
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * 0" # Every Sunday at midnight.
-
 jobs:
   pytest:
     runs-on: "ubuntu-latest"

@@ -22,8 +22,10 @@
     "**/*pylance-notebook-cell*": true
   },
   "search.exclude": {
-    //? Don't clutter search with type stubs
-    "submodules/typings": true
+    //? Type stubs clutter quick-open
+    "submodules/typings": true,
+    //? Locks clutter searches
+    ".tools/locks.json": true
   },
   //! File nesting
   "explorer.sortOrder": "foldersNestsFiles",

@@ -38,6 +38,7 @@ function Sync-Python {
     #>
     Initialize-PythonEnv
     Sync-PythonEnv
+    Install-Hooks
 }
 
 # * -------------------------------------------------------------------------------- * #
@@ -72,6 +73,22 @@ function Sync-PythonEnv {
         return Get-Lockfile | sync
     }
     return Get-Lockfile -Create | sync
+}
+
+function Install-Hooks {
+    <#.SYNOPSIS
+    # Install all types of pre-commit hooks in local environments.
+    #>
+    if ($Env:CI) { return }
+    $h = '--hook-type'
+    $HookTypes = @(
+        $h, 'commit-msg'
+        $h, 'post-checkout'
+        $h, 'pre-commit'
+        $h, 'pre-merge-commit'
+        $h, 'pre-push'
+    )
+    pre-commit install --install-hooks @HookTypes
 }
 
 function Get-Lockfile {

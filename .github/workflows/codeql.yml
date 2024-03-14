@@ -1,9 +1,8 @@
 name: "CodeQL"
-
 on:
+  workflow_dispatch:
   schedule:
     - cron: "38 16 * * 4"
-
 jobs:
   analyze:
     name: "Analyze"
@@ -13,7 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         language: ["python"]
-
     steps:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.1.1"

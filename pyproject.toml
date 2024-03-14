@@ -91,11 +91,9 @@ ignore_unused = [
     "pre-commit", # Used in `boilercv.docs_generation`
     "pyarrow",    # Used in `boilercv.__init__`
 ]
-# * ---------------------------------------------------------------------------------- *
 [tool.fawltydeps.custom_mapping]
 ipykernel = ["IPython"]
 boilercore = ["boilercore"]
-# * ---------------------------------------------------------------------------------- *
 
 [tool.pytest.ini_options]
 addopts = '''

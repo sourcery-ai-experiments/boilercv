@@ -1,20 +1,17 @@
-name: "sphinx"
-
+name: "docs"
 on:
   workflow_dispatch:
+  pull_request:
   push:
     branches: ["main"]
-    paths: ["docs/**", "README.md", "CHANGELOG.md", "requirements.txt"]
-
+    paths: ["**/pyproject.toml", "**/*.md", ".tools/**", "docs/**"]
 permissions:
   contents: "read"
   pages: "write"
   id-token: "write"
-
 concurrency:
   group: "pages"
   cancel-in-progress: true
-
 jobs:
   build:
     runs-on: "ubuntu-latest"

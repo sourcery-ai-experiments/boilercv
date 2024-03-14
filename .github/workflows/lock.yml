@@ -1,7 +1,5 @@
 name: "lock"
-
 on: ["workflow_dispatch"]
-
 jobs:
   lock:
     strategy:

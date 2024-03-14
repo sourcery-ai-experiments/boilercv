@@ -200,8 +200,8 @@ def ax(fig_ax) -> Axis:
 
 # * -------------------------------------------------------------------------------- * #
 # * Harvest hooks
-# #   https://github.com/smarie/python-pytest-harvest/issues/46#issuecomment-742367746
-# #   https://smarie.github.io/python-pytest-harvest/#pytest-x-dist
+# *   https://github.com/smarie/python-pytest-harvest/issues/46#issuecomment-742367746
+# *   https://smarie.github.io/python-pytest-harvest/#pytest-x-dist
 
 HARVEST_ROOT = Path(".xdist_harvested")
 """Root directory for harvested results."""
