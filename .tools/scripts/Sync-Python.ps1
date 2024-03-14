@@ -7,11 +7,13 @@ Param(
     [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' |
             Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
     # Kind of lock to sync the Python environment with.
-    [ArgumentCompletions('None', 'Dev', 'Low', 'High')][string]$Sync = 'Dev',
+    [ArgumentCompletions('Dev', 'Low', 'High')][string]$Sync = 'Dev',
     # Lock the environment.
     [switch]$Lock,
     # Merge existing locks.
     [switch]$Merge,
+    # Don't sync.
+    [switch]$NoSync,
     # Toggle CI to behave as local and vice versa. Local runs still always use `.venv`.
     [switch]$ToggleCI,
     # Force `.venv` even in CI. Local runs still always use `.venv`.
@@ -24,6 +26,8 @@ Param(
 
 . '.tools/scripts/Set-StrictErrors.ps1'
 
+$CI = $Env:CI -xor $ToggleCI
+
 # * -------------------------------------------------------------------------------- * #
 # * Main function, invoked at the end of this script and has the context of all below
 
@@ -32,15 +36,14 @@ function Sync-Python {
     Sync Python dependencies.
     #>
     Write-Progress '*** LOCKING/SYNCING...'
-    $CI = $Env:CI -xor $ToggleCI
-    if ($CI) { Write-Progress 'BEHAVING AS IF IN CI' -Done }
+    if (!$Env:CI -and $CI) { Write-Progress 'BEHAVING AS IF IN CI' -Done }
     Write-Progress 'INSTALLING UV'
     Install-Uv
     Write-Progress 'INSTALLING TOOLS'
     Invoke-UvPip Install '-e .tools/.'
     Write-Progress 'SYNCING PAIRED DEPENDENCIES'
     Invoke-Tools 'sync-paired-deps'
-    if ($CI -and (! $SkipCopy)) {
+    if ($CI -and !$SkipCopy) {
         Write-Progress 'UPDATING FROM TEMPLATE...'
         $head = git rev-parse HEAD:submodules/template
         Invoke-PythonModule "copier update --defaults --vcs-ref $head"
@@ -49,8 +52,7 @@ function Sync-Python {
     }
     if ($Lock) {
         Write-Progress 'LOCKING...'
-        if ($CI) { 'Dev', 'Low', 'High' | Invoke-Lock }
-        else { Invoke-Lock $Sync }
+        'Dev', 'Low', 'High' | Invoke-Lock
         Write-Progress 'LOCKED' -Done
     }
     if ($Merge) {
@@ -58,11 +60,11 @@ function Sync-Python {
         Invoke-Tools 'merge-locks'
         Write-Progress 'MERGED'
     }
-    if ($Sync -ne 'None') {
+    if (!$NoSync) {
         Write-Progress 'SYNCING'
         Get-Lock $Sync | Invoke-UvPip Sync
     }
-    if (! ($CI -or $SkipHooks)) {
+    if (!$CI -and !$SkipHooks) {
         Write-Progress 'INSTALLING PRE-COMMIT HOOKS'
         $h = '--hook-type'
         $HookTypes = @(
@@ -167,13 +169,13 @@ function Get-Python {
     #>
     $GlobalPy = Get-GlobalPython
     Write-Progress "GLOBAL PYTHON: $GlobalPy" -Done
-    if ($Env:CI -and $CI -and (! $ForceVenv)) {
-        Write-Progress "USING GLOBAL PYTHON" -Done
+    if ($Env:CI -and $CI -and !$ForceVenv) {
+        Write-Progress 'USING GLOBAL PYTHON' -Done
         return $GlobalPy
     }
-    if (! (Test-Path $VENV_PATH)) {
-        Write-Progress "CREATING VIRTUAL ENVIRONMENT..."
-        if (! $GlobalPy) {
+    if (!(Test-Path $VENV_PATH)) {
+        Write-Progress 'CREATING VIRTUAL ENVIRONMENT...'
+        if (!$GlobalPy) {
             throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again."
         }
         Invoke-Expression "$GlobalPy -m venv $VENV_PATH"
@@ -181,7 +183,7 @@ function Get-Python {
     $VenvPy = Start-PythonEnv $VENV_PATH
     Write-Progress "USING VIRTUAL ENVIRONMENT = $VenvPy" -Done
     $foundVersion = Invoke-Expression "$VenvPy --version"
-    if (! ($foundVersion |
+    if (!($foundVersion |
                 Select-String -Pattern "^Python $RE_VERSION\.\d*$")) {
         throw "Found virtual environment with Python version $foundVersion. Expected $Version. Remove the virtual environment and run this script again to recreate."
     }
