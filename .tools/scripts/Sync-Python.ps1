@@ -167,8 +167,7 @@ function Get-Python {
     #>
     $GlobalPy = Get-GlobalPython
     Write-Progress "GLOBAL PYTHON: $GlobalPy" -Done
-    # ? Use `$Env:CI` here instead of `$CI` to enforce `.venv` locally
-    if ($Env:CI -and (! $ForceVenv)) {
+    if ($Env:CI -and $CI -and (! $ForceVenv)) {
         Write-Progress "USING GLOBAL PYTHON" -Done
         return $GlobalPy
     }
