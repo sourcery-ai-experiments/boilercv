@@ -65,7 +65,7 @@ function Sync-Python {
     }
     if (!$CI -and !$NoHooks) {
         Write-Progress 'INSTALLING PRE-COMMIT HOOKS'
-        Invoke-PythonScript 'pre-commit install --install-hooks --hook-type commit-msg --hook-type post-checkout --hook-type pre-commit --hook-type pre-merge-commit --hook-type pre-push'
+        Invoke-PythonScript 'pre-commit' 'install --install-hooks --hook-type commit-msg --hook-type post-checkout --hook-type pre-commit --hook-type pre-merge-commit --hook-type pre-push'
     }
     Write-Progress '...DONE ***' -Done
 }
@@ -142,12 +142,26 @@ function Invoke-PythonModule {
     Invoke-Expression "$PYTHON -m $Arguments"
 }
 
+function Invoke-UvPip {
+    <#.SYNOPSIS
+    CI-aware invocation of `uv pip`.
+    #>
+    Param(
+        [string]$Cmd,
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments
+    )
+    Invoke-PythonModule "uv pip $($Cmd.ToLower()) $System $Arguments"
+}
+
 function Invoke-PythonScript {
     <#.SYNOPSIS
     Invoke Python scripts.
     #>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
-    Invoke-Expression "$SCRIPTS $Arguments"
+    Param(
+        [string]$Cmd,
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments
+    )
+    Invoke-Expression "$SCRIPTS/$Cmd $Arguments"
 }
 
 # * -------------------------------------------------------------------------------- * #
@@ -231,5 +245,5 @@ function Test-Command {
 # * CI-aware Python interpreter and invocation of the main function
 
 $PYTHON = Get-Python
-$SCRIPTS = (Get-Item $PYTHON).Parent
+$SCRIPTS = Split-Path $PYTHON
 Sync-Python
