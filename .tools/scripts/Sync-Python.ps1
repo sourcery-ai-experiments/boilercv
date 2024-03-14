@@ -82,7 +82,6 @@ function Write-Progress {
     Write-Host $Message -ForegroundColor $($Done ? 'Green' : 'Yellow')
 }
 
-
 # * -------------------------------------------------------------------------------- * #
 # * Shorthand functions for common operations which depend on $PYTHON and Get-Python
 
@@ -135,7 +134,6 @@ function Get-Lock {
     return Invoke-Tools "get-lock $($Kind.ToLower())"
 }
 
-
 function Invoke-PythonModule {
     <#.SYNOPSIS
     Invoke a Python module.
@@ -180,8 +178,7 @@ function Get-Python {
     $VenvPy = Start-PythonEnv $VENV_PATH
     Write-Progress "USING VIRTUAL ENVIRONMENT = $VenvPy" -Done
     $foundVersion = Invoke-Expression "$VenvPy --version"
-    if (!($foundVersion |
-                Select-String -Pattern "^Python $RE_VERSION\.\d*$")) {
+    if (!($foundVersion | Select-String -Pattern "^Python $RE_VERSION\.\d*$")) {
         throw "Found virtual environment with Python version $foundVersion. Expected $Version. Remove the virtual environment and run this script again to recreate."
     }
     return $VenvPy
