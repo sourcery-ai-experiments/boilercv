@@ -222,7 +222,6 @@ function Start-PythonEnv {
     }
     . "$VENV/$bin/activate"
     return "$Env:VIRTUAL_ENV/$bin/$py"
-
 }
 
 function Test-Command {
