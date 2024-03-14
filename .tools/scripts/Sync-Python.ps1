@@ -4,8 +4,7 @@ Sync Python dependencies.
 
 Param(
     # Python version.
-    [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' |
-            Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
+    [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' | Select-String -Pattern '^python_version:\s?["'']([^"'']*)["'']$').Matches.Groups[1].value,
     # Kind of lock to sync the Python environment with.
     [ArgumentCompletions('Dev', 'Low', 'High')][string]$Sync = 'Dev',
     # Lock the environment.
