@@ -19,18 +19,6 @@ on:
       - "codecov.yml"
       - "params.yaml"
   pull_request:
-    paths:
-      - ".github/workflows/ci.yml"
-      - "**/pyproject.toml"
-      - "requirements/**"
-      - "scripts/Initialize-Repo.ps1"
-      - "src/**"
-      - "tests/**"
-      - "tools/boilercv_tools.py"
-      - "tools/boilercv_tools/**"
-      - "submodules/**"
-      - "codecov.yml"
-      - "params.yaml"
 jobs:
   ruff:
     runs-on: "ubuntu-22.04"
@@ -107,7 +95,34 @@ jobs:
         with:
           path: ".locks"
           name: "requirements_${{ matrix.github_actions_runner }}_${{ matrix.python_version }}"
+  bump:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: "write"
+    needs:
+      - "ruff"
+      - "fawltydeps"
+      - "pyright"
+      - "test"
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        with:
+          path: ".locks"
+          merge-multiple: True
+      - shell: "pwsh"
+        run: "scripts/Sync-Python.ps1 -NoSync"
+      - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
+        with:
+          commit_message: "Lock"
   lock:
+    if: "${{ !(github.event_name == 'pull_request') }}"
     permissions:
       contents: "write"
     needs:

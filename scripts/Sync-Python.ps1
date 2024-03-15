@@ -26,6 +26,9 @@ function Sync-Python {
     <#.SYNOPSIS
     Sync Python dependencies.#>
     '*** LOCKING/SYNCING' | Write-Progress
+    'SYNCING SUBMODULES' | Write-Progress
+    git submodule update --init --merge
+    'SUBMODULES SYNCED' | Write-Progress -Done
     'INSTALLING UV' | Write-Progress
     Install-Uv
     'INSTALLING TOOLS' | Write-Progress
@@ -33,6 +36,7 @@ function Sync-Python {
     if (!$Env:CI) {
         'SYNCING LOCAL DEV CONFIGS' | Write-Progress
         Invoke-Tools 'sync-local-dev-configs'
+        'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
         'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
         Invoke-PythonScript 'pre-commit' 'install --install-hooks --hook-type pre-commit --hook-type pre-push --hook-type commit-msg --hook-type post-checkout --hook-type pre-merge-commit'
     }
@@ -54,7 +58,6 @@ function Sync-Python {
     if (!$NoSync) {
         'SYNCING' | Write-Progress
         Get-Lock -High=$High | Invoke-UvPip Sync
-        'SYNCED' | Write-Progress -Done
     }
     '...DONE ***' | Write-Progress -Done
 }
@@ -66,7 +69,7 @@ function Write-Progress {
         [switch]$Done)
     begin { $Color = $Done ? 'Green' : 'Yellow' }
     process {
-        Write-Host
+        if (!$Done) {Write-Host}
         Write-Host "$Message$($Done ? '' : '...')" -ForegroundColor $Color
     }
 }
