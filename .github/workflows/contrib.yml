@@ -7,9 +7,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "tools/boilercv_tools.py"
-      - "tools/boilercv_tools/**"
-      - "scripts/**"
+      - "scripts/Sync-Python.ps1"
 jobs:
   contrib:
     strategy:

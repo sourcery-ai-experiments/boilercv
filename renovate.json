@@ -16,7 +16,7 @@
   ],
   "pip_requirements": {
     "description": "Additionally monitor these files",
-    "fileMatch": ["^\\requirements/.*$"]
+    "fileMatch": ["(^|/)requirements/.+$"]
   },
   "packageRules": [
     {
@@ -28,7 +28,7 @@
     {
       "description": "Type checking dependencies",
       "groupName": "type checking",
-      "matchManagers": ["pep621", "git-submodules"],
+      "matchManagers": ["pep621", "pip_requirements", "git-submodules"],
       "matchPackageNames": ["pyright", "submodules/typings"]
     },
     {
@@ -40,13 +40,13 @@
     {
       "description": "Imageio sometimes lags pillow.",
       "groupName": "imageio",
-      "matchManagers": ["pep621"],
+      "matchManagers": ["pep621", "pip_requirements"],
       "matchPackageNames": ["imageio"]
     },
     {
       "description": "Pillow sometimes leads imageio.",
       "groupName": "pillow",
-      "matchManagers": ["pep621"],
+      "matchManagers": ["pep621", "pip_requirements"],
       "matchPackageNames": ["pillow"]
     }
   ]
