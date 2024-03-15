@@ -99,10 +99,6 @@ repos:
           (?x)^(
             pyproject\.toml
           )$
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.350
-    hooks:
-      - id: pyright
   - repo: "https://github.com/DavidAnson/markdownlint-cli2"
     rev: "v0.11.0"
     hooks:
