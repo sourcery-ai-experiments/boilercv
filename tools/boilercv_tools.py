@@ -15,19 +15,6 @@ from typing import TypeAlias
 
 from cyclopts import App
 
-# * -------------------------------------------------------------------------------- * #
-# * Types
-
-# ! For local dev config tooling
-Leaf: TypeAlias = int | float | bool | date | time | str
-"""Leaf node."""
-Node: TypeAlias = Leaf | Sequence["Node"] | Mapping[str, "Node"]
-"""General nde."""
-
-# * -------------------------------------------------------------------------------- * #
-# * Constants
-
-# ! CLI
 APP = App()
 """Cyclopts CLI."""
 
@@ -84,6 +71,7 @@ VERSION = _python_version
 # ! Locks
 LOCKS = Path(".locks")
 """Locks computed or retrieved for this platform."""
+LOCKS.mkdir(exist_ok=True, parents=True)
 PREFIX = "requirements"
 """Locked requirements prefix."""
 EXT = ".txt"
@@ -96,14 +84,6 @@ ENVIRONMENT = SEP.join([PREFIX, RUNNER, VERSION])
 """Environment identifier."""
 LOCKSFILE = Path("locks.json")
 """File with locks for all environments."""
-
-# * -------------------------------------------------------------------------------- * #
-# * Module-level initialization
-
-LOCKS.mkdir(exist_ok=True, parents=True)
-
-# * -------------------------------------------------------------------------------- * #
-# * CLI
 
 
 @APP.command()
@@ -234,6 +214,12 @@ def sync_local_dev_configs():
     )
 
 
+Leaf: TypeAlias = int | float | bool | date | time | str
+"""Leaf node."""
+Node: TypeAlias = Leaf | Sequence["Node"] | Mapping[str, "Node"]
+"""General node."""
+
+
 def add_pyright_includes(
     config: dict[str, Node], others: Iterable[Path | str]
 ) -> dict[str, Node]:
@@ -268,8 +254,6 @@ def disable_concurrent_tests(addopts: str) -> str:
     """
     return sub(pattern=r"-n\s*[^\s]+", repl="-n 0", string=join(split(addopts)))
 
-
-# * -------------------------------------------------------------------------------- * #
 
 if __name__ == "__main__":
     APP()
