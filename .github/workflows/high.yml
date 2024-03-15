@@ -23,13 +23,9 @@ jobs:
           # - "3.12" # ? No support in my commit-pinned fork of cachier
           # - "3.13"
     runs-on: "${{ matrix.github_actions_runner }}"
-    env:
-      ubuntu_runner: "${{startsWith(matrix.github_actions_runner, 'ubuntu')}}"
-      dev_env: "${{startsWith(matrix.github_actions_runner, 'ubuntu') && matrix.python_version == '3.11'}}"
-      artifact_name: "requirements_${{ matrix.github_actions_runner }}_${{ matrix.python_version }}"
     steps:
-      # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
-      - if: env.ubuntu_runner
+      - if: "${{startsWith(matrix.github_actions_runner, 'ubuntu')}}"
+        # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
         name: "Install PySide6 system dependencies"
         run: "sudo apt update && sudo apt install libegl1"
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
