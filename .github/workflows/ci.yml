@@ -91,6 +91,9 @@ jobs:
     needs: ["test"]
     runs-on: "ubuntu-22.04"
     steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
       - id: "changes"
         uses: "dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36" # v3.0.2
         with:
@@ -99,12 +102,6 @@ jobs:
               - "**/pyproject.toml"
               - "requirements/**"
               - "submodules/**"
-      - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Version '${{ matrix.python_version }}' ${{ steps.changes.outputs.deps == 'true' && '-Lock' || '' }}"
-      - if: steps.changes.outputs.deps == 'true'
-        uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
-        with:
-          submodules: True
       - if: steps.changes.outputs.deps == 'true'
         uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
