@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ".tools/boilercv_tools*"
+      - ".tools/boilercv_tools.py"
       - ".tools/boilercv_tools/**"
       - ".tools/scripts/**"
 jobs:
