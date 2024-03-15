@@ -29,6 +29,30 @@ on:
       - "codecov.yml"
       - "params.yaml"
 jobs:
+  fawltydeps:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - shell: "pwsh"
+        run: "scripts/Sync-Python.ps1 -NoSync"
+      - run: "fawltydeps"
+  pyright:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - shell: "pwsh"
+        run: "scripts/Sync-Python.ps1 -NoSync"
+      - run: pyright
   test:
     strategy:
       matrix:
@@ -65,22 +89,10 @@ jobs:
         with:
           path: ".locks"
           name: "requirements_${{ matrix.github_actions_runner }}_${{ matrix.python_version }}"
-  fawltydeps:
-    runs-on: "ubuntu-22.04"
-    steps:
-      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
-        with:
-          submodules: True
-      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
-        with:
-          python-version: "3.11"
-      - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -NoSync"
-      - run: "fawltydeps"
   lock:
     permissions:
       contents: "write"
-    needs: ["test", "fawltydeps"]
+    needs: ["test", "fawltydeps", "pyright"]
     runs-on: "ubuntu-22.04"
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
