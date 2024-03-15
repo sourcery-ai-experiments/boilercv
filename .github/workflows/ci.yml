@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "**/pyproject.toml"
       - ".github/workflows/ci.yml"
+      - "**/pyproject.toml"
       - "requirements/**"
       - "scripts/Initialize-Repo.ps1"
       - "src/**"
@@ -17,8 +17,8 @@ on:
       - "params.yaml"
   pull_request:
     paths:
-      - "**/pyproject.toml"
       - ".github/workflows/ci.yml"
+      - "**/pyproject.toml"
       - "requirements/**"
       - "scripts/Initialize-Repo.ps1"
       - "src/**"
@@ -65,6 +65,26 @@ jobs:
         with:
           path: ".locks"
           name: "requirements_${{ matrix.github_actions_runner }}_${{ matrix.python_version }}"
+  fawltydeps:
+    needs: ["test"]
+    runs-on: "ubuntu-22.04"
+    steps:
+      # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
+      - name: "Install PySide6 system dependencies"
+        run: "sudo apt update && sudo apt install libegl1"
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
+        with:
+          path: ".locks"
+          merge-multiple: True
+      - shell: "pwsh"
+        run: "scripts/Sync-Python.ps1"
+      - run: "fawltydeps"
   lock:
     permissions:
       contents: "write"

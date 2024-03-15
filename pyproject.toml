@@ -61,11 +61,6 @@ ignore_unused = [
 [tool.fawltydeps.custom_mapping]
 boilercore = ["boilercore"]
 ipykernel = ["IPython"]
-opencv-python-headless = ["cv2"]
-pillow = ["PIL"]
-pyside6 = ["PySide6"]
-"ruamel.yaml" = ["ruamel"]
-scikit-image = ["skimage"]
 
 [tool.pytest.ini_options]
 addopts = '''

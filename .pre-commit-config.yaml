@@ -7,6 +7,8 @@ ci:
     - "pytest-fast-only"
     - "dvc-post-checkout"
     - "dvc-pre-push"
+    - "check-undeclared"
+    - "check-unused"
   autoupdate_schedule: "quarterly"
 repos:
   - repo: "meta"

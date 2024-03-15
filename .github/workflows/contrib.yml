@@ -7,7 +7,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "scripts/Sync-Python.ps1"
+      - ".github/workflows/contrib.yml"
+      - "scripts/Initialize-Repo.ps1"
+      - "tools/boilercv_tools.py"
+      - "tools/boilercv_tools/**"
+  pull_request:
+    paths:
+      - ".github/workflows/contrib.yml"
+      - "scripts/Initialize-Repo.ps1"
+      - "tools/boilercv_tools.py"
+      - "tools/boilercv_tools/**"
 jobs:
   contrib:
     strategy:
