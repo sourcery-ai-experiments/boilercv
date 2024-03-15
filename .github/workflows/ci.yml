@@ -5,13 +5,29 @@ on:
   push:
     paths:
       - "**/pyproject.toml"
+      - ".github/workflows/ci.yml"
       - "requirements/**"
+      - "scripts/Initialize-Repo.ps1"
       - "src/**"
+      - "tests/**"
+      - "tools/boilercv_tools.py"
+      - "tools/boilercv_tools/**"
+      - "submodules/**"
+      - "codecov.yml"
+      - "params.yaml"
   pull_request:
     paths:
       - "**/pyproject.toml"
+      - ".github/workflows/ci.yml"
       - "requirements/**"
+      - "scripts/Initialize-Repo.ps1"
       - "src/**"
+      - "tests/**"
+      - "tools/boilercv_tools.py"
+      - "tools/boilercv_tools/**"
+      - "submodules/**"
+      - "codecov.yml"
+      - "params.yaml"
 jobs:
   lock:
     strategy:
@@ -44,6 +60,7 @@ jobs:
             deps:
               - "**/pyproject.toml"
               - "requirements/**"
+              - "submodules/**"
       - shell: "pwsh"
         run: "scripts/Sync-Python.ps1 -Version '${{ matrix.python_version }}' ${{ steps.changes.outputs.deps == 'true' && '-Lock' || '' }}"
       - if: steps.changes.outputs.deps == 'true'
