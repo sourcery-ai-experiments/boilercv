@@ -90,7 +90,7 @@ LOCKS = Path(".lock")
 ENVIRONMENT = "_".join(["requirements", RUNNER, VERSION])
 """Unique environment identifier, also used for the artifact name."""
 LOCKSFILE = Path(".tools/locks.json")
-"""Combined locks for all platforms."""
+"""Merged locks for all platforms."""
 
 # ! For local dev config tooling
 PYRIGHTCONFIG = Path("pyrightconfig.json")
@@ -205,9 +205,7 @@ def get_lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
     try:
         locksfile_content = LOCKSFILE.read_text("utf-8")
     except FileNotFoundError as err:
-        raise ValueError(
-            f"{LOCKSFILE} missing. Have you combined locks before?"
-        ) from err
+        raise ValueError(f"{LOCKSFILE} missing. Have you merged locks before?") from err
     locks = json.loads(locksfile_content)
     try:
         lock = locks[lockfile.stem]

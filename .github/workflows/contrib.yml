@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ".tools/scripts/**"
-      - ".tools/boilercv_tools/**"
       - ".tools/boilercv_tools*"
+      - ".tools/boilercv_tools/**"
+      - ".tools/scripts/**"
 jobs:
   contrib:
     strategy:

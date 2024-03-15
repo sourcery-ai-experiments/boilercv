@@ -1,0 +1,44 @@
+# Test the upper-bound dependencies of the project
+name: "high"
+permissions:
+  contents: "write"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "38 16 * * 4"
+jobs:
+  high:
+    strategy:
+      matrix:
+        github_actions_runner:
+          - "macos-13"
+          # - "macos-14" # ? PyTables doesn't support macos-14
+          - "ubuntu-22.04"
+          - "windows-2022"
+        python_version:
+          # - "3.8"
+          # - "3.9"
+          # - "3.10" # ? Using some 3.11 features (e.g. datetime.UTC)
+          - "3.11"
+          # - "3.12" # ? No support in my commit-pinned fork of cachier
+          # - "3.13"
+    runs-on: "${{ matrix.github_actions_runner }}"
+    env:
+      ubuntu_runner: "${{startsWith(matrix.github_actions_runner, 'ubuntu')}}"
+      dev_env: "${{startsWith(matrix.github_actions_runner, 'ubuntu') && matrix.python_version == '3.11'}}"
+      artifact_name: "requirements_${{ matrix.github_actions_runner }}_${{ matrix.python_version }}"
+    steps:
+      # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
+      - if: env.ubuntu_runner
+        name: "Install PySide6 system dependencies"
+        run: "sudo apt update && sudo apt install libegl1"
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "${{ matrix.python_version }}"
+      - shell: "pwsh"
+        run: ".tools/scripts/Sync-Python.ps1 -Sync High -Version '${{ matrix.python_version }}'"
+      - name: "Test upper-bound dependencies"
+        run: "pytest"
