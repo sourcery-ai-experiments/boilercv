@@ -1,5 +1,5 @@
-# Lock Python dependencies for various environments
-name: "lock"
+# Lock dependencies if necessary, then test, lint, and update locks
+name: "ci"
 on:
   workflow_dispatch:
   push:
@@ -31,13 +31,6 @@ jobs:
           # - "3.12" # ? No support in my commit-pinned fork of cachier
     runs-on: "${{ matrix.github_actions_runner }}"
     steps:
-      - id: "changes"
-        uses: "dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36" # v3.0.2
-        with:
-          filters: |
-            deps:
-              - "**/pyproject.toml"
-              - "requirements/**"
       # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
       - if: ${{startsWith(matrix.github_actions_runner, 'ubuntu')}}
         name: "Install PySide6 system dependencies"
@@ -48,6 +41,13 @@ jobs:
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
           python-version: "${{ matrix.python_version }}"
+      - id: "changes"
+        uses: "dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36" # v3.0.2
+        with:
+          filters: |
+            deps:
+              - "**/pyproject.toml"
+              - "requirements/**"
       - shell: "pwsh"
         run: "scripts/Sync-Python.ps1 -Version '${{ matrix.python_version }}' ${{ steps.changes.outputs.deps == 'true' && '-Lock' || '' }}"
       - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" # v4.3.1
