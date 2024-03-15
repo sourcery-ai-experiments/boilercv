@@ -18,7 +18,7 @@ dependencies = [
     "packaging==24.0",
     "pandas-stubs~=2.2.0",
     "pre-commit==3.6.0",
-    "pyright==1.1.350",
+    "pyright==1.1.354",
     "ruff==0.2.1",
     "snakeviz==2.2.0",
     "sourcery-cli==1.15.0",
