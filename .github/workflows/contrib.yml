@@ -1,5 +1,8 @@
 # Simulate local dev run of `Sync-Python.ps1`
 name: "contrib"
+concurrency:
+  group: "contrib"
+  cancel-in-progress: true
 on:
   workflow_dispatch:
   push:
