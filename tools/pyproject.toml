@@ -10,6 +10,7 @@ dependencies = [
     "copier==9.1.0",
     "cyclopts==2.4.1",
     "debugpy==1.8.0",
+    "dvc-gs==3.0.1",
     "fawltydeps==0.15.0",
     "flit==3.9.0",
     "keyring==24.3.0",
