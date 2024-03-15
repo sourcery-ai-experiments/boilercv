@@ -34,14 +34,8 @@
     {
       "description": "Stubs for pandas sometimes lag",
       "groupName": "pandas",
-      "matchManagers": ["pep621"],
-      "matchPackageNames": ["pandas"]
-    },
-    {
-      "description": "Pandas stubs are managed by `scripts/core_update.py`.",
-      "matchManagers": ["pep621"],
-      "matchFileNames": ["requirements/*"],
-      "ignoreDeps": ["pandas-stubs"]
+      "matchManagers": ["pep621", "pip_requirements"],
+      "matchPackageNames": ["pandas", "pandas-stubs"]
     },
     {
       "description": "Imageio sometimes lags pillow.",

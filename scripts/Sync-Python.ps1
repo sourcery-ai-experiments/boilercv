@@ -5,16 +5,14 @@ Param(
     [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' | Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$').Matches.Groups[1].value,
     # Lock the environment.
     [switch]$Lock,
+    # Lock highest dependencies.
+    [switch]$High,
     # Merge existing locks.
     [switch]$Merge,
-    # Kind of lock to sync the Python environment with.
-    [ArgumentCompletions('Dev', 'Low', 'High')][string]$Sync = 'Dev',
     # Don't sync.
     [switch]$NoSync,
     # Don't recopy the template.
     [switch]$NoCopy,
-    # Don't install pre-commit hooks.
-    [switch]$NoHooks,
     # Don't use global Python in CI.
     [switch]$NoGlobalInCI
 )
@@ -27,18 +25,19 @@ Param(
 function Sync-Python {
     <#.SYNOPSIS
     Sync Python dependencies.#>
-
     '*** LOCKING/SYNCING' | Write-Progress
-
     'INSTALLING UV' | Write-Progress
     Install-Uv
-
     'INSTALLING TOOLS' | Write-Progress
     Invoke-UvPip Install '-e tools/.'
-
-    'SYNCING PAIRED DEPENDENCIES' | Write-Progress
-    Invoke-Tools 'sync-paired-deps'
-
+    if (!$Env:CI) {
+        'SYNCING LOCAL DEV CONFIGS' | Write-Progress
+        Invoke-Tools 'sync-local-dev-configs'
+        'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
+        Invoke-PythonScript 'pre-commit' 'install'
+        'commit-msg', 'post-checkout', 'pre-commit', 'pre-merge-commit', 'pre-push' |
+            Install-Hook
+    }
     if ($Env:CI -and !$NoCopy) {
         'UPDATING FROM TEMPLATE' | Write-Progress
         $head = git rev-parse HEAD:submodules/template
@@ -46,22 +45,18 @@ function Sync-Python {
     }
     if ($Lock) {
         'LOCKING' | Write-Progress
-        'Dev', 'Low', 'High' | Invoke-Lock
+        Invoke-Lock
+        Invoke-Lock -High
         'LOCKED' | Write-Progress -Done
     }
     if ($Lock -or $Merge) {
-        'MERGING LOCKS' | Write-Progress; Invoke-Tools 'merge-locks'
+        'MERGING LOCKS' | Write-Progress
+        Invoke-Tools 'merge-locks'
     }
     if (!$NoSync) {
         'SYNCING' | Write-Progress
-        Get-Lock $Sync | Invoke-UvPip Sync
+        Get-Lock -High=$High | Invoke-UvPip Sync
         'SYNCED' | Write-Progress -Done
-    }
-    if (!$Env:CI -and !$NoHooks) {
-        'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
-        Invoke-PythonScript 'pre-commit' 'install'
-        'commit-msg', 'post-checkout', 'pre-commit', 'pre-merge-commit', 'pre-push' |
-            Install-Hook
     }
     '...DONE ***' | Write-Progress -Done
 }
@@ -108,17 +103,17 @@ function Invoke-UvPip {
 function Invoke-Lock {
     <#.SYNOPSIS
     Lock the environment.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)]
-        [ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind)
-    process { return Invoke-Tools "lock $($Kind.ToLower())" }
+    Param([switch]$High)
+    return Invoke-Tools "lock --high=$High"
 }
 
 function Get-Lock {
     <#.SYNOPSIS
     Retrieve a lock.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)][ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind)
-    process { return Invoke-Tools "get-lock $($Kind.ToLower())" }
+    Param([switch]$High)
+    return Invoke-Tools "get-lock --high=$High"
 }
+
 
 function Invoke-Tools {
     <#.SYNOPSIS

@@ -1,13 +1,15 @@
 # Test the upper-bound dependencies of the project
 name: "high"
-permissions:
-  contents: "write"
 on:
   workflow_dispatch:
   schedule:
     - cron: "38 16 * * 4"
+env:
+  FORCE_COLOR: true
+  PIP_DISABLE_PIP_VERSION_CHECK: true
+  PIP_NO_PYTHON_VERSION_WARNING: true
 jobs:
-  high:
+  test:
     strategy:
       matrix:
         github_actions_runner:
@@ -16,15 +18,12 @@ jobs:
           - "ubuntu-22.04"
           - "windows-2022"
         python_version:
-          # - "3.8"
-          # - "3.9"
           # - "3.10" # ? Using some 3.11 features (e.g. datetime.UTC)
           - "3.11"
           # - "3.12" # ? No support in my commit-pinned fork of cachier
-          # - "3.13"
     runs-on: "${{ matrix.github_actions_runner }}"
     steps:
-      - if: "${{startsWith(matrix.github_actions_runner, 'ubuntu')}}"
+      - if: ${{startsWith(matrix.github_actions_runner, 'ubuntu')}}
         # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
         name: "Install PySide6 system dependencies"
         run: "sudo apt update && sudo apt install libegl1"
@@ -35,6 +34,5 @@ jobs:
         with:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Sync High -Version '${{ matrix.python_version }}'"
-      - name: "Test upper-bound dependencies"
-        run: "pytest"
+        run: "scripts/Sync-Python.ps1 -Version '${{ matrix.python_version }}'"
+      - run: "pytest"

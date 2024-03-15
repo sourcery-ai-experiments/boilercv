@@ -1,6 +1,7 @@
 """Tools."""
 
 import json
+import tomllib
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, date, datetime, time
 from json import dumps
@@ -10,13 +11,9 @@ from re import sub
 from shlex import join, split
 from subprocess import run
 from sys import executable, stdout, version_info
-from tomllib import loads
-from typing import Literal, TypeAlias
+from typing import TypeAlias
 
-import tomlkit
 from cyclopts import App
-from packaging.requirements import Requirement
-from tomlkit.items import Array
 
 # * -------------------------------------------------------------------------------- * #
 # * Types
@@ -34,15 +31,15 @@ Node: TypeAlias = Leaf | Sequence["Node"] | Mapping[str, "Node"]
 APP = App()
 """Cyclopts CLI."""
 
-# ! Dependencies in `pyproject.toml`
+# ! For local dev config tooling
+PYRIGHTCONFIG = Path("pyrightconfig.json")
+"""Resulting pyright configuration file."""
+PYTEST = Path("pytest.ini")
+"""Resulting pytest configuration file."""
+
+# ! Dependencies
 PYPROJECT = Path("pyproject.toml")
 """Path to `pyproject.toml`."""
-USER_EXTRAS = ["cv"]
-"""User-facing extras in `pyproject.toml`."""
-DEV_EXTRAS = ["dev"]
-"""Development-specific pins of main dependencies in `pyproject.toml`."""
-
-# ! Requirements
 REQS = Path("requirements")
 """Requirements."""
 UV = REQS / "uv.in"
@@ -87,16 +84,18 @@ VERSION = _python_version
 # ! Locks
 LOCKS = Path(".locks")
 """Locks computed or retrieved for this platform."""
-ENVIRONMENT = "_".join(["requirements", RUNNER, VERSION])
-"""Unique environment identifier, also used for the artifact name."""
+PREFIX = "requirements"
+"""Locked requirements prefix."""
+EXT = ".txt"
+"""Locked requirements file extension."""
+SEP = "_"
+"""Separator for lock parts."""
+HIGH = "high"
+"""Final lock part, optionally appended for locking with highest dependencies."""
+ENVIRONMENT = SEP.join([PREFIX, RUNNER, VERSION])
+"""Environment identifier."""
 LOCKSFILE = Path("locks.json")
-"""Merged locks for all platforms."""
-
-# ! For local dev config tooling
-PYRIGHTCONFIG = Path("pyrightconfig.json")
-"""Resulting pyright configuration file."""
-PYTEST = Path("pytest.ini")
-"""Resulting pytest configuration file."""
+"""File with locks for all environments."""
 
 # * -------------------------------------------------------------------------------- * #
 # * Module-level initialization
@@ -108,48 +107,21 @@ LOCKS.mkdir(exist_ok=True, parents=True)
 
 
 @APP.command()
-def sync_paired_deps():
-    """Synchronize paired dependencies within a TOMLKit array."""
-    content = PYPROJECT.read_text("utf-8")
-    pyproject = tomlkit.loads(content)
-    sync_paired_dependency(
-        deps=pyproject["project"]["optional-dependencies"]["dev"],  # pyright: ignore[reportArgumentType, reportIndexIssue]  # pyright==1.1.350, packaging==24.0
-        src="pandas",
-        dst="pandas-stubs",
-    )
-    if content != (content := tomlkit.dumps(pyproject)):
-        PYPROJECT.write_text(encoding="utf-8", data=content)
-    return log(f"{PLATFORM = }")
-
-
-@APP.command()
-def lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
-    """Lock requirements.
+def lock(high: bool = False) -> Path:
+    """Lock dependencies.
 
     Args:
-        kind: Lock kind.
+        high: Highest dependencies.
     """
-    match kind:
-        case "dev":
-            resolution = "lowest-direct"
-            extras = USER_EXTRAS + DEV_EXTRAS
-        case "low":
-            resolution = "lowest-direct"
-            extras = USER_EXTRAS
-        case "high":
-            resolution = "highest"
-            extras = USER_EXTRAS
-        case _:  # pyright: ignore[reportUnnecessaryComparison]  # Validate outside of CLI
-            raise ValueError(f'Kind {kind} is not one of "dev", "low", or "high".')
     sep = " "
     result = run(
         args=split(
             sep.join([
                 f"{Path(executable).as_posix()} -m uv",
                 f"pip compile --python-version {VERSION}",
-                f"--resolution {resolution}",
+                f"--resolution {'highest' if high else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
-                sep.join([f"--extra {e}" for e in extras]),
+                "--all-extras",
                 sep.join([p.as_posix() for p in [PYPROJECT, DEV, UV]]),
             ])
         ),
@@ -159,7 +131,7 @@ def lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    lockfile = get_lockfile(kind)
+    lockfile = get_lockfile(high)
     lockfile.write_text(
         encoding="utf-8",
         data=(
@@ -179,14 +151,22 @@ def lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
 
 @APP.command()
 def merge_locks() -> Path:
-    """Combine locks into a single file."""
+    """Merge locks."""
     LOCKSFILE.write_text(
         encoding="utf-8",
         data=json.dumps(
             indent=2,
+            sort_keys=True,
             obj={
-                lock.stem: lock.read_text("utf-8")
-                for lock in LOCKS.rglob("requirements_*.txt")
+                **(
+                    json.loads(LOCKSFILE.read_text("utf-8"))
+                    if LOCKSFILE.exists()
+                    else {}
+                ),
+                **{
+                    lock.stem.removeprefix(f"{PREFIX}{SEP}"): lock.read_text("utf-8")
+                    for lock in LOCKS.rglob(f"{PREFIX}{SEP}*{EXT}")
+                },
             },
         )
         + "\n",
@@ -195,18 +175,18 @@ def merge_locks() -> Path:
 
 
 @APP.command()
-def get_lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
+def get_lock(high: bool = False) -> Path:
     """Get lock.
 
     Args:
-        kind: Lock kind.
+        high: Highest dependencies.
     """
     if LOCKSFILE.exists():
-        lockfile = get_lockfile(kind)
+        lockfile = get_lockfile(high)
         if existing_lock := json.loads(LOCKSFILE.read_text("utf-8")).get(lockfile.stem):
             lockfile.write_text(encoding="utf-8", data=existing_lock)
             return lockfile
-    return lock(kind)
+    return lock(high)
 
 
 def log(obj):
@@ -215,13 +195,13 @@ def log(obj):
     return obj
 
 
-def get_lockfile(kind: Literal["dev", "low", "high"] = "dev") -> Path:
+def get_lockfile(high: bool) -> Path:
     """Get the path to a lock.
 
     Args:
-        kind: Lock kind.
+        high: Highest dependencies.
     """
-    return LOCKS / f"{ENVIRONMENT}_{kind}.txt"
+    return LOCKS / f"{SEP.join([ENVIRONMENT, *([HIGH] if high else [])])}{EXT}"
 
 
 @APP.command()
@@ -238,7 +218,7 @@ def sync_local_dev_configs():
     Concurrent test runs are disabled in the local pytest configuration which slows down
     the usual local, granular test workflow.
     """
-    config = loads(PYPROJECT.read_text("utf-8"))
+    config = tomllib.loads(PYPROJECT.read_text("utf-8"))
     # Write pyrightconfig.json
     pyright = config["tool"]["pyright"]
     data = dumps(
@@ -252,36 +232,6 @@ def sync_local_dev_configs():
         encoding="utf-8",
         data="\n".join(["[pytest]", *[f"{k} = {v}" for k, v in pytest.items()], ""]),
     )
-
-
-def sync_paired_dependency(deps: Array, src: str, dst: str):
-    """Synchronize a dependency within a TOMLKit array.
-
-    Synchronize `dst` dependency version from the `src` dependency version to maintain
-    coupled dependency relationships. For example, since the major/minor/patch version
-    numbers should match between `pandas` and `pandas-stubs`, this means that
-    `pandas-stubs` needs a`~=` relationship to the same version that `pandas` has a
-    `==*.*.*` relationship to.
-
-    Args:
-        deps: List of dependencies to synchronize.
-        src: Source dependency name.
-        dst: Destination dependency name.
-    """
-    reqs = [Requirement(r) for r in deps]
-    src_req = next(r for r in reqs if r.name == src)
-    specs = src_req.specifier
-    if len(specs) != 1:
-        raise ValueError(f"Expected exactly one specifier in {src_req}.")
-    src_ver = next(iter(specs)).version
-    for i, dst_req in enumerate(reqs):
-        if dst_req.name != dst:
-            continue
-        specs = dst_req.specifier
-        if len(specs) != 1:
-            raise ValueError(f"Expected exactly one specifier in {dst_req}.")
-        dst_spec = next(iter(specs))
-        deps[i] = str(Requirement(f"{dst_req.name}{dst_spec.operator}{src_ver}"))
 
 
 def add_pyright_includes(
