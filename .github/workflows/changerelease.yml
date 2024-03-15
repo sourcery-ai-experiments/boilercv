@@ -6,12 +6,6 @@ on:
     branches: ["main"]
     tags: ["*"]
     paths: ["CHANGELOG.md"]
-env:
-  FORCE_COLOR: true
-  PIP_DISABLE_PIP_VERSION_CHECK: true
-  PIP_NO_PYTHON_VERSION_WARNING: true
-  DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
-  TERM: "xterm"
 jobs:
   changerelease:
     permissions:

@@ -23,12 +23,6 @@ on:
       - "docs/**"
       - "**/*.md"
       - "**/*.ipynb"
-env:
-  FORCE_COLOR: true
-  PIP_DISABLE_PIP_VERSION_CHECK: true
-  PIP_NO_PYTHON_VERSION_WARNING: true
-  DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
-  TERM: "xterm"
 jobs:
   build:
     runs-on: "ubuntu-22.04"
