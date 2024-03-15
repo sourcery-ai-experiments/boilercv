@@ -1,7 +1,5 @@
 # Sync GitHub release notes with the changelog
 name: "changerelease"
-permissions:
-  contents: "write"
 on:
   workflow_dispatch:
   push:
@@ -10,6 +8,8 @@ on:
     paths: ["CHANGELOG.md"]
 jobs:
   changerelease:
+    permissions:
+      contents: "write"
     runs-on: "ubuntu-22.04"
     steps:
       - uses: "dropseed/changerelease@3b121c9e98fa055f59a32b023cb4fd2325f4d9dc" # v1.6.0
