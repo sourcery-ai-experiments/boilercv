@@ -79,12 +79,22 @@ jobs:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
         run: "scripts/Sync-Python.ps1 -Version '${{ matrix.python_version }}'"
-      # ! https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
-      - run: "pytest --cov --cov-config pyproject.toml"
+      - if: !( ${{startsWith(matrix.github_actions_runner, 'ubuntu') && matrix.python_version == '3.11'}} )
+        run: pytest
       - if: ${{startsWith(matrix.github_actions_runner, 'ubuntu') && matrix.python_version == '3.11'}}
-        uses: "codecov/codecov-action@54bcd8715eee62d40e33596ef5e8f0f48dbbccab" # v4.1.0
+        uses: codecov/codecov-ats@d5a8e2d68e510a4ed2d0657bb9e9e8760a3f6ffc # v0.3.0
+        env:
+          CODECOV_STATIC_TOKEN: "${{ secrets.CODECOV_STATIC_TOKEN }}"
+          CODECOV_TOKEN: "${{ secrets.CODECOV_TOKEN }}"
+      - if: ${{startsWith(matrix.github_actions_runner, 'ubuntu') && matrix.python_version == '3.11'}}
+        run: "cat codecov_ats/tests_to_run.txt | xargs pytest --cov app"
+      - if: ${{startsWith(matrix.github_actions_runner, 'ubuntu') && matrix.python_version == '3.11'}}
+        uses: codecov/codecov-action@428cda1b1c731be3e8bfa389049c3f276d572ffb # v4.0.0-beta.3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: smart-tests
+          plugins: pycoverage,compress-pycoverage
       - uses: "actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3" # v4.3.1
         with:
           path: ".locks"
@@ -92,7 +102,10 @@ jobs:
   lock:
     permissions:
       contents: "write"
-    needs: ["test", "fawltydeps", "pyright"]
+    needs:
+      - "fawltydeps"
+      - "pyright"
+      - "test"
     runs-on: "ubuntu-22.04"
     steps:
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
