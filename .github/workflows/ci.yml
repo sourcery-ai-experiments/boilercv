@@ -1,5 +1,8 @@
 # Lock dependencies if necessary, then test, lint, and update locks
 name: "ci"
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
 on:
   workflow_dispatch:
   push:
@@ -29,6 +32,18 @@ on:
       - "codecov.yml"
       - "params.yaml"
 jobs:
+  ruff:
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - shell: "pwsh"
+        run: "scripts/Sync-Python.ps1 -NoSync"
+      - run: "ruff --no-fix --output-format github ."
   fawltydeps:
     runs-on: "ubuntu-22.04"
     steps:
@@ -96,6 +111,7 @@ jobs:
     permissions:
       contents: "write"
     needs:
+      - "ruff"
       - "fawltydeps"
       - "pyright"
       - "test"
