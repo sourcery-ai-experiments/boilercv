@@ -35,6 +35,6 @@ jobs:
         with:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
-        run: ".tools/scripts/Sync-Python.ps1 -Sync High -Version '${{ matrix.python_version }}'"
+        run: "scripts/Sync-Python.ps1 -Sync High -Version '${{ matrix.python_version }}'"
       - name: "Test upper-bound dependencies"
         run: "pytest"

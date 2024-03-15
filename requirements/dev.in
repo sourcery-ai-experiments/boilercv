@@ -1,5 +1,5 @@
 -e .
 -e submodules/boilercore
--e .tools/.
+-e tools/.
 -e docs/.
 -e tests/.

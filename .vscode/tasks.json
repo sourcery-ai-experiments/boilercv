@@ -230,7 +230,7 @@
       "label": "setup: Copy template",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh" } },
-      "command": ".tools/scripts/Copy-Template.ps1 ${input:templateOptions}",
+      "command": "scripts/Copy-Template.ps1 ${input:templateOptions}",
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": []
     },
@@ -238,7 +238,7 @@
       "label": "setup: Setup or sync virtual environment",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh" } },
-      "command": ".tools/scripts/Sync-Python.ps1",
+      "command": "scripts/Sync-Python.ps1",
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": [],
       "runOptions": { "runOn": "folderOpen" }
@@ -307,7 +307,7 @@
       "label": "task: run core update",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "python .tools/scripts/core_update.py",
+      "command": "python scripts/core_update.py",
       "icon": { "id": "check" },
       "problemMatcher": []
     },

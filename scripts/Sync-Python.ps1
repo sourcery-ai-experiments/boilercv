@@ -1,7 +1,5 @@
 <#.SYNOPSIS
-Sync Python dependencies.
-#>
-
+Sync Python dependencies.#>
 Param(
     # Python version.
     [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' | Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$').Matches.Groups[1].value,
@@ -21,22 +19,26 @@ Param(
     [switch]$NoGlobalInCI
 )
 
-. '.tools/scripts/Set-StrictErrors.ps1'
+. 'scripts/Set-StrictErrors.ps1'
 
 # * -------------------------------------------------------------------------------- * #
 # * Main function, invoked at the end of this script and has the context of all below
 
 function Sync-Python {
     <#.SYNOPSIS
-    Sync Python dependencies.
-    #>
+    Sync Python dependencies.#>
+
     '*** LOCKING/SYNCING' | Write-Progress
+
     'INSTALLING UV' | Write-Progress
     Install-Uv
+
     'INSTALLING TOOLS' | Write-Progress
-    Invoke-UvPip Install '-e .tools/.'
+    Invoke-UvPip Install '-e tools/.'
+
     'SYNCING PAIRED DEPENDENCIES' | Write-Progress
     Invoke-Tools 'sync-paired-deps'
+
     if ($Env:CI -and !$NoCopy) {
         'UPDATING FROM TEMPLATE' | Write-Progress
         $head = git rev-parse HEAD:submodules/template
@@ -48,8 +50,7 @@ function Sync-Python {
         'LOCKED' | Write-Progress -Done
     }
     if ($Lock -or $Merge) {
-        'MERGING LOCKS' | Write-Progress
-        Invoke-Tools 'merge-locks'
+        'MERGING LOCKS' | Write-Progress; Invoke-Tools 'merge-locks'
     }
     if (!$NoSync) {
         'SYNCING' | Write-Progress
@@ -58,19 +59,18 @@ function Sync-Python {
     }
     if (!$Env:CI -and !$NoHooks) {
         'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
-        Invoke-PythonScript 'pre-commit' 'install --install-hooks --hook-type commit-msg --hook-type post-checkout --hook-type pre-commit --hook-type pre-merge-commit --hook-type pre-push'
+        Invoke-PythonScript 'pre-commit' 'install'
+        'commit-msg', 'post-checkout', 'pre-commit', 'pre-merge-commit', 'pre-push' |
+            Install-Hook
     }
     '...DONE ***' | Write-Progress -Done
 }
 
 function Write-Progress {
     <#.SYNOPSIS
-    Write progress and completion messages.
-    #>
-    Param(
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Message,
-        [switch]$Done
-    )
+    Write progress and completion messages.#>
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Message,
+        [switch]$Done)
     begin { $Color = $Done ? 'Green' : 'Yellow' }
     process {
         Write-Host
@@ -78,21 +78,27 @@ function Write-Progress {
     }
 }
 
+function Install-Hook {
+    <#.SYNOPSIS
+    Install pre-commit hook.#>
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Hook)
+    process {
+        if (Test-Path ".git/hooks/$Hook") { return }
+        Invoke-PythonScript 'pre-commit' "install-hooks --hook-type $Hook"
+    }
+}
+
 function Install-Uv {
     <#.SYNOPSIS
-    Install uv.
-    #>
-    Invoke-PythonModule "pip install $(Get-Content '.tools/requirements/uv.in')"
+    Install uv.#>
+    Invoke-PythonModule "pip install $(Get-Content 'requirements/uv.in')"
 }
 
 function Invoke-UvPip {
     <#.SYNOPSIS
-    CI-aware invocation of `uv pip`.
-    #>
-    Param(
-        [ArgumentCompletions('Install', 'Sync')][string]$Cmd,
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments
-    )
+    CI-aware invocation of `uv pip`.#>
+    Param([ArgumentCompletions('Install', 'Sync')][string]$Cmd,
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
     process {
         $System = $Env:CI ? '--system --break-system-packages' : ''
         Invoke-PythonModule "uv pip $($Cmd.ToLower()) $System $Arguments"
@@ -101,50 +107,38 @@ function Invoke-UvPip {
 
 function Invoke-Lock {
     <#.SYNOPSIS
-    Lock the environment.
-    #>
-    Param(
-        # Kind of lock.
-        [Parameter(Mandatory, ValueFromPipeline)][ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind
-    )
+    Lock the environment.#>
+    Param([Parameter(Mandatory, ValueFromPipeline)]
+        [ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind)
     process { return Invoke-Tools "lock $($Kind.ToLower())" }
 }
 
 function Get-Lock {
     <#.SYNOPSIS
-    Retrieve a lock.
-    #>
-    Param(
-        # Kind of lock.
-        [Parameter(Mandatory, ValueFromPipeline)][ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind
-    )
+    Retrieve a lock.#>
+    Param([Parameter(Mandatory, ValueFromPipeline)][ArgumentCompletions('Dev', 'Low', 'High')][string]$Kind)
     process { return Invoke-Tools "get-lock $($Kind.ToLower())" }
 }
 
 function Invoke-Tools {
     <#.SYNOPSIS
-    Run `boilercv_tools` commands.
-    #>
+    Run `boilercv_tools` commands.#>
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
     process { Invoke-PythonModule "boilercv_tools $Arguments" }
 }
 
 function Invoke-PythonModule {
     <#.SYNOPSIS
-    Invoke Python module.
-    #>
+    Invoke Python module.#>
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
     process { Invoke-Expression "$PYTHON -m $Arguments" }
 }
 
 function Invoke-PythonScript {
     <#.SYNOPSIS
-    Invoke Python script installed in the environment.
-    #>
-    Param(
-        [Parameter(Mandatory)][string]$Cmd,
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments
-    )
+    Invoke Python script installed in the environment.#>
+    Param([Parameter(Mandatory)][string]$Cmd,
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
     process { Invoke-Expression "$SCRIPTS/$Cmd $Arguments" }
 }
 
@@ -158,8 +152,7 @@ $VENV_PATH = '.venv'
 
 function Get-Python {
     <#.SYNOPSIS
-    Get Python interpreter, global in CI, or activated virtual environment locally.
-    #>
+    Get Python interpreter, global in CI, or activated virtual environment locally.#>
     $GlobalPy = Get-GlobalPython
     if ($Env:CI -and !$NoGlobalInCI) {
         Write-Progress "USING GLOBAL PYTHON: $GlobalPy" -Done
@@ -169,20 +162,19 @@ function Get-Python {
     $VenvPy = Start-PythonEnv $VENV_PATH
     Write-Progress "USING VIRTUAL ENVIRONMENT: $VenvPy" -Done
     $foundVersion = Invoke-Expression "$VenvPy --version"
-    if ($foundVersion | Select-String -Pattern "^Python $RE_VERSION\.\d+$") {
-        return $VenvPy
-    }
-    throw "Found virtual environment with Python version $foundVersion. Expected $Version. Remove the virtual environment and run this script again to recreate."
+    if ($foundVersion |
+            Select-String -Pattern "^Python $RE_VERSION\.\d+$") { return $VenvPy }
+    Write-Progress "REMOVING VIRTUAL ENVIRONMENT: $Env:VIRTUAL_ENV" -Done
+    Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
+    return Get-Python
 }
 
 function Get-GlobalPython {
     <#.SYNOPSIS
-    Get global Python interpreter.
-    #>
-    if (
-        (Test-Command 'py') -and
-        (py --list | Select-String -Pattern "^\s?-V:$RE_VERSION")
-    ) { return "py -$Version" }
+    Get global Python interpreter.#>
+    if ((Test-Command 'py') -and
+        (py '--list' |
+            Select-String -Pattern "^\s?-V:$RE_VERSION")) { return "py -$Version" }
     elseif (Test-Command "python$Version") { return "python$Version" }
     elseif (Test-Command 'python') { return 'python' }
     throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again."
@@ -190,25 +182,17 @@ function Get-GlobalPython {
 
 function Start-PythonEnv {
     <#.SYNOPSIS
-    Activate and get the Python interpreter for the virtual environment.
-    #>
-    if ($IsWindows) {
-        $bin = 'Scripts'
-        $python = 'python.exe'
-    }
-    else {
-        $bin = 'bin'
-        $python = 'python'
-    }
+    Activate and get the Python interpreter for the virtual environment.#>
+    if ($IsWindows) { $bin = 'Scripts'; $python = 'python.exe' }
+    else { $bin = 'bin'; $python = 'python' }
     Invoke-Expression "$VENV_PATH/$bin/Activate.ps1"
     return "$Env:VIRTUAL_ENV/$bin/$python"
 }
 
 function Test-Command {
     <#.SYNOPSIS
-    Like `Get-Command` but errors are ignored.
-    #>
-    return Get-Command @args -ErrorAction Ignore
+    Like `Get-Command` but errors are ignored.#>
+    return Get-Command @args -ErrorAction 'Ignore'
 }
 
 # * -------------------------------------------------------------------------------- * #

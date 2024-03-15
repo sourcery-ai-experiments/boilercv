@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ".tools/boilercv_tools.py"
-      - ".tools/boilercv_tools/**"
-      - ".tools/scripts/**"
+      - "tools/boilercv_tools.py"
+      - "tools/boilercv_tools/**"
+      - "scripts/**"
 jobs:
   contrib:
     strategy:
@@ -30,4 +30,4 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: ".tools/scripts/Sync-Python.ps1 -Lock -Merge -NoSync -NoCopy ${{ matrix.no_global_in_ci }}"
+        run: "scripts/Sync-Python.ps1 -Lock -Merge -NoSync -NoCopy ${{ matrix.no_global_in_ci }}"

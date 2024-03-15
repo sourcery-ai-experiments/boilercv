@@ -9,7 +9,7 @@ from platform import platform
 from re import sub
 from shlex import join, split
 from subprocess import run
-from sys import executable, version_info
+from sys import executable, stdout, version_info
 from tomllib import loads
 from typing import Literal, TypeAlias
 
@@ -30,10 +30,9 @@ Node: TypeAlias = Leaf | Sequence["Node"] | Mapping[str, "Node"]
 # * -------------------------------------------------------------------------------- * #
 # * Constants
 
+# ! CLI
 APP = App()
 """Cyclopts CLI."""
-TOOLS = Path(".tools")
-"""Path to tools directory."""
 
 # ! Dependencies in `pyproject.toml`
 PYPROJECT = Path("pyproject.toml")
@@ -44,12 +43,13 @@ DEV_EXTRAS = ["dev"]
 """Development-specific pins of main dependencies in `pyproject.toml`."""
 
 # ! Requirements
-_reqs = TOOLS / "requirements"
-UV = _reqs / "uv.in"
+REQS = Path("requirements")
+"""Requirements."""
+UV = REQS / "uv.in"
 """Requirements file containing the `uv` version pin for bootstrapping installs."""
-DEV = _reqs / "dev.in"
+DEV = REQS / "dev.in"
 """Other development requirements including editable local package installs."""
-NODEPS = _reqs / "nodeps.in"
+NODEPS = REQS / "nodeps.in"
 """Requirements that should be appended to locks without solving for dependencies."""
 
 # ! Platform
@@ -85,11 +85,11 @@ VERSION = _python_version
 """Python version associated with this platform."""
 
 # ! Locks
-LOCKS = Path(".lock")
+LOCKS = Path(".locks")
 """Locks computed or retrieved for this platform."""
 ENVIRONMENT = "_".join(["requirements", RUNNER, VERSION])
 """Unique environment identifier, also used for the artifact name."""
-LOCKSFILE = Path(".tools/locks.json")
+LOCKSFILE = Path("locks.json")
 """Merged locks for all platforms."""
 
 # ! For local dev config tooling
@@ -110,7 +110,6 @@ LOCKS.mkdir(exist_ok=True, parents=True)
 @APP.command()
 def sync_paired_deps():
     """Synchronize paired dependencies within a TOMLKit array."""
-    log(f"{PLATFORM = }")
     content = PYPROJECT.read_text("utf-8")
     pyproject = tomlkit.loads(content)
     sync_paired_dependency(
@@ -120,6 +119,7 @@ def sync_paired_deps():
     )
     if content != (content := tomlkit.dumps(pyproject)):
         PYPROJECT.write_text(encoding="utf-8", data=content)
+    return log(f"{PLATFORM = }")
 
 
 @APP.command()
@@ -174,7 +174,7 @@ def lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
             + "\n"
         ),
     )
-    return lockfile
+    return log(lockfile)
 
 
 @APP.command()
@@ -201,30 +201,27 @@ def get_lock(kind: Literal["dev", "low", "high"] = "dev") -> Path:
     Args:
         kind: Lock kind.
     """
-    lockfile = get_lockfile(kind)
-    try:
-        locksfile_content = LOCKSFILE.read_text("utf-8")
-    except FileNotFoundError as err:
-        raise ValueError(f"{LOCKSFILE} missing. Have you merged locks before?") from err
-    locks = json.loads(locksfile_content)
-    try:
-        lock = locks[lockfile.stem]
-    except KeyError as err:
-        raise ValueError(
-            f"No lock for {lockfile.stem}. Have you locked for this platform before?"
-        ) from err
-    lockfile.write_text(encoding="utf-8", data=lock)
-    return lockfile
+    if LOCKSFILE.exists():
+        lockfile = get_lockfile(kind)
+        if existing_lock := json.loads(LOCKSFILE.read_text("utf-8")).get(lockfile.stem):
+            lockfile.write_text(encoding="utf-8", data=existing_lock)
+            return lockfile
+    return lock(kind)
 
 
-@APP.command()
+def log(obj):
+    """Send an object to `stdout` and return it."""
+    print(obj, file=stdout)  # noqa: T201
+    return obj
+
+
 def get_lockfile(kind: Literal["dev", "low", "high"] = "dev") -> Path:
     """Get the path to a lock.
 
     Args:
         kind: Lock kind.
     """
-    return log(LOCKS / f"{ENVIRONMENT}_{kind}.txt")
+    return LOCKS / f"{ENVIRONMENT}_{kind}.txt"
 
 
 @APP.command()
@@ -257,15 +254,6 @@ def sync_local_dev_configs():
     )
 
 
-# * -------------------------------------------------------------------------------- * #
-
-
-def log(obj):
-    """Print an object and also return it."""
-    print(obj)  # noqa: T201  # Send to CLI stdout
-    return obj
-
-
 def sync_paired_dependency(deps: Array, src: str, dst: str):
     """Synchronize a dependency within a TOMLKit array.
 
@@ -294,9 +282,6 @@ def sync_paired_dependency(deps: Array, src: str, dst: str):
             raise ValueError(f"Expected exactly one specifier in {dst_req}.")
         dst_spec = next(iter(specs))
         deps[i] = str(Requirement(f"{dst_req.name}{dst_spec.operator}{src_ver}"))
-
-
-# * -------------------------------------------------------------------------------- * #
 
 
 def add_pyright_includes(

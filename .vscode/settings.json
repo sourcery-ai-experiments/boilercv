@@ -25,7 +25,7 @@
     //? Type stubs clutter quick-open
     "submodules/typings": true,
     //? Locks clutter searches
-    ".tools/locks.json": true
+    "tools/locks.json": true
   },
   //! File nesting
   "explorer.sortOrder": "foldersNestsFiles",
@@ -125,6 +125,10 @@
   },
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell",
+    "editor.wordWrap": "off"
   },
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",

@@ -11,7 +11,7 @@ Param(
     [switch]$NoVerify
 )
 
-. '.tools/scripts/Set-StrictErrors.ps1'
+. 'scripts/Set-StrictErrors.ps1'
 
 if ( $Recopy ) {
     copier recopy --overwrite $(if ($Defaults) { '--defaults' })

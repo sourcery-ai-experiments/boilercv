@@ -16,7 +16,7 @@
   ],
   "pip_requirements": {
     "description": "Additionally monitor these files",
-    "fileMatch": ["^\\.tools/requirements/.*$"]
+    "fileMatch": ["^\\requirements/.*$"]
   },
   "packageRules": [
     {
@@ -38,9 +38,9 @@
       "matchPackageNames": ["pandas"]
     },
     {
-      "description": "Pandas stubs are managed by `.tools/scripts/core_update.py`.",
+      "description": "Pandas stubs are managed by `scripts/core_update.py`.",
       "matchManagers": ["pep621"],
-      "matchFileNames": [".tools/requirements/*"],
+      "matchFileNames": ["requirements/*"],
       "ignoreDeps": ["pandas-stubs"]
     },
     {

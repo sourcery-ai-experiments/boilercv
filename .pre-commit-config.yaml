@@ -22,11 +22,11 @@ repos:
         name: "sync-python"
         pass_filenames: false
         language: "system"
-        entry: "pwsh .tools/scripts/Sync-Python.ps1"
+        entry: "pwsh scripts/Sync-Python.ps1"
         files: |
           (?x)^(
             .*/pyproject\.toml
-            |\.tools/.*
+            |\tools/.*
           )$
       - id: "sync-local-dev-configs"
         name: "sync-local-dev-configs"
@@ -36,7 +36,7 @@ repos:
         files: |
           (?x)^(
             .*/pyproject\.toml
-            |\.tools/.*
+            |\tools/.*
             |docs/.*
             |src/.*
             |tests/.*
@@ -69,7 +69,7 @@ repos:
         files: |
           (?x)^(
             .*/pyproject\.toml
-            |\.tools/.*
+            |\tools/.*
             |docs/.*
             |src/.*
             |tests/.*
