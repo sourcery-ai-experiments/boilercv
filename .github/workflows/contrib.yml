@@ -18,9 +18,6 @@ jobs:
           - "macos-13"
           - "ubuntu-22.04"
           - "windows-2022"
-        toggle_ci:
-          - ""
-          - "-ToggleCI"
         no_global_in_ci:
           - ""
           - "-NoGlobalInCI"
@@ -33,4 +30,4 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: ".tools/scripts/Sync-Python.ps1 -Lock -Merge -NoSync ${{ matrix.toggle_ci }} ${{ matrix.no_global_in_ci }}"
+        run: ".tools/scripts/Sync-Python.ps1 -Lock -Merge -NoSync -NoCopy ${{ matrix.no_global_in_ci }}"
