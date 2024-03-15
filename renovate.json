@@ -11,8 +11,13 @@
     "git-submodules",
     "github-actions",
     "pep621",
+    "pip_requirements",
     "pre-commit"
   ],
+  "pip_requirements": {
+    "description": "Additionally monitor these files",
+    "fileMatch": ["^\\.tools/requirements/.*$"]
+  },
   "packageRules": [
     {
       "description": "Core dependencies, unmmatched by the rules below",
