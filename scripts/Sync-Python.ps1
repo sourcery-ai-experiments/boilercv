@@ -34,9 +34,7 @@ function Sync-Python {
         'SYNCING LOCAL DEV CONFIGS' | Write-Progress
         Invoke-Tools 'sync-local-dev-configs'
         'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
-        Invoke-PythonScript 'pre-commit' 'install'
-        'commit-msg', 'post-checkout', 'pre-commit', 'pre-merge-commit', 'pre-push' |
-            Install-Hook
+        Invoke-PythonScript 'pre-commit' 'install --install-hooks --hook-type pre-commit --hook-type pre-push --hook-type commit-msg --hook-type post-checkout --hook-type pre-merge-commit'
     }
     if ($Env:CI -and !$NoCopy) {
         'UPDATING FROM TEMPLATE' | Write-Progress
@@ -70,16 +68,6 @@ function Write-Progress {
     process {
         Write-Host
         Write-Host "$Message$($Done ? '' : '...')" -ForegroundColor $Color
-    }
-}
-
-function Install-Hook {
-    <#.SYNOPSIS
-    Install pre-commit hook.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Hook)
-    process {
-        if (Test-Path ".git/hooks/$Hook") { return }
-        Invoke-PythonScript 'pre-commit' "install-hooks --hook-type $Hook"
     }
 }
 
