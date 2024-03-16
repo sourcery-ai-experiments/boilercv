@@ -7,17 +7,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/ci.yml"
-      - "**/pyproject.toml"
-      - "requirements/**"
+      - ".github/workflows/contrib.yml"
       - "scripts/Initialize-Repo.ps1"
-      - "src/**"
-      - "tests/**"
       - "tools/boilercv_tools.py"
       - "tools/boilercv_tools/**"
-      - "submodules/**"
-      - "codecov.yml"
-      - "params.yaml"
   push:
     branches: ["main"]
     paths:
