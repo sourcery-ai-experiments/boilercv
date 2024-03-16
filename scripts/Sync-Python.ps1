@@ -2,7 +2,7 @@
 Sync Python dependencies.#>
 Param(
     # Python version.
-    [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' | Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$').Matches.Groups[1].value,
+    [string]$Version = (Get-Content '.copier-answers.yml' | Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$').Matches.Groups[1].value,
     # Sync to highest dependencies
     [switch]$High,
     # Recompile dependencies
@@ -36,8 +36,14 @@ function Sync-Python {
         'SYNCING LOCAL DEV CONFIGS' | Write-Progress
         Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
-        'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
-        Invoke-Expression "$(Split-Path $py)/pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push --hook-type commit-msg --hook-type post-checkout --hook-type pre-merge-commit"
+        'INSTALLING ANY MISSING PRE-COMMIT HOOKS' | Write-Progress
+        $hooks = 'pre-commit', 'pre-push', 'commit-msg', 'post-checkout', 'pre-merge-commit'
+        $missing = ($hooks | ForEach-Object -Process { Test-Path .git/hooks/$_ }) -Contains $false
+        if ($missing) {
+            $hooks = $hooks | ForEach-Object -Process { "--hook-type $_" }
+            Invoke-Expression "$(Split-Path $py)/pre-commit install --install-hooks $hooks"
+        }
+        'ANY MISSING HOOKS INSTALLED' | Write-Progress -Done
     }
     if ($Env:CI -and !$NoCopy) {
         'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
@@ -56,7 +62,7 @@ function Sync-Python {
     }
     if (!$NoSync) {
         'SYNCING' | Write-Progress
-        $compilation = Invoke-Expression "$py -m boilercv_tools compile --high=$($High.ToLower())"
+        $compilation = Invoke-Expression "$py -m boilercv_tools compile $($High ? '--high' : '')"
         Invoke-Expression "$py -m uv pip sync $System $compilation"
     }
     '...DONE ***' | Write-Progress -Done
