@@ -47,7 +47,7 @@ function Sync-Python {
     if ($Recompile) {
         'RECOMPILING' | Write-Progress
         Invoke-Expression "$py -m boilercv_tools recompile"
-        Invoke-Expression "$py -m boilercv_tools --high"
+        Invoke-Expression "$py -m boilercv_tools recompile --high"
         'COMPILED' | Write-Progress -Done
     }
     if ($Recompile -or $Lock) {
