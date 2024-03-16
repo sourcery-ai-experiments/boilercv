@@ -53,7 +53,7 @@ function Sync-Python {
     }
     if ($Lock -or $Merge) {
         'MERGING LOCKS' | Write-Progress
-        Invoke-Tools 'merge-locks'
+        Invoke-Tools 'lock'
     }
     if (!$NoSync) {
         'SYNCING' | Write-Progress
@@ -95,16 +95,15 @@ function Invoke-Lock {
     <#.SYNOPSIS
     Lock the environment.#>
     Param([switch]$High)
-    return Invoke-Tools "lock --high=$High"
+    return Invoke-Tools "recompile --high=$High"
 }
 
 function Get-Lock {
     <#.SYNOPSIS
     Retrieve a lock.#>
     Param([switch]$High)
-    return Invoke-Tools "get-lock --high=$High"
+    return Invoke-Tools "compile --high=$High"
 }
-
 
 function Invoke-Tools {
     <#.SYNOPSIS

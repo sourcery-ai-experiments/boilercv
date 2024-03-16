@@ -68,27 +68,53 @@ match version_info[:2]:
 VERSION = _python_version
 """Python version associated with this platform."""
 
-# ! Locks
-LOCKS = Path(".locks")
-"""Locks computed or retrieved for this platform."""
-LOCKS.mkdir(exist_ok=True, parents=True)
-PREFIX = "requirements"
-"""Locked requirements prefix."""
-EXT = ".txt"
-"""Locked requirements file extension."""
-SEP = "_"
-"""Separator for lock parts."""
-HIGH = "high"
-"""Final lock part, optionally appended for locking with highest dependencies."""
-ENVIRONMENT = SEP.join([PREFIX, RUNNER, VERSION])
-"""Environment identifier."""
-LOCKSFILE = Path("locks.json")
-"""File with locks for all environments."""
+# ! Compilation and locking
+COMPS = Path(".comps")
+"""Platform-specific dependency compilations."""
+COMPS.mkdir(exist_ok=True, parents=True)
+LOCKS = Path("locks.json")
+"""Locked set of dependency compilations for different runner/Python combinations."""
 
 
 @APP.command()
-def lock(high: bool = False) -> Path:
-    """Lock dependencies.
+def lock() -> Path:
+    """Lock all local dependency compilations."""
+    LOCKS.write_text(
+        encoding="utf-8",
+        data=json.dumps(
+            indent=2,
+            sort_keys=True,
+            obj={
+                **(json.loads(LOCKS.read_text("utf-8")) if LOCKS.exists() else {}),
+                **{
+                    comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
+                    for comp in COMPS.iterdir()
+                },
+            },
+        )
+        + "\n",
+    )
+    return log(LOCKS)
+
+
+@APP.command()
+def compile(high: bool = False) -> Path:  # noqa: A001
+    """Compile dependencies for a system.
+
+    Args:
+        high: Highest dependencies.
+    """
+    if LOCKS.exists():
+        comp = get_comp_path(high)
+        if existing_comp := json.loads(LOCKS.read_text("utf-8")).get(comp.stem):
+            comp.write_text(encoding="utf-8", data=existing_comp)
+            return comp
+    return recompile(high)
+
+
+@APP.command()
+def recompile(high: bool = False) -> Path:
+    """Recompile dependencies for a system.
 
     Args:
         high: Highest dependencies.
@@ -111,8 +137,8 @@ def lock(high: bool = False) -> Path:
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    lockfile = get_lockfile(high)
-    lockfile.write_text(
+    comp = get_comp_path(high)
+    comp.write_text(
         encoding="utf-8",
         data=(
             "\n".join([
@@ -126,62 +152,31 @@ def lock(high: bool = False) -> Path:
             + "\n"
         ),
     )
-    return log(lockfile)
+    return log(comp)
 
 
-@APP.command()
-def merge_locks() -> Path:
-    """Merge locks."""
-    LOCKSFILE.write_text(
-        encoding="utf-8",
-        data=json.dumps(
-            indent=2,
-            sort_keys=True,
-            obj={
-                **(
-                    json.loads(LOCKSFILE.read_text("utf-8"))
-                    if LOCKSFILE.exists()
-                    else {}
-                ),
-                **{
-                    lock.stem.removeprefix(f"{PREFIX}{SEP}"): lock.read_text("utf-8")
-                    for lock in LOCKS.rglob(f"{PREFIX}{SEP}*{EXT}")
-                },
-            },
-        )
-        + "\n",
-    )
-    return log(LOCKSFILE)
-
-
-@APP.command()
-def get_lock(high: bool = False) -> Path:
-    """Get lock.
+def get_comp_path(high: bool) -> Path:
+    """Get a dependency compilation.
 
     Args:
         high: Highest dependencies.
     """
-    if LOCKSFILE.exists():
-        lockfile = get_lockfile(high)
-        if existing_lock := json.loads(LOCKSFILE.read_text("utf-8")).get(lockfile.stem):
-            lockfile.write_text(encoding="utf-8", data=existing_lock)
-            return lockfile
-    return lock(high)
+    return COMPS / f"{get_comp_name(high)}.txt"
+
+
+def get_comp_name(high: bool) -> str:
+    """Get name of a dependency compilation.
+
+    Args:
+        high: Highest dependencies.
+    """
+    return "_".join(["requirements", RUNNER, VERSION, *(["high"] if high else [])])
 
 
 def log(obj):
     """Send an object to `stdout` and return it."""
     print(obj, file=stdout)  # noqa: T201
     return obj
-
-
-def get_lockfile(high: bool) -> Path:
-    """Get the path to a lock.
-
-    Args:
-        high: Highest dependencies.
-    """
-    return LOCKS / f"{SEP.join([ENVIRONMENT, *([HIGH] if high else [])])}{EXT}"
 
 
 @APP.command()
