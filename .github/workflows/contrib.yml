@@ -8,14 +8,14 @@ on:
   pull_request:
     paths:
       - ".github/workflows/contrib.yml"
-      - "scripts/Initialize-Repo.ps1"
+      - "scripts/Sync-Python.ps1"
       - "tools/boilercv_tools.py"
       - "tools/boilercv_tools/**"
   push:
     branches: ["main"]
     paths:
       - ".github/workflows/contrib.yml"
-      - "scripts/Initialize-Repo.ps1"
+      - "scripts/Sync-Python.ps1"
       - "tools/boilercv_tools.py"
       - "tools/boilercv_tools/**"
 jobs:
