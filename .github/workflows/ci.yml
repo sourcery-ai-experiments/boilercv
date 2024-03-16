@@ -167,7 +167,7 @@ jobs:
           merge-multiple: True
       - if: steps.changes.outputs.deps == 'true'
         shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Merge -NoSync"
+        run: "scripts/Sync-Python.ps1 -Lock -NoSync"
       - if: steps.changes.outputs.deps == 'true'
         uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
