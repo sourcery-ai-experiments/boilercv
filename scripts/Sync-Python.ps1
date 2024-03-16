@@ -31,7 +31,7 @@ function Sync-Python {
     Invoke-Expression "$py -m pip install $(Get-Content 'requirements/uv.in')"
     'INSTALLING TOOLS' | Write-Progress
     $System = $Env:CI ? '--system --break-system-packages' : ''
-    Invoke-Expression "$py -m uv pip install $System -e tools"
+    Invoke-Expression "$py -m uv pip install $System --editable tools/."
     if (!$Env:CI) {
         'SYNCING LOCAL DEV CONFIGS' | Write-Progress
         Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
@@ -47,7 +47,7 @@ function Sync-Python {
     if ($Recompile) {
         'RECOMPILING' | Write-Progress
         Invoke-Expression "$py -m boilercv_tools recompile"
-        Invoke-Expression "$py -m boilercv_tools --high=$High"
+        Invoke-Expression "$py -m boilercv_tools --high"
         'COMPILED' | Write-Progress -Done
     }
     if ($Recompile -or $Lock) {
@@ -56,7 +56,7 @@ function Sync-Python {
     }
     if (!$NoSync) {
         'SYNCING' | Write-Progress
-        $compilation = Invoke-Expression "$py -m boilercv_tools compile --high=$High"
+        $compilation = Invoke-Expression "$py -m boilercv_tools compile --high=$($High.ToLower())"
         Invoke-Expression "$py -m uv pip sync $System $compilation"
     }
     '...DONE ***' | Write-Progress -Done
