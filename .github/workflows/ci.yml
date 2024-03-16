@@ -5,7 +5,7 @@ concurrency:
   cancel-in-progress: true
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     paths:
       - ".github/workflows/ci.yml"
       - "**/pyproject.toml"
@@ -18,7 +18,20 @@ on:
       - "submodules/**"
       - "codecov.yml"
       - "params.yaml"
-  pull_request:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/ci.yml"
+      - "**/pyproject.toml"
+      - "requirements/**"
+      - "scripts/Initialize-Repo.ps1"
+      - "src/**"
+      - "tests/**"
+      - "tools/boilercv_tools.py"
+      - "tools/boilercv_tools/**"
+      - "submodules/**"
+      - "codecov.yml"
+      - "params.yaml"
 jobs:
   ruff:
     runs-on: "ubuntu-22.04"
