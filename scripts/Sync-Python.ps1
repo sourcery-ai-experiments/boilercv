@@ -3,61 +3,61 @@ Sync Python dependencies.#>
 Param(
     # Python version.
     [Parameter(ValueFromPipeline)][string]$Version = (Get-Content '.copier-answers.yml' | Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$').Matches.Groups[1].value,
-    # Lock the environment.
-    [switch]$Lock,
-    # Lock highest dependencies.
+    # Sync to highest dependencies
     [switch]$High,
-    # Merge existing locks.
-    [switch]$Merge,
-    # Don't sync.
+    # Recompile dependencies
+    [switch]$Recompile,
+    # Add all local dependency compilations to the lock.
+    [switch]$Lock,
+    # Optionally skip syncing, if just recompiling or locking.
     [switch]$NoSync,
     # Don't recopy the template.
     [switch]$NoCopy,
-    # Don't use global Python in CI.
-    [switch]$NoGlobalInCI
+    # Use virtual environment even in CI.
+    [switch]$VenvInCI
 )
 
 . 'scripts/Set-StrictErrors.ps1'
 
-# * -------------------------------------------------------------------------------- * #
-# * Main function, invoked at the end of this script and has the context of all below
-
 function Sync-Python {
     <#.SYNOPSIS
     Sync Python dependencies.#>
-    '*** LOCKING/SYNCING' | Write-Progress
+    $py = Get-Python
+    '*** SYNCING' | Write-Progress
     'SYNCING SUBMODULES' | Write-Progress
     git submodule update --init --merge
     'SUBMODULES SYNCED' | Write-Progress -Done
     'INSTALLING UV' | Write-Progress
-    Install-Uv
+    Invoke-Expression "$py -m pip install $(Get-Content 'requirements/uv.in')"
     'INSTALLING TOOLS' | Write-Progress
-    Invoke-UvPip Install '-e tools/.'
+    $System = $Env:CI ? '--system --break-system-packages' : ''
+    Invoke-Expression "$py -m uv pip install $System -e tools"
     if (!$Env:CI) {
         'SYNCING LOCAL DEV CONFIGS' | Write-Progress
-        Invoke-Tools 'sync-local-dev-configs'
+        Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
         'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
-        Invoke-PythonScript 'pre-commit' 'install --install-hooks --hook-type pre-commit --hook-type pre-push --hook-type commit-msg --hook-type post-checkout --hook-type pre-merge-commit'
+        Invoke-Expression "$(Split-Path $py)/pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push --hook-type commit-msg --hook-type post-checkout --hook-type pre-merge-commit"
     }
     if ($Env:CI -and !$NoCopy) {
-        'UPDATING FROM TEMPLATE' | Write-Progress
+        'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
         $head = git rev-parse HEAD:submodules/template
-        Invoke-PythonModule "copier update --defaults --vcs-ref $head"
+        Invoke-Expression "$py -m copier update --defaults --vcs-ref $head"
     }
-    if ($Lock) {
+    if ($Recompile) {
+        'RECOMPILING' | Write-Progress
+        Invoke-Expression "$py -m boilercv_tools recompile"
+        Invoke-Expression "$py -m boilercv_tools --high=$High"
+        'COMPILED' | Write-Progress -Done
+    }
+    if ($Recompile -or $Lock) {
         'LOCKING' | Write-Progress
-        Invoke-Lock
-        Invoke-Lock -High
-        'LOCKED' | Write-Progress -Done
-    }
-    if ($Lock -or $Merge) {
-        'MERGING LOCKS' | Write-Progress
-        Invoke-Tools 'lock'
+        Invoke-Expression "$py -m boilercv_tools lock"
     }
     if (!$NoSync) {
         'SYNCING' | Write-Progress
-        Get-Lock -High=$High | Invoke-UvPip Sync
+        $compilation = Invoke-Expression "$py -m boilercv_tools compile --high=$High"
+        Invoke-Expression "$py -m uv pip sync $System $compilation"
     }
     '...DONE ***' | Write-Progress -Done
 }
@@ -69,66 +69,10 @@ function Write-Progress {
         [switch]$Done)
     begin { $Color = $Done ? 'Green' : 'Yellow' }
     process {
-        if (!$Done) {Write-Host}
+        if (!$Done) { Write-Host }
         Write-Host "$Message$($Done ? '' : '...')" -ForegroundColor $Color
     }
 }
-
-function Install-Uv {
-    <#.SYNOPSIS
-    Install uv.#>
-    Invoke-PythonModule "pip install $(Get-Content 'requirements/uv.in')"
-}
-
-function Invoke-UvPip {
-    <#.SYNOPSIS
-    CI-aware invocation of `uv pip`.#>
-    Param([ArgumentCompletions('Install', 'Sync')][string]$Cmd,
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
-    process {
-        $System = $Env:CI ? '--system --break-system-packages' : ''
-        Invoke-PythonModule "uv pip $($Cmd.ToLower()) $System $Arguments"
-    }
-}
-
-function Invoke-Lock {
-    <#.SYNOPSIS
-    Lock the environment.#>
-    Param([switch]$High)
-    return Invoke-Tools "recompile --high=$High"
-}
-
-function Get-Lock {
-    <#.SYNOPSIS
-    Retrieve a lock.#>
-    Param([switch]$High)
-    return Invoke-Tools "compile --high=$High"
-}
-
-function Invoke-Tools {
-    <#.SYNOPSIS
-    Run `boilercv_tools` commands.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
-    process { Invoke-PythonModule "boilercv_tools $Arguments" }
-}
-
-function Invoke-PythonModule {
-    <#.SYNOPSIS
-    Invoke Python module.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
-    process { Invoke-Expression "$PYTHON -m $Arguments" }
-}
-
-function Invoke-PythonScript {
-    <#.SYNOPSIS
-    Invoke Python script installed in the environment.#>
-    Param([Parameter(Mandatory)][string]$Cmd,
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Arguments)
-    process { Invoke-Expression "$SCRIPTS/$Cmd $Arguments" }
-}
-
-# * -------------------------------------------------------------------------------- * #
-# * Get the CI-aware Python interpreter and call this script's main function
 
 # ? For regex comparisons
 $RE_VERSION = $([Regex]::Escape($Version))
@@ -139,7 +83,7 @@ function Get-Python {
     <#.SYNOPSIS
     Get Python interpreter, global in CI, or activated virtual environment locally.#>
     $GlobalPy = Get-GlobalPython
-    if ($Env:CI -and !$NoGlobalInCI) {
+    if ($Env:CI -and !$VenvInCI) {
         Write-Progress "USING GLOBAL PYTHON: $GlobalPy" -Done
         return $GlobalPy
     }
@@ -148,7 +92,9 @@ function Get-Python {
     Write-Progress "USING VIRTUAL ENVIRONMENT: $VenvPy" -Done
     $foundVersion = Invoke-Expression "$VenvPy --version"
     if ($foundVersion |
-            Select-String -Pattern "^Python $RE_VERSION\.\d+$") { return $VenvPy }
+            Select-String -Pattern "^Python $RE_VERSION\.\d+$") {
+        return $VenvPy
+    }
     Write-Progress "REMOVING VIRTUAL ENVIRONMENT: $Env:VIRTUAL_ENV" -Done
     Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
     return Get-Python
@@ -168,10 +114,10 @@ function Get-GlobalPython {
 function Start-PythonEnv {
     <#.SYNOPSIS
     Activate and get the Python interpreter for the virtual environment.#>
-    if ($IsWindows) { $bin = 'Scripts'; $python = 'python.exe' }
-    else { $bin = 'bin'; $python = 'python' }
+    if ($IsWindows) { $bin = 'Scripts'; $py = 'python.exe' }
+    else { $bin = 'bin'; $py = 'python' }
     Invoke-Expression "$VENV_PATH/$bin/Activate.ps1"
-    return "$Env:VIRTUAL_ENV/$bin/$python"
+    return "$Env:VIRTUAL_ENV/$bin/$py"
 }
 
 function Test-Command {
@@ -180,9 +126,4 @@ function Test-Command {
     return Get-Command @args -ErrorAction 'Ignore'
 }
 
-# * -------------------------------------------------------------------------------- * #
-# * CI-aware Python interpreter and invocation of the main function
-
-$PYTHON = Get-Python
-$SCRIPTS = Split-Path $PYTHON
 Sync-Python
