@@ -81,7 +81,7 @@ LOCKS = Path("locks.json")
 def sync(high: bool = False, compile: bool = False, lock: bool = False):  # noqa: A002
     """Synchronize the environment."""
     sep = " "
-    run(
+    result = run(
         args=split(
             sep.join([
                 f"{Path(executable).as_posix()} -m uv pip sync",
@@ -89,8 +89,13 @@ def sync(high: bool = False, compile: bool = False, lock: bool = False):  # noqa
                 (compile_deps(high) if compile else get_compiled_deps(high)).as_posix(),
             ])
         ),
-        check=True,
+        capture_output=True,
+        check=False,
+        text=True,
     )
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    log(result.stdout)
     if lock:
         lock_deps()
 
