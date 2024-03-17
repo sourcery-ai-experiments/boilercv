@@ -38,4 +38,4 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Recompile -Lock -NoSync -NoCopy ${{ matrix.venv_in_ci }}"
+        run: "scripts/Sync-Python.ps1 -Compile -Lock -NoCopy ${{ matrix.venv_in_ci }}"

@@ -45,7 +45,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Recompile"
+        run: "scripts/Sync-Python.ps1 -Compile"
       - run: "sphinx-build -EaT docs _site"
       - uses: "actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa" # v3.0.1
   deploy:

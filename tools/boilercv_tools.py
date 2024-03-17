@@ -10,7 +10,7 @@ from platform import platform
 from re import sub
 from shlex import join, split
 from subprocess import run
-from sys import executable, stdout, version_info
+from sys import base_prefix, executable, prefix, stdout, version_info
 from typing import TypeAlias
 
 from cyclopts import App
@@ -37,6 +37,7 @@ NODEPS = REQS / "nodeps.in"
 """Requirements that should be appended to locks without solving for dependencies."""
 
 # ! Platform
+GLOBAL_PYTHON = prefix == base_prefix
 PLATFORM = platform(terse=True)
 """Platform identifier."""
 match PLATFORM.casefold().split("-")[0]:
@@ -77,7 +78,24 @@ LOCKS = Path("locks.json")
 
 
 @APP.command()
-def lock() -> Path:
+def sync(high: bool = False, compile: bool = False, lock: bool = False):  # noqa: A002
+    """Synchronize the environment."""
+    sep = " "
+    run(
+        args=split(
+            sep.join([
+                f"{Path(executable).as_posix()} -m uv pip sync",
+                "--system --break-system-packages" if GLOBAL_PYTHON else "",
+                (compile_deps(high) if compile else get_compiled_deps(high)).as_posix(),
+            ])
+        ),
+        check=True,
+    )
+    if lock:
+        lock_deps()
+
+
+def lock_deps() -> Path:
     """Lock all local dependency compilations."""
     LOCKS.write_text(
         encoding="utf-8",
@@ -97,23 +115,21 @@ def lock() -> Path:
     return log(LOCKS)
 
 
-@APP.command()
-def compile(high: bool = False) -> Path:  # noqa: A001
+def get_compiled_deps(high: bool = False) -> Path:
     """Compile dependencies for a system.
 
     Args:
         high: Highest dependencies.
     """
     if LOCKS.exists():
-        comp = get_comp_path(high)
+        comp = get_compiled_deps_path(high)
         if existing_comp := json.loads(LOCKS.read_text("utf-8")).get(comp.stem):
             comp.write_text(encoding="utf-8", data=existing_comp)
             return comp
-    return recompile(high)
+    return compile_deps(high)
 
 
-@APP.command()
-def recompile(high: bool = False) -> Path:
+def compile_deps(high: bool = False) -> Path:
     """Recompile dependencies for a system.
 
     Args:
@@ -137,7 +153,7 @@ def recompile(high: bool = False) -> Path:
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    comp = get_comp_path(high)
+    comp = get_compiled_deps_path(high)
     comp.write_text(
         encoding="utf-8",
         data=(
@@ -155,16 +171,16 @@ def recompile(high: bool = False) -> Path:
     return log(comp)
 
 
-def get_comp_path(high: bool) -> Path:
+def get_compiled_deps_path(high: bool) -> Path:
     """Get a dependency compilation.
 
     Args:
         high: Highest dependencies.
     """
-    return COMPS / f"{get_comp_name(high)}.txt"
+    return COMPS / f"{get_compiled_deps_name(high)}.txt"
 
 
-def get_comp_name(high: bool) -> str:
+def get_compiled_deps_name(high: bool) -> str:
     """Get name of a dependency compilation.
 
     Args:

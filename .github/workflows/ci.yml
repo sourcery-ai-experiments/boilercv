@@ -43,7 +43,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -NoSync"
+        run: "scripts/Sync-Python.ps1"
       - run: "ruff --no-fix --output-format github ."
   fawltydeps:
     runs-on: "ubuntu-22.04"
@@ -55,7 +55,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -NoSync"
+        run: "scripts/Sync-Python.ps1"
       - run: "fawltydeps"
   pyright:
     runs-on: "ubuntu-22.04"
@@ -67,7 +67,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -NoSync"
+        run: "scripts/Sync-Python.ps1"
       - run: pyright
   test:
     strategy:
@@ -130,7 +130,7 @@ jobs:
           path: ".comps"
           merge-multiple: True
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -NoSync"
+        run: "scripts/Sync-Python.ps1"
       - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
           commit_message: "Lock"
@@ -167,7 +167,7 @@ jobs:
           merge-multiple: True
       - if: steps.changes.outputs.deps == 'true'
         shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Lock -NoSync"
+        run: "scripts/Sync-Python.ps1 -Lock"
       - if: steps.changes.outputs.deps == 'true'
         uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:

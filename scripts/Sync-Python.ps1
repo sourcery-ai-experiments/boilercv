@@ -6,11 +6,9 @@ Param(
     # Sync to highest dependencies
     [switch]$High,
     # Recompile dependencies
-    [switch]$Recompile,
+    [switch]$Compile,
     # Add all local dependency compilations to the lock.
     [switch]$Lock,
-    # Optionally skip syncing, if just recompiling or locking.
-    [switch]$NoSync,
     # Don't recopy the template.
     [switch]$NoCopy,
     # Use virtual environment even in CI.
@@ -50,21 +48,7 @@ function Sync-Python {
         $head = git rev-parse HEAD:submodules/template
         Invoke-Expression "$py -m copier update --defaults --vcs-ref $head"
     }
-    if ($Recompile) {
-        'RECOMPILING' | Write-Progress
-        Invoke-Expression "$py -m boilercv_tools recompile"
-        Invoke-Expression "$py -m boilercv_tools recompile --high"
-        'COMPILED' | Write-Progress -Done
-    }
-    if ($Recompile -or $Lock) {
-        'LOCKING' | Write-Progress
-        Invoke-Expression "$py -m boilercv_tools lock"
-    }
-    if (!$NoSync) {
-        'SYNCING' | Write-Progress
-        $compilation = Invoke-Expression "$py -m boilercv_tools compile $($High ? '--high' : '')"
-        Invoke-Expression "$py -m uv pip sync $System $compilation"
-    }
+    Invoke-Expression "$py -m boilercv_tools sync $($High ? '--high' : '') $($Compile ? '--compile' : '')  $($Lock ? '--lock' : '')"
     '...DONE ***' | Write-Progress -Done
 }
 
