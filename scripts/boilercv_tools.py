@@ -10,7 +10,7 @@ from platform import platform
 from re import sub
 from shlex import join, split
 from subprocess import run
-from sys import base_prefix, executable, prefix, stdout, version_info
+from sys import executable, stdout, version_info
 from typing import TypeAlias
 
 from cyclopts import App
@@ -39,7 +39,6 @@ NODEPS = REQS / "nodeps.in"
 """Requirements that should be appended to locks without solving for dependencies."""
 
 # ! Platform
-GLOBAL_PYTHON = prefix == base_prefix
 PLATFORM = platform(terse=True)
 """Platform identifier."""
 match PLATFORM.casefold().split("-")[0]:
