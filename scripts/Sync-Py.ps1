@@ -19,7 +19,6 @@ Param(
     [switch]$NoCopy,
     # Don't sync other items.
     [switch]$NoOtherSync
-
 )
 
 # ? Fail early
@@ -103,7 +102,6 @@ function Sync-Py {
     '...DONE ***' | Write-PyProgress -Done
 }
 
-
 function Get-Py {
     <#.SYNOPSIS
     Get Python interpreter, global in CI, or activated virtual environment locally.#>
@@ -169,7 +167,6 @@ function Start-PyEnv {
         return "$Env:VIRTUAL_ENV/$bin/$py"
     }
 }
-
 
 function Write-PyProgress {
     <#.SYNOPSIS
