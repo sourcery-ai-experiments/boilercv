@@ -60,8 +60,8 @@ function Sync-Python {
     $High = $High ? '--high' : ''
     if ($Compile) { $comp = Invoke-Expression "$py -m boilercv_tools compile $High" }
     else { $comp = Invoke-Expression "$py -m boilercv_tools get-comp $High" }
+    if ($Lock) { Invoke-Expression "$py -m boilercv_tools lock" }
     Invoke-Expression "$py -m uv pip sync $System $comp"
-    if ($Lock) { Invoke-Expression "$py -m boilercv_tools lock $High" }
     '...DONE ***' | Write-Progress -Done
 }
 

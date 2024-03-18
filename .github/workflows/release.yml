@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 High"
+        run: "scripts/Sync-Python.ps1"
       - run: "flit publish"
         env:
           FLIT_USERNAME: "__token__"

@@ -43,7 +43,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1"
+        run: "scripts/Sync-Python.ps1 -Compile"
       - run: "ruff --no-fix --output-format github ."
   fawltydeps:
     runs-on: "ubuntu-22.04"
@@ -55,7 +55,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1"
+        run: "scripts/Sync-Python.ps1 -Compile"
       - run: "fawltydeps"
   pyright:
     runs-on: "ubuntu-22.04"
@@ -67,7 +67,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1"
+        run: "scripts/Sync-Python.ps1 -Compile"
       - run: pyright
   test:
     strategy:
@@ -94,7 +94,7 @@ jobs:
         with:
           python-version: "${{ matrix.python_version }}"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Version '${{ matrix.python_version }}'"
+        run: "scripts/Sync-Python.ps1 -Compile -Version '${{ matrix.python_version }}'"
       # ! https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
       - run: "pytest --cov --cov-config pyproject.toml"
       - if: startsWith(matrix.github_actions_runner, 'ubuntu') && matrix.python_version == '3.11'
@@ -130,7 +130,7 @@ jobs:
           path: ".comps"
           merge-multiple: True
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1"
+        run: "scripts/Sync-Python.ps1 -Lock"
       - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
           commit_message: "Lock"
