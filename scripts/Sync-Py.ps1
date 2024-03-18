@@ -142,6 +142,7 @@ function Get-PyDevVersion {
     $re = Get-Content '.copier-answers.yml' | Select-String -Pattern $ver_pattern
     return $re.Matches.Groups[1].value
 }
+
 function Get-PyGlobal {
     <#.SYNOPSIS
     Get global Python interpreter.#>
