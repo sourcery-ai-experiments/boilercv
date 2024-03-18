@@ -8,6 +8,7 @@ on:
       - "scripts/Sync-Py.ps1"
       - "scripts/boilercv_tools.py"
       - "scripts/boilercv_tools/**"
+      - "scripts/pyproject.toml"
   push:
     branches: ["main"]
     paths:
