@@ -24,10 +24,6 @@ function Sync-Python {
     '*** SYNCING' | Write-Progress
     $py = Get-Python
 
-    'SYNCING SUBMODULES' | Write-Progress
-    git submodule update --init --merge
-    'SUBMODULES SYNCED' | Write-Progress -Done
-
     'INSTALLING UV' | Write-Progress
     Invoke-Expression "$py -m pip install $(Get-Content 'requirements/uv.in')"
 
@@ -36,6 +32,10 @@ function Sync-Python {
     Invoke-Expression "$py -m uv pip install $System --editable tools/."
 
     if (!$Env:CI) {
+        'SYNCING SUBMODULES' | Write-Progress
+        git submodule update --init --merge
+        'SUBMODULES SYNCED' | Write-Progress -Done
+
         'SYNCING LOCAL DEV CONFIGS' | Write-Progress
         Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
