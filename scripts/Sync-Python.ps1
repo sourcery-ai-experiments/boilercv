@@ -40,14 +40,14 @@ function Sync-Python {
         Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
 
-        'INSTALLING ANY MISSING PRE-COMMIT HOOKS' | Write-Progress
         $hooks = 'pre-commit', 'pre-push', 'commit-msg', 'post-checkout', 'pre-merge-commit'
         $missing = ($hooks | ForEach-Object -Process { Test-Path .git/hooks/$_ }) -Contains $false
         if ($missing) {
+            'INSTALLING MISSING PRE-COMMIT HOOKS' | Write-Progress
             $hooks = $hooks | ForEach-Object -Process { "--hook-type $_" }
             Invoke-Expression "$(Split-Path $py)/pre-commit install --install-hooks $hooks"
+            'MISSING HOOKS INSTALLED' | Write-Progress -Done
         }
-        'ANY MISSING HOOKS INSTALLED' | Write-Progress -Done
     }
 
     if ($Env:CI -and !$NoCopy) {
@@ -58,9 +58,12 @@ function Sync-Python {
 
     'SYNCING DEPENDENCIES' | Write-Progress
     $High = $High ? '--high' : ''
+    # Recompile or retrieve compiled dependencies
     if ($Compile) { $comp = Invoke-Expression "$py -m boilercv_tools compile $High" }
     else { $comp = Invoke-Expression "$py -m boilercv_tools get-comp $High" }
+    # Lock
     if ($Lock) { Invoke-Expression "$py -m boilercv_tools lock" }
+    # Sync
     Invoke-Expression "$py -m uv pip sync $System $comp"
     '...DONE ***' | Write-Progress -Done
 }
