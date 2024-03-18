@@ -13,6 +13,8 @@ tests/plots
 # * -------------------------------------------------------------------------------- * #
 # * Template gitignore
 
+# Ignore `.ruff-cache` just in case, and to grey it out in the sidebar
+.ruff_cache
 # To allow for local variation in type checking without overriding CI
 pyrightconfig.json
 # To allow for local variation in test configuration without overriding CI
