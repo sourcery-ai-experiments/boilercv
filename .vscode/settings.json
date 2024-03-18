@@ -25,7 +25,7 @@
     //? Type stubs clutter quick-open
     "submodules/typings": true,
     //? Locks clutter searches
-    "tools/locks.json": true
+    "tools/lock.json": true
   },
   //! File nesting
   "explorer.sortOrder": "foldersNestsFiles",

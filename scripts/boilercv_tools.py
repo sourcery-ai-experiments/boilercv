@@ -75,7 +75,7 @@ VERSION = _python_version
 COMPS = Path(".comps")
 """Platform-specific dependency compilations."""
 COMPS.mkdir(exist_ok=True, parents=True)
-LOCKS = Path("locks.json")
+LOCK = Path("lock.json")
 """Locked set of dependency compilations for different runner/Python combinations."""
 
 
@@ -86,9 +86,9 @@ def get_comp(high: bool = False) -> Path:
     Args:
         high: Highest dependencies.
     """
-    if LOCKS.exists():
+    if LOCK.exists():
         comp = get_comp_path(high)
-        if existing_comp := json.loads(LOCKS.read_text("utf-8")).get(comp.stem):
+        if existing_comp := json.loads(LOCK.read_text("utf-8")).get(comp.stem):
             comp.write_text(encoding="utf-8", data=existing_comp)
             return comp
     return compile(high)
@@ -140,13 +140,13 @@ def compile(high: bool = False) -> Path:  # noqa: A001
 @APP.command()
 def lock() -> Path:
     """Lock all local dependency compilations."""
-    LOCKS.write_text(
+    LOCK.write_text(
         encoding="utf-8",
         data=json.dumps(
             indent=2,
             sort_keys=True,
             obj={
-                **(json.loads(LOCKS.read_text("utf-8")) if LOCKS.exists() else {}),
+                **(json.loads(LOCK.read_text("utf-8")) if LOCK.exists() else {}),
                 **{
                     comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
                     for comp in COMPS.iterdir()
@@ -155,7 +155,7 @@ def lock() -> Path:
         )
         + "\n",
     )
-    return log(LOCKS)
+    return log(LOCK)
 
 
 def get_comp_path(high: bool) -> Path:
