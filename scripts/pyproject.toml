@@ -6,4 +6,4 @@ build-backend = "flit_core.buildapi"
 name = "boilercv_tools"
 version = "0.0.0"
 description = "Tools."
-dependencies = ["cyclopts==2.4.2"]
+dependencies = ["copier==9.1.1", "cyclopts==2.4.2"]
