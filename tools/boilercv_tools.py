@@ -78,63 +78,22 @@ LOCKS = Path("locks.json")
 
 
 @APP.command()
-def sync(high: bool = False, compile: bool = False, lock: bool = False):  # noqa: A002
-    """Synchronize the environment."""
-    sep = " "
-    result = run(
-        args=split(
-            sep.join([
-                f"{Path(executable).as_posix()} -m uv pip sync",
-                "--system --break-system-packages" if GLOBAL_PYTHON else "",
-                (compile_deps(high) if compile else get_compiled_deps(high)).as_posix(),
-            ])
-        ),
-        capture_output=True,
-        check=False,
-        text=True,
-    )
-    if result.returncode:
-        raise RuntimeError(result.stderr)
-    log(result.stdout)
-    if lock:
-        lock_deps()
-
-
-def lock_deps() -> Path:
-    """Lock all local dependency compilations."""
-    LOCKS.write_text(
-        encoding="utf-8",
-        data=json.dumps(
-            indent=2,
-            sort_keys=True,
-            obj={
-                **(json.loads(LOCKS.read_text("utf-8")) if LOCKS.exists() else {}),
-                **{
-                    comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
-                    for comp in COMPS.iterdir()
-                },
-            },
-        )
-        + "\n",
-    )
-    return log(LOCKS)
-
-
-def get_compiled_deps(high: bool = False) -> Path:
+def get_comp(high: bool = False) -> Path:
     """Compile dependencies for a system.
 
     Args:
         high: Highest dependencies.
     """
     if LOCKS.exists():
-        comp = get_compiled_deps_path(high)
+        comp = get_comp_path(high)
         if existing_comp := json.loads(LOCKS.read_text("utf-8")).get(comp.stem):
             comp.write_text(encoding="utf-8", data=existing_comp)
             return comp
-    return compile_deps(high)
+    return compile(high)
 
 
-def compile_deps(high: bool = False) -> Path:
+@APP.command()
+def compile(high: bool = False) -> Path:  # noqa: A001
     """Recompile dependencies for a system.
 
     Args:
@@ -158,7 +117,7 @@ def compile_deps(high: bool = False) -> Path:
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    comp = get_compiled_deps_path(high)
+    comp = get_comp_path(high)
     comp.write_text(
         encoding="utf-8",
         data=(
@@ -176,16 +135,37 @@ def compile_deps(high: bool = False) -> Path:
     return log(comp)
 
 
-def get_compiled_deps_path(high: bool) -> Path:
+@APP.command()
+def lock() -> Path:
+    """Lock all local dependency compilations."""
+    LOCKS.write_text(
+        encoding="utf-8",
+        data=json.dumps(
+            indent=2,
+            sort_keys=True,
+            obj={
+                **(json.loads(LOCKS.read_text("utf-8")) if LOCKS.exists() else {}),
+                **{
+                    comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
+                    for comp in COMPS.iterdir()
+                },
+            },
+        )
+        + "\n",
+    )
+    return log(LOCKS)
+
+
+def get_comp_path(high: bool) -> Path:
     """Get a dependency compilation.
 
     Args:
         high: Highest dependencies.
     """
-    return COMPS / f"{get_compiled_deps_name(high)}.txt"
+    return COMPS / f"{get_comp_name(high)}.txt"
 
 
-def get_compiled_deps_name(high: bool) -> str:
+def get_comp_name(high: bool) -> str:
     """Get name of a dependency compilation.
 
     Args:

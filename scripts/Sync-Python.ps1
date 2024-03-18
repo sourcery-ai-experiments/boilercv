@@ -20,20 +20,26 @@ Param(
 function Sync-Python {
     <#.SYNOPSIS
     Sync Python dependencies.#>
-    $py = Get-Python
+
     '*** SYNCING' | Write-Progress
+    $py = Get-Python
+
     'SYNCING SUBMODULES' | Write-Progress
     git submodule update --init --merge
     'SUBMODULES SYNCED' | Write-Progress -Done
+
     'INSTALLING UV' | Write-Progress
     Invoke-Expression "$py -m pip install $(Get-Content 'requirements/uv.in')"
+
     'INSTALLING TOOLS' | Write-Progress
     $System = $Env:CI ? '--system --break-system-packages' : ''
     Invoke-Expression "$py -m uv pip install $System --editable tools/."
+
     if (!$Env:CI) {
         'SYNCING LOCAL DEV CONFIGS' | Write-Progress
         Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
+
         'INSTALLING ANY MISSING PRE-COMMIT HOOKS' | Write-Progress
         $hooks = 'pre-commit', 'pre-push', 'commit-msg', 'post-checkout', 'pre-merge-commit'
         $missing = ($hooks | ForEach-Object -Process { Test-Path .git/hooks/$_ }) -Contains $false
@@ -43,12 +49,19 @@ function Sync-Python {
         }
         'ANY MISSING HOOKS INSTALLED' | Write-Progress -Done
     }
+
     if ($Env:CI -and !$NoCopy) {
         'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
         $head = git rev-parse HEAD:submodules/template
         Invoke-Expression "$py -m copier update --defaults --vcs-ref $head"
     }
-    Invoke-Expression "$py -m boilercv_tools sync $($High ? '--high' : '') $($Compile ? '--compile' : '')  $($Lock ? '--lock' : '')"
+
+    'SYNCING DEPENDENCIES' | Write-Progress
+    $High = $High ? '--high' : ''
+    if ($Compile) { $comp = Invoke-Expression "$py -m boilercv_tools compile $High" }
+    else { $comp = Invoke-Expression "$py -m boilercv_tools get-comp $High" }
+    Invoke-Expression "$py -m uv pip sync $System $comp"
+    if ($Lock) { Invoke-Expression "$py -m boilercv_tools lock $High" }
     '...DONE ***' | Write-Progress -Done
 }
 
