@@ -31,9 +31,10 @@ repos:
           (?x)^(
             .*/pyproject\.toml
             |docs/.*\.ipynb
-            |src/boilercv/models/.*
             |params\.yaml
-            |\tools/.*
+            |requirements/.*
+            |scripts/.*
+            |src/boilercv/models/.*
           )$
       - id: "pytest-fast-only"
         name: "pytest-fast-only"
@@ -44,8 +45,9 @@ repos:
         files: |
           (?x)^(
             .*/pyproject\.toml
-            |\tools/.*
             |docs/.*
+            |requirements/.*
+            |scripts/.*
             |src/.*
             |tests/.*
           )$
