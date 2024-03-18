@@ -8,18 +8,18 @@ jobs:
   test:
     strategy:
       matrix:
-        github_actions_runner:
+        runner:
           - "macos-13"
           # - "macos-14" # ? PyTables doesn't support macos-14
           - "ubuntu-22.04"
           - "windows-2022"
-        python_version:
+        python:
           # - "3.10" # ? Using some 3.11 features (e.g. datetime.UTC)
           - "3.11"
           # - "3.12" # ? No support in my commit-pinned fork of cachier
-    runs-on: "${{ matrix.github_actions_runner }}"
+    runs-on: "${{ matrix.runner }}"
     steps:
-      - if: ${{startsWith(matrix.github_actions_runner, 'ubuntu')}}
+      - if: ${{startsWith(matrix.runner, 'ubuntu')}}
         # ! https://askubuntu.com/questions/900285/libegl-so-1-is-not-a-symbolic-link
         name: "Install PySide6 system dependencies"
         run: "sudo apt update && sudo apt install libegl1"
@@ -28,7 +28,7 @@ jobs:
           submodules: True
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
-          python-version: "${{ matrix.python_version }}"
+          python-version: "${{ matrix.python }}"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -High -Version '${{ matrix.python_version }}'"
+        run: "scripts/Sync-Py.ps1 -High -Version '${{ matrix.python }}'"
       - run: "pytest"

@@ -1,5 +1,17 @@
--e .
--e submodules/boilercore
--e tools/.
--e docs/.
--e tests/.
+--editable .
+--editable docs/
+--editable scripts/
+--editable tests/
+--editable submodules/boilercore
+debugpy==1.8.1
+fawltydeps==0.15.0
+flit==3.9.0
+keyring==24.3.1
+nb-clean==3.2.0
+packaging==24.0
+pandas-stubs~=2.2.0
+pre-commit==3.6.2
+pyright==1.1.354
+ruff==0.3.3
+snakeviz==2.2.0
+sourcery-cli==1.15.0

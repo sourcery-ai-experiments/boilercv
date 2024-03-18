@@ -1,6 +1,5 @@
 <#.SYNOPSIS
-Update the project from the project template.
-#>
+Update the project from the project template.#>
 
 Param(
     # Whether to recopy the template, ignoring prior diffs, or update in a smart manner.

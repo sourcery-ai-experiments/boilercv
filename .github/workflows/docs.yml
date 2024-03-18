@@ -14,11 +14,11 @@ on:
       - ".github/workflows/docs.yml"
       - "**/pyproject.toml"
       - "requirements/**"
-      - "scripts/Sync-Python.ps1"
+      - "scripts/Sync-Py.ps1"
       - "src/**"
       - "docs/**"
-      - "tools/boilercv_tools.py"
-      - "tools/boilercv_tools/**"
+      - "scripts/boilercv_tools.py"
+      - "scripts/boilercv_tools/**"
       - "submodules/**"
       - "params.yaml"
   push:
@@ -27,11 +27,11 @@ on:
       - ".github/workflows/docs.yml"
       - "**/pyproject.toml"
       - "requirements/**"
-      - "scripts/Sync-Python.ps1"
+      - "scripts/Sync-Py.ps1"
       - "src/**"
       - "docs/**"
-      - "tools/boilercv_tools.py"
-      - "tools/boilercv_tools/**"
+      - "scripts/boilercv_tools.py"
+      - "scripts/boilercv_tools/**"
       - "submodules/**"
       - "params.yaml"
 jobs:
@@ -45,7 +45,7 @@ jobs:
         with:
           python-version: "3.11"
       - shell: "pwsh"
-        run: "scripts/Sync-Python.ps1 -Compile"
+        run: "scripts/Sync-Py.ps1 -Compile"
       - run: "sphinx-build -EaT docs _site"
       - uses: "actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa" # v3.0.1
   deploy:

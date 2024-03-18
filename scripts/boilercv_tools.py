@@ -33,6 +33,8 @@ UV = REQS / "uv.in"
 """Requirements file containing the `uv` version pin for bootstrapping installs."""
 DEV = REQS / "dev.in"
 """Other development requirements including editable local package installs."""
+DVC = REQS / "dvc.in"
+"""Separate DVC requirement due to occasional VSCode extension sync conflict."""
 NODEPS = REQS / "nodeps.in"
 """Requirements that should be appended to locks without solving for dependencies."""
 
@@ -108,7 +110,7 @@ def compile(high: bool = False) -> Path:  # noqa: A001
                 f"--resolution {'highest' if high else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
                 "--all-extras",
-                sep.join([p.as_posix() for p in [PYPROJECT, DEV, UV]]),
+                sep.join([p.as_posix() for p in [PYPROJECT, DEV, DVC, UV]]),
             ])
         ),
         capture_output=True,

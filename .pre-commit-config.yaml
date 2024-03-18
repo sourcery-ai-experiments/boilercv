@@ -1,15 +1,16 @@
 ci:
   skip:
-    - "sync-python"
-    - "sync-local-dev-configs"
-    - "synchronize-params"
-    - "hide-docs-nb-inputs"
+    - "sync"
     - "pytest-fast-only"
     - "dvc-post-checkout"
     - "dvc-pre-push"
     - "check-undeclared"
     - "check-unused"
   autoupdate_schedule: "quarterly"
+default_install_hook_types:
+  - pre-commit
+  - post-checkout # sync-python, dvc-post-checkout
+  - pre-push # dvc-pre-push
 repos:
   - repo: "meta"
     hooks:
@@ -18,47 +19,21 @@ repos:
       - id: "check-useless-excludes"
   - repo: "local"
     hooks:
-      - id: "sync-python"
-        name: "sync-python"
+      - id: "sync"
+        name: "sync"
+        stages:
+          - "pre-commit"
+          - "post-checkout"
         pass_filenames: false
         language: "system"
-        entry: "pwsh scripts/Sync-Python.ps1"
+        entry: "pwsh scripts/Sync-Py.ps1 -NoInstallHooks"
         files: |
           (?x)^(
             .*/pyproject\.toml
+            |docs/.*\.ipynb
+            |src/boilercv/models/.*
+            |params\.yaml
             |\tools/.*
-          )$
-      - id: "sync-local-dev-configs"
-        name: "sync-local-dev-configs"
-        pass_filenames: false
-        language: "system"
-        entry: "pwsh -Command python -m boilercv_tools sync-local-dev-configs"
-        files: |
-          (?x)^(
-            .*/pyproject\.toml
-            |\tools/.*
-            |docs/.*
-            |src/.*
-            |tests/.*
-          )$
-      - id: "synchronize-params"
-        name: "synchronize-params"
-        pass_filenames: false
-        language: "system"
-        entry: "pwsh -Command python -m boilercv.models.params"
-        files: |
-          (?x)^(
-            src/boilercv/models/.*
-            |params.yaml
-          )$
-      - id: "hide-docs-nb-inputs"
-        name: "hide-docs-nb-inputs"
-        pass_filenames: false
-        language: "system"
-        entry: "pwsh -Command python -m boilercv.docs"
-        files: |
-          (?x)^(
-            docs/.*\.ipynb
           )$
       - id: "pytest-fast-only"
         name: "pytest-fast-only"

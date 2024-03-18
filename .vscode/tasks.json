@@ -62,14 +62,6 @@
       "problemMatcher": []
     },
     {
-      "label": "proj: local dev configs (Pyrightconfig, pytest.ini)",
-      "type": "shell",
-      "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "python -m boilercv_tools sync-local-dev-configs",
-      "icon": { "id": "graph" },
-      "problemMatcher": []
-    },
-    {
       "label": "proj: hide notebook inputs",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
@@ -238,7 +230,7 @@
       "label": "setup: Setup or sync virtual environment",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh" } },
-      "command": "scripts/Sync-Python.ps1",
+      "command": "scripts/Sync-Py.ps1",
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": [],
       "runOptions": { "runOn": "folderOpen" }

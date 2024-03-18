@@ -15,7 +15,8 @@ dependencies = [
     "boilercore>=0.0.1",
     "cmasher>=1.7.2",
     "colorcet>=3.0.1",
-    "dvc>=3.10.1",
+    #? https://github.com/iterative/vscode-dvc/blob/1.2.11/extension/src/cli/dvc/contract.ts#L3
+    "dvc>=3.33.3",
     "imageio[pyav]>=2.31.1",
     "ipykernel>=6.29.0",
     "loguru>=0.7.0",
