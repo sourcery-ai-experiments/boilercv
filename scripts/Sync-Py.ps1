@@ -20,8 +20,8 @@ Param(
 # ? Allow disabling CI when in CI, in order to test local dev workflows
 $Env:CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
 # ? Don't pre-sync or post-sync in CI
-$NoPreSync = $NoPreSync ? $NoPreSync : $Env:CI
-$NoPostSync = $NoPostSync ? $NoPostSync : $Env:CI
+$NoPreSync = $NoPreSync ? $NoPreSync : [bool]$Env:CI
+$NoPostSync = $NoPostSync ? $NoPostSync : [bool]$Env:CI
 # ? Core dependencies needed for syncing
 $PRE_SYNC_DEPENDENCIES = 'requirements/sync.in'
 
@@ -31,16 +31,18 @@ function Sync-Py {
 
     '***SYNCING' | Write-PyProgress
     $py = $Env:CI ? (Get-PySystem $Version) : (Get-Py $Version)
+    # ? Python scripts for utilities not invoked with e.g. `python -m` (e.g. pre-commit)
+    $scripts = $(Split-Path $py)
     # ? Install directly to system if in CI, breaking system packages if needed
-    $uvPip = "$py -m uv pip"
+    $uv = "$scripts/uv"
+    $uvPip = "$uv pip"
     $System = $Env:CI ? '--system --break-system-packages' : ''
     $install = "$uvPip install $System"
     $sync = "$uvPip sync $System"
-    # ? Python scripts for utilities not invoked with e.g. `python -m` (e.g. pre-commit)
-    $scripts = $(Split-Path $py)
 
     'INSTALLING DEPENDENCIES FOR SYNCING' | Write-PyProgress
-    Invoke-Expression "$py -m pip install $(Get-Content $PRE_SYNC_DEPENDENCIES)"
+    $first_install = (Test-Command $uv) ? $install : "$py -m pip install"
+    Invoke-Expression "$first_install --requirement $PRE_SYNC_DEPENDENCIES"
 
     'INSTALLING TOOLS' | Write-PyProgress
     # ? Install the `boilercv_tools` Python module
@@ -54,9 +56,9 @@ function Sync-Py {
         'SUBMODULES SYNCED' | Write-PyProgress -Done
 
         if ($Env:CI) {
-        'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
-        $head = git rev-parse HEAD:submodules/template
-        Invoke-Expression "$py -m copier update --defaults --vcs-ref $head"
+            'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
+            $head = git rev-parse HEAD:submodules/template
+            Invoke-Expression "$py -m copier update --defaults --vcs-ref $head"
         }
 
         'PRE-SYNC DONE' | Write-PyProgress -Done
