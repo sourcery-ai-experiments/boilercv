@@ -30,6 +30,7 @@ function Sync-Py {
     Sync Python dependencies.#>
 
     '***SYNCING' | Write-PyProgress
+    $Version = $Version ? $Version : (Get-PyDevVersion)
     $py = $Env:CI ? (Get-PySystem $Version) : (Get-Py $Version)
     # ? Python scripts for utilities not invoked with e.g. `python -m` (e.g. pre-commit)
     $scripts = $(Split-Path $py)
@@ -114,18 +115,6 @@ function Get-PyDevVersion {
     return $re.Matches.Groups[1].value
 }
 
-function Write-PyProgress {
-    <#.SYNOPSIS
-    Write progress and completion messages.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Message,
-        [switch]$Done)
-    begin { $Color = $Done ? 'Green' : 'Yellow' }
-    process {
-        if (!$Done) { Write-Host }
-        Write-Host "$Message$($Done ? '' : '...')" -ForegroundColor $Color
-    }
-}
-
 function Test-FileLock {
     <#.SYNOPSIS
     Test whether a file handle is locked.#>
@@ -149,11 +138,10 @@ function Test-FileLock {
 
 function Get-Py {
     <#.SYNOPSIS
-    Get Python interpreter, global in CI, or activated virtual environment locally.#>
-    Param([Parameter(ValueFromPipeline)][string]$Version)
+    Get virtual environment Python interpreter, creating it if necessary.#>
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
     begin { $venvPath = '.venv' }
     process {
-        $Version = $Version ? $Version : (Get-PyDevVersion)
         $SysPy = Get-PySystem $Version
         if (!(Test-Path $venvPath)) {
             "CREATING VIRTUAL ENVIRONMENT: $venvPath" | Write-PyProgress
@@ -205,6 +193,18 @@ function Test-Command {
     <#.SYNOPSIS
     Like `Get-Command` but errors are ignored.#>
     return Get-Command @args -ErrorAction 'Ignore'
+}
+
+function Write-PyProgress {
+    <#.SYNOPSIS
+    Write progress and completion messages.#>
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Message,
+        [switch]$Done)
+    begin { $Color = $Done ? 'Green' : 'Yellow' }
+    process {
+        if (!$Done) { Write-Host }
+        Write-Host "$Message$($Done ? '' : '...')" -ForegroundColor $Color
+    }
 }
 
 Sync-Py
