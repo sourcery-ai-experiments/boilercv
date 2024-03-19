@@ -51,27 +51,27 @@ function Sync-Py {
 
     if (!$NoPreSync) {
         'RUNNING PRE-SYNC TASKS' | Write-PyProgress
-
         'SYNCING SUBMODULES' | Write-PyProgress
         git submodule update --init --merge
         'SUBMODULES SYNCED' | Write-PyProgress -Done
-
         if ($Env:CI) {
             'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
             $head = git rev-parse HEAD:submodules/template
             Invoke-Expression "$py -m copier update --defaults --vcs-ref $head"
         }
-
         'PRE-SYNC DONE' | Write-PyProgress -Done
     }
 
     'SYNCING DEPENDENCIES' | Write-PyProgress
     $High = $High ? '--high' : ''
+
     # ? Compile or retrieve compiled dependencies
     if ($Compile) { $comp = Invoke-Expression "$py -m boilercv_tools compile $High" }
     else { $comp = Invoke-Expression "$py -m boilercv_tools get-comp $High" }
+
     # ? Lock
     if ($Lock) { Invoke-Expression "$py -m boilercv_tools lock" }
+
     # ? Sync
     if (!$NoPreSync -and (Test-FileLock "$scripts/dvc$($IsWindows ? '.exe': '')")) {
         'The DVC VSCode extension is locking `dvc.exe`. INSTALLING INSTEAD OF SYNCING' |
@@ -89,14 +89,11 @@ function Sync-Py {
 
     if (!$NoPostSync) {
         'RUNNING POST-SYNC TASKS' | Write-PyProgress
-
         'SYNCING LOCAL DEV CONFIGS' | Write-PyProgress
         Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-PyProgress -Done
-
         'INSTALLING MISSING PRE-COMMIT HOOKS' | Write-PyProgress
         Invoke-Expression "$scripts/pre-commit install"
-
         'POST-SYNC TASKS COMPLETE' | Write-PyProgress -Done
     }
 
