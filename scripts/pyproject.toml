@@ -6,4 +6,8 @@ build-backend = "flit_core.buildapi"
 name = "boilercv_tools"
 version = "0.0.0"
 description = "Tools."
-dependencies = ["copier==9.1.1", "cyclopts==2.4.2", "pre-commit==3.6.2"]
+dependencies = ["cyclopts==2.4.2"]
+
+[tool.fawltydeps]
+deps = ["pyproject.toml"]
+code = ["."]

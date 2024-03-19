@@ -1,4 +1,4 @@
-"""Tools."""
+"""CLI for tools."""
 
 import json
 import tomllib
@@ -29,14 +29,14 @@ PYPROJECT = Path("pyproject.toml")
 """Path to `pyproject.toml`."""
 REQS = Path("requirements")
 """Requirements."""
-UV = REQS / "uv.in"
-"""Requirements file containing the `uv` version pin for bootstrapping installs."""
+SYNC = REQS / "sync.in"
+"""Core dependencies for syncing."""
 DEV = REQS / "dev.in"
-"""Other development requirements including editable local package installs."""
+"""Other development tools and editable local dependencies."""
 DVC = REQS / "dvc.in"
-"""Separate DVC requirement due to occasional VSCode extension sync conflict."""
+"""Separate DVC dependency due to occasional VSCode extension sync conflict."""
 NODEPS = REQS / "nodeps.in"
-"""Requirements that should be appended to locks without solving for dependencies."""
+"""Dependencies appended to locks without compiling their dependencies."""
 
 # ! Platform
 PLATFORM = platform(terse=True)
@@ -109,7 +109,7 @@ def compile(high: bool = False) -> Path:  # noqa: A001
                 f"--resolution {'highest' if high else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
                 "--all-extras",
-                sep.join([p.as_posix() for p in [PYPROJECT, DEV, DVC, UV]]),
+                sep.join([p.as_posix() for p in [PYPROJECT, DEV, DVC, SYNC]]),
             ])
         ),
         capture_output=True,

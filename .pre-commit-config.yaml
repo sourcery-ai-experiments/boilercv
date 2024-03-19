@@ -66,15 +66,30 @@ repos:
   - repo: "https://github.com/tweag/FawltyDeps"
     rev: "v0.15.0"
     hooks:
-      - id: "check-undeclared"
-        files: |
-          (?x)^(
-            src/.*
-          )$
       - id: "check-unused"
         files: |
           (?x)^(
             pyproject\.toml
+          )$
+      - id: "check-undeclared"
+        name: "check-undeclared-src"
+        files: |
+          (?x)^(
+            src/.*
+          )$
+      - id: "check-undeclared"
+        name: "check-undeclared-docs"
+        args: ["--config-file", "docs/pyproject.toml", "--code"]
+        files: |
+          (?x)^(
+            docs/.*
+          )$
+      - id: "check-undeclared"
+        name: "check-undeclared-tests"
+        args: ["--config-file", "tests/pyproject.toml", "--code"]
+        files: |
+          (?x)^(
+            tests/.*
           )$
   - repo: "https://github.com/DavidAnson/markdownlint-cli2"
     rev: "v0.12.1"

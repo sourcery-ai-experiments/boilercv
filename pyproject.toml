@@ -41,17 +41,17 @@ dependencies = [
     "tqdm>=4.66.1",
     "xarray[accel,io,parallel]>=2023.7.0",
 ]
-[[project.authors]]
-name = "Blake Naccarato"
-email = "blake.naccarato@gmail.com"
+[project.optional-dependencies]
+# * Minimal CV flavor needed, but allow `boilercv` to coexist with different flavors
+cv = ["opencv-python-headless>=4.9.0.80"]
 [project.urls]
 Changes = "https://blakeNaccarato.github.io/boilercv/changelog.html"
 Docs = "https://blakeNaccarato.github.io/boilercv"
 Home = "https://github.com/blakeNaccarato/boilercv"
 Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
-[project.optional-dependencies]
-# * Minimal CV flavor needed, but allow `boilercv` to coexist with different flavors
-cv = ["opencv-python-headless>=4.9.0.80"]
+[[project.authors]]
+name = "Blake Naccarato"
+email = "blake.naccarato@gmail.com"
 
 [tool.fawltydeps]
 deps = ["pyproject.toml"]

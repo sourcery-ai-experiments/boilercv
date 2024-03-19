@@ -16,3 +16,9 @@ dependencies = [
     "pytest-xdist[psutil,setproctitle]==3.5.0",
     "pytest==8.0.0",
 ]
+
+[tool.fawltydeps]
+actions = ["check_undeclared"]
+deps = ["tests/pyproject.toml", "pyproject.toml"]
+code = ["tests/boilercv_tests"]
+ignore_undeclared = ["boilercore", "boilercv"]
