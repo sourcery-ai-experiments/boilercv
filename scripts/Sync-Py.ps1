@@ -57,8 +57,9 @@ function Sync-Py {
     $install = "$uvPip install $System"
     $sync = "$uvPip sync $System"
 
-    'INSTALLING DEPENDENCIES FOR SYNCING' | Write-PyProgress
-    Invoke-Expression "$pip install --requirement $PRE_SYNC_DEPENDENCIES"
+    'INSTALLING SYNC DEPENDENCIES' | Write-PyProgress
+    Invoke-Expression "$pip install --quiet --requirement $PRE_SYNC_DEPENDENCIES"
+    'SYNC DEPENDENCIES INSTALLED' | Write-PyProgress -Done
 
     'INSTALLING TOOLS' | Write-PyProgress
     # ? Install the `boilercv_tools` Python module
