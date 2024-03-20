@@ -58,12 +58,12 @@ function Sync-Py {
     $sync = "$uvPip sync $System"
 
     'INSTALLING DEPENDENCIES FOR SYNCING' | Write-PyProgress
-    $first_install = (Test-Command $uv) ? $install : "$pip install"
+    $first_install = (Test-Command $uv) ? "$install --no-cache" : "$pip install"
     Invoke-Expression "$first_install --requirement $PRE_SYNC_DEPENDENCIES"
 
     'INSTALLING TOOLS' | Write-PyProgress
     # ? Install the `boilercv_tools` Python module
-    Invoke-Expression "$install --editable scripts/."
+    Invoke-Expression "$install --no-cache --editable scripts/."
 
     if (!$NoPreSync) {
         'RUNNING PRE-SYNC TASKS' | Write-PyProgress
