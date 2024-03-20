@@ -178,11 +178,13 @@ function Get-PySystem {
     Get system Python interpreter.#>
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
     process {
-        if ((Test-Command ($py = 'py')) -and (py '--list' | Select-String -Pattern "^\s?-V:$([Regex]::Escape($Version))")) { }
+        if ((Test-Command 'py') -and (py '--list' | Select-String -Pattern "^\s?-V:$([Regex]::Escape($Version))")) {
+            $py = "py -$Version"
+        }
         elseif (Test-Command ($py = "python$Version")) { }
         elseif (Test-Command ($py = 'python')) { }
         else { throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again." }
-        return Invoke-Expression "$py -$Version -c 'from sys import executable; print(executable)'"
+        return Invoke-Expression "$py -c 'from sys import executable; print(executable)'"
     }
 }
 
