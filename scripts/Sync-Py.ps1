@@ -112,6 +112,8 @@ function Sync-Py {
         Invoke-Expression "$pyScripts/pre-commit install"
         'SYNCING BOILERCV PARAMS' | Write-PyProgress
         Invoke-Expression "$pyModules boilercv.models.params"
+        'GITHUB ACTIONS WORKFLOWS IN USE IN THIS REPO:' | Write-PyProgress
+        Invoke-Expression "$tools get-actions"
         'POST-SYNC TASKS COMPLETE' | Write-PyProgress -Done
     }
 
