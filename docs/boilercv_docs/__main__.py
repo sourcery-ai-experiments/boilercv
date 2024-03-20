@@ -36,7 +36,7 @@ def main():
         nb.cells[i][SRC] = patch(
             first_code_cell.get(SRC, ""),
             """
-            from boilercv.docs.nbs import init
+            from boilercv_docs.nbs import init
 
             paths = init()
             """,

@@ -16,9 +16,17 @@ from typing import TypeAlias
 from cyclopts import App
 
 APP = App()
-"""Cyclopts CLI."""
+"""CLI."""
+
+
+def main():
+    """Invoke the CLI."""
+    APP()
+
 
 # ! For local dev config tooling
+
+
 PYRIGHTCONFIG = Path("pyrightconfig.json")
 """Resulting pyright configuration file."""
 PYTEST = Path("pytest.ini")
@@ -253,4 +261,4 @@ def disable_concurrent_tests(addopts: str) -> str:
 
 
 if __name__ == "__main__":
-    APP()
+    main()

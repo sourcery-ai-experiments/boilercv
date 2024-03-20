@@ -21,4 +21,6 @@ dependencies = [
 actions = ["check_undeclared"]
 deps = ["tests/pyproject.toml", "pyproject.toml"]
 code = ["tests/boilercv_tests"]
-ignore_undeclared = ["boilercore", "boilercv"]
+ignore_undeclared = ["boilercv"]
+[tool.fawltydeps.custom_mapping]
+boilercore = ["boilercore"]

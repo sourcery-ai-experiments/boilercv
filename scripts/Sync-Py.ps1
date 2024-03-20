@@ -30,19 +30,25 @@ function Sync-Py {
     Sync Python dependencies.#>
 
     '***SYNCING' | Write-PyProgress
+
     $Version = $Version ? $Version : (Get-PyDevVersion)
     $py = $Env:CI ? (Get-PySystem $Version) : (Get-Py $Version)
-    # ? Python scripts for utilities not invoked with e.g. `python -m` (e.g. pre-commit)
-    $scripts = $(Split-Path $py)
-    # ? Install directly to system if in CI, breaking system packages if needed
+
+    # ? Python environment scripts
+    $scripts = Get-PyScripts $py
+    $pip = "$scripts/pip"
     $uv = "$scripts/uv"
+    $tools = "$scripts/boilercv_tools"
+    $dvc = "$scripts/dvc"
     $uvPip = "$uv pip"
+
+    # ? Install directly to system if in CI, breaking system packages if needed
     $System = $Env:CI ? '--system --break-system-packages' : ''
     $install = "$uvPip install $System"
     $sync = "$uvPip sync $System"
 
     'INSTALLING DEPENDENCIES FOR SYNCING' | Write-PyProgress
-    $first_install = (Test-Command $uv) ? $install : "$py -m pip install"
+    $first_install = (Test-Command $uv) ? $install : "$pip install"
     Invoke-Expression "$first_install --requirement $PRE_SYNC_DEPENDENCIES"
 
     'INSTALLING TOOLS' | Write-PyProgress
@@ -57,7 +63,7 @@ function Sync-Py {
         if ($Env:CI) {
             'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
             $head = git rev-parse HEAD:submodules/template
-            Invoke-Expression "$py -m copier update --defaults --vcs-ref $head"
+            Invoke-Expression "$scripts/copier update --defaults --vcs-ref $head"
         }
         'PRE-SYNC DONE' | Write-PyProgress -Done
     }
@@ -66,14 +72,14 @@ function Sync-Py {
     $High = $High ? '--high' : ''
 
     # ? Compile or retrieve compiled dependencies
-    if ($Compile) { $comp = Invoke-Expression "$py -m boilercv_tools compile $High" }
-    else { $comp = Invoke-Expression "$py -m boilercv_tools get-comp $High" }
+    if ($Compile) { $comp = Invoke-Expression "$tools compile $High" }
+    else { $comp = Invoke-Expression "$tools get-comp $High" }
 
     # ? Lock
-    if ($Lock) { Invoke-Expression "$py -m boilercv_tools lock" }
+    if ($Lock) { Invoke-Expression "$tools lock" }
 
     # ? Sync
-    if (!$NoPreSync -and (Test-FileLock "$scripts/dvc$($IsWindows ? '.exe': '')")) {
+    if (!$NoPreSync -and (Test-CommandLock $dvc)) {
         'The DVC VSCode extension is locking `dvc.exe`. INSTALLING INSTEAD OF SYNCING' |
             Write-PyProgress
         $compNoDvc = $comp | Get-Item | Get-Content | Select-String -Pattern '^(?!dvc[^-])'
@@ -90,9 +96,9 @@ function Sync-Py {
     if (!$NoPostSync) {
         'RUNNING POST-SYNC TASKS' | Write-PyProgress
         'SYNCING LOCAL DEV CONFIGS' | Write-PyProgress
-        Invoke-Expression "$py -m boilercv_tools sync-local-dev-configs"
+        Invoke-Expression "$tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-PyProgress -Done
-        'INSTALLING MISSING PRE-COMMIT HOOKS' | Write-PyProgress
+        'INSTALLING PRE-COMMIT HOOKS' | Write-PyProgress
         Invoke-Expression "$scripts/pre-commit install"
         'POST-SYNC TASKS COMPLETE' | Write-PyProgress -Done
     }
@@ -110,6 +116,16 @@ function Get-PyDevVersion {
     $ver_pattern = '^python_version:\s?["'']([^"'']+)["'']$'
     $re = Get-Content '.copier-answers.yml' | Select-String -Pattern $ver_pattern
     return $re.Matches.Groups[1].value
+}
+
+function Test-CommandLock {
+    <#.SYNOPSIS
+    Test whether a handle to a command is locked.#>
+    Param ([parameter(Mandatory, ValueFromPipeline)][string]$Path)
+    process {
+        if (!(Test-Command $Path)) { return $false }
+        return Get-Command $Path | Test-FileLock
+    }
 }
 
 function Test-FileLock {
@@ -166,11 +182,25 @@ function Get-PySystem {
     process {
         if ((Test-Command 'py') -and
         (py '--list' | Select-String -Pattern "^\s?-V:$([Regex]::Escape($Version))")) {
-            return "py -$Version"
+            return Invoke-Expression "py -$Version -c 'from sys import executable; print(executable)'"
         }
         elseif (Test-Command "python$Version") { return "python$Version" }
         elseif (Test-Command 'python') { return 'python' }
         throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again."
+    }
+}
+
+function Get-PyScripts {
+    <#.SYNOPSIS
+    Get the Python scripts directory.#>
+    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Path)
+    process {
+        $pythonRoot = $(Split-Path $Path)
+        $bin = $IsWindows ? 'Scripts' : 'bin'
+        if (($pythonRoot | Get-Item | Select-Object -ExpandProperty Name) -eq $bin) {
+            return $pythonRoot
+        }
+        return "$pythonRoot/$bin"
     }
 }
 

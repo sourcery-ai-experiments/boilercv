@@ -7,7 +7,9 @@ from dataclasses import dataclass, field
 from functools import partial
 from itertools import chain
 from pathlib import Path
+from shlex import join, split
 from shutil import copy
+from subprocess import run
 from tempfile import _RandomNameSequence  # type: ignore
 from types import SimpleNamespace
 from typing import Any, TypeAlias
@@ -22,7 +24,6 @@ from matplotlib.pyplot import style
 from seaborn import color_palette, set_theme
 
 import boilercv
-from boilercv.docs_generation import clean_notebooks
 
 PACKAGE = get_module_name(boilercv)
 """Name of the package to test."""
@@ -210,3 +211,27 @@ class Caser:
         )
         self.cases.append(case)
         return case
+
+
+def clean_notebooks(*nbs: Path | str):  # type: ignore  # `nbs` redefined
+    nbs: str = join(str(nb) for nb in nbs)
+    files = f"--files {nbs}"
+    for cmd in [
+        split(f".venv/scripts/pre-commit run {subcmd}")
+        for subcmd in [f"nb-clean {files}", f"ruff {files}", f"ruff-format {files}"]
+    ]:
+        run(cmd, check=False)  # noqa: S603
+
+
+def different(nb: str, docs_nb: str) -> bool:
+    """Check whether notebooks have different cell contents."""
+    return bool(
+        run(
+            split(  # noqa: S603
+                f".venv/scripts/nbdiff {nb} {docs_nb}"
+                " --ignore-outputs --ignore-metadata --ignore-details"
+            ),
+            capture_output=True,
+            check=True,
+        ).stdout
+    )

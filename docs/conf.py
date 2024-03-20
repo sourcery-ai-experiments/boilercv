@@ -5,9 +5,8 @@ from hashlib import sha256
 from os import environ
 from pathlib import Path
 
+from boilercv_docs.nbs import DOCS
 from sphinx.application import Sphinx
-
-from boilercv.docs.nbs import DOCS
 
 PACKAGE = "boilercv"
 """Package name."""
