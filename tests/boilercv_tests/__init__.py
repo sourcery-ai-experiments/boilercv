@@ -39,7 +39,7 @@ TEST_TEMP_NBS.mkdir(exist_ok=True)
 def init():
     """Initialize test plot formats.
 
-    Implementation copied from `boilercv.docs.init` for now, to avoid circular imports.
+    Implementation copied from `boilercv_docs.init` for now, to avoid circular imports.
     """
     set_theme(
         context="notebook", style="whitegrid", palette="bright", font="sans-serif"

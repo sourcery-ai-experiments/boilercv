@@ -65,7 +65,7 @@
       "label": "proj: hide notebook inputs",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "python -m boilercv.docs",
+      "command": "python -m boilercv_docs",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },
