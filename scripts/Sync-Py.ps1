@@ -41,7 +41,7 @@ function Sync-Py {
         "USING $(Resolve-Path $py -Relative)" | Write-PyProgress -Info
     }
     $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally') | Write-PyProgress -Info
-    $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally') | Write-PyProgress -Info
+    $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks') | Write-PyProgress -Info
     $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks') | Write-PyProgress -Info
     # ? Python environment modules and scripts
     $pyModules = "$py -m"
@@ -58,8 +58,7 @@ function Sync-Py {
     $sync = "$uvPip sync $System"
 
     'INSTALLING DEPENDENCIES FOR SYNCING' | Write-PyProgress
-    $first_install = (Test-Command $uv) ? "$install --no-cache" : "$pip install"
-    Invoke-Expression "$first_install --requirement $PRE_SYNC_DEPENDENCIES"
+    Invoke-Expression "$pip install --requirement $PRE_SYNC_DEPENDENCIES"
 
     'INSTALLING TOOLS' | Write-PyProgress
     # ? Install the `boilercv_tools` Python module
