@@ -24,20 +24,25 @@ $NoPreSync = $NoPreSync ? $NoPreSync : [bool]$Env:CI
 $NoPostSync = $NoPostSync ? $NoPostSync : [bool]$Env:CI
 # ? Core dependencies needed for syncing
 $PRE_SYNC_DEPENDENCIES = 'requirements/sync.in'
-# ? Print invocation details
-$common = '-ForegroundColor Magenta'
-Write-Host $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally') $common
-Write-Host $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks') $common
-Write-Host $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks') $common
-
 
 function Sync-Py {
     <#.SYNOPSIS
     Sync Python dependencies.#>
 
+    # ? Print invocation details
+    '***SYNCING' | Write-PyProgress
     $Version = $Version ? $Version : (Get-PyDevVersion)
-    $py = $Env:CI ? (Get-PySystem $Version) : (Get-Py $Version)
-    "***SYNCING '$py'" | Write-PyProgress
+    if ($Env:CI) {
+        $py = Get-PySystem $Version
+        "USING $(Resolve-Path $py)" | Write-PyProgress -Info
+    }
+    else {
+        $py = Get-Py $Version
+        "USING $(Resolve-Path $py -Relative)" | Write-PyProgress -Info
+    }
+    $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally') | Write-PyProgress -Info
+    $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally') | Write-PyProgress -Info
+    $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks') | Write-PyProgress -Info
     # ? Python environment modules and scripts
     $pyModules = "$py -m"
     $pyScripts = Get-PyScripts $py
@@ -64,13 +69,13 @@ function Sync-Py {
         'RUNNING PRE-SYNC TASKS' | Write-PyProgress
         'SYNCING SUBMODULES' | Write-PyProgress
         git submodule update --init --merge
-        'SUBMODULES SYNCED' | Write-PyProgress -Done
-        if ($Env:CI) {
-            'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
-            $head = git rev-parse HEAD:submodules/template
-            Invoke-Expression "$pyScripts/copier update --defaults --vcs-ref $head"
-        }
         'PRE-SYNC DONE' | Write-PyProgress -Done
+    }
+    if ($Env:CI) {
+        'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
+        $head = git rev-parse HEAD:submodules/template
+        Invoke-Expression "$pyScripts/copier update --defaults --vcs-ref $head"
+        'PROJECT SYNCED WITH TEMPLATE' | Write-PyProgress
     }
 
     'SYNCING DEPENDENCIES' | Write-PyProgress
@@ -84,7 +89,7 @@ function Sync-Py {
     if ($Lock) { Invoke-Expression "$tools lock" }
 
     # ? Sync
-    if (!$NoPreSync -and (Test-CommandLock $dvc)) {
+    if ($Env:CI -and (Test-CommandLock $dvc)) {
         'The DVC VSCode extension is locking `dvc.exe`. INSTALLING INSTEAD OF SYNCING' |
             Write-PyProgress
         $compNoDvc = $comp | Get-Item | Get-Content | Select-String -Pattern '^(?!dvc[^-])'
@@ -232,12 +237,20 @@ function Test-Command {
 function Write-PyProgress {
     <#.SYNOPSIS
     Write progress and completion messages.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Message,
-        [switch]$Done)
-    begin { $Color = $Done ? 'Green' : 'Yellow' }
+    Param(
+        [Parameter(Mandatory, ValueFromPipeline)][string]$Message,
+        [switch]$Done,
+        [switch]$Info
+    )
+    begin {
+        $InProgress = !$Done -and !$Info
+        if ($Info) { $Color = 'Magenta' }
+        elseif ($Done) { $Color = 'Green' }
+        else { $Color = 'Yellow' }
+    }
     process {
-        if (!$Done) { Write-Host }
-        Write-Host "$Message$($Done ? '' : '...')" -ForegroundColor $Color
+        if ($InProgress) { Write-Host }
+        Write-Host "$Message$($InProgress ? '...' : '')" -ForegroundColor $Color
     }
 }
 
