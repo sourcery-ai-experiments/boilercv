@@ -133,11 +133,14 @@ html_theme_options = {
 }
 # ! MyST
 myst_enable_extensions = [
-    "colon_fence",
-    "dollarmath",
     "attrs_block",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
     "linkify",
+    "strikethrough",
     "substitution",
+    "tasklist",
 ]
 myst_heading_anchors = 6
 myst_substitutions = {

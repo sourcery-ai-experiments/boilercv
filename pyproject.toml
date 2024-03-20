@@ -46,7 +46,7 @@ Docs = "https://blakeNaccarato.github.io/boilercv"
 Home = "https://github.com/blakeNaccarato/boilercv"
 Tracker = "https://github.com/blakeNaccarato/boilercv/issues"
 [[project.authors]]
-name = "Blake Naccarato"
+name = "Blake Naccarato, Kwang Jin Kim"
 email = "blake.naccarato@gmail.com"
 
 [tool.fawltydeps]

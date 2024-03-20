@@ -239,7 +239,7 @@
       "label": "setup: Perform first-time setup",
       "type": "shell",
       "options": { "shell": { "executable": "pwsh" } },
-      "command": "first_time_setup.ps1",
+      "command": "scripts/Initialize-Repo.ps1",
       "icon": { "id": "file-symlink-directory" },
       "problemMatcher": []
     },

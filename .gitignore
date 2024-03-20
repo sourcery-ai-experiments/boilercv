@@ -1,5 +1,3 @@
-# Locally-compiled dependencies
-.comps
 # Ignore schema, which has absolute paths that will vary by system
 params_schema.json
 # Don't commit local DVC plots
@@ -13,6 +11,8 @@ tests/plots
 # * -------------------------------------------------------------------------------- * #
 # * Template gitignore
 
+# Locally-compiled dependencies
+.comps
 # Ignore `.ruff-cache` just in case, and to grey it out in the sidebar
 .ruff_cache
 # To allow for local variation in type checking without overriding CI
