@@ -24,6 +24,12 @@ $NoPreSync = $NoPreSync ? $NoPreSync : [bool]$Env:CI
 $NoPostSync = $NoPostSync ? $NoPostSync : [bool]$Env:CI
 # ? Core dependencies needed for syncing
 $PRE_SYNC_DEPENDENCIES = 'requirements/sync.in'
+# ? Print invocation details
+$common = '-ForegroundColor Magenta'
+Write-Host $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally') $common
+Write-Host $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks') $common
+Write-Host $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks') $common
+
 
 function Sync-Py {
     <#.SYNOPSIS
@@ -32,12 +38,13 @@ function Sync-Py {
     $Version = $Version ? $Version : (Get-PyDevVersion)
     $py = $Env:CI ? (Get-PySystem $Version) : (Get-Py $Version)
     "***SYNCING '$py'" | Write-PyProgress
-    # ? Python environment scripts
-    $scripts = Get-PyScripts $py
-    $pip = "$scripts/pip"
-    $uv = "$scripts/uv"
-    $tools = "$scripts/boilercv_tools"
-    $dvc = "$scripts/dvc"
+    # ? Python environment modules and scripts
+    $pyModules = "$py -m"
+    $pyScripts = Get-PyScripts $py
+    $pip = "$pyScripts/pip"
+    $uv = "$pyScripts/uv"
+    $tools = "$pyScripts/boilercv_tools"
+    $dvc = "$pyScripts/dvc"
     $uvPip = "$uv pip"
 
     # ? Install directly to system if in CI, breaking system packages if needed
@@ -61,7 +68,7 @@ function Sync-Py {
         if ($Env:CI) {
             'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
             $head = git rev-parse HEAD:submodules/template
-            Invoke-Expression "$scripts/copier update --defaults --vcs-ref $head"
+            Invoke-Expression "$pyScripts/copier update --defaults --vcs-ref $head"
         }
         'PRE-SYNC DONE' | Write-PyProgress -Done
     }
@@ -97,7 +104,9 @@ function Sync-Py {
         Invoke-Expression "$tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-PyProgress -Done
         'INSTALLING PRE-COMMIT HOOKS' | Write-PyProgress
-        Invoke-Expression "$scripts/pre-commit install"
+        Invoke-Expression "$pyScripts/pre-commit install"
+        'SYNCING BOILERCV PARAMS' | Write-PyProgress
+        Invoke-Expression "$pyModules boilercv.models.params"
         'POST-SYNC TASKS COMPLETE' | Write-PyProgress -Done
     }
 
