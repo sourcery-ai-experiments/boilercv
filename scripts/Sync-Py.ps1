@@ -22,7 +22,10 @@ $Env:CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
 
 # ? Get Python interpreter, prepare to sync
 '*** SYNCING' | Write-Progress
-$Version = $Version ? $Version : (Get-PyDevVersion)
+$re = Get-Content .copier-answers.yml |
+    Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$'
+$pyDevVersion = $re.Matches.Groups[1].value
+$Version = $Version ? $Version : $pyDevVersion
 if ($Env:CI) {
     $py = $Version | Get-PySystem
     "Using $(Resolve-Path $py)" | Write-Progress -Info
@@ -48,7 +51,8 @@ pip install --quiet --requirement=requirements/sync.in
 
 'INSTALLING TOOLS' | Write-Progress
 # ? Install the `boilercv_tools` Python module
-uv pip install --editable=scripts
+$system = $Env:CI ? '--system --break-system-packages' : $null
+uv pip install $system --editable=scripts
 
 # ? Pre-sync
 if (!$NoPreSync) {
@@ -86,13 +90,12 @@ if ($Lock) {
 }
 
 # ? Sync
-$system = $Env:CI ? '--system --break-system-packages' : $null
 if ($Env:CI -and ('dvc' | Test-CommandLock)) {
     'The DVC VSCode extension is locking `dvc.exe` (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' |
         Write-Progress -Info
     'INSTALLING INSTEAD OF SYNCING' |
         Write-Progress
-    $compNoDvc = $comp | Get-Item | Get-Content | Select-String -Pattern '^(?!dvc[^-])'
+    $compNoDvc = Get-Content $comp | Select-String -Pattern '^(?!dvc[^-])'
     $compNoDvc | Set-Content $comp
     uv pip install $system --requirement=$comp
     'DEPENDENCIES INSTALLED' | Write-Progress -Done

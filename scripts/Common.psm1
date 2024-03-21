@@ -1,16 +1,6 @@
 <#.SYNOPSIS
 Common utilities.#>
 
-function Get-PyDevVersion {
-    <#.SYNOPSIS
-    Get the expected version of Python for development, from '.copier-answers.yml'.#>
-    $re = './.copier-answers.yml' |
-        Get-Item |
-        Get-Content |
-        Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$'
-    return $re.Matches.Groups[1].value
-}
-
 function Test-CommandLock {
     <#.SYNOPSIS
     Test whether the file handle to a command is locked.#>
