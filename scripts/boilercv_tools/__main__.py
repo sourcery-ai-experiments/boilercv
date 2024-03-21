@@ -95,10 +95,12 @@ def compile(high: bool = False) -> Path:  # noqa: A001
         high: Highest dependencies.
     """
     sep = " "
+    # ? Define `uv` in one place so we can exclude it from its own compilation
+    uv = "uv"
     result = run(
         args=split(
             sep.join([
-                f"{Path(executable).as_posix()} -m uv",
+                f"{Path(executable).as_posix()} -m {uv}",
                 f"pip compile --python-version {VERSION}",
                 f"--resolution {'highest' if high else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
@@ -112,24 +114,17 @@ def compile(high: bool = False) -> Path:  # noqa: A001
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
+    deps = [line.strip() for line in result.stdout.splitlines()]
+    commented_uv_dep = f"# {next(dep for dep in deps if dep.startswith(uv))}"
+    other_deps = [dep for dep in deps if not dep.startswith(uv)]
+    nodeps_deps = [
+        line.strip()
+        for line in NODEPS.read_text("utf-8").splitlines()
+        if not line.strip().startswith("#")
+    ]
+    all_deps = "\n".join([commented_uv_dep, *other_deps, *nodeps_deps]) + "\n"
     comp = get_comp_path(high)
-    lines = [line.strip() for line in result.stdout.splitlines()]
-    uv = "uv"
-    comp.write_text(
-        encoding="utf-8",
-        data=(
-            "\n".join([
-                f"# {next(line for line in lines if line.startswith(uv))}",
-                *[line for line in lines if not line.startswith(uv)],
-                *[
-                    line.strip()
-                    for line in NODEPS.read_text("utf-8").splitlines()
-                    if not line.strip().startswith("#")
-                ],
-            ])
-            + "\n"
-        ),
-    )
+    comp.write_text(encoding="utf-8", data=all_deps)
     return log(comp)
 
 
@@ -144,9 +139,7 @@ def lock() -> Path:
             obj={
                 **(json.loads(LOCK.read_text("utf-8")) if LOCK.exists() else {}),
                 **{
-                    comp.stem.removeprefix("requirements_"): comp.read_text(
-                        "utf-8"
-                    ).strip()
+                    comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
                     for comp in COMPS.iterdir()
                 },
             },
