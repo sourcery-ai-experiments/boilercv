@@ -15,6 +15,9 @@ on:
       - "scripts/Sync-Py.ps1"
       - "scripts/boilercv_tools/**"
       - "scripts/pyproject.toml"
+defaults:
+  run:
+    shell: "pwsh"
 jobs:
   contrib:
     strategy:
@@ -35,10 +38,8 @@ jobs:
           python-version: |
             3.11
             3.12
-      - shell: "pwsh"
-        run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.11'"
-      - shell: "pwsh"
-        run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.12'"
+      - run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.11'"
+      - run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.12'"
   ci:
     strategy:
       matrix:
@@ -56,7 +57,23 @@ jobs:
           python-version: |
             3.11
             3.12
-      - shell: "pwsh"
+      - run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.11'"
+      - run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.12'"
+  spaces:
+    strategy:
+      matrix:
+        runner:
+          - "macos-13"
+          - "ubuntu-22.04"
+          - "windows-2022"
+    runs-on: "${{ matrix.runner }}"
+    steps:
+      - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
+        with:
+          submodules: True
+          path: "repo path with spaces"
+      - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
+        with:
+          python-version: "3.11"
+      - working-directory: "repo path with spaces"
         run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.11'"
-      - shell: "pwsh"
-        run: "scripts/Sync-Py.ps1 -Compile -Lock -Version '3.12'"
