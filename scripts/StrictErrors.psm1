@@ -1,5 +1,5 @@
 <#.SYNOPSIS
-This should be the default since PowerShell 7.4, but somehow it's not.#>
+Stop on first error and enable native command error propagation.#>
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 $PSNativeCommandUseErrorActionPreference | Out-Null
