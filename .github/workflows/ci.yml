@@ -30,9 +30,6 @@ on:
       - "submodules/**"
       - "codecov.yml"
       - "params.yaml"
-# defaults:
-#   run:
-#     shell: "pwsh"
 jobs:
   ruff:
     runs-on: "ubuntu-22.04"
@@ -45,7 +42,8 @@ jobs:
           python-version: "3.11"
       - shell: "pwsh"
         run: "scripts/Sync-Py.ps1 -Compile"
-      - run: "ruff --no-fix --output-format github ."
+      - shell: "pwsh"
+        run: "ruff --no-fix --output-format github ."
   fawltydeps:
     runs-on: "ubuntu-22.04"
     steps:
@@ -55,7 +53,8 @@ jobs:
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
           python-version: "3.11"
-      - run: "scripts/Sync-Py.ps1 -Compile"
+      - shell: "pwsh"
+        run: "scripts/Sync-Py.ps1 -Compile"
       - run: "fawltydeps"
   pyright:
     runs-on: "ubuntu-22.04"
@@ -66,7 +65,8 @@ jobs:
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
           python-version: "3.11"
-      - run: "scripts/Sync-Py.ps1 -Compile"
+      - shell: "pwsh"
+        run: "scripts/Sync-Py.ps1 -Compile"
       - run: pyright
   test:
     strategy:
@@ -92,7 +92,8 @@ jobs:
       - uses: "actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c" # v5.0.0
         with:
           python-version: "${{ matrix.python }}"
-      - run: "scripts/Sync-Py.ps1 -Compile -Version '${{ matrix.python }}'"
+      - shell: "pwsh"
+        run: "scripts/Sync-Py.ps1 -Compile -Version '${{ matrix.python }}'"
       # ! https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
       - run: "pytest --cov --cov-config pyproject.toml"
       - if: startsWith(matrix.runner, 'ubuntu') && matrix.python == '3.11'
@@ -128,8 +129,10 @@ jobs:
           path: ".comps"
           merge-multiple: True
       - if: github.actor == 'renovate[bot]'
+        shell: "pwsh"
         run: "scripts/Sync-Py.ps1 -Lock"
       - if: github.actor != 'renovate[bot]'
+        shell: "pwsh"
         run: "scripts/Sync-Py.ps1"
       - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
@@ -168,6 +171,7 @@ jobs:
           path: ".comps"
           merge-multiple: True
       - if: steps.changes.outputs.deps == 'true' && steps.changes.outputs.lock == 'false'
+        shell: "pwsh"
         run: "scripts/Sync-Py.ps1 -Lock"
       - if: steps.changes.outputs.deps == 'true' && steps.changes.outputs.lock == 'false'
         uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
