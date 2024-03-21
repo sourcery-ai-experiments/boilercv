@@ -8,7 +8,13 @@ Param(
     # Whether to skip verifification when committing.
     [switch]$NoVerify
 )
-Import-Module ./scripts/StrictErrors.psm1, ./scripts/Common.psm1, ./scripts/CrossPy.psm1
+
+# ? Stop on first error and enable native command error propagation.
+$ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
+$PSNativeCommandUseErrorActionPreference | Out-Null
+
+Import-Module ./scripts/Common.psm1, ./scripts/CrossPy.psm1
 if ( $Recopy ) {
     copier recopy --overwrite --defaults=$Defaults
 }

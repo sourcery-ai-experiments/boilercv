@@ -15,7 +15,12 @@ Param(
     [switch]$NoPostSync
 )
 
-Import-Module ./scripts/StrictErrors.psm1, ./scripts/Common.psm1, ./scripts/CrossPy.psm1
+Import-Module ./scripts/Common.psm1, ./scripts/CrossPy.psm1
+
+# ? Stop on first error and enable native command error propagation.
+$ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
+$PSNativeCommandUseErrorActionPreference | Out-Null
 
 # ? Allow toggling CI in order to test local dev workflows
 $Env:CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
