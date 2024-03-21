@@ -9,7 +9,7 @@ from pathlib import Path
 from re import finditer
 from shlex import split
 from subprocess import run
-from sys import executable, stdout
+from sys import executable
 
 from cyclopts import App
 
@@ -45,7 +45,7 @@ def log(obj):
             if len(obj):
                 print(*obj, sep="\n")  # noqa: T201
         case _:
-            print(obj, file=stdout)  # noqa: T201
+            print(obj)  # noqa: T201
     return obj
 
 
@@ -113,11 +113,14 @@ def compile(high: bool = False) -> Path:  # noqa: A001
     if result.returncode:
         raise RuntimeError(result.stderr)
     comp = get_comp_path(high)
+    lines = [line.strip() for line in result.stdout.splitlines()]
+    uv = "uv"
     comp.write_text(
         encoding="utf-8",
         data=(
             "\n".join([
-                *[r.strip() for r in [result.stdout]],
+                f"# {next(line for line in lines if line.startswith(uv))}",
+                *[line for line in lines if not line.startswith(uv)],
                 *[
                     line.strip()
                     for line in NODEPS.read_text("utf-8").splitlines()
@@ -141,7 +144,9 @@ def lock() -> Path:
             obj={
                 **(json.loads(LOCK.read_text("utf-8")) if LOCK.exists() else {}),
                 **{
-                    comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
+                    comp.stem.removeprefix("requirements_"): comp.read_text(
+                        "utf-8"
+                    ).strip()
                     for comp in COMPS.iterdir()
                 },
             },

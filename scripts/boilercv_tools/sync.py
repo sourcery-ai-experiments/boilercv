@@ -6,7 +6,7 @@ from pathlib import Path
 from platform import platform
 from re import sub
 from shlex import join, split
-from sys import stdout, version_info
+from sys import version_info
 from typing import TypeAlias
 
 # ! For local dev config tooling
@@ -85,12 +85,6 @@ def get_comp_name(high: bool) -> str:
         high: Highest dependencies.
     """
     return "_".join(["requirements", RUNNER, VERSION, *(["high"] if high else [])])
-
-
-def log(obj):
-    """Send an object to `stdout` and return it."""
-    print(obj, file=stdout)  # noqa: T201
-    return obj
 
 
 Leaf: TypeAlias = int | float | bool | date | time | str

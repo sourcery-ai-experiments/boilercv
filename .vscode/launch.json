@@ -9,13 +9,6 @@
   ],
   "configurations": [
     {
-      "name": "PowerShell: Launch Current File",
-      "type": "PowerShell",
-      "request": "launch",
-      "script": "${file}",
-      "cwd": "${cwd}"
-    },
-    {
       "name": "Python: Sphinx build docs",
       "type": "debugpy",
       "request": "launch",

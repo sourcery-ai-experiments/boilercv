@@ -30,15 +30,15 @@ function Sync-Py {
     Sync Python dependencies.#>
 
     # ? Print invocation details
-    '***SYNCING' | Write-PyProgress
+    '*** SYNCING' | Write-PyProgress
     $Version = $Version ? $Version : (Get-PyDevVersion)
     if ($Env:CI) {
         $py = Get-PySystem $Version
-        "USING $(Resolve-Path $py)" | Write-PyProgress -Info
+        "Using $(Resolve-Path $py)" | Write-PyProgress -Info
     }
     else {
         $py = Get-Py $Version
-        "USING $(Resolve-Path $py -Relative)" | Write-PyProgress -Info
+        "Using $(Resolve-Path $py -Relative)" | Write-PyProgress -Info
     }
     $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally') | Write-PyProgress -Info
     $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks') | Write-PyProgress -Info
@@ -66,10 +66,12 @@ function Sync-Py {
     Invoke-Expression "$install --no-cache --editable scripts/."
 
     if (!$NoPreSync) {
-        'RUNNING PRE-SYNC TASKS' | Write-PyProgress
+        '*** RUNNING PRE-SYNC TASKS' | Write-PyProgress
         'SYNCING SUBMODULES' | Write-PyProgress
         git submodule update --init --merge
-        'PRE-SYNC DONE' | Write-PyProgress -Done
+        'SUBMODULES SYNCED' | Write-PyProgress -Done
+        Write-Host ''
+        '*** PRE-SYNC DONE ***' | Write-PyProgress -Done
     }
     if ($Env:CI) {
         'SYNCING PROJECT WITH TEMPLATE' | Write-PyProgress
@@ -78,33 +80,45 @@ function Sync-Py {
         'PROJECT SYNCED WITH TEMPLATE' | Write-PyProgress
     }
 
-    'SYNCING DEPENDENCIES' | Write-PyProgress
-    $High = $High ? '--high' : ''
-
     # ? Compile or retrieve compiled dependencies
-    if ($Compile) { $comp = Invoke-Expression "$tools compile $High" }
-    else { $comp = Invoke-Expression "$tools get-comp $High" }
+    $High = $High ? '--high' : ''
+    if ($Compile) {
+        'COMPILING' | Write-PyProgress
+        $comp = Invoke-Expression "$tools compile $High"
+        'COMPILED' | Write-PyProgress -Done
+    }
+    else {
+        'GETTING COMPILATION FROM LOCK, COMPILING IF MISSING' | Write-PyProgress
+        $comp = Invoke-Expression "$tools get-comp $High"
+        'COMPILATION FOUND OR COMPILED' | Write-PyProgress -Done
+    }
 
     # ? Lock
-    if ($Lock) { Invoke-Expression "$tools lock" }
+    if ($Lock) {
+        'LOCKING' | Write-PyProgress
+        Invoke-Expression "$tools lock"
+        'LOCKED' | Write-PyProgress -Done
+    }
 
     # ? Sync
     if ($Env:CI -and (Test-CommandLock $dvc)) {
-        'The DVC VSCode extension is locking `dvc.exe`. INSTALLING INSTEAD OF SYNCING' |
+        'The DVC VSCode extension is locking `dvc.exe` (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' | Write-PyProgress -Info
+        'INSTALLING INSTEAD OF SYNCING' |
             Write-PyProgress
         $compNoDvc = $comp | Get-Item | Get-Content | Select-String -Pattern '^(?!dvc[^-])'
         $compNoDvc | Set-Content $comp
         Invoke-Expression "$install --requirement $comp"
-        'DEPENDENCIES INSTALLED (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' |
+        'DEPENDENCIES INSTALLED' |
             Write-PyProgress -Done
     }
     else {
+        'SYNCING DEPENDENCIES' | Write-PyProgress
         Invoke-Expression "$sync $comp"
         'DEPENDENCIES SYNCED' | Write-PyProgress -Done
     }
 
     if (!$NoPostSync) {
-        'RUNNING POST-SYNC TASKS' | Write-PyProgress
+        '*** RUNNING POST-SYNC TASKS' | Write-PyProgress
         'SYNCING LOCAL DEV CONFIGS' | Write-PyProgress
         Invoke-Expression "$tools sync-local-dev-configs"
         'LOCAL DEV CONFIGS SYNCED' | Write-PyProgress -Done
@@ -114,11 +128,12 @@ function Sync-Py {
         Invoke-Expression "$pyModules boilercv.models.params"
         'GITHUB ACTIONS WORKFLOWS IN USE IN THIS REPO:' | Write-PyProgress
         Invoke-Expression "$tools get-actions"
-        'POST-SYNC TASKS COMPLETE' | Write-PyProgress -Done
+        Write-Host ''
+        '*** POST-SYNC TASKS COMPLETE ***' | Write-PyProgress -Done
     }
 
     Write-Host ''
-    '...DONE ***' | Write-PyProgress -Done
+    '*** DONE ***' | Write-PyProgress -Done
 }
 
 # * -------------------------------------------------------------------------------- * #
