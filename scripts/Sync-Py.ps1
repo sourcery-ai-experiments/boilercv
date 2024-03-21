@@ -51,8 +51,8 @@ pip install --quiet --requirement=requirements/sync.in
 
 'INSTALLING TOOLS' | Write-Progress
 # ? Install the `boilercv_tools` Python module
-$system = $Env:CI ? '--system --break-system-packages' : $null
-uv pip install $system --editable=scripts
+if ($Env:CI) { uv pip install --system --break-system-packages --editable=scripts }
+else { uv pip install --editable=scripts }
 
 # ? Pre-sync
 if (!$NoPreSync) {
@@ -97,12 +97,14 @@ if ($Env:CI -and ('dvc' | Test-CommandLock)) {
         Write-Progress
     $compNoDvc = Get-Content $comp | Select-String -Pattern '^(?!dvc[^-])'
     $compNoDvc | Set-Content $comp
-    uv pip install $system --requirement=$comp
+    if ($Env:CI) { uv pip install --system --break-system-packages --editable=$comp }
+    else { uv pip install --requirement=$comp }
     'DEPENDENCIES INSTALLED' | Write-Progress -Done
 }
 else {
     'SYNCING DEPENDENCIES' | Write-Progress
-    uv pip sync $system $comp
+    if ($Env:CI) { uv pip sync --system --break-system-packages $comp }
+    else { uv pip sync $comp }
     'DEPENDENCIES SYNCED' | Write-Progress -Done
 }
 
