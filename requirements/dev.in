@@ -3,7 +3,7 @@
 --editable scripts/
 --editable tests/
 --editable submodules/boilercore
-debugpy==1.8.0
+debugpy==1.8.1
 fawltydeps==0.15.0
 flit==3.9.0
 keyring==24.3.1
