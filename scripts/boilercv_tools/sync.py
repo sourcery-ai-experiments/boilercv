@@ -1,4 +1,4 @@
-"""CLI for tools."""
+"""Sync tools."""
 
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import date, time

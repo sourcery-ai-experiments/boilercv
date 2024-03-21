@@ -65,6 +65,7 @@ function Sync-Py {
     # ? Install the `boilercv_tools` Python module
     Invoke-Expression "$install --no-cache --editable scripts/."
 
+    # ? Pre-sync
     if (!$NoPreSync) {
         '*** RUNNING PRE-SYNC TASKS' | Write-PyProgress
         'SYNCING SUBMODULES' | Write-PyProgress
@@ -117,6 +118,7 @@ function Sync-Py {
         'DEPENDENCIES SYNCED' | Write-PyProgress -Done
     }
 
+    # ? Post-sync
     if (!$NoPostSync) {
         '*** RUNNING POST-SYNC TASKS' | Write-PyProgress
         'SYNCING LOCAL DEV CONFIGS' | Write-PyProgress
