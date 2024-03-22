@@ -23,6 +23,7 @@ else {
     git add --all
     $head = git rev-parse HEAD:submodules/template
     $msg = "Update template digest to $head"
-    git commit $($NoVerify ? '--no-verify': $null) -m "Update template digest to $msg"
+    if ($NoVerify) {git commit --no-verify -m $msg}
+    else {git commit -m $msg}
     copier update --vcs-ref=$head --defaults=$Defaults
 }
