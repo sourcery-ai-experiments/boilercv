@@ -92,6 +92,7 @@ jobs:
         with:
           python-version: "${{ matrix.python }}"
       - run: "scripts/Sync-Py.ps1 -Compile -Version '${{ matrix.python }}'"
+      - run: "scripts/Sync-Py.ps1 -Compile -High -Version '${{ matrix.python }}'"
       # ! https://github.com/pytest-dev/pytest-cov/issues/479#issuecomment-1247444988
       - run: "pytest --cov --cov-config pyproject.toml"
       - if: startsWith(matrix.runner, 'ubuntu') && matrix.python == '3.11'
@@ -132,7 +133,7 @@ jobs:
         run: "scripts/Sync-Py.ps1"
       - uses: "stefanzweifel/git-auto-commit-action@8756aa072ef5b4a080af5dc8fef36c5d586e521d" # v5.0.0
         with:
-          commit_message: "Lock"
+          commit_message: "${{ github.actor == 'renovate[bot]' && 'Lock' || 'Sync project with template' }}"
   lock:
     if: github.event_name != 'pull_request'
     permissions:
@@ -154,7 +155,6 @@ jobs:
             deps:
               - "**/pyproject.toml"
               - "requirements/**"
-              - "submodules/**"
             lock:
               - "lock.json"
       - if: steps.changes.outputs.deps == 'true' && steps.changes.outputs.lock == 'false'
