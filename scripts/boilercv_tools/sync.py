@@ -5,7 +5,7 @@ from datetime import UTC, date, datetime, time
 from json import dumps, loads
 from pathlib import Path
 from platform import platform
-from re import finditer, sub
+from re import finditer, search, sub
 from shlex import join, split
 from subprocess import run
 from sys import executable, version_info
@@ -72,7 +72,7 @@ LOCK = Path("lock.json")
 # ! Checking
 SUB_PAT = r"(?m)^# submodules/(?P<name>[^\s]+)\s(?P<rev>[^\s]+)$"
 """Pattern for stored submodule revision comments."""
-DEP_PAT = r"(?mi)^(?:[A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])==.+$"
+DEP_PAT = r"(?mi)^(?P<name>[A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])==.+$"
 """Pattern for compiled dependencies.
 
 See: https://packaging.python.org/en/latest/specifications/name-normalization/#name-format
@@ -80,16 +80,22 @@ See: https://packaging.python.org/en/latest/specifications/name-normalization/#n
 
 
 def check() -> bool:
-    """Verify current dependencies are in the lock."""
+    """Verify current direct dependencies are the same in the lock."""
     old = get_comp(high=False, no_deps=False)
     if not old:
-        raise ValueError("Compilation missing from lock.")
-    new = compile(high=False, no_deps=True)
-    subs = dict(zip(finditer(SUB_PAT, old), finditer(SUB_PAT, new), strict=False))
-    return all((
-        all(old_sub.groups() == new_sub.groups() for old_sub, new_sub in subs.items()),
-        all(dep.group() in old for dep in finditer(DEP_PAT, new)),
-    ))
+        return False
+    direct = compile(high=False, no_deps=True)
+    subs = dict(zip(finditer(SUB_PAT, old), finditer(SUB_PAT, direct), strict=False))
+    if any(old_sub.groups() != new_sub.groups() for old_sub, new_sub in subs.items()):
+        return False
+    old_direct: list[str] = []
+    for dep in finditer(DEP_PAT, direct):
+        pat = rf"(?mi)^(?P<name>{dep['name']})==(?P<ver>.+$)"
+        if match := search(pat, old):
+            old_direct.append(match.group())
+            continue
+        return False
+    return all(direct in compile(high=False, no_deps=False) for direct in old_direct)
 
 
 def get_comp(high: bool, no_deps: bool) -> str:
