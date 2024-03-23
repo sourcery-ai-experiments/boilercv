@@ -5,7 +5,6 @@ from collections.abc import Collection
 from json import dumps
 from pathlib import Path
 from re import finditer
-from shlex import quote
 from typing import NamedTuple
 
 from cyclopts import App
@@ -18,6 +17,7 @@ from boilercv_tools.sync import (
     PYTEST,
     add_pyright_includes,
     disable_concurrent_tests,
+    escape,
     get_comp_names,
 )
 
@@ -120,7 +120,7 @@ def log(obj):
             for o in obj:
                 log(o)
         case Path():
-            log(quote(obj.as_posix()))
+            log(escape(obj))
         case _:
             print(obj)  # noqa: T201
 

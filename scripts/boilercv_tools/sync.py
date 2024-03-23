@@ -6,7 +6,7 @@ from json import dumps, loads
 from pathlib import Path
 from platform import platform
 from re import finditer, search, sub
-from shlex import join, split
+from shlex import join, quote, split
 from subprocess import run
 from sys import executable, version_info
 from typing import NamedTuple, TypeAlias
@@ -166,12 +166,12 @@ def comp(high: bool, no_deps: bool) -> str:
     result = run(
         args=split(
             sep.join([
-                f"{Path(executable).as_posix()} -m uv",
+                f"{escape(executable)} -m uv",
                 f"pip compile --python-version {VERSION}",
                 f"--resolution {'highest' if high else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
                 f"--all-extras {'--no-deps' if no_deps else ''}",
-                sep.join([p.as_posix() for p in [PYPROJECT, DEV, DVC, SYNC]]),
+                sep.join([escape(path) for path in [PYPROJECT, DEV, DVC, SYNC]]),
             ])
         ),
         capture_output=True,
@@ -239,3 +239,8 @@ def disable_concurrent_tests(addopts: str) -> str:
         Modified `addopts` value.
     """
     return sub(pattern=r"-n\s*[^\s]+", repl="-n 0", string=join(split(addopts)))
+
+
+def escape(path: str | Path) -> str:
+    """Path escape suitable for all operating systems."""
+    return quote(Path(path).as_posix())
