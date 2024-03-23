@@ -74,25 +74,30 @@ if ($Env:CI) {
     'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
 
-# ? Compile or retrieve compiled dependencies
-if ($Compile) {
+# ? Compile
+function Update-Compilation {
     'COMPILING' | Write-Progress
-    $comp_low = boilercv_tools compile
-    $comp_high = boilercv_tools compile --high
-    $comp = $High ? $comp_high : $comp_low
+    $CompLow = boilercv_tools compile
+    $CompHigh = boilercv_tools compile --high
     'COMPILED' | Write-Progress -Done
+    return $High ? $CompHigh : $CompLow
 }
-else {
+if ($Compile) {
+    $Comp = Update-Compilation
+}
+$Comp = boilercv_tools get-comp --high=$High
+$empty = !(Get-Content $Comp)
+if ( !$Compile -and $empty ) {
+    'COMPILATION MISSING FROM LOCK' | Write-Progress -Info
+    $Comp = Update-Compilation
+}
+if ( !$Compile -and !$empty -and !$Env:CI ) {
     'GETTING COMPILATION FROM LOCK' | Write-Progress
-    $comp = boilercv_tools get-comp --high=$High
-    if (!(Get-Content $comp) -and !$Env:CI) {
-        'COMPILATION MISSING FROM LOCK' | Write-Progress -Info
-        'COMPILING LOCALLY' | Write-Progress
-        $comp = boilercv_tools compile --high=$High
-        'COMPILED' | Write-Progress -Done
+    $outdated = ![bool]::Parse((boilercv_tools check))
+    if ($outdated) {
+        'COMPILATION OUTDATED' | Write-Progress -Info
+        $Comp = Update-Compilation
     }
-    else { 'COMPILATION FOUND' | Write-Progress -Done }
-
 }
 
 # ? Lock
@@ -108,16 +113,16 @@ if ($Env:CI -and ('dvc' | Test-CommandLock)) {
         Write-Progress -Info
     'INSTALLING INSTEAD OF SYNCING' |
         Write-Progress
-    $compNoDvc = Get-Content $comp | Select-String -Pattern '^(?!dvc[^-])'
-    $compNoDvc | Set-Content $comp
-    if ($Env:CI) { uv pip install --system --break-system-packages --editable=$comp }
-    else { uv pip install --requirement=$comp }
+    $CompNoDvc = Get-Content $Comp | Select-String -Pattern '^(?!dvc[^-])'
+    $CompNoDvc | Set-Content $Comp
+    if ($Env:CI) { uv pip install --system --break-system-packages --editable=$Comp }
+    else { uv pip install --requirement=$Comp }
     'DEPENDENCIES INSTALLED' | Write-Progress -Done
 }
 else {
     'SYNCING DEPENDENCIES' | Write-Progress
-    if ($Env:CI) { uv pip sync --system --break-system-packages $comp }
-    else { uv pip sync $comp }
+    if ($Env:CI) { uv pip sync --system --break-system-packages $Comp }
+    else { uv pip sync $Comp }
     'DEPENDENCIES SYNCED' | Write-Progress -Done
 }
 

@@ -120,6 +120,8 @@ def get_or_compile(high: bool, no_deps: bool, get: bool) -> Path:
 def log(obj):
     """Send an object to `stdout` and return it."""
     match obj:
+        case str():
+            print(obj)  # noqa: T201
         case Collection():
             if len(obj):
                 print(*obj, sep="\n")  # noqa: T201
