@@ -46,6 +46,7 @@ jobs:
           - "windows-2022"
     runs-on: "${{ matrix.runner }}"
     steps:
+      - run: "New-Item -ItemType Directory 'repo path with spaces'"
       - uses: "actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11" # v4.1.1
         with:
           submodules: True
