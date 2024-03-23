@@ -83,9 +83,16 @@ if ($Compile) {
     'COMPILED' | Write-Progress -Done
 }
 else {
-    'GETTING COMPILATION FROM LOCK, COMPILING IF MISSING' | Write-Progress
+    'GETTING COMPILATION FROM LOCK' | Write-Progress
     $comp = boilercv_tools get-comp --high=$High
-    'COMPILATION FOUND OR COMPILED' | Write-Progress -Done
+    if (!(Get-Content $comp) -and !$Env:CI) {
+        'COMPILATION MISSING FROM LOCK' | Write-Progress -Info
+        'COMPILING LOCALLY' | Write-Progress
+        $comp = boilercv_tools compile --high=$High
+        'COMPILED' | Write-Progress -Done
+    }
+    else { 'COMPILATION FOUND' | Write-Progress -Done }
+
 }
 
 # ? Lock

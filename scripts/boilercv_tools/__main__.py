@@ -1,29 +1,19 @@
 """CLI for tools."""
 
-import json
 import tomllib
-from collections.abc import Collection
-from datetime import UTC, datetime
+from collections.abc import Callable, Collection
 from json import dumps
 from pathlib import Path
 from re import finditer
-from shlex import split
-from subprocess import run
-from sys import executable
 
 from cyclopts import App
 
+from boilercv_tools import sync
 from boilercv_tools.sync import (
     COMPS,
-    DEV,
-    DVC,
-    LOCK,
-    NODEPS,
     PYPROJECT,
     PYRIGHTCONFIG,
     PYTEST,
-    SYNC,
-    VERSION,
     add_pyright_includes,
     disable_concurrent_tests,
     get_comp_path,
@@ -36,17 +26,6 @@ APP = App()
 def main():
     """Invoke the CLI."""
     APP()
-
-
-def log(obj):
-    """Send an object to `stdout` and return it."""
-    match obj:
-        case Collection():
-            if len(obj):
-                print(*obj, sep="\n")  # noqa: T201
-        case _:
-            print(obj)  # noqa: T201
-    return obj
 
 
 @APP.command()
@@ -73,79 +52,31 @@ def get_actions() -> list[str]:
 
 
 @APP.command()
-def get_comp(high: bool = False) -> Path:
-    """Compile dependencies for a system.
-
-    Args:
-        high: Highest dependencies.
-    """
-    if LOCK.exists():
-        comp = get_comp_path(high)
-        if existing_comp := json.loads(LOCK.read_text("utf-8")).get(comp.stem):
-            comp.write_text(encoding="utf-8", data=existing_comp)
-            return comp
-    return compile(high)
-
-
-@APP.command()
-def compile(high: bool = False) -> Path:  # noqa: A001
-    """Recompile dependencies for a system.
-
-    Args:
-        high: Highest dependencies.
-    """
-    sep = " "
-    result = run(
-        args=split(
-            sep.join([
-                f"{Path(executable).as_posix()} -m uv",
-                f"pip compile --python-version {VERSION}",
-                f"--resolution {'highest' if high else 'lowest-direct'}",
-                f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
-                "--all-extras",
-                sep.join([p.as_posix() for p in [PYPROJECT, DEV, DVC, SYNC]]),
-            ])
-        ),
-        capture_output=True,
-        check=False,
-        text=True,
-    )
-    if result.returncode:
-        raise RuntimeError(result.stderr)
-    deps = result.stdout
-    comp = get_comp_path(high)
-    comp.write_text(
-        encoding="utf-8",
-        data=(
-            "\n".join([
-                *[line.strip() for line in deps.splitlines()],
-                *[line.strip() for line in NODEPS.read_text("utf-8").splitlines()],
-            ])
-            + "\n"
-        ),
-    )
-    return log(comp)
+def check() -> str:
+    """Verify current dependencies are in the lock."""
+    return log("true" if sync.check() else "false")
 
 
 @APP.command()
 def lock() -> Path:
-    """Lock all local dependency compilations."""
-    LOCK.write_text(
-        encoding="utf-8",
-        data=json.dumps(
-            indent=2,
-            sort_keys=True,
-            obj={
-                **(json.loads(LOCK.read_text("utf-8")) if LOCK.exists() else {}),
-                **{
-                    comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
-                    for comp in COMPS.iterdir()
-                },
-            },
-        )
-        + "\n",
-    )
-    return log(LOCK)
+    return log(sync.lock())
+
+
+@APP.command()
+def get_comp(high: bool = False, no_deps: bool = False) -> Path:
+    return prep_comp(high, no_deps, sync.get_comp)
+
+
+@APP.command()
+def compile(high: bool = False, no_deps: bool = False) -> Path:  # noqa: A001
+    return prep_comp(high, no_deps, sync.compile)
+
+
+def prep_comp(high: bool, no_deps: bool, op: Callable[[bool, bool], str]) -> Path:
+    COMPS.mkdir(exist_ok=True, parents=True)
+    comp = get_comp_path(high, no_deps)
+    comp.write_text(encoding="utf-8", data=op(high, no_deps))
+    return log(comp)
 
 
 @APP.command()
@@ -176,6 +107,17 @@ def sync_local_dev_configs():
         encoding="utf-8",
         data="\n".join(["[pytest]", *[f"{k} = {v}" for k, v in pytest.items()], ""]),
     )
+
+
+def log(obj):
+    """Send an object to `stdout` and return it."""
+    match obj:
+        case Collection():
+            if len(obj):
+                print(*obj, sep="\n")  # noqa: T201
+        case _:
+            print(obj)  # noqa: T201
+    return obj
 
 
 if __name__ == "__main__":
