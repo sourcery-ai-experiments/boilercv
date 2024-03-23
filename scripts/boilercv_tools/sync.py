@@ -98,7 +98,7 @@ def lock() -> Path:
             obj={
                 **(loads(LOCK.read_text("utf-8")) if LOCK.exists() else {}),
                 **{
-                    comp.stem.removeprefix("requirements_"): comp.read_text("utf-8")
+                    get_comp_key(comp.stem): comp.read_text("utf-8")
                     for comp in COMPS.iterdir()
                 },
             },
@@ -143,9 +143,14 @@ def get_comps() -> Comp:
     if not LOCK.exists():
         return Comp("", "")
     return Comp(*[
-        loads(LOCK.read_text("utf-8")).get(name.removeprefix("requirements_")) or ""
+        loads(LOCK.read_text("utf-8")).get(get_comp_key(name)) or ""
         for name in get_comp_names()
     ])
+
+
+def get_comp_key(name: str) -> str:
+    """Get the key to a dependency compilation in the lock."""
+    return name.removeprefix("requirements_")
 
 
 def get_comp_names() -> Comp:
