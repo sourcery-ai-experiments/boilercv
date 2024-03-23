@@ -5,6 +5,7 @@ from collections.abc import Collection
 from json import dumps
 from pathlib import Path
 from re import finditer
+from shlex import quote
 from typing import NamedTuple
 
 from cyclopts import App
@@ -39,12 +40,12 @@ class Comp(NamedTuple):
 
 
 @APP.command()
-def lock() -> Path:
-    return log(sync.lock())
+def lock():
+    log(sync.lock())
 
 
 @APP.command()
-def compile() -> Comp:  # noqa: A001
+def compile():  # noqa: A001
     """Prepare a compilation.
 
     Args:
@@ -54,11 +55,11 @@ def compile() -> Comp:  # noqa: A001
     COMPS.mkdir(exist_ok=True, parents=True)
     for path, comp in zip(comp_paths, sync.compile(), strict=True):
         path.write_text(encoding="utf-8", data=comp)
-    return log(comp_paths)
+    log(comp_paths)
 
 
 @APP.command()
-def get_actions() -> list[str]:
+def get_actions():
     """Get actions used by this repository.
 
     For additional security, select "Allow <user> and select non-<user>, actions and
@@ -77,7 +78,7 @@ def get_actions() -> list[str]:
             f"{match['action']}@*,"
             for match in finditer(r'uses:\s?"?(?P<action>.+)@', contents)
         ])
-    return log(sorted(set(actions)))
+    log(sorted(set(actions)))
 
 
 @APP.command()
@@ -111,16 +112,17 @@ def sync_local_dev_configs():
 
 
 def log(obj):
-    """Send an object to `stdout` and return it."""
+    """Send object to `stdout`."""
     match obj:
         case str():
             print(obj)  # noqa: T201
         case Collection():
-            if len(obj):
-                print(*obj, sep="\n")  # noqa: T201
+            for o in obj:
+                log(o)
+        case Path():
+            log(quote(obj.as_posix()))
         case _:
             print(obj)  # noqa: T201
-    return obj
 
 
 if __name__ == "__main__":
