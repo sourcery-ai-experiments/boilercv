@@ -5,8 +5,6 @@ Param(
     [string]$Version,
     # Sync to highest dependencies.
     [switch]$High,
-    # Recompile dependencies.
-    [switch]$Compile,
     # Add all local dependency compilations to the lock.
     [switch]$Lock,
     # Don't run pre-sync actions.
@@ -75,30 +73,10 @@ if ($Env:CI) {
 }
 
 # ? Compile
-function Update-Compilation {
-    'COMPILING' | Write-Progress
-    $CompLow = boilercv_tools compile
-    $CompHigh = boilercv_tools compile --high
-    'COMPILED' | Write-Progress -Done
-    return $High ? $CompHigh : $CompLow
-}
-if ($Compile) {
-    $Comp = Update-Compilation
-}
-$Comp = boilercv_tools get-comp --high=$High
-$empty = !(Get-Content $Comp)
-if ( !$Compile -and $empty ) {
-    'COMPILATION MISSING FROM LOCK' | Write-Progress -Info
-    $Comp = Update-Compilation
-}
-if ( !$Compile -and !$empty -and !$Env:CI ) {
-    'GETTING COMPILATION FROM LOCK' | Write-Progress
-    $outdated = ![bool]::Parse((boilercv_tools check))
-    if ($outdated) {
-        'COMPILATION OUTDATED' | Write-Progress -Info
-        $Comp = Update-Compilation
-    }
-}
+'COMPILING' | Write-Progress
+$Comps = boilercv_tools compile
+$Comp = $High ? $Comps[1] : $Comps[0]
+'COMPILED' | Write-Progress -Done
 
 # ? Lock
 if ($Lock) {
@@ -108,7 +86,7 @@ if ($Lock) {
 }
 
 # ? Sync
-if ($Env:CI -and ('dvc' | Test-CommandLock)) {
+if ('dvc' | Test-CommandLock) {
     'The DVC VSCode extension is locking `dvc.exe` (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' |
         Write-Progress -Info
     'INSTALLING INSTEAD OF SYNCING' |

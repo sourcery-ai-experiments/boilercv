@@ -5,6 +5,7 @@ from collections.abc import Collection
 from json import dumps
 from pathlib import Path
 from re import finditer
+from typing import NamedTuple
 
 from cyclopts import App
 
@@ -16,16 +17,44 @@ from boilercv_tools.sync import (
     PYTEST,
     add_pyright_includes,
     disable_concurrent_tests,
-    get_comp_path,
+    get_comp_names,
 )
 
-APP = App()
+APP = App(help_format="markdown")
 """CLI."""
 
 
 def main():
     """Invoke the CLI."""
     APP()
+
+
+class Comp(NamedTuple):
+    """Dependency compilation."""
+
+    low: Path
+    """Path to the lowest direct dependency compilation."""
+    high: Path
+    """Path to the highest dependency compilation."""
+
+
+@APP.command()
+def lock() -> Path:
+    return log(sync.lock())
+
+
+@APP.command()
+def compile() -> Comp:  # noqa: A001
+    """Prepare a compilation.
+
+    Args:
+        get: Get the compilation rather than compile it.
+    """
+    comp_paths = Comp(*[COMPS / f"{name}.txt" for name in get_comp_names()])
+    COMPS.mkdir(exist_ok=True, parents=True)
+    for path, comp in zip(comp_paths, sync.compile(), strict=True):
+        path.write_text(encoding="utf-8", data=comp)
+    return log(comp_paths)
 
 
 @APP.command()
@@ -79,42 +108,6 @@ def sync_local_dev_configs():
         encoding="utf-8",
         data="\n".join(["[pytest]", *[f"{k} = {v}" for k, v in pytest.items()], ""]),
     )
-
-
-@APP.command()
-def check() -> str:
-    return log("true" if sync.check() else "false")
-
-
-@APP.command()
-def lock() -> Path:
-    return log(sync.lock())
-
-
-@APP.command()
-def get_comp(high: bool = False, no_deps: bool = False) -> Path:
-    return get_or_compile(high, no_deps, get=True)
-
-
-@APP.command()
-def compile(high: bool = False, no_deps: bool = False) -> Path:  # noqa: A001
-    return get_or_compile(high, no_deps, get=False)
-
-
-def get_or_compile(high: bool, no_deps: bool, get: bool) -> Path:
-    """Prepare a compilation.
-
-    Args:
-        high: Highest dependencies.
-        no_deps: Without transitive dependencies.
-        get: Get the compilation rather than compile it.
-    """
-    COMPS.mkdir(exist_ok=True, parents=True)
-    comp = get_comp_path(high, no_deps)
-    comp.write_text(
-        encoding="utf-8", data=(sync.get_comp if get else sync.compile)(high, no_deps)
-    )
-    return log(comp)
 
 
 def log(obj):

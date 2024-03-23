@@ -9,7 +9,7 @@ from re import finditer, search, sub
 from shlex import join, split
 from subprocess import run
 from sys import executable, version_info
-from typing import TypeAlias
+from typing import NamedTuple, TypeAlias
 
 # ! For local dev config tooling
 PYRIGHTCONFIG = Path("pyrightconfig.json")
@@ -79,39 +79,13 @@ See: https://packaging.python.org/en/latest/specifications/name-normalization/#n
 """
 
 
-def check() -> bool:
-    """Verify current direct dependencies are the same in the lock."""
-    old = get_comp(high=False, no_deps=False)
-    if not old:
-        return False
-    direct = compile(high=False, no_deps=True)
-    subs = dict(zip(finditer(SUB_PAT, old), finditer(SUB_PAT, direct), strict=False))
-    if any(old_sub.groups() != new_sub.groups() for old_sub, new_sub in subs.items()):
-        return False
-    old_direct: list[str] = []
-    for dep in finditer(DEP_PAT, direct):
-        pat = rf"(?mi)^(?P<name>{dep['name']})==(?P<ver>.+$)"
-        if match := search(pat, old):
-            old_direct.append(match.group())
-            continue
-        return False
-    return all(direct in compile(high=False, no_deps=False) for direct in old_direct)
+class Comp(NamedTuple):
+    """Dependency compilation."""
 
-
-def get_comp(high: bool, no_deps: bool) -> str:
-    """Get existing dependency compilation.
-
-    Args:
-        high: Highest dependencies.
-        no_deps: Without transitive dependencies.
-        fallback: Compile if the compilation does not exist.
-    """
-    comp_key = get_comp_name(high, no_deps).removeprefix("requirements_")
-    if LOCK.exists() and (
-        existing_comp := loads(LOCK.read_text("utf-8")).get(comp_key)
-    ):
-        return existing_comp
-    return ""
+    low: str
+    """Name of lowest direct dependency compilation or the compilation itself."""
+    high: str
+    """Name of highest dependency compilation or the compilation itself."""
 
 
 def lock() -> Path:
@@ -134,11 +108,57 @@ def lock() -> Path:
     return LOCK
 
 
-def compile(high: bool, no_deps: bool) -> str:  # noqa: A001
-    """Compile dependencies for a system.
+def compile() -> Comp:  # noqa: A001
+    """Compile dependencies. Prefer the existing compilation if compatible."""
+    old = get_comps()
+    if not old.low:
+        return recomp()
+    directs = comp(high=False, no_deps=True)
+    try:
+        subs = dict(
+            zip(finditer(SUB_PAT, old.low), finditer(SUB_PAT, directs), strict=False)
+        )
+    except ValueError:
+        return recomp()
+    if any(old_sub.groups() != new_sub.groups() for old_sub, new_sub in subs.items()):
+        return recomp()
+    old_directs: list[str] = []
+    for direct in finditer(DEP_PAT, directs):
+        pat = rf"(?mi)^(?P<name>{direct['name']})==(?P<ver>.+$)"
+        if match := search(pat, old.low):
+            old_directs.append(match.group())
+            continue
+        return recomp()
+    new = recomp()
+    return old if all(direct in new.low for direct in old_directs) else new
+
+
+def recomp() -> Comp:
+    """Recompile system dependencies."""
+    return Comp(comp(high=False, no_deps=False), comp(high=True, no_deps=False))
+
+
+def get_comps() -> Comp:
+    """Get existing dependency compilations."""
+    if not LOCK.exists():
+        return Comp("", "")
+    return Comp(*[
+        loads(LOCK.read_text("utf-8")).get(name.removeprefix("requirements_")) or ""
+        for name in get_comp_names()
+    ])
+
+
+def get_comp_names() -> Comp:
+    """Get names of a dependency compilation."""
+    sep = "_"
+    base = sep.join(["requirements", RUNNER, VERSION])
+    return Comp(base, sep.join([base, "high"]))
+
+
+def comp(high: bool, no_deps: bool) -> str:
+    """Compile system dependencies.
 
     Args:
-        comp: Path to the compilation.
         high: Highest dependencies.
         no_deps: Without transitive dependencies.
     """
@@ -178,34 +198,6 @@ def compile(high: bool, no_deps: bool) -> str:  # noqa: A001
         ])
         + "\n"
     )
-
-
-def get_comp_path(high: bool, no_deps: bool) -> Path:
-    """Get a dependency compilation.
-
-    Args:
-        high: Highest dependencies.
-        no_deps: Without transitive dependencies.
-    """
-    return COMPS / f"{get_comp_name(high, no_deps)}.txt"
-
-
-def get_comp_name(high: bool, no_deps: bool) -> str:
-    """Get name of a dependency compilation.
-
-    Args:
-        high: Highest dependencies.
-        no_deps: Without transitive dependencies.
-    """
-    if high and no_deps:
-        raise ValueError("Cannot specify both `high` and `no_deps`.")
-    return "_".join([
-        "requirements",
-        RUNNER,
-        VERSION,
-        *(["high"] if high else []),
-        *(["no_deps"] if no_deps else []),
-    ])
 
 
 Leaf: TypeAlias = int | float | bool | date | time | str
