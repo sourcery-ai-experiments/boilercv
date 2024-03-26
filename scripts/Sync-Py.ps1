@@ -23,7 +23,7 @@ $PSNativeCommandUseErrorActionPreference = $true
 
 # ? Allow toggling CI in order to test local dev workflows
 $CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
-$Env:UV_SYSTEM_PYTHON = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:UV_SYSTEM_PYTHON
+$Env:UV_SYSTEM_PYTHON = $CI ? $true : $null
 
 # ? Don't pre-sync or post-sync in CI
 $NoPreSync = $NoPreSync ? $NoPreSync : [bool]$CI
@@ -71,7 +71,7 @@ else {
     "Using $(Resolve-Path $py -Relative)" | Write-Progress -Info
 }
 # ? Install the `boilercv_tools` Python module
-bin/uv pip install --link-mode=clone --editable=scripts
+bin/uv pip install --editable=scripts
 'TOOLS INSTALLED' | Write-Progress -Done
 
 # ? Pre-sync
@@ -105,13 +105,13 @@ if ('dvc' | Test-CommandLock) {
         Write-Progress
     $CompNoDvc = Get-Content $Comp | Select-String -Pattern '^(?!dvc[^-])'
     $CompNoDvc | Set-Content $Comp
-    if ($CI) { bin/uv pip install --link-mode=clone --requirement=$Comp }
-    else { bin/uv pip install --link-mode=clone --requirement=$Comp }
+    if ($CI) { bin/uv pip install --requirement=$Comp }
+    else { bin/uv pip install --requirement=$Comp }
     'DEPENDENCIES INSTALLED' | Write-Progress -Done
 }
 else {
     'SYNCING DEPENDENCIES' | Write-Progress
-    bin/uv pip sync --link-mode=clone $Comp
+    bin/uv pip sync $Comp
     'DEPENDENCIES SYNCED' | Write-Progress -Done
 }
 
