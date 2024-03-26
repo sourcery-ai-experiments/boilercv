@@ -8,7 +8,8 @@ function Get-Py {
     Get virtual environment Python interpreter, creating it if necessary.#>
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
     process {
-        if (!(Test-Path $VenvPath)) { bin/uv venv --python $Version }
+        $SysPy = $Version | Get-PySystem
+        if (!(Test-Path $VenvPath)) { & $SysPy -m venv $VenvPath }
         $VenvPy = Start-PyVenv
         $foundVersion = & $VenvPy --version
         if ($foundVersion |
@@ -18,15 +19,6 @@ function Get-Py {
         Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
         return Get-Py $Version
     }
-}
-
-function Start-PyVenv {
-    <#.SYNOPSIS
-    Activate and get the Python interpreter for the virtual environment.#>
-    if ($IsWindows) { $bin = 'Scripts'; $py = 'python.exe' }
-    else { $bin = 'bin'; $py = 'python' }
-    & "$VenvPath/$bin/Activate.ps1"
-    return "$Env:VIRTUAL_ENV/$bin/$py"
 }
 
 function Get-PySystem {
@@ -50,4 +42,13 @@ function Get-PySystem {
         else { throw "Expected Python $Version, which does not appear to be installed. Ensure it is installed (e.g. from https://www.python.org/downloads/) and run this script again." }
         return & $py -c $command
     }
+}
+
+function Start-PyVenv {
+    <#.SYNOPSIS
+    Activate and get the Python interpreter for the virtual environment.#>
+    if ($IsWindows) { $bin = 'Scripts'; $py = 'python.exe' }
+    else { $bin = 'bin'; $py = 'python' }
+    & "$VenvPath/$bin/Activate.ps1"
+    return "$Env:VIRTUAL_ENV/$bin/$py"
 }
