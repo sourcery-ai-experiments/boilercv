@@ -15,20 +15,53 @@ Param(
 
 Import-Module ./scripts/Common.psm1, ./scripts/CrossPy.psm1
 
+'*** SYNCING' | Write-Progress
+
 # ? Stop on first error and enable native command error propagation.
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
-$PSNativeCommandUseErrorActionPreference | Out-Null
 
 # ? Allow toggling CI in order to test local dev workflows
-$Env:CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
+$CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
+$Env:UV_SYSTEM_PYTHON = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:UV_SYSTEM_PYTHON
 
-# ? Get Python interpreter, prepare to sync
-'*** SYNCING' | Write-Progress
-$re = Get-Content .copier-answers.yml |
+# ? Don't pre-sync or post-sync in CI
+$NoPreSync = $NoPreSync ? $NoPreSync : [bool]$CI
+$NoPostSync = $NoPostSync ? $NoPostSync : [bool]$CI
+(
+    $($CI ? 'Will act as if in CI' : 'Will act as if running locally'),
+    $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks'),
+    $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks')
+) | Write-Progress -Info
+
+# ? Install uv
+$uvVersionRe = Get-Content 'requirements/uv.in' | Select-String -Pattern '^uv==(.+)$'
+$uvVersion = $uvVersionRe.Matches.Groups[1].value
+if ((Get-Item 'bin/uv*') -and (bin/uv --version | Select-String $uvVersion)) {
+    'Correct uv already installed' | Write-Progress -Info
+}
+else {
+    'INSTALLING UV' | Write-Progress
+    $Env:CARGO_HOME = '.'
+    if ($IsWindows) {
+        $uvInstaller = "$([System.IO.Path]::GetTempPath())$([System.Guid]::NewGuid()).ps1"
+        Invoke-RestMethod "https://github.com/astral-sh/uv/releases/download/$uvVersion/uv-installer.ps1" |
+            Out-File $uvInstaller
+        powershell -Command "$uvInstaller -NoModifyPath"
+    }
+    else {
+        $Env:INSTALLER_NO_MODIFY_PATH = $true
+        curl --proto '=https' --tlsv1.2 -LsSf "https://github.com/astral-sh/uv/releases/download/$uvVersion/uv-installer.sh" |
+            sh
+    }
+    'UV INSTALLED' | Write-Progress -Done
+}
+
+# ? Synchronize local environment and return if not in CI
+'INSTALLING TOOLS' | Write-Progress
+$pyDevVersionRe = Get-Content '.copier-answers.yml' |
     Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$'
-$pyDevVersion = $re.Matches.Groups[1].value
-$Version = $Version ? $Version : $pyDevVersion
+$Version = $Version ? $Version : $pyDevVersionRe.Matches.Groups[1].value
 if ($Env:CI) {
     $py = $Version | Get-PySystem
     "Using $(Resolve-Path $py)" | Write-Progress -Info
@@ -37,25 +70,9 @@ else {
     $py = $Version | Get-Py
     "Using $(Resolve-Path $py -Relative)" | Write-Progress -Info
 }
-
-# ? Don't pre-sync or post-sync in CI
-$NoPreSync = $NoPreSync ? $NoPreSync : [bool]$Env:CI
-$NoPostSync = $NoPostSync ? $NoPostSync : [bool]$Env:CI
-(
-    $($Env:CI ? 'Will act as if in CI' : 'Will act as if running locally'),
-    $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks'),
-    $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks')
-) | Write-Progress -Info
-
-# ? Install dependencies for pre-sync tasks and syncing
-'INSTALLING PRE-SYNC DEPENDENCIES' | Write-Progress
-pip install --quiet --requirement=requirements/sync.in
-'PRE-SYNC DEPENDENCIES INSTALLED' | Write-Progress -Done
-
-'INSTALLING TOOLS' | Write-Progress
 # ? Install the `boilercv_tools` Python module
-if ($Env:CI) { uv pip install --system --break-system-packages --editable=scripts }
-else { uv pip install --editable=scripts }
+bin/uv pip install --link-mode=clone --editable=scripts
+'TOOLS INSTALLED' | Write-Progress -Done
 
 # ? Pre-sync
 if (!$NoPreSync) {
@@ -65,11 +82,6 @@ if (!$NoPreSync) {
     'SUBMODULES SYNCED' | Write-Progress -Done
     '' | Write-Host
     '*** PRE-SYNC DONE ***' | Write-Progress -Done
-}
-if ($Env:CI) {
-    'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
-    scripts/Sync-Template.ps1 -Stay
-    'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
 
 # ? Compile
@@ -93,14 +105,13 @@ if ('dvc' | Test-CommandLock) {
         Write-Progress
     $CompNoDvc = Get-Content $Comp | Select-String -Pattern '^(?!dvc[^-])'
     $CompNoDvc | Set-Content $Comp
-    if ($Env:CI) { uv pip install --system --break-system-packages --editable=$Comp }
-    else { uv pip install --requirement=$Comp }
+    if ($CI) { bin/uv pip install --link-mode=clone --requirement=$Comp }
+    else { bin/uv pip install --link-mode=clone --requirement=$Comp }
     'DEPENDENCIES INSTALLED' | Write-Progress -Done
 }
 else {
     'SYNCING DEPENDENCIES' | Write-Progress
-    if ($Env:CI) { uv pip sync --system --break-system-packages $Comp }
-    else { uv pip sync $Comp }
+    bin/uv pip sync --link-mode=clone $Comp
     'DEPENDENCIES SYNCED' | Write-Progress -Done
 }
 
@@ -116,8 +127,17 @@ if (!$NoPostSync) {
     & $py -m boilercv.models.params
     'BOILERCV PARAMS SYNCED' | Write-Progress
     '' | Write-Host
-    '*** POST-SYNC TASKS COMPLETE ***' | Write-Progress -Done
+    '*** POST-SYNC DONE ***' | Write-Progress -Done
+}
+# ? Sync project with template in CI
+if ($CI) {
+    'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
+    scripts/Sync-Template.ps1 -Stay
+    'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
 
 '' | Write-Host
 '*** DONE ***' | Write-Progress -Done
+
+# ? Stop PSScriptAnalyzer from complaining about these "unused" variables
+$PSNativeCommandUseErrorActionPreference, $NoModifyPath | Out-Null
