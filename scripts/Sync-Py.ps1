@@ -114,7 +114,8 @@ if (!$NoPostSync) {
     & $py -m boilercv_tools 'sync-local-dev-configs'
     'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
     'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
-    pre-commit install
+    $scripts = Split-Path $py
+    & "$scripts/pre-commit" install
     'SYNCING BOILERCV PARAMS' | Write-Progress
     & $py -m boilercv.models.params
     'BOILERCV PARAMS SYNCED' | Write-Progress
