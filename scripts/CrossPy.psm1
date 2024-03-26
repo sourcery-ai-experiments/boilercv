@@ -41,13 +41,9 @@ function Start-PyVenv {
     <#.SYNOPSIS
     Activate and get the Python interpreter for the virtual environment.#>
     if (Test-Path ('.venv/Scripts')) {
-        Get-ChildItem '.venv/Scripts' | Write-Host
-        .venv/Scripts/activate
-        if (Test-Path '.venv/Scripts/python.exe') { return '.venv/Scripts/python.exe' }
-        else { return '.venv/Scripts/python' }
+        .venv/Scripts/Activate.ps1
+        return '.venv/Scripts/python.exe'
     }
-    Get-ChildItem '.venv/bin' | Write-Host
-    .venv/bin/activate
-    if (Test-Path '.venv/bin/python.exe') { return '.venv/bin/python.exe' }
-    else { return '.venv/bin/python' }
+    .venv/bin/activate.ps1
+    return '.venv/bin/python.exe'
 }
