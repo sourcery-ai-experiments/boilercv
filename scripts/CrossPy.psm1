@@ -34,7 +34,7 @@ function Get-PySystem {
     }
     process {
         $command = 'from sys import executable; print(executable)'
-        if ((Test-Command 'py') -and (py '--list' | Select-String -Pattern "^\s?-V:$([Regex]::Escape($Version))")) {
+        if ((Test-Command 'py') -and (py '--list' | Select-String -Pattern "^\s?(?:-V)?:$([Regex]::Escape($Version))")) {
             return & py -$Version -c $command
         }
         elseif (Test-Command ($py = "python$Version")) { }
