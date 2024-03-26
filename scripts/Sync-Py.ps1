@@ -90,13 +90,6 @@ $Comps = boilercv_tools compile
 $Comp = $High ? $Comps[1] : $Comps[0]
 'COMPILED' | Write-Progress -Done
 
-# ? Lock
-if ($Lock) {
-    'LOCKING' | Write-Progress
-    boilercv_tools lock
-    'LOCKED' | Write-Progress -Done
-}
-
 # ? Sync
 if ('dvc' | Test-CommandLock) {
     'The DVC VSCode extension is locking `dvc.exe` (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' |
@@ -133,6 +126,13 @@ if ($CI) {
     'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
     scripts/Sync-Template.ps1 -Stay
     'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
+}
+
+# ? Lock
+if ($Lock) {
+    'LOCKING' | Write-Progress
+    boilercv_tools lock
+    'LOCKED' | Write-Progress -Done
 }
 
 '' | Write-Host
