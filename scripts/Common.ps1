@@ -76,8 +76,8 @@ function Start-PyVenv {
     Param([Parameter(ValueFromPipeline)][string]$Path = '.venv')
     process {
         if (Test-Path ($scripts = "$Path/Scripts")) {
-            & "$Scripts/Activate.ps1"
-            return "$Scripts/python.exe"
+            & "$scripts/Activate.ps1"
+            return "$scripts/python.exe"
         }
         & "$($bin = "$Path/bin")/activate.ps1"
         return "$bin/python"
