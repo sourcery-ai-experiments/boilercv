@@ -41,11 +41,11 @@ function Start-PyVenv {
     <#.SYNOPSIS
     Activate and get the Python interpreter for the virtual environment.#>
     if (Test-Path ('.venv/Scripts')) {
-        .venv/Scripts/Activate.ps1
+        .venv/Scripts/activate
         if (Test-Path '.venv/Scripts/python.exe') { return '.venv/Scripts/python.exe' }
         else { return '.venv/Scripts/python' }
     }
-    .venv/bin/Activate.ps1
+    .venv/bin/activate
     if (Test-Path '.venv/bin/python.exe') { return '.venv/bin/python.exe' }
     else { return '.venv/bin/python' }
 }
