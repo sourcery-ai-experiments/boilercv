@@ -43,7 +43,7 @@ function Get-PySystem {
     }
     else {
         $SysPy = & $py -c $getExe
-        if (& $py $Version | Select-String -Pattern $([Regex]::Escape($Version))) {
+        if (Select-PyVersion $py $Version) {
             return & $SysPy
         }
     }
