@@ -23,7 +23,7 @@ $PSNativeCommandUseErrorActionPreference = $true
 
 # ? Allow toggling CI in order to test local dev workflows
 $CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
-$Env:UV_SYSTEM_PYTHON = $CI ? $true : $null
+$Env:UV_SYSTEM_PYTHON = $CI ? 'true' : 'false'
 
 # ? Don't pre-sync or post-sync in CI
 $NoPreSync = $NoPreSync ? $NoPreSync : [bool]$CI
@@ -62,7 +62,7 @@ else {
 $pyDevVersionRe = Get-Content '.copier-answers.yml' |
     Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$'
 $Version = $Version ? $Version : $pyDevVersionRe.Matches.Groups[1].value
-if ($Env:CI) {
+if ($CI) {
     $py = $Version | Get-PySystem
     "Using $(Resolve-Path $py)" | Write-Progress -Info
 }
@@ -105,8 +105,7 @@ if ('dvc' | Test-CommandLock) {
         Write-Progress
     $CompNoDvc = Get-Content $Comp | Select-String -Pattern '^(?!dvc[^-])'
     $CompNoDvc | Set-Content $Comp
-    if ($CI) { bin/uv pip install --requirement=$Comp }
-    else { bin/uv pip install --requirement=$Comp }
+    bin/uv pip install --requirement=$Comp
     'DEPENDENCIES INSTALLED' | Write-Progress -Done
 }
 else {
