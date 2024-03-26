@@ -45,5 +45,5 @@ function Start-PyVenv {
         return '.venv/Scripts/python.exe'
     }
     .venv/bin/activate.ps1
-    return '.venv/bin/python.exe'
+    return '.venv/bin/python'
 }
