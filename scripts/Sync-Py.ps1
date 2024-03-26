@@ -37,7 +37,7 @@ $NoPostSync = $NoPostSync ? $NoPostSync : [bool]$CI
 # ? Install uv
 $uvVersionRe = Get-Content 'requirements/uv.in' | Select-String -Pattern '^uv==(.+)$'
 $uvVersion = $uvVersionRe.Matches.Groups[1].value
-if ((Get-Item 'bin/uv*') -and (bin/uv --version | Select-String $uvVersion)) {
+if ((Test-Path 'bin/uv*') -and (bin/uv --version | Select-String $uvVersion)) {
     'Correct uv already installed' | Write-Progress -Info
 }
 else {
