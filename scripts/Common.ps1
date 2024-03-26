@@ -51,13 +51,13 @@ function Get-PySystem {
     # ? Install the correct Python from any system Python
     'Could not find correct version of Python' | Write-Progress -Info
     'DOWNLOADING AND INSTALLING CORRECT PYTHON VERSION TO PROJECT BIN' | Write-Progress
-    $SysPyVenv = 'bin/sys_venv'
-    if (!(Test-Path $SysPyVenv)) {
-        bin/uv venv $SysPyVenv --python $SysPy
+    $SysPyVenvPath = 'bin/sys_venv'
+    if (!(Test-Path $SysPyVenvPath)) {
+        bin/uv venv $SysPyVenvPath --python $SysPy
     }
-    $SysPyVenv | Start-PyVenv | Out-Null
+    $SysPyVenv = Start-PyVenv $SysPyVenvPath
     bin/uv pip install $(Get-Content 'requirements/install.in')
-    return python scripts/install.py $Version
+    return & $SysPyVenv scripts/install.py $Version
 }
 
 function Get-PyVenv {
@@ -65,7 +65,7 @@ function Get-PyVenv {
     Select a Python virtual environment.#>
     Param([Parameter(Mandatory)][string]$Version, [string]$Path = '.venv')
     if (Test-Path $Path) {
-        if (Select-PyVersion ($VenvPy = $Path | Start-PyVenv) $Version) {
+        if (Select-PyVersion ($VenvPy = Start-PyVenv $Path) $Version) {
             return $VenvPy
         }
         Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
@@ -81,7 +81,8 @@ function Start-PyVenv {
             & "$scripts/Activate.ps1"
             return "$scripts/python.exe"
         }
-        & "$($bin = "$Path/bin")/activate.ps1"
+        $bin = "$Path/bin"
+        & "$bin/activate.ps1"
         return "$bin/python"
     }
 }

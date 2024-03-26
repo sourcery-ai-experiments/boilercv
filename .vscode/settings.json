@@ -7,9 +7,9 @@
   // * ----------------------------------------------------------------------------- * #
   //! Terminal
   //? Use PowerShell on all platforms, facilitates running template scripts
-  "terminal.integrated.defaultProfile.windows": "PowerShell",
-  "terminal.integrated.defaultProfile.linux": "PowerShell",
-  "terminal.integrated.defaultProfile.osx": "PowerShell",
+  "terminal.integrated.defaultProfile.windows": "pwsh",
+  "terminal.integrated.defaultProfile.linux": "pwsh",
+  "terminal.integrated.defaultProfile.osx": "pwsh",
   //! File excludes
   "files.exclude": {
     //? Cache directory set in `pyproject.toml`
