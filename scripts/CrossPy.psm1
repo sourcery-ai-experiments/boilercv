@@ -1,7 +1,7 @@
 <#.SYNOPSIS
 Cross-platform support for getting system and virtual environment Python interpreters.#>
 
-$VenvPath = '.venv'
+$command = 'from sys import executable; print(executable)'
 
 function Get-Py {
     <#.SYNOPSIS
@@ -9,7 +9,7 @@ function Get-Py {
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
     process {
         $SysPy = $Version | Get-PySystem
-        if (!(Test-Path $VenvPath)) { bin/uv venv }
+        if (!(Test-Path '.venv')) { bin/uv venv }
         $VenvPy = Start-PyVenv
         $foundVersion = & $VenvPy --version
         if ($foundVersion |
@@ -25,16 +25,9 @@ function Get-PySystem {
     <#.SYNOPSIS
     Get system Python interpreter.#>
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
-    begin {
-        function Test-Command {
-            <#.SYNOPSIS
-            Like `Get-Command` but errors are ignored.#>
-            return Get-Command @args -ErrorAction 'Ignore'
-        }
-    }
+    begin { function Test-Command { return Get-Command @args -ErrorAction 'Ignore' } }
     process {
-        $command = 'from sys import executable; print(executable)'
-        if ((Test-Command 'py') -and (py '--list' | Select-String -Pattern "^\s?(?:-V)?:$([Regex]::Escape($Version))")) {
+        if ((Test-Command 'py') -and (py '--list' | Select-String -Pattern [Regex]::Escape($Version))) {
             return & py -$Version -c $command
         }
         elseif (Test-Command ($py = "python$Version")) { }
@@ -47,8 +40,12 @@ function Get-PySystem {
 function Start-PyVenv {
     <#.SYNOPSIS
     Activate and get the Python interpreter for the virtual environment.#>
-    if ($IsWindows) { $bin = 'Scripts'; $py = 'python.exe' }
-    else { $bin = 'bin'; $py = 'python' }
-    & "$VenvPath/$bin/Activate.ps1"
-    return "$Env:VIRTUAL_ENV/$bin/$py"
+    if (Test-Path ('.venv/Scripts')) {
+        .venv/Scripts/Activate.ps1
+        if (Test-Path '.venv/Scripts/python.exe') { return '.venv/Scripts/python.exe' }
+        else { return '.venv/Scripts/python' }
+    }
+    .venv/bin/Activate.ps1
+    if (Test-Path '.venv/bin/python.exe') { return '.venv/bin/python.exe' }
+    else { return '.venv/bin/python' }
 }
