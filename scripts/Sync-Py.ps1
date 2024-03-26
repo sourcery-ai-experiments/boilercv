@@ -61,7 +61,7 @@ $pyDevVersionRe = Get-Content '.copier-answers.yml' |
     Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$'
 $Version = $Version ? $Version : $pyDevVersionRe.Matches.Groups[1].value
 if ($CI) {
-    $py = $Version | Get-PySystem
+    $py = Get-PySystem $Version
     "Using $(Resolve-Path $py)" | Write-Progress -Info
 }
 else {
