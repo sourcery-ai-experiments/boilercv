@@ -86,7 +86,7 @@ if (!$NoPreSync) {
 
 # ? Compile
 'COMPILING' | Write-Progress
-$Comps = boilercv_tools compile
+$Comps = & $py -m boilercv_tools compile
 $Comp = $High ? $Comps[1] : $Comps[0]
 'COMPILED' | Write-Progress -Done
 
@@ -111,7 +111,7 @@ else {
 if (!$NoPostSync) {
     '*** RUNNING POST-SYNC TASKS' | Write-Progress
     'SYNCING LOCAL DEV CONFIGS' | Write-Progress
-    boilercv_tools 'sync-local-dev-configs'
+    & $py -m boilercv_tools 'sync-local-dev-configs'
     'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
     'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
     pre-commit install
@@ -131,7 +131,7 @@ if ($CI) {
 # ? Lock
 if ($Lock) {
     'LOCKING' | Write-Progress
-    boilercv_tools lock
+    & $py -m boilercv_tools lock
     'LOCKED' | Write-Progress -Done
 }
 
