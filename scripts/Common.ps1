@@ -30,8 +30,10 @@ function Get-PySystem {
     elseif (($py = "python$Version") | Get-Command -ErrorAction 'Ignore') { return & $py -c $getExe }
 
     # ? Get the global interpreter, returning early if its the correct Python
-    $py = ('py' | Get-Command -ErrorAction 'Ignore') ? 'py' : 'python'
-    if (!$py) { throw 'Python does not appear to be installed. Install it from https://www.python.org.' }
+    if ($py = Get-Command -Name 'py' -ErrorAction 'Ignore') { }
+    elseif ($py = Get-Command -Name 'python3' -ErrorAction 'Ignore') { }
+    elseif ($py = Get-Command -Name 'python' -ErrorAction 'Ignore') { }
+    else { throw 'Python does not appear to be installed. Install it from https://www.python.org.' }
     'Looking for suitable global Python interpreter' | Write-Progress -Info
     if ($py -eq 'py') {
         $SysPy = & $py -$Version -c $getExe
