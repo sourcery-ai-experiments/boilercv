@@ -27,7 +27,7 @@ function Get-PySystem {
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
     begin { function Test-Command { return Get-Command @args -ErrorAction 'Ignore' } }
     process {
-        if ((Test-Command 'py') -and (py '--list' | Select-String -Pattern [Regex]::Escape($Version))) {
+        if ((Test-Command 'py') -and (py '--list' | Select-String -Pattern "^.*$([Regex]::Escape($Version)))) {
             return & py -$Version -c $command
         }
         elseif (Test-Command ($py = "python$Version")) { }
