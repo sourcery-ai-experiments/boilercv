@@ -13,6 +13,8 @@ tests/plots
 
 # uv binary
 bin
+# Pythons
+.pythons
 # Locally-compiled dependencies
 .comps
 # Ignore `.ruff-cache` just in case, and to grey it out in the sidebar

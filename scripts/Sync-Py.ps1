@@ -13,7 +13,7 @@ Param(
     [switch]$NoPostSync
 )
 
-Import-Module ./scripts/Common.psm1, ./scripts/CrossPy.psm1
+. scripts/Common.ps1
 
 '*** SYNCING' | Write-Progress
 
@@ -23,13 +23,13 @@ $PSNativeCommandUseErrorActionPreference = $true
 
 # ? Allow toggling CI in order to test local dev workflows
 $CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
-$Env:UV_SYSTEM_PYTHON = $CI ? 'true' : 'false'
+$Env:UV_SYSTEM_PYTHON = $CI ? 'true' : $null
 
 # ? Don't pre-sync or post-sync in CI
 $NoPreSync = $NoPreSync ? $NoPreSync : [bool]$CI
 $NoPostSync = $NoPostSync ? $NoPostSync : [bool]$CI
 (
-    $($CI ? 'Will act as if in CI' : 'Will act as if running locally'),
+    $($CI ? 'Will run CI steps' : 'Will run local steps'),
     $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks'),
     $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks')
 ) | Write-Progress -Info
@@ -37,19 +37,17 @@ $NoPostSync = $NoPostSync ? $NoPostSync : [bool]$CI
 # ? Install uv
 $uvVersionRe = Get-Content 'requirements/uv.in' | Select-String -Pattern '^uv==(.+)$'
 $uvVersion = $uvVersionRe.Matches.Groups[1].value
-if ((Test-Path 'bin/uv*') -and (bin/uv --version | Select-String $uvVersion)) {
-    'Correct uv already installed' | Write-Progress -Info
-}
-else {
-    'INSTALLING UV' | Write-Progress
+if (!(Test-Path 'bin/uv*') -or !(bin/uv --version | Select-String $uvVersion)) {
     $Env:CARGO_HOME = '.'
     if ($IsWindows) {
+        'INSTALLING UV FOR WINDOWS' | Write-Progress
         $uvInstaller = "$([System.IO.Path]::GetTempPath())$([System.Guid]::NewGuid()).ps1"
         Invoke-RestMethod "https://github.com/astral-sh/uv/releases/download/$uvVersion/uv-installer.ps1" |
             Out-File $uvInstaller
         powershell -Command "$uvInstaller -NoModifyPath"
     }
     else {
+        'INSTALLING UV' | Write-Progress
         $Env:INSTALLER_NO_MODIFY_PATH = $true
         curl --proto '=https' --tlsv1.2 -LsSf "https://github.com/astral-sh/uv/releases/download/$uvVersion/uv-installer.sh" |
             sh
