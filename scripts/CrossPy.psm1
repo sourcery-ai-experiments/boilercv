@@ -9,7 +9,7 @@ function Get-Py {
     Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
     process {
         $SysPy = $Version | Get-PySystem
-        if (!(Test-Path $VenvPath)) { & $SysPy -m venv $VenvPath }
+        if (!(Test-Path $VenvPath)) { bin/uv venv }
         $VenvPy = Start-PyVenv
         $foundVersion = & $VenvPy --version
         if ($foundVersion |
