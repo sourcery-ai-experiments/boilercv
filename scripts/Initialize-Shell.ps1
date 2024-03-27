@@ -29,7 +29,7 @@ function Start-Venv {
     <#.SYNOPSIS
     Activate a virtual environment in the current directory.#>
     if (Test-Path '.venv/Scripts') { return .venv/Scripts/Activate.ps1 }
-    return .venv/bin/activate.ps1
+    return .venv/bin/Activate.ps1
 }
 function Set-Env {
     <#.SYNOPSIS
