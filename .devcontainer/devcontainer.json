@@ -1,5 +1,5 @@
 {
-  "name": "boilercv",
+  "name": "devcontainer",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "postCreateCommand": "pwsh scripts/Sync-Py.ps1",
   "postAttachCommand": "pwsh scripts/Sync-Py.ps1",
@@ -26,7 +26,6 @@
     "vscode": {
       "settings": {
         "notebook.experimental.remoteSave": true,
-        "workbench.enableExperiments": true,
         "python.experiments.enabled": true,
         "python.experiments.optInto": [
           "pythonDiscoveryUsingWorkers",

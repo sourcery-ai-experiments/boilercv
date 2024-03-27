@@ -95,6 +95,7 @@
   //* MyST
   "myst.preview.extensions": ["colon_fence", "dollarmath"],
   //* Pylance
+  "python.terminal.activateEnvInCurrentTerminal": true,
   "python.languageServer": "Pylance",
   "python.analysis.typeCheckingMode": "strict",
   "python.analysis.autoFormatStrings": true,
@@ -107,7 +108,6 @@
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.inlayHints.pytestParameters": true,
   "python.analysis.inlayHints.variableTypes": true,
-  "python.terminal.activateEnvInCurrentTerminal": true,
   //* Rewrap
   "rewrap.wrappingColumn": 88,
   "rewrap.wholeComment": false,
