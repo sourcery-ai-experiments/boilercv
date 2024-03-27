@@ -1,7 +1,7 @@
 {
   "name": "boilercv",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
-  "onCreateCommand": "scripts/Sync-Py.ps1",
+  "postCreateCommand": "scripts/Sync-Py.ps1",
   "postAttachCommand": "scripts/Sync-Py.ps1",
   "containerEnv": {
     "DEVCONTAINER": "1",
