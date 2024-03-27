@@ -44,7 +44,7 @@ function Get-PySystem {
     'Could not find correct version of Python' | Write-Progress -Info
     'DOWNLOADING AND INSTALLING CORRECT PYTHON VERSION TO PROJECT BIN' | Write-Progress
     $SysPyVenvPath = 'bin/sys_venv'
-    if (!(Test-Path $SysPyVenvPath)) { uv venv $SysPyVenvPath --python $SysPy }
+    if (!(Test-Path $SysPyVenvPath)) { bin/uv venv $SysPyVenvPath --python $SysPy }
     $SysPyVenv = Start-PyVenv $SysPyVenvPath
     bin/uv pip install $(Get-Content 'requirements/install.in')
     return & $SysPyVenv scripts/install.py $Version

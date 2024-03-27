@@ -14,12 +14,9 @@ Param(
 )
 
 . scripts/Common.ps1
+. scripts/Initialize-Shell.ps1
 
 '*** SYNCING' | Write-Progress
-
-# ? Stop on first error and enable native command error propagation.
-$ErrorActionPreference = 'Stop'
-$PSNativeCommandUseErrorActionPreference = $true
 
 # ? Allow toggling CI in order to test local dev workflows
 $CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
