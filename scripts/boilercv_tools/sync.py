@@ -164,7 +164,7 @@ def comp(high: bool, no_deps: bool) -> str:
     result = run(
         args=split(
             sep.join([
-                f"bin/uv pip compile --python-version {VERSION}",
+                f"uv pip compile --python-version {VERSION}",
                 f"--resolution {'highest' if high else 'lowest-direct'}",
                 f"--exclude-newer {datetime.now(UTC).isoformat().replace('+00:00', 'Z')}",
                 f"--all-extras {'--no-deps' if no_deps else ''}",

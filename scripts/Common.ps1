@@ -4,17 +4,15 @@ Common utilities.#>
 function Get-Py {
     <#.SYNOPSIS
     Get virtual environment Python interpreter, creating it if necessary.#>
-    Param([Parameter(Mandatory, ValueFromPipeline)][string]$Version)
-    process {
-        if (Test-Path '.venv') {
-            $VenvPy = Start-PyVenv
-            if (Select-PyVersion $VenvPy $Version) { return $VenvPy }
-            'Virtual environment is the wrong Python version' | Write-Progress -Info
-            Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
-        }
-        bin/uv venv --python $(Get-PySystem $Version)
-        return Start-PyVenv
+    Param([Parameter(Mandatory)][string]$Version)
+    if (Test-Path '.venv') {
+        $VenvPy = Start-PyVenv
+        if (Select-PyVersion $VenvPy $Version) { return $VenvPy }
+        'Virtual environment is the wrong Python version' | Write-Progress -Info
+        Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
     }
+    & $(Get-PySystem $Version) -m venv '.venv'
+    return Start-PyVenv
 }
 
 function Get-PySystem {
@@ -44,9 +42,9 @@ function Get-PySystem {
     'Could not find correct version of Python' | Write-Progress -Info
     'DOWNLOADING AND INSTALLING CORRECT PYTHON VERSION TO PROJECT BIN' | Write-Progress
     $SysPyVenvPath = 'bin/sys_venv'
-    if (!(Test-Path $SysPyVenvPath)) { bin/uv venv $SysPyVenvPath --python $SysPy }
+    if (!(Test-Path $SysPyVenvPath)) { & $SysPy -m venv $SysPyVenvPath }
     $SysPyVenv = Start-PyVenv $SysPyVenvPath
-    bin/uv pip install $(Get-Content 'requirements/install.in')
+    uv pip install $(Get-Content 'requirements/install.in')
     return & $SysPyVenv scripts/install.py $Version
 }
 
@@ -60,7 +58,7 @@ function Start-PyVenv {
             return "$scripts/python.exe"
         }
         $bin = "$Path/bin"
-        & "$bin/activate.ps1"
+        & "$bin/Activate.ps1"
         return "$bin/python"
     }
 }
@@ -68,12 +66,8 @@ function Start-PyVenv {
 function Select-PyVersion {
     <#.SYNOPSIS
     Select Python version.#>
-    Param(
-        [Parameter(Mandatory)][string]$Py,
-        [Parameter(Mandatory)][string]$Version,
-        [switch]$Launcher
-    )
-    $versions = $Launcher ? (& $py --list) : (& $Py --version)
+    Param([Parameter(Mandatory)][string]$Py, [Parameter(Mandatory)][string]$Version)
+    $versions = ($py -eq 'py') ? (& $py --list) : (& $Py --version)
     return $versions | Select-String -Pattern $([Regex]::Escape($Version))
 }
 

@@ -34,7 +34,7 @@ $NoPostSync = $NoPostSync ? $NoPostSync : [bool]$CI
 # ? Install uv
 $uvVersionRe = Get-Content 'requirements/uv.in' | Select-String -Pattern '^uv==(.+)$'
 $uvVersion = $uvVersionRe.Matches.Groups[1].value
-if (!(Test-Path 'bin/uv*') -or !(bin/uv --version | Select-String $uvVersion)) {
+if (!(Test-Path 'bin/uv*') -or !(uv --version | Select-String $uvVersion)) {
     $Env:CARGO_HOME = '.'
     if ($IsWindows) {
         'INSTALLING UV FOR WINDOWS' | Write-Progress
@@ -62,11 +62,11 @@ if ($CI) {
     "Using $(Resolve-Path $py)" | Write-Progress -Info
 }
 else {
-    $py = $Version | Get-Py
+    $py = Get-Py $Version
     "Using $(Resolve-Path $py -Relative)" | Write-Progress -Info
 }
 # ? Install the `boilercv_tools` Python module
-bin/uv pip install --editable=scripts
+uv pip install --editable=scripts
 'TOOLS INSTALLED' | Write-Progress -Done
 
 # ? Pre-sync
@@ -93,12 +93,12 @@ if ('dvc' | Test-CommandLock) {
         Write-Progress
     $CompNoDvc = Get-Content $Comp | Select-String -Pattern '^(?!dvc[^-])'
     $CompNoDvc | Set-Content $Comp
-    bin/uv pip install --requirement=$Comp
+    uv pip install --requirement=$Comp
     'DEPENDENCIES INSTALLED' | Write-Progress -Done
 }
 else {
     'SYNCING DEPENDENCIES' | Write-Progress
-    bin/uv pip sync $Comp
+    uv pip sync $Comp
     'DEPENDENCIES SYNCED' | Write-Progress -Done
 }
 
@@ -109,7 +109,7 @@ if (!$NoPostSync) {
     & $py -m boilercv_tools 'sync-local-dev-configs'
     'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
     'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
-    & "$(Split-Path $py)/pre-commit" install
+    pre-commit install
     'SYNCING BOILERCV PARAMS' | Write-Progress
     & $py -m boilercv.models.params
     'BOILERCV PARAMS SYNCED' | Write-Progress
