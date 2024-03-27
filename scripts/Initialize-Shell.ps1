@@ -36,8 +36,6 @@ function Set-Env {
     Load `.env`, activate a virtual environment found here or in parent directories.#>
     # ? Prepend local `bin` to PATH
     $Env:PATH = "bin;$Env:PATH"
-    # ? If `.env` file in PWD, load environment variables
-    Set-PsEnv
     # ? Activate virtual environment if one exists
     if (Test-Path '.venv') { return Start-Venv }
     $originalPwd = $PWD
