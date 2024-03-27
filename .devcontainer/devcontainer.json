@@ -1,7 +1,8 @@
 {
   "name": "boilercv",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
-  "postAttachCommand": "pwsh scripts/Sync-Py.ps1",
+  "onCreateCommand": "scripts/Sync-Py.ps1",
+  "postAttachCommand": "scripts/Sync-Py.ps1",
   "containerEnv": {
     "DEVCONTAINER": "1",
     "PIP_DISABLE_PIP_VERSION_CHECK": "1",
