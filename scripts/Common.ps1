@@ -34,8 +34,9 @@ function Get-PySystem {
     elseif ($py = Get-Command -Name 'python3' -ErrorAction 'Ignore') { }
     elseif ($py = Get-Command -Name 'python' -ErrorAction 'Ignore') { }
     else { throw 'Python does not appear to be installed. Install it from https://www.python.org.' }
+    $py = $py.Name
     'Looking for suitable global Python interpreter' | Write-Progress -Info
-    if ($py.Name -Replace '.exe', '' -eq 'py') {
+    if ($py -Replace '.exe', '' -eq 'py') {
         $SysPy = & $py -$Version -c $getExe
         if (& $py --list | Select-String -Pattern $([Regex]::Escape($Version))) {
             return $SysPy

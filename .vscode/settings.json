@@ -107,6 +107,7 @@
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.inlayHints.pytestParameters": true,
   "python.analysis.inlayHints.variableTypes": true,
+  "python.terminal.activateEnvInCurrentTerminal": true,
   //* Rewrap
   "rewrap.wrappingColumn": 88,
   "rewrap.wholeComment": false,
