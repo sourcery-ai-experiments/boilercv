@@ -1,7 +1,6 @@
 <#.SYNOPSIS
 Common utilities.#>
 
-
 function Get-Py {
     <#.SYNOPSIS
     Get virtual environment Python interpreter, creating it if necessary.#>
@@ -29,48 +28,26 @@ function Get-PySystem {
     if (Test-Path ($py = "bin/python$Version/Scripts/python.exe")) { return $py }
     elseif (($py = "python$Version") | Get-Command -ErrorAction 'Ignore') { return & $py -c $getExe }
 
-    # ? Get the global interpreter, returning early if its the correct Python
-    if ($py = Get-Command -Name 'py' -ErrorAction 'Ignore') { }
-    elseif ($py = Get-Command -Name 'python3' -ErrorAction 'Ignore') { }
-    elseif ($py = Get-Command -Name 'python' -ErrorAction 'Ignore') { }
-    else { throw 'Python does not appear to be installed. Install it from https://www.python.org.' }
-    $py = $py.Name
+    # ? Get the global interpreter, return it if it's the correct Python version
+    if (Get-Command -Name 'py' -ErrorAction 'Ignore') { $py = 'py' }
+    elseif (Get-Command -Name 'python3' -ErrorAction 'Ignore') { $py = 'python3' }
+    elseif (Get-Command -Name 'python' -ErrorAction 'Ignore') { $py = 'python' }
+    else { throw 'Python doesn''t appear to be installed. Install from https://www.python.org.' }
+
+    # ? Look for suitable global Python interpreter, return if correct Python version
     'Looking for suitable global Python interpreter' | Write-Progress -Info
-    if ($py -Replace '.exe', '' -eq 'py') {
-        $SysPy = & $py -$Version -c $getExe
-        if (& $py --list | Select-String -Pattern $([Regex]::Escape($Version))) {
-            return $SysPy
-        }
-    }
-    else {
-        $SysPy = & $py -c $getExe
-        if (Select-PyVersion $py $Version) {
-            return & $SysPy
-        }
-    }
+    if ($py -eq 'py') { $SysPy = & $py -$Version -c $getExe }
+    else { $SysPy = & $py -c $getExe }
+    if (Select-PyVersion $py $Version) { return $SysPy }
 
     # ? Install the correct Python from any system Python
     'Could not find correct version of Python' | Write-Progress -Info
     'DOWNLOADING AND INSTALLING CORRECT PYTHON VERSION TO PROJECT BIN' | Write-Progress
     $SysPyVenvPath = 'bin/sys_venv'
-    if (!(Test-Path $SysPyVenvPath)) {
-        bin/uv venv $SysPyVenvPath --python $SysPy
-    }
+    if (!(Test-Path $SysPyVenvPath)) { uv venv $SysPyVenvPath --python $SysPy }
     $SysPyVenv = Start-PyVenv $SysPyVenvPath
     bin/uv pip install $(Get-Content 'requirements/install.in')
     return & $SysPyVenv scripts/install.py $Version
-}
-
-function Get-PyVenv {
-    <#.SYNOPSIS
-    Select a Python virtual environment.#>
-    Param([Parameter(Mandatory)][string]$Version, [string]$Path = '.venv')
-    if (Test-Path $Path) {
-        if (Select-PyVersion ($VenvPy = Start-PyVenv $Path) $Version) {
-            return $VenvPy
-        }
-        Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
-    }
 }
 
 function Start-PyVenv {
@@ -91,8 +68,13 @@ function Start-PyVenv {
 function Select-PyVersion {
     <#.SYNOPSIS
     Select Python version.#>
-    Param([Parameter(Mandatory)][string]$Py, [Parameter(Mandatory)][string]$Version)
-    return & $Py --version | Select-String -Pattern $([Regex]::Escape($Version))
+    Param(
+        [Parameter(Mandatory)][string]$Py,
+        [Parameter(Mandatory)][string]$Version,
+        [switch]$Launcher
+    )
+    $versions = $Launcher ? (& $py --list) : (& $Py --version)
+    return $versions | Select-String -Pattern $([Regex]::Escape($Version))
 }
 
 function Test-CommandLock {
