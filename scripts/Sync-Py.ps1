@@ -73,11 +73,13 @@ uv pip install --editable=scripts
 if (!$NoPreSync) {
     '*** RUNNING PRE-SYNC TASKS' | Write-Progress
     'SYNCING SUBMODULES' | Write-Progress
-    $repo = Get-ChildItem /workspaces
-    $submodules = Get-ChildItem "$repo/submodules"
-    $safeDirs = @($repo) + $submodules
-    foreach ($dir in $safeDirs) {
-        if (!($safeDirs -contains $dir)) { git config --global --add safe.directory $dir }
+    if ($Env:DEVCONTAINER) {
+        $repo = Get-ChildItem /workspaces
+        $submodules = Get-ChildItem "$repo/submodules"
+        $safeDirs = @($repo) + $submodules
+        foreach ($dir in $safeDirs) {
+            if (!($safeDirs -contains $dir)) { git config --global --add safe.directory $dir }
+        }
     }
     git submodule update --init --merge
     'SUBMODULES SYNCED' | Write-Progress -Done
