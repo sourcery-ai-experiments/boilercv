@@ -1,5 +1,6 @@
 --editable .
 --editable docs/
+--editable pipeline/
 --editable scripts/
 --editable tests/
 --editable submodules/boilercore
