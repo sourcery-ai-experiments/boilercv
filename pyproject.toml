@@ -76,7 +76,7 @@ xfail_strict = true
 
 [tool.coverage.run]
 branch = true
-source = ["boilercv"]
+source = ["boilercv", "boilercv_docs", "boilercv_tests"]
 [tool.coverage.report]
 ignore_errors = true
 

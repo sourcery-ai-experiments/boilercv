@@ -221,17 +221,3 @@ def clean_notebooks(*nbs: Path | str):  # type: ignore  # `nbs` redefined
         for subcmd in [f"nb-clean {files}", f"ruff {files}", f"ruff-format {files}"]
     ]:
         run(cmd, check=False)  # noqa: S603
-
-
-def different(nb: str, docs_nb: str) -> bool:
-    """Check whether notebooks have different cell contents."""
-    return bool(
-        run(
-            split(  # noqa: S603
-                f".venv/scripts/nbdiff {nb} {docs_nb}"
-                " --ignore-outputs --ignore-metadata --ignore-details"
-            ),
-            capture_output=True,
-            check=True,
-        ).stdout
-    )
