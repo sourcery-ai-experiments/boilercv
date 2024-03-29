@@ -33,12 +33,16 @@
       "if (!(Test-Path /.codespaces)) { gcloud auth application-default login }"
     ]
   },
-  "postCreateCommand": [
-    "pwsh",
-    "-Command",
-    "if (Test-Path /.codespaces) { scripts/Sync-Py.ps1 }"
-  ],
-  "postAttachCommand": ["pwsh", "scripts/Sync-Py.ps1"],
+  "postCreateCommand": {
+    "sync-py-in-codespace": [
+      "pwsh",
+      "-Command",
+      "if (Test-Path /.codespaces) { scripts/Sync-Py.ps1 }"
+    ]
+  },
+  "postAttachCommand": {
+    "sync-py": ["pwsh", "scripts/Sync-Py.ps1"]
+  },
   "containerEnv": {
     "DEVCONTAINER": "1",
     "PIP_DISABLE_PIP_VERSION_CHECK": "1",
