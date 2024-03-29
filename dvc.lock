@@ -84,8 +84,8 @@ stages:
       nfiles: 321
     - path: src/boilercv/stages/fill.py
       hash: md5
-      md5: 1a6b4931f599ed8046e1c66a70543159
-      size: 1547
+      md5: f9961dbc00a50d875de35f1321b3536b
+      size: 1554
     outs:
     - path: data/filled
       hash: md5
@@ -236,8 +236,8 @@ stages:
       nfiles: 321
     - path: src/boilercv/stages/find_contours.py
       hash: md5
-      md5: 33a3d4f607e2f0f2d5cf281847d51daf
-      size: 3041
+      md5: 951811e7c26659618be9fc3cab3ba881
+      size: 3079
     outs:
     - path: data/contours
       hash: md5
@@ -329,8 +329,8 @@ stages:
       nfiles: 1
     - path: src/boilercv/correlations.py
       hash: md5
-      md5: 7e30979470e449aa723e740687b69672
-      size: 3465
+      md5: 3e8b1fab94a077028668a49fc8d62817
+      size: 3505
     - path: src/boilercv/stages/compare_theory.py
       hash: md5
       md5: d0f384e7aff32751d19f9b7a4999982c
