@@ -1,28 +1,6 @@
 {
   "name": "devcontainer",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
-  "onCreateCommand": {
-    "install-pyqtgraph-deps": [
-      "pwsh",
-      "-Command",
-      "sudo apt update && sudo apt install --yes libegl1-mesa"
-    ],
-    "set-up-profile": [
-      "pwsh",
-      "-Command",
-      "New-Item -Force $PROFILE && Copy-Item scripts/Initialize-Shell.ps1 $PROFILE"
-    ]
-  },
-  "postAttachCommand": ["pwsh", "scripts/Sync-Py.ps1"],
-  "containerEnv": {
-    "DEVCONTAINER": "1",
-    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
-    "PYDEVD_DISABLE_FILE_VALIDATION": "1",
-    "PYTHONIOENCODING": "utf-8:strict",
-    "PYTHONUTF8": "1",
-    "PYTHONWARNDEFAULTENCODING": "1",
-    "PYTHONWARNINGS": "ignore"
-  },
   "features": {
     "ghcr.io/devcontainers/features/powershell:1.3.4": {
       "version": "7.4.1"
@@ -33,7 +11,42 @@
     "ghcr.io/devcontainers/features/desktop-lite:1.0.8": {
       "noVncVersion": "1.4.0"
     },
+    "ghcr.io/dhoeric/features/google-cloud-cli:1.0.1": {
+      "version": "470.0.0"
+    },
     "ghcr.io/joshuanianji/devcontainer-features/gcloud-cli-persistence:1.0.3": {}
+  },
+  "onCreateCommand": {
+    "install-pyqtgraph-deps": [
+      "pwsh",
+      "-Command",
+      "sudo apt update && sudo apt install --yes libegl1-mesa"
+    ],
+    "set-up-profile": [
+      "pwsh",
+      "-Command",
+      "New-Item -Force $PROFILE && Copy-Item scripts/Initialize-Shell.ps1 $PROFILE"
+    ],
+    "gcloud-login-for-dvc": [
+      "pwsh",
+      "-Command",
+      "if (!(Test-Path /.codespaces)) { gcloud auth application-default login }"
+    ]
+  },
+  "postCreateCommand": [
+    "pwsh",
+    "-Command",
+    "if (Test-Path /.codespaces) { scripts/Sync-Py.ps1 }"
+  ],
+  "postAttachCommand": "scripts/Sync-Py.ps1",
+  "containerEnv": {
+    "DEVCONTAINER": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "PYDEVD_DISABLE_FILE_VALIDATION": "1",
+    "PYTHONIOENCODING": "utf-8:strict",
+    "PYTHONUTF8": "1",
+    "PYTHONWARNDEFAULTENCODING": "1",
+    "PYTHONWARNINGS": "ignore"
   },
   "customizations": {
     "vscode": {
