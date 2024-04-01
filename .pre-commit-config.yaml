@@ -1,11 +1,10 @@
 ci:
   skip:
     - "sync"
+    - "fawltydeps"
     - "pytest-fast-only"
     - "dvc-post-checkout"
     - "dvc-pre-push"
-    - "check-undeclared"
-    - "check-unused"
   autoupdate_schedule: "quarterly"
 default_install_hook_types:
   - pre-commit
@@ -24,18 +23,71 @@ repos:
         stages:
           - "pre-commit"
           - "post-checkout"
+        always_run: true
         pass_filenames: false
         language: "system"
         entry: |
           pwsh -Command ". scripts/Initialize-Shell.ps1; scripts/Sync-Py.ps1"
+        # files: |
+        #   (?x)^(
+        #     .*pyproject\.toml
+        #     |.*(?:ipynb|py)
+        #     |docs
+        #     |pipeline/.*
+        #     |requirements/.*
+        #     |scripts/.*
+        #     |src/.*
+        #     |params\.yaml
+        #   )$
+      - id: "fawltydeps-src"
+        name: "fawltydeps-src"
+        pass_filenames: false
+        language: "system"
+        entry: |
+          pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file pyproject.toml"
         files: |
           (?x)^(
-            .*/pyproject\.toml
-            |docs/.*\.ipynb
-            |params\.yaml
-            |requirements/.*
-            |scripts/.*
-            |src/boilercv/models/.*
+            src/.*$
+          )$
+      - id: "fawltydeps-docs"
+        name: "fawltydeps-docs"
+        pass_filenames: false
+        language: "system"
+        entry: |
+          pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file docs/pyproject.toml"
+        files: |
+          (?x)^(
+            docs/.*$
+          )$
+      - id: "fawltydeps-pipeline"
+        name: "fawltydeps-pipeline"
+        pass_filenames: false
+        language: "system"
+        entry: |
+          pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file pipeline/pyproject.toml"
+        files: |
+          (?x)^(
+            pipeline/.*$
+          )$
+      - id: "fawltydeps-scripts"
+        name: "fawltydeps-scripts"
+        pass_filenames: false
+        language: "system"
+        entry: |
+          pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file scripts/pyproject.toml"
+        files: |
+          (?x)^(
+            scripts/.*$
+          )$
+      - id: "fawltydeps-tests"
+        name: "fawltydeps-tests"
+        pass_filenames: false
+        language: "system"
+        entry: |
+          pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file tests/pyproject.toml"
+        files: |
+          (?x)^(
+            tests/.*$
           )$
       - id: "pytest-fast-only"
         name: "pytest-fast-only"
@@ -64,41 +116,6 @@ repos:
         additional_dependencies: ["dvc[gs]"]
       - id: "dvc-pre-push"
         additional_dependencies: ["dvc[gs]"]
-  - repo: "https://github.com/tweag/FawltyDeps"
-    rev: "v0.15.0"
-    hooks:
-      - id: "check-unused"
-        files: |
-          (?x)^(
-            pyproject\.toml
-          )$
-      - id: "check-undeclared"
-        name: "check-undeclared-src"
-        files: |
-          (?x)^(
-            src/.*
-          )$
-      - id: "check-undeclared"
-        name: "check-undeclared-docs"
-        args: ["--config-file", "docs/pyproject.toml", "--code"]
-        files: |
-          (?x)^(
-            docs/.*
-          )$
-      - id: "check-undeclared"
-        name: "check-undeclared-pipeline"
-        args: ["--config-file", "pipeline/pyproject.toml", "--code"]
-        files: |
-          (?x)^(
-            pipeline/.*
-          )$
-      - id: "check-undeclared"
-        name: "check-undeclared-tests"
-        args: ["--config-file", "tests/pyproject.toml", "--code"]
-        files: |
-          (?x)^(
-            tests/.*
-          )$
   - repo: "https://github.com/DavidAnson/markdownlint-cli2"
     rev: "v0.12.1"
     hooks:

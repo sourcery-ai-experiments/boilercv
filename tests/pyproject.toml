@@ -25,7 +25,14 @@ dependencies = [
 [tool.fawltydeps]
 deps = ["tests/pyproject.toml"]
 code = ["tests/boilercv_tests"]
-ignore_undeclared = ["boilercv"]
+ignore_undeclared = [
+    "boilercore",
+    "boilercv_docs",
+    "boilercv_pipeline",
+    "boilercv_scripts",
+    "boilercv_tests",
+    "boilercv",
+]
 ignore_unused = [
     # ? Core testung tools or plugins
     "pytest-cov",

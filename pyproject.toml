@@ -11,8 +11,8 @@ license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
-    "boilercine @ git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5", # TODO: Swap with `pims`
     "boilercore>=0.0.1",
+    "boilercine @ git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5", # TODO: Swap with `pims`
     "imageio[pyav]>=2.31.1",
     "loguru>=0.7.0",
     "matplotlib>=3.7.2",
@@ -78,7 +78,14 @@ source = [
 ignore_errors = true
 
 [tool.pyright]
-exclude = ["**/node_modules", "**/__pycache__", "**/.*", "bin", "submodules"]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "bin",
+    "submodules/template",
+    "submodules/typings",
+]
 stubPath = "submodules/typings"
 typeCheckingMode = "strict"
 # Default "true" in strict

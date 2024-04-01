@@ -19,3 +19,11 @@ dependencies = [
 actions = ["check_undeclared"]
 deps = ["scripts/pyproject.toml", "pyproject.toml"]
 code = ["scripts/boilercv_tools"]
+ignore_undeclared = [
+    "boilercore",
+    "boilercv_docs",
+    "boilercv_pipeline",
+    "boilercv_scripts",
+    "boilercv_tests",
+    "boilercv",
+]

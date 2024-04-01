@@ -1,6 +1,6 @@
 """Sync tools."""
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from datetime import UTC, date, datetime, time
 from json import dumps, loads
 from pathlib import Path
@@ -12,8 +12,6 @@ from sys import version_info
 from typing import NamedTuple, TypeAlias
 
 # ! For local dev config tooling
-PYRIGHTCONFIG = Path("pyrightconfig.json")
-"""Resulting pyright configuration file."""
 PYTEST = Path("pytest.ini")
 """Resulting pytest configuration file."""
 
@@ -201,27 +199,6 @@ Leaf: TypeAlias = int | float | bool | date | time | str
 """Leaf node."""
 Node: TypeAlias = Leaf | Sequence["Node"] | Mapping[str, "Node"]
 """General node."""
-
-
-def add_pyright_includes(
-    config: dict[str, Node], others: Iterable[Path | str]
-) -> dict[str, Node]:
-    """Include additional paths in pyright configuration.
-
-    Args:
-        config: Pyright configuration.
-        others: Local paths to add to includes.
-
-    Returns:
-        Modified pyright configuration.
-    """
-    includes = config.pop("include", [])
-    if not isinstance(includes, Sequence):
-        raise TypeError("Expected a sequence of includes.")
-    return {
-        "include": [*includes, *[str(Path(incl).as_posix()) for incl in others]],
-        **config,
-    }
 
 
 def disable_concurrent_tests(addopts: str) -> str:

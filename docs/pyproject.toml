@@ -7,7 +7,6 @@ name = "boilercv_docs"
 version = "0.0.0"
 description = "Docs."
 dependencies = [
-    "boilercore>=0.0.1",
     "geopandas>=0.14.3",
     "colorcet>=3.0.1",
     "ipykernel>=6.29.4",
@@ -37,7 +36,14 @@ dependencies = [
 [tool.fawltydeps]
 deps = ["docs/pyproject.toml"]
 code = ["docs"]
-ignore_undeclared = ["boilercv_docs", "boilercv"]
+ignore_undeclared = [
+    "boilercore",
+    "boilercv_docs",
+    "boilercv_pipeline",
+    "boilercv_scripts",
+    "boilercv_tests",
+    "boilercv",
+]
 ignore_unused = [
     # ? Core docs tools or declared as extensions in `conf.py`
     "linkify-it-py",

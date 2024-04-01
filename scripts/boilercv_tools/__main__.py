@@ -2,7 +2,6 @@
 
 import tomllib
 from collections.abc import Collection
-from json import dumps
 from pathlib import Path
 from re import finditer
 from typing import NamedTuple
@@ -13,9 +12,7 @@ from boilercv_tools import sync
 from boilercv_tools.sync import (
     COMPS,
     PYPROJECT,
-    PYRIGHTCONFIG,
     PYTEST,
-    add_pyright_includes,
     disable_concurrent_tests,
     escape,
     get_comp_names,
@@ -85,24 +82,13 @@ def get_actions():
 def sync_local_dev_configs():
     """Synchronize local dev configs to shadow `pyproject.toml`, with some changes.
 
-    Duplicate pyright and pytest configuration from `pyproject.toml` to
-    `pyrightconfig.json` and `pytest.ini`, respectively. These files shadow the
-    configuration in `pyproject.toml`, which drives CI or if shadow configs are not
-    present. Shadow configs are in `.gitignore` to facilitate local-only shadowing.
-
-    Local pyright configuration includes the editable local `boilercore` dependency to
-    facilitate refactoring and runing on the latest uncommitted code of that dependency.
-    Concurrent test runs are disabled in the local pytest configuration which slows down
-    the usual local, granular test workflow.
+    Duplicate pytest configuration from `pyproject.toml` to `pytest.ini`. These files
+    shadow the configuration in `pyproject.toml`, which drives CI or if shadow configs
+    are not present. Shadow configs are in `.gitignore` to facilitate local-only
+    shadowing. Concurrent test runs are disabled in the local pytest configuration which
+    slows down the usual local, granular test workflow.
     """
     config = tomllib.loads(PYPROJECT.read_text("utf-8"))
-    # Write pyrightconfig.json
-    pyright = config["tool"]["pyright"]
-    data = dumps(
-        add_pyright_includes(pyright, [".", Path("../boilercore/src")]), indent=2
-    )
-    PYRIGHTCONFIG.write_text(encoding="utf-8", data=f"{data}\n")
-    # Write pytest.ini
     pytest = config["tool"]["pytest"]["ini_options"]
     pytest["addopts"] = disable_concurrent_tests(pytest["addopts"])
     PYTEST.write_text(
