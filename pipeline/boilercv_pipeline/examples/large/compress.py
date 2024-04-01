@@ -4,8 +4,8 @@ Compression is slow for grayscale files of ~2GB size, but may work better for bi
 files.
 """
 
-from boilercv import DEBUG
 from boilercv.data import VIDEO
+from boilercv_pipeline import DEBUG
 from boilercv_pipeline.examples.large import example_dataset
 
 

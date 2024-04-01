@@ -7,8 +7,8 @@ from xarray import open_dataset
 
 from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
-from boilercv.models.params import PARAMS
 from boilercv.types import DS
+from boilercv_pipeline.models.params import PARAMS
 
 EXAMPLE = PARAMS.paths.large_sources / "2022-09-14T13-20-54.nc"
 

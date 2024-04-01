@@ -4,8 +4,8 @@ from loguru import logger
 from tqdm import tqdm
 
 from boilercv.data import FRAME, VIDEO
-from boilercv.data.sets import get_dataset
-from boilercv.models.params import PARAMS
+from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.sets import get_dataset
 from boilercv_pipeline.stages.preview import new_videos_to_preview
 
 

@@ -4,12 +4,12 @@ from pathlib import Path
 
 from xarray import Dataset, apply_ufunc, open_dataset
 
-from boilercv import DEBUG
 from boilercv.colors import RED
 from boilercv.data import VIDEO, YX_PX, identity_da
-from boilercv.data.sets import slice_frames
 from boilercv.images import draw_text, overlay
 from boilercv.types import DA, DS
+from boilercv_pipeline import DEBUG
+from boilercv_pipeline.sets import slice_frames
 
 _NUM_FRAMES = 100 if DEBUG else 0
 

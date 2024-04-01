@@ -1,7 +1,11 @@
 ci:
   skip:
     - "sync"
-    - "fawltydeps"
+    - "fawltydeps-src"
+    - "fawltydeps-docs"
+    - "fawltydeps-pipeline"
+    - "fawltydeps-scripts"
+    - "fawltydeps-tests"
     - "pytest-fast-only"
     - "dvc-post-checkout"
     - "dvc-pre-push"

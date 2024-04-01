@@ -1,6 +1,6 @@
 """Select the subset of data corresponding to unobstructed bubbles."""
 
-from boilercv.models.params import PARAMS
+from boilercv_pipeline.models.params import PARAMS
 
 
 def main():

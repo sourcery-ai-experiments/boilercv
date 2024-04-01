@@ -10,12 +10,8 @@ from numpy import asarray, iinfo, invert, mean, uint8
 from numpy.typing import DTypeLike
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-from boilercv import DEBUG
 from boilercv.colors import BLACK, BLACK3, RED, WHITE, WHITE3
 from boilercv.types import DA_T, Img, ImgLike
-
-if DEBUG:
-    from PIL import ImageShow  # noqa: F401
 
 # * -------------------------------------------------------------------------------- * #
 # * PURE NUMPY - TYPE PRESERVING

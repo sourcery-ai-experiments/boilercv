@@ -7,7 +7,6 @@ from boilercine import get_cine_attributes, get_cine_images
 from scipy.spatial.distance import euclidean
 from xarray import DataArray
 
-from boilercv.captivate.previews import load_roi
 from boilercv.data import (
     FRAME,
     HEADER,
@@ -23,8 +22,7 @@ from boilercv.data import (
     assign_ds,
 )
 from boilercv.data.models import Dimension
-from boilercv.models.params import PARAMS
-from boilercv.types import DA, DS
+from boilercv.types import DA, DS, ArrInt
 
 
 def prepare_dataset(
@@ -74,11 +72,10 @@ def prepare_dataset(
 # * SECONDARY LENGTH DIMENSIONS
 
 
-def assign_length_dims(dataset: DS) -> DS:
+def assign_length_dims(dataset: DS, roi: ArrInt) -> DS:
     """Assign length scales to "x" and "y" coordinates."""
     images = dataset[VIDEO]
     parent_dim_units = "px"
-    roi = load_roi(images.data, PARAMS.paths.examples / "roi_line.yaml", "line")
     pixels = euclidean(*iter(roi))
     um_per_px = SAMPLE_DIAMETER_UM / pixels
     y = get_length_dims(parent_dim_units, YX[0], "Height", um_per_px, images)

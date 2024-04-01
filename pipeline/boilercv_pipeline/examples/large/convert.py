@@ -1,8 +1,8 @@
 """Convert CINE files to the NetCDF file format."""
 
-from boilercv.data.video import prepare_dataset
-from boilercv.models.params import PARAMS
 from boilercv_pipeline.examples import EXAMPLE_NUM_FRAMES
+from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.video import prepare_dataset
 
 
 def main():

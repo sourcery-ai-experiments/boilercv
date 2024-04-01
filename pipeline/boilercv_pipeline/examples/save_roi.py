@@ -6,11 +6,11 @@ from cv2 import CHAIN_APPROX_SIMPLE
 
 from boilercv.captivate.previews import save_roi
 from boilercv.data import ROI, apply_to_img_da
-from boilercv.data.sets import get_dataset
 from boilercv.images import scale_bool
 from boilercv.images.cv import find_contours, get_wall
 from boilercv.types import DA
 from boilercv_pipeline.examples import EXAMPLE_ROI, EXAMPLE_VIDEO_NAME
+from boilercv_pipeline.sets import get_dataset
 
 
 def main():

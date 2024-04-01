@@ -10,9 +10,9 @@ from xarray import Dataset, open_dataset
 
 from boilercv.data import HEADER, ROI, VIDEO
 from boilercv.data.packing import unpack
-from boilercv.models.params import PARAMS
-from boilercv.models.paths import get_sorted_paths
 from boilercv.types import DF, DS
+from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.models.paths import get_sorted_paths
 
 ALL_FRAMES = slice(None)
 """Slice that gets all frames."""

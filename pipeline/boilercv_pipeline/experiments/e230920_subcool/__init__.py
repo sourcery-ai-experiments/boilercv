@@ -22,9 +22,9 @@ from sparklines import sparklines
 
 from boilercv.images import scale_bool
 from boilercv.images.cv import Op, Transform, transform
-from boilercv.models.params import PARAMS
 from boilercv.types import DA, Img
 from boilercv_pipeline.experiments import get_exp
+from boilercv_pipeline.models.params import PARAMS
 
 EXP = get_module_name(__spec__ or __file__)
 """Name of this experiment."""

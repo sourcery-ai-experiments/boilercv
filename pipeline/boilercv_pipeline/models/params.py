@@ -5,8 +5,8 @@ from pathlib import Path
 from boilercore.models import SynchronizedPathsYamlModel
 from pydantic.v1 import Field
 
-from boilercv import PROJECT_PATH
-from boilercv.models.paths import Paths
+from boilercv_pipeline import PROJECT_PATH
+from boilercv_pipeline.models.paths import Paths
 
 
 class Params(SynchronizedPathsYamlModel):

@@ -3,8 +3,8 @@
 from xarray import open_dataset
 
 from boilercv.data import VIDEO
-from boilercv.models.params import PARAMS
 from boilercv.types import DA
+from boilercv_pipeline.models.params import PARAMS
 
 EXAMPLE_NUM_FRAMES = 500
 EXAMPLE_VIDEO_NAME = "2022-11-30T13-41-00"

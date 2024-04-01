@@ -4,10 +4,10 @@
 
 from pathlib import Path
 
-from boilercv import FRAMERATE_PREV, PREVIEW, WRITE, run_example
+from boilercv_pipeline import FRAMERATE_PREV, PREVIEW, WRITE, run_example
 from boilercv.captivate.captures import write_video
 from boilercv.captivate.previews import view_images
-from boilercv.models.params import PARAMS
+from boilercv_pipeline.models.params import PARAMS
 from boilercv.types import DA
 
 from boilercv.previews.gray import main as main1

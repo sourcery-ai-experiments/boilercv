@@ -17,11 +17,19 @@ paths:
   html: data/html
   md: data/md
   media: data/media
-  package: src/boilercv
-  correlations: src/boilercv/correlations.py
-  models: src/boilercv/models
-  paths_module: src/boilercv/models/paths.py
-  stages: {}
+  package: pipeline/boilercv_pipeline
+  correlations: pipeline/boilercv_pipeline/correlations.py
+  models: pipeline/boilercv_pipeline/models
+  paths_module: pipeline/boilercv_pipeline/models/paths.py
+  stages:
+    compare_theory: pipeline/boilercv_pipeline/stages/compare_theory.py
+    fill: pipeline/boilercv_pipeline/stages/fill.py
+    find_contours: pipeline/boilercv_pipeline/stages/find_contours.py
+    find_tracks: pipeline/boilercv_pipeline/stages/find_tracks.py
+    find_unobstructed: pipeline/boilercv_pipeline/stages/find_unobstructed.py
+    preview_preview_binarized: pipeline/boilercv_pipeline/stages/preview/preview_binarized.py
+    preview_preview_filled: pipeline/boilercv_pipeline/stages/preview/preview_filled.py
+    preview_preview_gray: pipeline/boilercv_pipeline/stages/preview/preview_gray.py
   plot_config: data/plotting
   mpl_base: data/plotting/base.mplstyle
   mpl_hide_title: data/plotting/hide_title.mplstyle

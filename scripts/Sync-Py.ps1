@@ -118,9 +118,9 @@ if (!$NoPostSync) {
     'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
     'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
     pre-commit install
-    'SYNCING BOILERCV PARAMS' | Write-Progress
-    & $py -m boilercv.models.params
-    'BOILERCV PARAMS SYNCED' | Write-Progress
+    'SYNCING PIPELINE PARAMS' | Write-Progress
+    & $py -m boilercv_pipeline.models.params
+    'PIPELINE PARAMS SYNCED' | Write-Progress
     '' | Write-Host
     '*** POST-SYNC DONE ***' | Write-Progress -Done
 }

@@ -2,7 +2,7 @@
 
 from typing import TypedDict
 
-from boilercv import DEBUG
+from boilercv_pipeline import DEBUG
 from boilercv_pipeline.examples.large import example_dataset as ex_ds
 
 

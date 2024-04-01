@@ -182,7 +182,7 @@
       "label": "dvc: sync params",
       "type": "process",
       "command": "pwsh",
-      "args": ["-Command", "python -m boilercv.models.params"],
+      "args": ["-Command", "python -m boilercv_pipeline.models.params"],
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

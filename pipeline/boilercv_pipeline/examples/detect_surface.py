@@ -12,19 +12,19 @@ from scipy.ndimage import (
 )
 from xarray import apply_ufunc
 
-from boilercv import PREVIEW
 from boilercv.captivate.previews import get_calling_scope_name, save_roi, view_images
 from boilercv.data import ROI, VIDEO, YX_PX, apply_to_img_da
 from boilercv.data.frames import df_points
-from boilercv.data.sets import get_dataset
 from boilercv.images import scale_bool
 from boilercv.images.cv import find_contours, get_wall
 from boilercv.types import DA, ArrInt, Img
+from boilercv_pipeline import PREVIEW
 from boilercv_pipeline.examples import (
     EXAMPLE_NUM_FRAMES,
     EXAMPLE_ROI,
     EXAMPLE_VIDEO_NAME,
 )
+from boilercv_pipeline.sets import get_dataset
 
 
 def main():

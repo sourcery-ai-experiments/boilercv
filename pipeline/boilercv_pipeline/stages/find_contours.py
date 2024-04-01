@@ -6,11 +6,11 @@ from numpy import empty, insert, vstack
 from pandas import DataFrame
 
 from boilercv.data import VIDEO
-from boilercv.data.sets import get_dataset, get_unprocessed_destinations
 from boilercv.images import scale_bool
 from boilercv.images.cv import find_contours
-from boilercv.models.params import PARAMS
 from boilercv.types import DF, Vid
+from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.sets import get_dataset, get_unprocessed_destinations
 
 
 def main():

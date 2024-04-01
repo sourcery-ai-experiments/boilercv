@@ -5,13 +5,13 @@ from numpy import empty, uint8
 from pandas import DataFrame
 from xarray import zeros_like
 
-from boilercv import PREVIEW
 from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
-from boilercv.data.sets import get_contours_df, get_dataset
 from boilercv.images.cv import draw_contours
 from boilercv.types import ArrInt
+from boilercv_pipeline import PREVIEW
 from boilercv_pipeline.examples import EXAMPLE_NUM_FRAMES, EXAMPLE_VIDEO_NAME
+from boilercv_pipeline.sets import get_contours_df, get_dataset
 
 TRY_EMPTY = False
 

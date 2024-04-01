@@ -7,9 +7,9 @@ from pathlib import Path
 from loguru import logger
 from tqdm import tqdm
 
-from boilercv.data.video import prepare_dataset
-from boilercv.models.params import PARAMS
-from boilercv.models.paths import get_sorted_paths
+from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.models.paths import get_sorted_paths
+from boilercv_pipeline.video import prepare_dataset
 
 
 def main():

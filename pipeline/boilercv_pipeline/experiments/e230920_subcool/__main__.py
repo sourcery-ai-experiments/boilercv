@@ -5,8 +5,8 @@ from concurrent.futures import ProcessPoolExecutor
 from boilercore.paths import fold, modified
 from ploomber_engine import execute_notebook
 
-from boilercv.models.params import PARAMS
 from boilercv_pipeline.experiments.e230920_subcool import EXP, EXP_DATA, get_times
+from boilercv_pipeline.models.params import PARAMS
 
 
 def main():

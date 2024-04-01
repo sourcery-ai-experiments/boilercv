@@ -23,7 +23,6 @@ from numpy import set_printoptions
 from pandas import DataFrame, Index, MultiIndex, Series, concat, options
 from seaborn import set_theme
 
-import boilercv
 from boilercv.types import DfOrS
 
 DOCS = Path("docs")
@@ -53,7 +52,7 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
     """Initialize a documentation notebook."""
     # sourcery skip: extract-method
     filter_certain_warnings(
-        package=boilercv,
+        package="boilercv",
         other_action="ignore",
         other_warnings=[
             WarningFilter(

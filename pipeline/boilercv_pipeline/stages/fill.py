@@ -6,11 +6,11 @@ from xarray import zeros_like
 
 from boilercv.data import ROI, VIDEO
 from boilercv.data.packing import pack
-from boilercv.data.sets import get_contours_df, get_dataset, process_datasets
 from boilercv.images import scale_bool
 from boilercv.images.cv import draw_contours
-from boilercv.models.params import PARAMS
 from boilercv.types import ArrInt
+from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.sets import get_contours_df, get_dataset, process_datasets
 
 
 def main():
