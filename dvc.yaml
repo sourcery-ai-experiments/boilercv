@@ -1,9 +1,4 @@
 stages:
-  generate_reports:
-    cmd: "python ${paths.stages.generate_reports}"
-    deps:
-      - "${paths.notebooks}"
-
   preview_binarized:
     cmd: "python ${paths.stages.preview_preview_binarized}"
     deps:
