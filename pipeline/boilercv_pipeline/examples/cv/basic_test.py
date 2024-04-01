@@ -6,10 +6,10 @@ from cv2 import COLOR_BGR2RGB
 from cv2.samples import findFile
 from numpy import stack
 
-from boilercv.captivate.previews import view_images
 from boilercv.images.cv import convert_image
 from boilercv.types import Vid
 from boilercv_pipeline import PREVIEW
+from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.examples.cv import capture_images
 
 

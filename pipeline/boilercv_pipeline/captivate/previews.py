@@ -24,9 +24,9 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLayout, QPushButton
 from ruamel.yaml import YAML
 
-from boilercv import FRAMERATE_CONT
 from boilercv.images import scale_bool
 from boilercv.types import DA, ArrInt, Img
+from boilercv_pipeline.captivate import FRAMERATE_CONT
 
 YAML_INDENT = 2
 yaml = YAML()

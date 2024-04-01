@@ -3,9 +3,9 @@
 from cv2 import COLOR_BGR2RGB, cvtColor, imread
 from cv2.samples import findFile
 
-from boilercv.captivate.previews import view_images
 from boilercv.types import ImgLike
 from boilercv_pipeline import PREVIEW
+from boilercv_pipeline.captivate.previews import view_images
 
 
 def main(preview=PREVIEW) -> ImgLike:

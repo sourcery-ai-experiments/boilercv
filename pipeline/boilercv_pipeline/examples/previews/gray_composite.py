@@ -1,13 +1,13 @@
 """Overlay detected bubbles on the gray stage."""
 
-from boilercv.captivate.captures import write_video
-from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
 from boilercv.images import scale_bool
-from boilercv.previews import compose_da
 from boilercv_pipeline import FRAMERATE_CONT, PREVIEW, WRITE
+from boilercv_pipeline.captivate.captures import write_video
+from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.examples.previews import _EXAMPLE, _NUM_FRAMES
 from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.previews import compose_da
 from boilercv_pipeline.sets import get_dataset
 
 

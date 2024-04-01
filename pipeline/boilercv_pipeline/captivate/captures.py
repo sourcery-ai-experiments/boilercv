@@ -1,14 +1,14 @@
 """Image and video capturing."""
 
 from pathlib import Path
+from warnings import warn
 
 import imageio
-from loguru import logger
 from numpy import integer, issubdtype
 
-from boilercv import FFMPEG_LOG_LEVEL, FRAMERATE_CONT
 from boilercv.images import scale_bool
 from boilercv.types import DA, Img, ImgBool, Vid, VidBool
+from boilercv_pipeline.captivate import FFMPEG_LOG_LEVEL, FRAMERATE_CONT
 
 
 def write_video(
@@ -27,7 +27,7 @@ def write_video(
     """
     video = coerce_input(video)
     if path.suffix and path.suffix != ".mp4":
-        logger.warning(f"Changing extesion of {path}  to '.mp4'.")
+        warn(f"Changing extesion of {path}  to '.mp4'.", stacklevel=2)
     path = path.with_suffix(".mp4")
     writer = imageio.get_writer(
         uri=path, fps=framerate, macro_block_size=8, ffmpeg_log_level=FFMPEG_LOG_LEVEL
@@ -48,7 +48,7 @@ def write_image(path: Path, image: Img | ImgBool | DA):
     """
     image = coerce_input(image)
     if path.suffix and path.suffix != ".png":
-        logger.warning(f"Changing extesion of {path} to '.png'.")
+        warn(f"Changing extesion of {path} to '.png'.", stacklevel=2)
     path = path.with_suffix(".png")
     imageio.imwrite(path, image)
 

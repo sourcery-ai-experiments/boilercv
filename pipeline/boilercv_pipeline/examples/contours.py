@@ -3,13 +3,13 @@
 from cv2 import CHAIN_APPROX_SIMPLE, bitwise_not
 from numpy import newaxis, repeat
 
-from boilercv.captivate.previews import view_images
 from boilercv.colors import BLUE
 from boilercv.data import VIDEO, islice
 from boilercv.images import scale_bool
 from boilercv.images.cv import draw_contours
 from boilercv.types import ArrInt, Img
 from boilercv_pipeline import PREVIEW
+from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.examples import (
     EXAMPLE_CONTOURS,
     EXAMPLE_NUM_FRAMES,

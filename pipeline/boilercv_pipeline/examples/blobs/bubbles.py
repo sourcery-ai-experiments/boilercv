@@ -2,10 +2,10 @@
 
 from cv2 import COLOR_GRAY2RGB
 
-from boilercv.captivate.previews import edit_roi, view_images
 from boilercv.colors import RED
 from boilercv.images.cv import apply_mask, build_mask_from_polygons, convert_image
 from boilercv.types import ArrInt
+from boilercv_pipeline.captivate.previews import edit_roi, view_images
 from boilercv_pipeline.examples import EXAMPLE_FRAME_LIST, EXAMPLE_ROI
 from boilercv_pipeline.examples.blobs import draw_blobs, get_blobs_doh
 

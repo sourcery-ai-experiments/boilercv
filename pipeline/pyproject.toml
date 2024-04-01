@@ -7,11 +7,13 @@ name = "boilercv_pipeline"
 version = "0.0.0"
 description = "Data pipeline."
 dependencies = [
-    "boilercine @ git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5", # TODO: Swap with `pims`
+    # TODO: Swap with `pims`
+    "boilercine @ git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5",
     "cmasher>=1.7.2",
     "colorcet>=3.0.1",
     # ? https://github.com/iterative/vscode-dvc/blob/1.2.11/extension/src/cli/dvc/contract.ts#L3
     "dvc>=3.33.3",
+    "imageio[pyav]>=2.31.1",
     "loguru>=0.7.0",
     "matplotlib>=3.7.2",
     "numpy>=1.24.4",
@@ -20,6 +22,9 @@ dependencies = [
     "ploomber-engine>=0.0.30",
     "pyarrow>=14.0.1",
     "pydantic>=2",
+    "pyqtgraph>=0.13.3",
+    "pyside6>=6.5.2",
+    "ruamel.yaml>=0.17.32",
     "scikit-image>=0.21.0",
     "scipy>=1.11.1",
     "seaborn>=0.12.2",

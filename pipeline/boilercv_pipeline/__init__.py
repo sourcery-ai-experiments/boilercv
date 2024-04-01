@@ -21,13 +21,6 @@ PREVIEW = str(_preview).casefold() == "true" if _preview else False
 WRITE = str(_write).casefold() == "true" if _write else False
 """Whether to write to the local media folder."""
 
-FFMPEG_LOG_LEVEL = "warn" if DEBUG else "error"
-"""Log level for FFMPEG."""
-FRAMERATE_CONT = 60
-"""Framerate for continuous video output."""
-FRAMERATE_PREV = 3
-"""Framerate for previews from multiple results, as in a slideshow."""
-
 
 def init():
     """Initialize `boilercv`."""

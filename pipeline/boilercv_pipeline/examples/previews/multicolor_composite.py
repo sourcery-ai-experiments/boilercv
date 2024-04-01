@@ -7,13 +7,13 @@ from matplotlib.pyplot import show
 from numpy import zeros_like
 from seaborn import color_palette, palplot
 
-from boilercv.captivate.captures import write_image
-from boilercv.captivate.previews import view_images
 from boilercv.data import VIDEO
 from boilercv.images import overlay
 from boilercv.images.cv import convert_image, draw_contours
 from boilercv.types import ArrInt
 from boilercv_pipeline import DEBUG, PREVIEW, WRITE
+from boilercv_pipeline.captivate.captures import write_image
+from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.examples.previews import _EXAMPLE
 from boilercv_pipeline.models.params import PARAMS
 from boilercv_pipeline.sets import get_contours_df, get_dataset

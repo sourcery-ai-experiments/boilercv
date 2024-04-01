@@ -3,9 +3,9 @@
 from skimage import data
 from skimage.color import rgb2gray
 
-from boilercv.captivate.previews import view_images
 from boilercv.colors import BLUE, GREEN, RED
 from boilercv.types import ArrInt
+from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.examples.blobs import (
     draw_blobs,
     get_blobs_dog,

@@ -136,7 +136,7 @@ def nowarn(capture: bool = False):
 def keep_viewer_in_scope():
     """Keep the image viewer in scope so it doesn't get garbage collected."""
 
-    from boilercv.captivate.previews import image_viewer  # noqa: PLC0415
+    from boilercv_pipeline.captivate.previews import image_viewer  # noqa: PLC0415
 
     with image_viewer([]) as viewer:
         return viewer

@@ -5,15 +5,15 @@
 from pathlib import Path
 
 from boilercv_pipeline import FRAMERATE_PREV, PREVIEW, WRITE, run_example
-from boilercv.captivate.captures import write_video
-from boilercv.captivate.previews import view_images
+from boilercv_pipeline.captivate.captures import write_video
+from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.models.params import PARAMS
 from boilercv.types import DA
 
-from boilercv.previews.gray import main as main1
-from boilercv.previews.binarized import main as main2
-from boilercv.previews.composite import main as main3
-from boilercv.previews.filled import main as main4
+from boilercv_pipeline.previews.gray import main as main1
+from boilercv_pipeline.previews.binarized import main as main2
+from boilercv_pipeline.previews.composite import main as main3
+from boilercv_pipeline.previews.filled import main as main4
 
 results: dict[str, DA] = {}
 

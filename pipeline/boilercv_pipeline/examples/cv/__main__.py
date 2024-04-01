@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from boilercv.captivate.previews import view_images
 from boilercv_pipeline import PREVIEW, run_example
+from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.examples.cv.basic_test import main as main2
 from boilercv_pipeline.examples.cv.starry import main as main1
 

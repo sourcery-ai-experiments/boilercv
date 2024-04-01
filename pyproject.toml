@@ -11,16 +11,11 @@ license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
-    "imageio[pyav]>=2.31.1",
-    "loguru>=0.7.0",
     "matplotlib>=3.7.2",
     "numpy>=1.24.4",
     "pandas[hdf5,performance]>=2.0.2",
     "pillow>=10.0.0",
-    "pyqtgraph>=0.13.3",
-    "pyside6>=6.5.2",
     "pytz>=2023.3",
-    "ruamel.yaml>=0.17.32",
     "xarray[accel,io,parallel]>=2023.7.0",
 ]
 [project.optional-dependencies]
