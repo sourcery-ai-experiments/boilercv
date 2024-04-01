@@ -1,0 +1,30 @@
+"""Overlay detected bubbles on the binarized stage."""
+
+from boilercv import FRAMERATE_CONT, PREVIEW, WRITE
+from boilercv.captivate.captures import write_video
+from boilercv.captivate.previews import view_images
+from boilercv.data import VIDEO
+from boilercv.data.sets import get_dataset
+from boilercv.images import scale_bool
+from boilercv.models.params import PARAMS
+from boilercv.previews import compose_da
+from boilercv_pipeline.examples.previews import _EXAMPLE, _NUM_FRAMES
+
+
+def main():
+    source = get_dataset(_EXAMPLE, _NUM_FRAMES, stage="sources")[VIDEO]
+    bubbles = get_dataset(_EXAMPLE, _NUM_FRAMES, stage="filled")[VIDEO]
+    highlighted_bubbles = compose_da(source, scale_bool(bubbles)).transpose(
+        "frame", "ypx", "xpx", "channel"
+    )
+    if PREVIEW:
+        view_images(bubbles.isel(frame=0))
+        view_images(highlighted_bubbles, framerate=FRAMERATE_CONT)
+    if WRITE:
+        write_video(PARAMS.paths.media / "binarized", source)
+        write_video(PARAMS.paths.media / "bubbles", bubbles, preview_frame=True)
+        write_video(PARAMS.paths.media / "binarized_highlighted", highlighted_bubbles)
+
+
+if __name__ == "__main__":
+    main()

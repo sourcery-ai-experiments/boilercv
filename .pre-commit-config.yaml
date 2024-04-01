@@ -86,6 +86,13 @@ repos:
             docs/.*
           )$
       - id: "check-undeclared"
+        name: "check-undeclared-pipeline"
+        args: ["--config-file", "pipeline/pyproject.toml", "--code"]
+        files: |
+          (?x)^(
+            pipeline/.*
+          )$
+      - id: "check-undeclared"
         name: "check-undeclared-tests"
         args: ["--config-file", "tests/pyproject.toml", "--code"]
         files: |

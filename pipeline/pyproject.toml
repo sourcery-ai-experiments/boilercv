@@ -6,4 +6,33 @@ build-backend = "flit_core.buildapi"
 name = "boilercv_pipeline"
 version = "0.0.0"
 description = "Data pipeline."
-dependencies = []
+dependencies = [
+    "boilercore>=0.0.1",
+    "boilercv>=0.0.1",
+    "cmasher>=1.7.2",
+    "colorcet>=3.0.1",
+    "dvc>=3.33.3",                         # https://github.com/iterative/vscode-dvc/blob/1.2.11/extension/src/cli/dvc/contract.ts#L3
+    "loguru>=0.7.0",
+    "matplotlib>=3.7.2",
+    "numpy>=1.24.4",
+    "opencv-python-headless>=4.9.0.80",
+    "pandas[hdf5,performance]>=2.0.2",
+    "ploomber-engine>=0.0.30",
+    "scikit-image>=0.21.0",
+    "scipy>=1.11.1",
+    "seaborn>=0.12.2",
+    "sparklines>=0.4.2",
+    "tqdm>=4.66.1",
+    "xarray[accel,io,parallel]>=2023.7.0",
+]
+
+[tool.fawltydeps]
+deps = ["pipeline/pyproject.toml"]
+code = ["pipeline/boilercv_pipeline"]
+ignore_unused = [
+    "dvc", # Foo
+]
+[tool.fawltydeps.custom_mapping]
+boilercv = ["boilercv"]
+boilercv_pipeline = ["boilercv_pipeline"]
+boilercore = ["boilercore"]

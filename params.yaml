@@ -21,16 +21,7 @@ paths:
   correlations: src/boilercv/correlations.py
   models: src/boilercv/models
   paths_module: src/boilercv/models/paths.py
-  stages:
-    compare_theory: src/boilercv/stages/compare_theory.py
-    fill: src/boilercv/stages/fill.py
-    find_contours: src/boilercv/stages/find_contours.py
-    find_tracks: src/boilercv/stages/find_tracks.py
-    find_unobstructed: src/boilercv/stages/find_unobstructed.py
-    generate_reports: src/boilercv/stages/generate_reports.py
-    preview_preview_binarized: src/boilercv/stages/preview/preview_binarized.py
-    preview_preview_filled: src/boilercv/stages/preview/preview_filled.py
-    preview_preview_gray: src/boilercv/stages/preview/preview_gray.py
+  stages: {}
   plot_config: data/plotting
   mpl_base: data/plotting/base.mplstyle
   mpl_hide_title: data/plotting/hide_title.mplstyle
