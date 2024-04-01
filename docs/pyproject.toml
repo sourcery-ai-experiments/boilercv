@@ -58,5 +58,4 @@ ignore_unused = [
     "sphinxcontrib-mermaid",
 ]
 [tool.fawltydeps.custom_mapping]
-boilercore = ["boilercore"]
 ipykernel = ["IPython"]

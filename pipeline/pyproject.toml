@@ -18,6 +18,7 @@ dependencies = [
     "opencv-python-headless>=4.9.0.80",
     "pandas[hdf5,performance]>=2.0.2",
     "ploomber-engine>=0.0.30",
+    "pyarrow>=14.0.1",
     "pydantic>=2",
     "scikit-image>=0.21.0",
     "scipy>=1.11.1",
@@ -38,7 +39,7 @@ ignore_undeclared = [
     "boilercv_tests",
     "boilercv",
 ]
-ignore_unused = ["dvc"]
-[tool.fawltydeps.custom_mapping]
-boilercv = ["boilercv"]
-boilercore = ["boilercore"]
+ignore_unused = [
+    "dvc",     # Core dependency for reproducing the pipeline
+    "pyarrow", # Used in `boilercv.__init__`
+]

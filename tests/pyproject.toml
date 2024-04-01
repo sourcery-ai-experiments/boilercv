@@ -7,7 +7,6 @@ name = "boilercv_tests"
 version = "0.0.0"
 description = "Tests."
 dependencies = [
-    "boilercore>=0.0.1",
     "cachier @ git+https://github.com/blakeNaccarato/cachier@0892f53dc8fd9fb8a7f959305a1a9ec692876dc0", # Allows `dill` caching
     "matplotlib>=3.7.2",
     "numpy>=1.24.4",
@@ -41,5 +40,3 @@ ignore_unused = [
     "pytest-plt",
     "pytest-xdist",
 ]
-[tool.fawltydeps.custom_mapping]
-boilercore = ["boilercore"]

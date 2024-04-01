@@ -17,7 +17,6 @@ dependencies = [
     "numpy>=1.24.4",
     "pandas[hdf5,performance]>=2.0.2",
     "pillow>=10.0.0",
-    "pyarrow>=14.0.1",
     "pyqtgraph>=0.13.3",
     "pyside6>=6.5.2",
     "pytz>=2023.3",
@@ -39,11 +38,6 @@ email = "blake.naccarato@gmail.com"
 [tool.fawltydeps]
 deps = ["pyproject.toml"]
 code = ["src"]
-ignore_unused = [
-    "pyarrow", # Used in `boilercv.__init__`
-]
-[tool.fawltydeps.custom_mapping]
-boilercore = ["boilercore"]
 
 [tool.pytest.ini_options]
 addopts = '''

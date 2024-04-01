@@ -6,18 +6,12 @@ build-backend = "flit_core.buildapi"
 name = "boilercv_tools"
 version = "0.0.0"
 description = "Tools."
-dependencies = [
-    "copier>=9.1.1",
-    "cyclopts>=2.5.0",
-    "pre-commit>=3.7.0",
-    "zstandard>=0.22.0",
-]
+dependencies = ["cyclopts==2.5.0"]
 [project.scripts]
 "boilercv_tools" = "boilercv_tools.__main__:main"
 
 [tool.fawltydeps]
-actions = ["check_undeclared"]
-deps = ["scripts/pyproject.toml", "pyproject.toml"]
+deps = ["scripts/pyproject.toml"]
 code = ["scripts/boilercv_tools"]
 ignore_undeclared = [
     "boilercore",
