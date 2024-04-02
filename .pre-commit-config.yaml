@@ -12,7 +12,7 @@ ci:
   autoupdate_schedule: "quarterly"
 default_install_hook_types:
   - pre-commit
-  - post-checkout # sync-python, dvc-post-checkout
+  - post-checkout # sync, dvc-post-checkout
   - pre-push # dvc-pre-push
 repos:
   - repo: "meta"
@@ -32,17 +32,6 @@ repos:
         language: "system"
         entry: |
           pwsh -Command ". scripts/Initialize-Shell.ps1; scripts/Sync-Py.ps1"
-        # files: |
-        #   (?x)^(
-        #     .*pyproject\.toml
-        #     |.*(?:ipynb|py)
-        #     |docs
-        #     |pipeline/.*
-        #     |requirements/.*
-        #     |scripts/.*
-        #     |src/.*
-        #     |params\.yaml
-        #   )$
       - id: "fawltydeps-src"
         name: "fawltydeps-src"
         pass_filenames: false
@@ -51,48 +40,38 @@ repos:
           pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file pyproject.toml"
         files: |
           (?x)^(
-            src/.*$
+            pyproject.toml
+            |src/.*$
           )$
       - id: "fawltydeps-docs"
         name: "fawltydeps-docs"
         pass_filenames: false
         language: "system"
+        files: "^docs/.*$"
         entry: |
           pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file docs/pyproject.toml"
-        files: |
-          (?x)^(
-            docs/.*$
-          )$
       - id: "fawltydeps-pipeline"
         name: "fawltydeps-pipeline"
         pass_filenames: false
         language: "system"
         entry: |
           pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file pipeline/pyproject.toml"
-        files: |
-          (?x)^(
-            pipeline/.*$
-          )$
+        files: "^pipeline/.*$"
+
       - id: "fawltydeps-scripts"
         name: "fawltydeps-scripts"
         pass_filenames: false
         language: "system"
+        files: "^scripts/.*$"
         entry: |
           pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file scripts/pyproject.toml"
-        files: |
-          (?x)^(
-            scripts/.*$
-          )$
       - id: "fawltydeps-tests"
         name: "fawltydeps-tests"
         pass_filenames: false
         language: "system"
+        files: "^tests/.*$"
         entry: |
           pwsh -Command ". scripts/Initialize-Shell.ps1; fawltydeps --config-file tests/pyproject.toml"
-        files: |
-          (?x)^(
-            tests/.*$
-          )$
       - id: "pytest-fast-only"
         name: "pytest-fast-only"
         pass_filenames: false

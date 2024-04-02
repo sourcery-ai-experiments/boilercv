@@ -99,6 +99,7 @@
   //* Pylance
   "python.languageServer": "Pylance",
   "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.typeCheckingMode": "strict",
   "editor.inlayHints.enabled": "offUnlessPressed",
   "python.analysis.addImport.heuristics": true,
   "python.analysis.autoFormatStrings": true,
@@ -111,7 +112,6 @@
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.inlayHints.pytestParameters": true,
   "python.analysis.inlayHints.variableTypes": true,
-  "python.analysis.typeCheckingMode": "strict",
   //* Rewrap
   "rewrap.wrappingColumn": 88,
   "rewrap.wholeComment": false,
