@@ -118,7 +118,8 @@ def compile() -> Comp:  # noqa: A001
             old_directs.append(match.group())
             continue
         return recomp()  # Direct dependency missing
-    if any(d not in (low := comp(high=False, no_deps=False)) for d in old_directs):
+    low = comp(high=False, no_deps=False)
+    if any(d not in low for d in old_directs):
         return Comp(low, comp(high=True, no_deps=False))  # Direct dep version mismatch
     return old  # Existing compilation is compatible
 
