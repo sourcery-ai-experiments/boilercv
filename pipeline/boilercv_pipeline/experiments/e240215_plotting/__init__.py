@@ -1,4 +1,6 @@
-from colorcet import colormaps
+"""Plotting."""
+
+from colorcet import colormaps  # pyright: ignore[reportAttributeAccessIssue] 1.1.356
 from seaborn import color_palette
 
 WARM_INDICES = {1, 3, 6, 16, 19, 31, 33, 37, 42, 46, 49, 69}
@@ -8,14 +10,14 @@ COOL_INDICES = {0, 1, 6, 8, 9, 11, 18, 19, 20, 28, 33, 39}
 cat10 = colormaps["cet_glasbey_category10"]
 warm12 = color_palette([
     c
-    for i, c in enumerate(cat10.colors)  # pyright: ignore[reportAttributeAccessIssue]  # pyright: 1.1.348, seaborn: 0.13.1
+    for i, c in enumerate(cat10.colors)  # pyright: ignore[reportAttributeAccessIssue] 1.1.348, seaborn 0.13.1
     if i in WARM_INDICES
 ])
 cool = colormaps["cet_glasbey_cool"]
 warm = colormaps["cet_glasbey_warm"]
 not_warm = [
     c
-    for i, c in enumerate(cat10.colors)  # pyright: ignore[reportAttributeAccessIssue]  # pyright: 1.1.348, seaborn: 0.13.1
+    for i, c in enumerate(cat10.colors)  # pyright: ignore[reportAttributeAccessIssue] 1.1.348, seaborn 0.13.1
     if i not in WARM_INDICES
 ]
 cool12 = color_palette([c for i, c in enumerate(not_warm) if i in COOL_INDICES])

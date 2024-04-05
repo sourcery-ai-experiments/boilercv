@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from functools import partial
 from itertools import chain
@@ -12,7 +12,7 @@ from shutil import copy
 from subprocess import run
 from tempfile import _RandomNameSequence  # type: ignore
 from types import SimpleNamespace
-from typing import Any, TypeAlias
+from typing import Any
 
 import pytest
 from _pytest.mark.structures import ParameterSet
@@ -24,6 +24,7 @@ from matplotlib.pyplot import style
 from seaborn import color_palette, set_theme
 
 import boilercv
+from boilercv_tests.types import Params
 
 PACKAGE = get_module_name(boilercv)
 """Name of the package to test."""
@@ -52,11 +53,9 @@ init()
 
 
 def get_nb(exp: Path, name: str) -> Path:
+    """Get notebook path for experiment and name."""
     return (exp / name).with_suffix(".ipynb")
 
-
-Params: TypeAlias = Mapping[str, Any]
-Attributes: TypeAlias = Iterable[str]
 
 NO_PARAMS = {}
 NO_ATTRS = []
@@ -66,6 +65,7 @@ NO_ATTRS = []
 def get_cached_nb_ns(
     nb: str, params: Params = NO_PARAMS, attributes=NO_ATTRS
 ) -> SimpleNamespace:
+    """Get cached notebook namespace."""
     return get_nb_ns(nb, params, attributes)
 
 
@@ -130,7 +130,7 @@ class Case:
         return self.path.read_text(encoding="utf-8") if self.path.exists() else ""
 
     def clean_nb(self) -> str:
-        """Cleaned notebook contents."""
+        """Clean notebook contents."""
         self.clean_path = (TEST_TEMP_NBS / next(NAMER)).with_suffix(".ipynb")
         copy(self.path, self.clean_path)
         clean_notebooks(self.clean_path)
@@ -147,11 +147,14 @@ def normalize_cases(*cases: Case) -> Iterable[Case]:
     Assign the same results to cases with the same path and parameters, preserving
     expectations. Sort parameters and results.
 
-    Args:
-        *cases: Cases to normalize.
+    Parameters
+    ----------
+    *cases
+        Cases to normalize.
 
-    Returns:
-        Normalized cases.
+    Returns
+    -------
+    Normalized cases.
     """
     seen: dict[Path, dict[str, Any]] = {}
     all_cases: list[list[Case]] = []
@@ -191,6 +194,8 @@ EMPTY_LIST = []
 
 @dataclass
 class Caser:
+    """Notebook test case generator."""
+
     exp: Path
     cases: list[Case] = field(default_factory=list)
 
@@ -202,6 +207,7 @@ class Caser:
         results: dict[str, Any] | Iterable[Any] = EMPTY_DICT,
         marks: Sequence[pytest.Mark] = EMPTY_LIST,
     ) -> Case:
+        """Add case to experiment."""
         case = Case(
             get_nb(self.exp, name),
             id,
@@ -214,6 +220,7 @@ class Caser:
 
 
 def clean_notebooks(*nbs: Path | str):  # type: ignore  # `nbs` redefined
+    """Clean notebooks using pre-commit hooks."""
     nbs: str = join(str(nb) for nb in nbs)
     files = f"--files {nbs}"
     for cmd in [

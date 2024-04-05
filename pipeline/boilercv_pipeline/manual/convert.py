@@ -12,7 +12,7 @@ from boilercv_pipeline.models.paths import get_sorted_paths
 from boilercv_pipeline.video import prepare_dataset
 
 
-def main():
+def main():  # noqa: D103
     logger.info("start convert")
     for source in tqdm(get_sorted_paths(PARAMS.paths.cines)):
         if dt := get_datetime_from_cine(source):

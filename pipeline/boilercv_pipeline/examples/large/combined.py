@@ -10,7 +10,7 @@ from boilercv_pipeline.captivate.previews import view_images
 from boilercv_pipeline.examples.large import example_dataset
 
 
-def main():
+def main():  # noqa: D103
     with example_dataset(
         destination="combined", preview=DEBUG, encoding={VIDEO: {"zlib": True}}
     ) as ds:

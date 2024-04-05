@@ -14,6 +14,7 @@ C = Caser(Path("docs/experiments/e230920_subcool"))
 
 @parametrize_by_cases(C("find_centers"))
 def test_centers_index(ns):
+    """Approaches have same centers index."""
     assert_index_equal(
         ns.trackpy_centers.columns,
         ns.centers.columns,
@@ -29,6 +30,7 @@ def test_centers_index(ns):
     C("find_tracks_trackpy", "small_bubbles", {"TIME": "2023-09-20T17:14:18"})
 )
 def test_find_tracks_trackpy(ns, figs):
+    """Small bubbles are tracked."""
     figs.extend(ns.figures)
     objects = ns.nondimensionalized_departing_long_lived_objects
     assert objects["Dimensionless bubble diameter"].min() < 0.2
@@ -36,17 +38,19 @@ def test_find_tracks_trackpy(ns, figs):
 
 @parametrize_by_cases(C("get_thermal_data"))
 def test_get_thermal_data(ns):
+    """Subcooling is as expected."""
     assert ns.data.subcool.mean() == pytest.approx(3.65, abs=0.01, rel=0.01)
 
 
 @pytest.fixture(scope="module")
 def nss(fixtures):
-    """Namespaces from the tests in this module."""
+    """Namespaces from tests in this module."""
     return fixtures.ns.test_e230920_subcool
 
 
 @pytest.mark.skipif(bool(environ.get("CI")), reason="CI")
 def test_synthesis(nss, plt):
+    """Synthesize results."""
     _, axes = plt.subplots(1, 3)
     axes = iter(axes)
     nss.test_centers_index._.centers.plot.scatter(ax=next(axes), x="x", y="y")

@@ -2,10 +2,11 @@
 
 from datetime import date
 from hashlib import sha256
-from os import environ
 from pathlib import Path
 
-from boilercv_docs.nbs import DOCS
+from boilercv_docs.intersphinx import get_ispx, get_rtd, get_url
+from boilercv_docs.nbs import DOCS, init_nb_env
+from boilercv_docs.types import IspxMappingValue
 from sphinx.application import Sphinx
 
 PACKAGE = "boilercv"
@@ -16,6 +17,23 @@ CSS = STATIC / "local.css"
 """Local CSS file, used in configs and setup."""
 BIB = DOCS / "refs.bib"
 """Bibliography file."""
+ISPX_MAPPING: dict[str, IspxMappingValue] = {
+    **{pkg: get_rtd(pkg) for pkg in ["myst_parser", "nbformat", "numpydoc"]},
+    **{pkg: get_rtd(pkg, latest=True) for pkg in ["pyqtgraph"]},
+    "numpy": get_url("numpy.org/doc"),
+    "matplotlib": get_url("matplotlib.org"),
+    "pytest": get_url("docs.pytest.org/en"),
+    "cv2": get_ispx("docs.opencv.org/2.4"),
+    "python": get_ispx("docs.python.org/3"),
+    "pandas": get_ispx("pandas.pydata.org/docs"),
+}
+"""Intersphinx mapping."""
+TIPPY_RTD_URLS = [
+    ispx.url
+    for pkg, ispx in ISPX_MAPPING.items()
+    if pkg not in ["python", "pandas", "matplotlib"]
+]
+"""Tippy ReadTheDocs-compatible URLs."""
 REV = (
     Path("../requirements.txt")
     .read_text(encoding="utf-8")
@@ -23,12 +41,6 @@ REV = (
     .split("@")[-1]
 )
 """Binder revision."""
-
-# ! URLs for autodoc, intersphinx, and tippy
-OPENCV = "https://docs.opencv.org/2.4"
-NBFORMAT = "https://nbformat.readthedocs.io/en/stable"
-NUMPY = "https://numpy.org/doc/stable"
-PYQTGRAPH = "https://pyqtgraph.readthedocs.io/en/latest"
 
 # ! Setup
 
@@ -39,27 +51,12 @@ def setup(app: Sphinx):
     app.connect("html-page-context", add_version_to_css)
 
 
-def init_nb_env():
-    """Initialize the environment which will be inherited for notebook execution."""
-    for key in [
-        key
-        for key in [
-            "PIP_DISABLE_PIP_VERSION_CHECK",
-            "PYTHONIOENCODING",
-            "PYTHONUTF8",
-            "PYTHONWARNDEFAULTENCODING",
-            "PYTHONWARNINGS",
-        ]
-        if environ.get(key) is not None
-    ]:
-        del environ[key]
-    environ["PYDEVD_DISABLE_FILE_VALIDATION"] = "1"
-
-
 def add_version_to_css(app: Sphinx, _pagename, _templatename, ctx, _doctree):
     """Add the version number to the local.css file, to bust the cache for changes.
 
-    See: https://github.com/executablebooks/MyST-Parser/blob/978e845543b5bcb7af0ff89cac9f798cb8c16ab3/docs/conf.py#L241-L249
+    See Also
+    --------
+    - https://github.com/executablebooks/MyST-Parser/blob/978e845543b5bcb7af0ff89cac9f798cb8c16ab3/docs/conf.py#L241-L249
     """
     if app.builder.name != "html":
         return
@@ -71,9 +68,12 @@ def add_version_to_css(app: Sphinx, _pagename, _templatename, ctx, _doctree):
 def dpaths(*paths: Path, rel: Path = DOCS) -> list[str]:
     """Get the string-representation of paths relative to docs for Sphinx config.
 
-    Args:
-        paths: Paths to convert.
-        rel: Relative path to convert to. Defaults to the 'docs' directory.
+    Parameters
+    ----------
+    paths
+        Paths to convert.
+    rel
+        Relative path to convert to. Defaults to the 'docs' directory.
     """
     return [dpath(path, rel) for path in paths]
 
@@ -81,9 +81,12 @@ def dpaths(*paths: Path, rel: Path = DOCS) -> list[str]:
 def dpath(path: Path, rel: Path = DOCS) -> str:
     """Get the string-representation of a path relative to docs for Sphinx config.
 
-    Args:
-        path: Path to convert.
-        rel: Relative path to convert to. Defaults to the 'docs' directory.
+    Parameters
+    ----------
+    path
+        Path to convert.
+    rel
+        Relative path to convert to. Defaults to the 'docs' directory.
     """
     return path.relative_to(rel).as_posix()
 
@@ -124,6 +127,7 @@ COMMON_OPTIONS = {
 }
 html_theme_options = {
     **COMMON_OPTIONS,
+    "navigation_with_keys": False,  # https://github.com/pydata/pydata-sphinx-theme/pull/1503
     "repository_branch": "main",
     "show_navbar_depth": 2,
     "show_toc_level": 4,
@@ -160,23 +164,22 @@ math_eqref_format = "Eq. {number}"
 mermaid_d3_zoom = False
 # ! Autodoc2
 nitpicky = True
-autodoc2_packages = [f"../src/{PACKAGE}"]
+autodoc2_packages = [
+    f"../src/{PACKAGE}",
+    f"./{PACKAGE}_docs",
+    f"../scripts/{PACKAGE}_tools",
+    f"../tests/{PACKAGE}_tests",
+]
 autodoc2_render_plugin = "myst"
 # ? Autodoc2 does not currently obey `python_display_short_literal_types` or
-# ? `python_use_unqualified_type_names`, but `maximum_signature_line_length` makes it a
+# ? `python_use_unqualified_type_names` `maximum_signature_line_length` makes it a
 # ? bit prettier.
 # ? https://github.com/sphinx-extensions2/sphinx-autodoc2/issues/58
-maximum_signature_line_length = 88
+maximum_signature_line_length = 1
+# ? Parse Numpy docstrings
+autodoc2_docstring_parser_regexes = [(".*", "boilercv_docs.docstrings")]
 # ! Intersphinx
-intersphinx_mapping = {
-    "cv2": (OPENCV, None),
-    "nbformat": (NBFORMAT, None),
-    "numpy": (NUMPY, None),
-    "pyqtgraph": (PYQTGRAPH, None),
-    "matplotlib": ("https://matplotlib.org/stable", None),
-    "pandas": ("https://pandas.pydata.org/docs", None),
-    "python": ("https://docs.python.org/3", None),
-}
+intersphinx_mapping = ISPX_MAPPING
 nitpick_ignore = [
     ("py:class", "cv2.LineSegmentDetector"),
     ("py:class", "boilercv.correlations.T"),
@@ -184,17 +187,19 @@ nitpick_ignore = [
     ("py:class", "boilercv.experiments.e230920_subcool.NbProcess"),
 ]
 nitpick_ignore_regex = [
-    # ? Type aliases
-    ("py:.*", r"boilercv\.types\..*"),
-    ("py:.*", r"boilercv\.captivate\.previews\..*"),
-    # ? Ignore until I'm using autodoc there, too
-    ("py:.*", r"boilercore\..*"),
-    # ? Typing portion not found
-    ("py:.*", r"numpy\.typing\..*"),
-    # ? Until we're done with Pydantic v1
-    ("py:.*", r"pydantic\.v1\..*"),
-    # ? https://bugreports.qt.io/browse/PYSIDE-2215
-    ("py:.*", r"PySide6\..*"),
+    # ? Missing inventory
+    ("py:class", r"boilercore\..+"),
+    ("py:class", r"docutils\..+"),
+    ("py:class", r"numpy\.typing\..+"),
+    ("py:class", r"numpydoc\.docscrape\..+"),
+    ("py:class", r"_pytest\..+"),
+    ("py:class", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
+    # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
+    ("py:class", r"boilercv_docs\.docstrings\..*(?:SeeAlso|Section).*"),
+    ("py:class", r"boilercv.*\.types\..+"),
+    ("py:class", r"boilercv\.captivate\.previews\..+"),
+    # ? Until done with Pydantic v1
+    ("py:class", r"pydantic\.v1\..+"),
 ]
 # ! Tippy
 # ? https://sphinx-tippy.readthedocs.io/en/latest/index.html#confval-tippy_anchor_parent_selector
@@ -215,5 +220,4 @@ tippy_tip_selector = """
     """
 # ? Skip Zenodo DOIs as the hover hint doesn't work properly
 tippy_skip_urls = [r"https://doi\.org/10\.5281/zenodo\..+"]
-# ? Other
-tippy_rtd_urls = [OPENCV, NBFORMAT, NUMPY, PYQTGRAPH]
+tippy_rtd_urls = TIPPY_RTD_URLS

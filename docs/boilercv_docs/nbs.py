@@ -41,8 +41,27 @@ DISPLAY_ROWS = 20
 """The number of rows to display in a dataframe."""
 
 
+def init_nb_env():
+    """Initialize the environment which will be inherited for notebook execution."""
+    for key in [
+        key
+        for key in [
+            "PIP_DISABLE_PIP_VERSION_CHECK",
+            "PYTHONIOENCODING",
+            "PYTHONUTF8",
+            "PYTHONWARNDEFAULTENCODING",
+            "PYTHONWARNINGS",
+        ]
+        if environ.get(key) is not None
+    ]:
+        del environ[key]
+    environ["PYDEVD_DISABLE_FILE_VALIDATION"] = "1"
+
+
 @dataclass
 class Paths:
+    """Paths."""
+
     root: Path
     docs: Path
     deps: Path
@@ -109,6 +128,7 @@ def copy_deps(src, dst):
 
 
 def set_display_options(font_scale):
+    """Set display options."""
     # The triple curly braces in the f-string allows the format function to be
     # dynamically specified by a given float specification. The intent is clearer this
     # way, and may be extended in the future by making `float_spec` a parameter.
@@ -135,7 +155,6 @@ def nowarn(capture: bool = False):
 
 def keep_viewer_in_scope():
     """Keep the image viewer in scope so it doesn't get garbage collected."""
-
     from boilercv_pipeline.captivate.previews import image_viewer  # noqa: PLC0415
 
     with image_viewer([]) as viewer:

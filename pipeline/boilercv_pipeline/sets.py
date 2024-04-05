@@ -64,13 +64,18 @@ def get_unprocessed_destinations(
     destinations with a given file extension. A dataset is considered unprocessed if a
     file sharing its name is not found in the destination directory.
 
-    Args:
-        destination_dir: The desired destination directory.
-        ext: The desired file extension. Default: nc
-        reprocess: Whether to reprocess all datasets. Default: False.
+    Parameters
+    ----------
+    destination_dir
+        The desired destination directory.
+    ext
+        The desired file extension. Default: nc
+    reprocess
+        Whether to reprocess all datasets. Default: False.
 
-    Returns:
-        A mapping of unprocessed dataset names to destinations with the given file
+    Returns
+    -------
+    A mapping of unprocessed dataset names to destinations with the given file
     """
     unprocessed_destinations: dict[str, Path] = {}
     ext = ext.lstrip(".")
@@ -149,7 +154,7 @@ def get_contours_df(name: str) -> DF:
 
 
 def slice_frames(num_frames: int = 0, frame: slice = ALL_FRAMES) -> slice:
-    """Returns a slice suitable for getting frames from datasets."""
+    """Return a slice suitable for getting frames from datasets."""
     if num_frames:
         if frame == ALL_FRAMES:
             frame = slice(None, num_frames - 1)

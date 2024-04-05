@@ -3,7 +3,7 @@
 from boilercv_pipeline.models.params import PARAMS
 
 
-def main():
+def main():  # noqa: D103
     (PARAMS.paths.lifetimes / "theory").touch()
 
 

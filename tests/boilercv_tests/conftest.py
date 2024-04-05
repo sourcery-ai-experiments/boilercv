@@ -10,7 +10,6 @@ from pathlib import Path
 from re import fullmatch
 from shutil import rmtree
 from types import SimpleNamespace
-from typing import Any, TypeAlias
 from warnings import resetwarnings
 
 import pytest
@@ -23,6 +22,7 @@ from matplotlib.figure import Figure
 
 import boilercv
 from boilercv_tests import Case, get_cached_nb_ns, normalize_cases
+from boilercv_tests.types import FixtureStore
 
 CASER = "C"
 """Module-level variable in test modules containing notebook cases for that module."""
@@ -71,7 +71,7 @@ def _get_ns_attrs(request):
 @pytest.fixture()
 @pytest_harvest.saved_fixture
 def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
-    """Notebook namespace."""
+    """Namespace."""
     case: Case = request.param
     if environ.get("CI"):
         yield get_nb_ns(nb=case.nb, params=case.params, attributes=case.results.keys())
@@ -89,8 +89,6 @@ def ns(request, fixture_stores) -> Iterator[SimpleNamespace]:
 
 # * -------------------------------------------------------------------------------- * #
 # * Harvest
-
-FixtureStore: TypeAlias = dict[str, Any]
 
 
 @dataclass

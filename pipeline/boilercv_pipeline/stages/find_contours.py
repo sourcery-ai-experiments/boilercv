@@ -13,7 +13,7 @@ from boilercv_pipeline.models.params import PARAMS
 from boilercv_pipeline.sets import get_dataset, get_unprocessed_destinations
 
 
-def main():
+def main():  # noqa: D103
     destinations = get_unprocessed_destinations(PARAMS.paths.contours, ext="h5")
     for source_name, destination in destinations.items():
         video = bitwise_not(scale_bool(get_dataset(source_name)[VIDEO].values))

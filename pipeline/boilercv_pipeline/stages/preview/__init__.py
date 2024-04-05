@@ -18,8 +18,7 @@ from boilercv_pipeline.sets import ALL_STEMS
 def new_videos_to_preview(
     destination: Path, reprocess: bool = False
 ) -> Iterator[dict[str, Any]]:
-    """An empty mapping of new videos to preview and write to disk."""
-
+    """Get empty mapping of new videos to preview and write to disk."""
     # Yield a mapping of new video names to previews, to be populated by the user
     if reprocess:
         # Reprocess all names

@@ -9,7 +9,7 @@ from boilercv_pipeline.sets import get_dataset
 from boilercv_pipeline.stages.preview import new_videos_to_preview
 
 
-def main():
+def main():  # noqa: D103
     stage = "large_sources"
     destination = PARAMS.paths.gray_preview
     with new_videos_to_preview(destination) as videos_to_preview:

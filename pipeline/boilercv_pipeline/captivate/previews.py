@@ -76,7 +76,6 @@ def view_images(images: AllViewable, name: str = "", framerate: int = FRAMERATE_
 @contextmanager
 def image_viewer(images: AllViewable, name: str = "", framerate: int = FRAMERATE_CONT):  # noqa: C901  # type: ignore  # pyright 1.1.333
     """View and interact with images and video."""
-
     images: NamedViewable = coerce_images(images)
     num_views = len(images)
     shape = SMALLER_GRIDS.get(num_views, get_square_grid(num_views))
@@ -231,6 +230,7 @@ class GraphicsLayoutWidgetWithKeySignal(GraphicsLayoutWidget):
     key_signal = Signal(QKeyEvent)
 
     def keyPressEvent(self, ev: QKeyEvent):  # noqa: N802
+        """Handle keypresses."""
         super().keyPressEvent(ev)
         self.key_signal.emit(ev)
 
@@ -289,7 +289,6 @@ def edit_roi(
     image: ArrInt, roi_path: Path, roi_type: Literal["poly", "line"] = "poly"
 ) -> ArrInt:
     """Edit the region of interest for an image."""
-
     with image_viewer(image) as (image_views, _app, window, _layout, button_layout):
         common_roi_args = dict(
             pen=mkPen("red"),

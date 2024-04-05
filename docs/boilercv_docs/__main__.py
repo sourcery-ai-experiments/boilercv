@@ -13,7 +13,7 @@ CODE = "code"
 MD = "markdown"
 
 
-def main():
+def main():  # noqa: D103
     for path in Path("docs").rglob("*.ipynb"):
         nb: NotebookNode = read(path, NO_CONVERT)  # type: ignore  # pyright 1.1.348,  # nbformat: 5.9.2
         if path not in EXCLUDE_THEBE:

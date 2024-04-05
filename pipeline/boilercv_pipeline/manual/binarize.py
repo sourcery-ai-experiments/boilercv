@@ -13,7 +13,7 @@ from boilercv_pipeline.models.params import PARAMS
 from boilercv_pipeline.models.paths import get_sorted_paths
 
 
-def main():
+def main():  # noqa: D103
     logger.info("start binarize")
     for source in tqdm(get_sorted_paths(PARAMS.paths.large_sources)):
         destination = PARAMS.paths.sources / f"{source.stem}.nc"

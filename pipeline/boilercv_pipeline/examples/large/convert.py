@@ -5,7 +5,7 @@ from boilercv_pipeline.models.params import PARAMS
 from boilercv_pipeline.video import prepare_dataset
 
 
-def main():
+def main():  # noqa: D103
     destination = (
         PARAMS.paths.large_examples / f"{PARAMS.paths.large_example_cine.stem}.nc"
     )

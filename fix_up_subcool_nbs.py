@@ -37,7 +37,7 @@ RESULTS = NB_DIR / "results_2023-09-20T16-20-24.csv"
 DATA = read_hdf(NB_DIR / "subcool_2023-09-20_thermal.h5")
 
 
-def main():
+def main():  # noqa: D103
     for nb in OLD_NBS:
         rename_run(nb)
     nbs = dict(
@@ -52,6 +52,7 @@ def main():
 
 
 def rename_run(nb: Path):
+    """Give a default index for one-file runs."""
     links = nb.read_text(encoding="utf-8").splitlines()[LINKS_LINE][LINKS_POS]
     link_num = int(links[LINK_NUM_POS] if links[LINK_NUM_POS] in digits else "1")
     run = RUNS[link_num]
@@ -59,6 +60,7 @@ def rename_run(nb: Path):
 
 
 def rename_link(nb: Path, run: str):
+    """Rename the link to the h5 file and update the RELINK flag."""
     lines = nb.read_text(encoding="utf-8").splitlines()
     lines[LINKS_LINE - 1] = '''"RELINK = False\n"'''
     line = lines[LINKS_LINE]
@@ -73,10 +75,12 @@ def rename_link(nb: Path, run: str):
 
 
 def get_nb_name(run: str):
+    """Get notebook from run name."""
     return Path(f"subcool_{run}").with_suffix(".ipynb")
 
 
 def get_h5_name(run: str):
+    """Get H5 file from run name."""
     return Path(f"subcool_{run}").with_suffix(".h5")
 
 

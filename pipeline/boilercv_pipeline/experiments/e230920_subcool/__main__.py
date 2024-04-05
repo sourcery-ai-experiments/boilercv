@@ -9,7 +9,7 @@ from boilercv_pipeline.experiments.e230920_subcool import EXP, EXP_DATA, get_tim
 from boilercv_pipeline.models.params import PARAMS
 
 
-def main():
+def main():  # noqa: D103
     find_collapse = fold(PARAMS.paths.stages[f"experiments_{EXP}_find_collapse"])
     if not modified(find_collapse):
         return

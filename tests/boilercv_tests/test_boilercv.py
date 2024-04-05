@@ -10,7 +10,6 @@ from boilercv_tests import STAGES
 
 def test_correlations():
     """Test bubble collapse correlations."""
-
     from boilercv_pipeline.correlations import (  # noqa: PLC0415
         dimensionless_bubble_diameter_florschuetz,
         fourier,

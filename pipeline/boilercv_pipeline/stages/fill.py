@@ -13,7 +13,7 @@ from boilercv_pipeline.models.params import PARAMS
 from boilercv_pipeline.sets import get_contours_df, get_dataset, process_datasets
 
 
-def main():
+def main():  # noqa: D103
     destination = PARAMS.paths.filled
     with process_datasets(destination) as videos_to_process:
         for name in tqdm(videos_to_process):

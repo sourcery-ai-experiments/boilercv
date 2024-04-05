@@ -1,3 +1,5 @@
+"""Process images with OpenCV."""
+
 from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum
@@ -53,7 +55,22 @@ def apply_mask(img: Img, mask: Img) -> Img:
 
 
 def pad(img: Img, pad_width: int, value: int) -> Img:
-    """Pad an image with a constant value. Faster than pad()."""
+    """Pad an image with a constant value.
+
+    Parameters
+    ----------
+    img
+        Image.
+    pad_width
+        Width of the pad, in pixels.
+    value
+        Pixel value to fill the pad with.
+
+    Returns
+    -------
+    img:
+        Padded image.
+    """
     return copyMakeBorder(
         img,
         top=pad_width,

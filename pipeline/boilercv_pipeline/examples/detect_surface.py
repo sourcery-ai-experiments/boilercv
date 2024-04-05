@@ -32,6 +32,7 @@ from boilercv_pipeline.sets import get_dataset
 
 
 def main():
+    """Detect the boiling surface."""
     ds = get_dataset(EXAMPLE_VIDEO_NAME, EXAMPLE_NUM_FRAMES)
     _video = ds[VIDEO]
     roi = ds[ROI]
@@ -51,7 +52,6 @@ def main():
 
 def find_boiling_surface(img: Img) -> tuple[Img, ArrInt]:
     """Find the boiling surface."""
-
     # Parameters for finding prominent horizontal lines
     wide_rectangular_ksize = [9, 3]  # Enhance horizontal lines
     threshold = 0.6

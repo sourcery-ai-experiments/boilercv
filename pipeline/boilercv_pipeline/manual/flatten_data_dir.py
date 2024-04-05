@@ -1,6 +1,6 @@
 """Flatten the data directory structure.
 
-The directory structure looks like:
+Directory structure looks like
 
     data
     └───YYYY-MM-DD
@@ -10,18 +10,20 @@ The directory structure looks like:
 """
 
 from itertools import chain
+from pathlib import Path
 
 from boilercv_pipeline.models.params import PARAMS
 
 
-def main():
+def main():  # noqa: D103
     source = PARAMS.paths.hierarchical_data
     rename_notes(source)
     rename_cines(source)
     rename_sheets(source)
 
 
-def rename_notes(source):
+def rename_notes(source: Path):
+    """Rename nested notes."""
     notes_dest = PARAMS.paths.notes
     notes_dirs = {
         trial.stem: trial / "notes"
@@ -34,7 +36,8 @@ def rename_notes(source):
         note_dir.rename(notes_dest / trial)
 
 
-def rename_cines(source):
+def rename_cines(source: Path):
+    """Rename nested cines."""
     destination = PARAMS.paths.cines
     trials = [trial / "video" for trial in source.iterdir() if trial.is_dir()]
     videos = sorted(chain.from_iterable(trial.glob("*.cine") for trial in trials))
@@ -42,7 +45,8 @@ def rename_cines(source):
         video.rename(destination / video.name.removeprefix("results_"))
 
 
-def rename_sheets(source):
+def rename_sheets(source: Path):
+    """Rename nested sheets."""
     sheets_dest = PARAMS.paths.sheets
     data = [trial / "data" for trial in sorted(source.iterdir()) if trial.is_dir()]
     sheets = sorted(chain.from_iterable(trial.glob("*.csv") for trial in data))

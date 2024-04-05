@@ -14,7 +14,7 @@ from boilercv_pipeline.models.params import PARAMS
 from boilercv_pipeline.sets import get_dataset
 
 
-def main():
+def main():  # noqa: D103
     ds = get_dataset(_EXAMPLE)
     gray = (
         open_dataset(PARAMS.paths.gray_preview)[VIDEO].sel(video_name=_EXAMPLE).values

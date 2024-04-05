@@ -11,7 +11,6 @@ from cyclopts import App
 from boilercv_tools import sync
 from boilercv_tools.sync import (
     COMPS,
-    PYPROJECT,
     PYTEST,
     disable_concurrent_tests,
     escape,
@@ -38,6 +37,7 @@ class Comp(NamedTuple):
 
 @APP.command()
 def lock():
+    """Lock dependencies."""
     log(sync.lock())
 
 
@@ -88,7 +88,7 @@ def sync_local_dev_configs():
     shadowing. Concurrent test runs are disabled in the local pytest configuration which
     slows down the usual local, granular test workflow.
     """
-    config = tomllib.loads(PYPROJECT.read_text("utf-8"))
+    config = tomllib.loads(Path("pyproject.toml").read_text("utf-8"))
     pytest = config["tool"]["pytest"]["ini_options"]
     pytest["addopts"] = disable_concurrent_tests(pytest["addopts"])
     PYTEST.write_text(

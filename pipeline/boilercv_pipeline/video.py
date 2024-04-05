@@ -29,7 +29,6 @@ def prepare_dataset(
     cine_source: Path, num_frames: int | None = None, start_frame: int = 0
 ) -> DS:
     """Prepare a dataset from a CINE."""
-
     # Header
     header, utc_arr = get_cine_attributes(
         cine_source, TIMEZONE, num_frames, start_frame

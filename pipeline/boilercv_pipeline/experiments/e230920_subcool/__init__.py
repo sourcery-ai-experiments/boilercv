@@ -48,6 +48,7 @@ TRACKS = EXP_DATA / "tracks"
 
 
 def get_times(strings: Iterable[str]) -> Iterable[datetime]:
+    """Get ISO-like timestamps."""
     for string in strings:
         if match := ISOLIKE.search(string):
             yield dt_fromisolike(match)
@@ -106,6 +107,8 @@ def get_path_time(time: str) -> str:
 
 
 class GroupByCommon(TypedDict):
+    """Common groupby parameters."""
+
     as_index: bool
     dropna: bool
     observed: bool
@@ -125,6 +128,7 @@ def gbc(
     group_keys: bool = False,
     sort: bool = False,
 ):
+    """Get common groupby parameters."""
     return GBC | GroupByCommon(**locals())
 
 
@@ -153,7 +157,12 @@ def bounded_ax(img: Img, ax: Axes | None = None) -> Iterator[Axes]:
 
 
 def get_image_boundaries(img) -> tuple[tuple[int, int], tuple[int, int]]:
-    # https://stackoverflow.com/a/44734377/20430423
+    """Get the boundaries of an image.
+
+    See Also
+    --------
+    - https://stackoverflow.com/a/44734377/20430423
+    """
     dilated = transform(scale_bool(img), Transform(Op.dilate, 12))
     cols = any(dilated, axis=0)
     rows = any(dilated, axis=1)
@@ -163,6 +172,7 @@ def get_image_boundaries(img) -> tuple[tuple[int, int], tuple[int, int]]:
 
 
 def crop_image(img, ylim, xlim):
+    """Crop an image to the specified boundaries."""
     return img[ylim[0] : ylim[1] + 1, xlim[0] : xlim[1] + 1]
 
 
@@ -170,6 +180,7 @@ WIDTH = 10
 
 
 def get_hists(df: DataFrame, groupby: str, cols: list[str]) -> DataFrame:
+    """Add sparklines row to the top of a dataframe."""
     df = df.groupby(groupby, **GBC).agg(**{
         # type: ignore  # pyright 1.1.333
         col: NamedAgg(column=col, aggfunc=sparkhist)
@@ -189,6 +200,8 @@ def sparkhist(grp: DataFrame) -> str:
 
 @dataclass
 class Col:
+    """Column transformation."""
+
     old: str
     new: str = ""
     old_unit: str = ""
@@ -202,6 +215,7 @@ class Col:
 
 
 def transform_cols(df: DataFrame, cols: list[Col]) -> DataFrame:
+    """Transform dataframe columns."""
     return df.assign(**{
         col.new: df[col.old] if col.scale == 1 else df[col.old] * col.scale
         for col in cols
@@ -222,6 +236,7 @@ M_TO_MM = Conversion(old_unit="m", new_unit="mm", scale=1000)
 def get_cat_colorbar(
     ax: Axes, col: str, palette: Any, data: DataFrame, alpha: float = 1.0
 ) -> tuple[list[tuple[float, float, float]], DataFrame]:
+    """Get categorical colorbar."""
     if isinstance(data[col].dtype, CategoricalDtype):
         data[col] = data[col].cat.remove_unused_categories()
         num_colors = len(data[col].cat.categories)

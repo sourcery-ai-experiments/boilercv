@@ -14,7 +14,7 @@ PLOTS = Path("tests/plots/tracks")
 PLOTS.mkdir(exist_ok=True)
 
 
-def main():
+def main():  # noqa: D103
     with ProcessPoolExecutor() as executor:
         for dt in EXP_TIMES:
             submit_nb_process(

@@ -5,7 +5,7 @@ from concurrent.futures import ProcessPoolExecutor
 from boilercv_pipeline.experiments.e230920_subcool import EXP_TIMES, submit_nb_process
 
 
-def main():
+def main():  # noqa: D103
     with ProcessPoolExecutor() as executor:
         for dt in EXP_TIMES:
             submit_nb_process(

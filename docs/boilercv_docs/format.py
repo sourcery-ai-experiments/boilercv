@@ -23,16 +23,19 @@ def disp_named(*args: tuple[Any, str]):
 
 
 def disp_free(title, eqn, **kwargs):
+    """Display free symbols."""
     disp(title, eqn, **kwargs)
     disp("Free symbols", FiniteSet(*eqn.rhs.free_symbols), **kwargs)
 
 
 def disp(title, *exprs, **kwargs):
+    """Display equation."""
     print(f"{title}:")  # noqa: T201
     display(*(math_mod(expr, **kwargs) for expr in exprs))
 
 
 def math_mod(expr, long_frac_ratio=3, **kwargs):
+    """Represent expression as LaTeX math."""
     return Math(latex(expr, long_frac_ratio=long_frac_ratio, **kwargs))
 
 

@@ -14,6 +14,7 @@ EXAMPLE_ROI = PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}_roi.yaml"
 
 
 def get_images() -> DA:
+    """Get images."""
     with open_dataset(PARAMS.paths.examples / f"{EXAMPLE_VIDEO_NAME}.nc") as ds:
         return ds[VIDEO].sel(frame=slice(None, EXAMPLE_NUM_FRAMES))
 
