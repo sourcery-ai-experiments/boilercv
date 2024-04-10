@@ -4,19 +4,36 @@ from datetime import date
 from hashlib import sha256
 from pathlib import Path
 
+from boilercv_docs import DOCS, PYPROJECT, chdir_docs
 from boilercv_docs.intersphinx import get_ispx, get_rtd, get_url
-from boilercv_docs.nbs import DOCS, init_nb_env
+from boilercv_docs.nbs import init_nb_env
 from boilercv_docs.types import IspxMappingValue
+from ruamel.yaml import YAML
 from sphinx.application import Sphinx
 
-PACKAGE = "boilercv"
-"""Package name."""
+# ! Root
+ROOT = chdir_docs()
+"""Root directory of the project."""
+# ! Paths
 STATIC = DOCS / "_static"
 """Static assets folder, used in configs and setup."""
 CSS = STATIC / "local.css"
 """Local CSS file, used in configs and setup."""
+BIB_TEMPLATE = DOCS / "refs-template.bib"
+"""Project template bibliography file."""
 BIB = DOCS / "refs.bib"
 """Bibliography file."""
+COPIER_ANSWERS = ROOT / ".copier-answers.yml"
+"""Copier answers file."""
+# ! Template answers
+ANS = YAML().load((ROOT / ".copier-answers.yml").read_text(encoding="utf-8"))
+"""Project template answers."""
+USER = ANS["project_owner_github_username"]
+"""Host GitHub user or organization for this repository."""
+REPO = ANS["github_repo_name"]
+"""GitHub repository name."""
+PACKAGE = ANS["project_name"]
+"""Package name."""
 ISPX_MAPPING: dict[str, IspxMappingValue] = {
     **{pkg: get_rtd(pkg) for pkg in ["myst_parser", "nbformat", "numpydoc"]},
     **{pkg: get_rtd(pkg, latest=True) for pkg in ["pyqtgraph"]},
@@ -109,6 +126,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.mermaid",
+    "sphinxcontrib.towncrier",
 ]
 # ! Theme
 html_title = PACKAGE
@@ -151,7 +169,7 @@ myst_substitutions = {
     "binder": f"[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blakeNaccarato/{PACKAGE}/{REV}?labpath=docs%2Fexperiments%2Fe230920_subcool%2Ffind_centers.ipynb)"
 }
 # ! BibTeX
-bibtex_bibfiles = dpaths(BIB)
+bibtex_bibfiles = dpaths(BIB_TEMPLATE, BIB)
 bibtex_reference_style = "label"
 bibtex_default_style = "unsrt"
 # ! NB
@@ -218,6 +236,13 @@ tippy_tip_selector = """
     p,
     table
     """
-# ? Skip Zenodo DOIs as the hover hint doesn't work properly
-tippy_skip_urls = [r"https://doi\.org/10\.5281/zenodo\..+"]
 tippy_rtd_urls = TIPPY_RTD_URLS
+tippy_skip_urls = [
+    # ? Skip Zenodo DOIs as the hover hint doesn't work properly
+    r"https://doi\.org/10\.5281/zenodo\..+"
+]
+# ! Towncrier
+towncrier_draft_autoversion_mode = "draft"
+towncrier_draft_include_empty = True
+towncrier_draft_working_directory = ROOT
+towncrier_draft_config_path = PYPROJECT

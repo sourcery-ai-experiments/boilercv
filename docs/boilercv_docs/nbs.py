@@ -24,11 +24,8 @@ from pandas import DataFrame, Index, MultiIndex, Series, concat, options
 from seaborn import set_theme
 
 from boilercv.types import DfOrS
+from boilercv_docs import DEPS, DOCS, get_root
 
-DOCS = Path("docs")
-"""Docs directory."""
-DEPS = Path("tests/root")
-"""Dependencies shared with tests."""
 FONT_SCALE = 1.3
 """Plot font scale."""
 PRECISION = 4
@@ -95,12 +92,11 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
             ),
         ],
     )
-    path = Path().cwd()
-    was_already_at_root = is_root(path)
-    while not is_root(path):
-        if path == (path := path.parent):
-            raise RuntimeError("Either documentation or dependencies are missing.")
-    paths = Paths(*[p.resolve() for p in (path, path / DOCS, path / DEPS)])
+    root = get_root()
+    was_already_at_root = Path().cwd() == root
+    if not all((root / check).exists() for check in [DOCS, DEPS]):
+        raise RuntimeError("Either documentation or dependencies are missing.")
+    paths = Paths(*[p.resolve() for p in (root, root / DOCS, root / DEPS)])
     if _in_binder := environ.get("BINDER_LAUNCH_HOST", False):
         copy_deps(paths.deps, paths.root)
     if any((
@@ -113,11 +109,6 @@ def init(font_scale: float = FONT_SCALE) -> Paths:
         raise RuntimeError("Can't determine notebook environment.")
     set_display_options(font_scale)
     return paths
-
-
-def is_root(path: Path) -> bool:
-    """Check if the path is the root of the project."""
-    return (path / DOCS).exists() and (path / DEPS).exists()
 
 
 def copy_deps(src, dst):
@@ -205,7 +196,7 @@ def convert_tex_to_html(html, raw=False):
 
 
 # * -------------------------------------------------------------------------------- * #
-# * Make styled dataframes resepct precision
+# * Make styled dataframes respect precision
 # * https://gist.github.com/blakeNaccarato/3c751f0a9f0f5143f3cffc525e5dd577
 
 

@@ -67,3 +67,9 @@ flowchart TD
  style node10 fill:#000784
  style node11 fill:#000784
 ```
+
+## Project information
+
+- [Changes](<https://blakeNaccarato.github.io/boilercv/changelog.html>)
+- [Docs](<https://blakeNaccarato.github.io/boilercv>)
+- [Contributing](<https://blakeNaccarato.github.io/boilercv/contributing.html>)
