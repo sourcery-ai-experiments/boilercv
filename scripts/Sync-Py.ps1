@@ -113,14 +113,14 @@ else {
 # ? Post-sync
 if (!$NoPostSync) {
     '*** RUNNING POST-SYNC TASKS' | Write-Progress
-    'SYNCING LOCAL DEV CONFIGS' | Write-Progress
-    & $py -m boilercv_tools 'sync-local-dev-configs'
-    'LOCAL DEV CONFIGS SYNCED' | Write-Progress -Done
     'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
     pre-commit install
+    'SYNCING LOCAL DEV CONFIGS' | Write-Progress
+    & $py -m boilercv_tools 'sync-local-dev-configs'
     'SYNCING PIPELINE PARAMS' | Write-Progress
     & $py -m boilercv_pipeline.models.params
-    'PIPELINE PARAMS SYNCED' | Write-Progress
+    'PATCHING NOTEBOOKS' | Write-Progress
+    & $py -m boilercv_docs.patch_nbs
     '' | Write-Host
     '*** POST-SYNC DONE ***' | Write-Progress -Done
 }

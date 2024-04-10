@@ -7,11 +7,13 @@ from pathlib import Path
 from boilercv_docs import DOCS, PYPROJECT, chdir_docs
 from boilercv_docs.intersphinx import get_ispx, get_rtd, get_url
 from boilercv_docs.nbs import init_nb_env
+from boilercv_docs.patch_nbs import patch_nbs
 from boilercv_docs.types import IspxMappingValue
 from ruamel.yaml import YAML
 from sphinx.application import Sphinx
 
-# ! Root
+# ! Initialization
+patch_nbs()
 ROOT = chdir_docs()
 """Root directory of the project."""
 # ! Paths
