@@ -28,12 +28,17 @@ COPIER_ANSWERS = ROOT / ".copier-answers.yml"
 # ! Template answers
 ANS = YAML().load((ROOT / ".copier-answers.yml").read_text(encoding="utf-8"))
 """Project template answers."""
+AUTHORS = ANS["project_owner_name"]
+"""Authors of the project."""
 USER = ANS["project_owner_github_username"]
 """Host GitHub user or organization for this repository."""
 REPO = ANS["github_repo_name"]
 """GitHub repository name."""
 PACKAGE = ANS["project_name"]
 """Package name."""
+VERSION = ANS["project_version"]
+"""Package version."""
+# ! Intersphinx and related
 ISPX_MAPPING: dict[str, IspxMappingValue] = {
     **{pkg: get_rtd(pkg) for pkg in ["myst_parser", "nbformat", "numpydoc"]},
     **{pkg: get_rtd(pkg, latest=True) for pkg in ["pyqtgraph"]},
@@ -110,8 +115,8 @@ def dpath(path: Path, rel: Path = DOCS) -> str:
 
 # ! Basics
 project = PACKAGE
-copyright = f"{date.today().year}, Blake Naccarato, Kwang Jin Kim"  # noqa: A001
-version = "0.0.1"
+copyright = f"{date.today().year}, {AUTHORS}"  # noqa: A001
+version = VERSION
 master_doc = "index"
 language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -140,7 +145,7 @@ html_context = {
     "default_mode": "light"
 }
 COMMON_OPTIONS = {
-    "repository_url": f"https://github.com/blakeNaccarato/{PACKAGE}",
+    "repository_url": f"https://github.com/{USER}/{PACKAGE}",
     "path_to_docs": dpath(DOCS),
 }
 html_theme_options = {
@@ -184,18 +189,18 @@ mermaid_d3_zoom = False
 nitpicky = True
 autodoc2_packages = [
     f"../src/{PACKAGE}",
-    f"./{PACKAGE}_docs",
+    f"{PACKAGE}_docs",
     f"../scripts/{PACKAGE}_tools",
     f"../tests/{PACKAGE}_tests",
 ]
 autodoc2_render_plugin = "myst"
 # ? Autodoc2 does not currently obey `python_display_short_literal_types` or
-# ? `python_use_unqualified_type_names` `maximum_signature_line_length` makes it a
+# ? `python_use_unqualified_type_names`, but `maximum_signature_line_length` makes it a
 # ? bit prettier.
 # ? https://github.com/sphinx-extensions2/sphinx-autodoc2/issues/58
 maximum_signature_line_length = 1
 # ? Parse Numpy docstrings
-autodoc2_docstring_parser_regexes = [(".*", "boilercv_docs.docstrings")]
+autodoc2_docstring_parser_regexes = [(".*", f"{PACKAGE}_docs.docstrings")]
 # ! Intersphinx
 intersphinx_mapping = ISPX_MAPPING
 nitpick_ignore = [
@@ -213,7 +218,7 @@ nitpick_ignore_regex = [
     ("py:class", r"_pytest\..+"),
     ("py:class", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
     # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
-    ("py:class", r"boilercv_docs\.docstrings\..*(?:SeeAlso|Section).*"),
+    ("py:class", rf"{PACKAGE}_docs\.docstrings\..*(?:SeeAlso|Section).*"),
     ("py:class", r"boilercv.*\.types\..+"),
     ("py:class", r"boilercv\.captivate\.previews\..+"),
     # ? Until done with Pydantic v1
@@ -236,6 +241,7 @@ tippy_tip_selector = """
     p,
     table
     """
+# ? Skip Zenodo DOIs as the hover hint doesn't work properly
 tippy_rtd_urls = TIPPY_RTD_URLS
 tippy_skip_urls = [
     # ? Skip Zenodo DOIs as the hover hint doesn't work properly
