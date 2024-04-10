@@ -28,7 +28,7 @@ BIB = DOCS / "refs.bib"
 COPIER_ANSWERS = ROOT / ".copier-answers.yml"
 """Copier answers file."""
 # ! Template answers
-ANS = YAML().load((ROOT / ".copier-answers.yml").read_text(encoding="utf-8"))
+ANS = YAML().load(COPIER_ANSWERS.read_text(encoding="utf-8"))
 """Project template answers."""
 AUTHORS = ANS["project_owner_name"]
 """Authors of the project."""

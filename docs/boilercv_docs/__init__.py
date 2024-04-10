@@ -5,10 +5,10 @@ from pathlib import Path
 
 DOCS = Path("docs")
 """Docs directory."""
-PYPROJECT = Path("pyproject.toml")
-"""Path to `pyproject.toml`."""
 DEPS = Path("tests/root")
 """Dependencies shared with tests."""
+PYPROJECT = Path("pyproject.toml")
+"""Path to `pyproject.toml`."""
 CHECKS = [DOCS, DEPS, PYPROJECT]
 """Checks for the root directory."""
 
@@ -23,7 +23,7 @@ def chdir_docs() -> Path:
 def get_root() -> Path:
     """Get the project root directory."""
     path = Path().cwd()
-    while not all((path / check).exists() for check in [DOCS, PYPROJECT]):
+    while not all((path / check).exists() for check in CHECKS):
         if path == (path := path.parent):
             raise RuntimeError("Either documentation or `pyproject.toml` is missing.")
     return path
