@@ -46,8 +46,8 @@ ignore_undeclared = [
     "boilercore",
     "boilercv_docs",
     "boilercv_pipeline",
-    "boilercv_scripts",
     "boilercv_tests",
+    "boilercv_tools",
     "boilercv",
 ]
 ignore_unused = [
