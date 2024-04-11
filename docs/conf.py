@@ -207,9 +207,9 @@ autodoc2_docstring_parser_regexes = [(".*", f"{PACKAGE}_docs.docstrings")]
 intersphinx_mapping = ISPX_MAPPING
 nitpick_ignore = [
     ("py:class", "cv2.LineSegmentDetector"),
-    ("py:class", "boilercv.correlations.T"),
-    ("py:class", "boilercv.data.sets.Stage"),
-    ("py:class", "boilercv.experiments.e230920_subcool.NbProcess"),
+    ("py:class", f"{PACKAGE}.correlations.T"),
+    ("py:class", f"{PACKAGE}.data.sets.Stage"),
+    ("py:class", f"{PACKAGE}.experiments.e230920_subcool.NbProcess"),
 ]
 nitpick_ignore_regex = [
     # ? Missing inventory
@@ -220,9 +220,8 @@ nitpick_ignore_regex = [
     ("py:class", r"_pytest\..+"),
     ("py:class", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
     # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
-    ("py:class", rf"{PACKAGE}_docs\.docstrings\..*(?:SeeAlso|Section).*"),
-    ("py:class", r"boilercv.*\.types\..+"),
-    ("py:class", r"boilercv\.captivate\.previews\..+"),
+    ("py:class", rf"{PACKAGE}.*\.types\..+"),
+    ("py:class", rf"{PACKAGE}\.captivate\.previews\..+"),
     # ? Until done with Pydantic v1
     ("py:class", r"pydantic\.v1\..+"),
 ]
