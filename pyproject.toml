@@ -198,7 +198,6 @@ output-format = "grouped"
 fix = true
 preview = true
 show-fixes = true
-
 [tool.ruff.lint]
 fixable = ["ALL"]
 select = [
@@ -222,6 +221,7 @@ ignore = [
     "FBT",     # Allow boolean "traps"
     "FIX002",  # Allow TODOs
     "FLY002",  # Allow different string representations
+    "FURB118", # Incorrectly applies `itemgetter`
     "FURB140", # Don't replace comprehensions with starmap
     "G0",      # Allow f-strings, etc. in Loguru logging
     "INP001",  # False positives. Checks for packages missing `__init__.py`

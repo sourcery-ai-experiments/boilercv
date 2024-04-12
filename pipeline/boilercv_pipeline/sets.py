@@ -3,7 +3,7 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Literal, TypeAlias
+from typing import Any
 
 from pandas import read_hdf
 from xarray import Dataset, open_dataset
@@ -13,6 +13,7 @@ from boilercv.data.packing import unpack
 from boilercv.types import DF, DS
 from boilercv_pipeline.models.params import PARAMS
 from boilercv_pipeline.models.paths import get_sorted_paths
+from boilercv_pipeline.types import Stage
 
 ALL_FRAMES = slice(None)
 """Slice that gets all frames."""
@@ -20,8 +21,6 @@ ALL_STEMS = [source.stem for source in get_sorted_paths(PARAMS.paths.sources)]
 """The stems of all dataset sources."""
 STAGE_DEFAULT = "sources"
 """Default stage to work on."""
-
-Stage: TypeAlias = Literal["large_sources", "sources", "filled"]
 
 
 @contextmanager

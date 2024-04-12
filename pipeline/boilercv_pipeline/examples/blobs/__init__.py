@@ -14,14 +14,14 @@ def get_blobs_dog(image):
         # max_sigma=30,
         # threshold=0.1,
     )
-    blobs[:, 2] = blobs[:, 2] * sqrt(2)
+    blobs[:, 2] *= sqrt(2)
     return (Blob(*blob) for blob in blobs)
 
 
 def get_blobs_log(image):
     """Get blobs using the log technique."""
     blobs = blob_log(image, max_sigma=30, num_sigma=10, threshold=0.1)
-    blobs[:, 2] = blobs[:, 2] * sqrt(2)
+    blobs[:, 2] *= sqrt(2)
     return (Blob(*blob) for blob in blobs)
 
 

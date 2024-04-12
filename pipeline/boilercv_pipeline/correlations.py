@@ -1,63 +1,54 @@
 """Theoretical correlations for bubble lifetimes."""
 
-from typing import Any
-
 from numpy import pi, sqrt
 
-T = Any
-"""Can't figure out typing of these for now, will revisit later."""
 
-
-def thermal_diffusivity(
-    thermal_conductivity: T, density: T, isobaric_specific_heat: T
-) -> T:
+def thermal_diffusivity(thermal_conductivity, density, isobaric_specific_heat):
     """Thermal diffusivity."""
     return thermal_conductivity / (density * isobaric_specific_heat)
 
 
-def kinematic_viscosity(dynamic_viscosity: T, density: T) -> T:
+def kinematic_viscosity(dynamic_viscosity, density):
     """Kinematic viscosity."""
     return dynamic_viscosity / density
 
 
-def reynolds(velocity: T, characteristic_length: T, kinematic_viscosity: T) -> T:
+def reynolds(velocity, characteristic_length, kinematic_viscosity):
     """Reynolds number."""
     return velocity * characteristic_length / kinematic_viscosity
 
 
-def prandtl(
-    dynamic_viscosity: T, isobaric_specific_heat: T, thermal_conductivity: T
-) -> T:
+def prandtl(dynamic_viscosity, isobaric_specific_heat, thermal_conductivity):
     """Prandtl number."""
     return (isobaric_specific_heat * dynamic_viscosity) / thermal_conductivity
 
 
 def jakob(
-    liquid_density: T,
-    vapor_density: T,
-    liquid_isobaric_specific_heat: T,
-    subcooling: T,
-    latent_heat_of_vaporization: T,
-) -> T:
+    liquid_density,
+    vapor_density,
+    liquid_isobaric_specific_heat,
+    subcooling,
+    latent_heat_of_vaporization,
+):
     """Jakob number."""
     return (liquid_density * liquid_isobaric_specific_heat * subcooling) / (
         vapor_density * latent_heat_of_vaporization
     )
 
 
-def fourier(liquid_thermal_diffusivity: T, initial_bubble_diameter: T, time: T) -> T:
+def fourier(liquid_thermal_diffusivity, initial_bubble_diameter, time):
     """Fourier number."""
     return liquid_thermal_diffusivity * time / initial_bubble_diameter**2
 
 
-def dimensionless_bubble_diameter_florschuetz(jakob: T, fourier: T) -> T:
+def dimensionless_bubble_diameter_florschuetz(jakob, fourier):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`."""
     return 1 - 4 * jakob * sqrt(fourier / pi)
 
 
 def dimensionless_bubble_diameter_tang(
-    bubble_initial_reynolds: T, liquid_prandtl: T, bubble_jakob: T, bubble_fourier: T
-) -> T:
+    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     # assert 1_000 < bubble_initial_reynolds < 30_000
     # assert 45 < bubble_jakob < 80
@@ -73,8 +64,8 @@ def dimensionless_bubble_diameter_tang(
 
 
 def dimensionless_bubble_diameter_yuan(
-    bubble_initial_reynolds: T, liquid_prandtl: T, bubble_jakob: T, bubble_fourier: T
-) -> T:
+    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`yuandewenCondensationHeatTransfer2009,tangReviewDirectContact2022`."""
     # assert 335 < bubble_initial_reynolds < 1770
     # assert 0 < bubble_jakob < 60
@@ -91,8 +82,8 @@ def dimensionless_bubble_diameter_yuan(
 
 
 def dimensionless_bubble_diameter_inaba(
-    bubble_initial_reynolds: T, liquid_prandtl: T, bubble_jakob: T, bubble_fourier: T
-) -> T:
+    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+):
     """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`."""
     # assert 7_000 < bubble_initial_reynolds < 70_000
     # assert 0.24 < bubble_jakob < 27

@@ -1,13 +1,13 @@
 """Subcooled bubble collapse experiment."""
 
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Iterable, Iterator
 from concurrent.futures import Future, ProcessPoolExecutor
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, TypeAlias, TypedDict
+from typing import Any, TypedDict
 
 from boilercore.notebooks.namespaces import Params, get_nb_ns
 from boilercore.paths import ISOLIKE, dt_fromisolike, get_module_name
@@ -25,6 +25,7 @@ from boilercv.images.cv import Op, Transform, transform
 from boilercv.types import DA, Img
 from boilercv_pipeline.experiments import get_exp
 from boilercv_pipeline.models.params import PARAMS
+from boilercv_pipeline.types import NbProcess
 
 EXP = get_module_name(__spec__ or __file__)
 """Name of this experiment."""
@@ -55,10 +56,6 @@ def get_times(strings: Iterable[str]) -> Iterable[datetime]:
 
 
 EXP_TIMES = list(get_times(path.stem for path in TRACKPY_OBJECTS.iterdir()))
-
-
-NbProcess: TypeAlias = Callable[[Path, SimpleNamespace], None]
-"""Notebook process."""
 
 
 def save_df(path: Path, ns: SimpleNamespace):
@@ -157,12 +154,7 @@ def bounded_ax(img: Img, ax: Axes | None = None) -> Iterator[Axes]:
 
 
 def get_image_boundaries(img) -> tuple[tuple[int, int], tuple[int, int]]:
-    """Get the boundaries of an image.
-
-    See Also
-    --------
-    - https://stackoverflow.com/a/44734377/20430423
-    """
+    """Get the boundaries of an image."""
     dilated = transform(scale_bool(img), Transform(Op.dilate, 12))
     cols = any(dilated, axis=0)
     rows = any(dilated, axis=1)

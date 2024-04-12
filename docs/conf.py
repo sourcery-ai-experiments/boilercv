@@ -80,7 +80,7 @@ def add_version_to_css(app: Sphinx, _pagename, _templatename, ctx, _doctree):
 
     See Also
     --------
-    - https://github.com/executablebooks/MyST-Parser/blob/978e845543b5bcb7af0ff89cac9f798cb8c16ab3/docs/conf.py#L241-L249
+    https://github.com/executablebooks/MyST-Parser/blob/978e845543b5bcb7af0ff89cac9f798cb8c16ab3/docs/conf.py#L241-L249
     """
     if app.builder.name != "html":
         return
@@ -192,6 +192,7 @@ nitpicky = True
 autodoc2_packages = [
     f"../src/{PACKAGE}",
     f"{PACKAGE}_docs",
+    f"../pipeline/{PACKAGE}_pipeline",
     f"../tests/{PACKAGE}_tests",
     f"../scripts/{PACKAGE}_tools",
 ]
@@ -213,15 +214,15 @@ nitpick_ignore = [
 ]
 nitpick_ignore_regex = [
     # ? Missing inventory
-    ("py:class", r"boilercore\..+"),
-    ("py:class", r"docutils\..+"),
-    ("py:class", r"numpy\.typing\..+"),
-    ("py:class", r"numpydoc\.docscrape\..+"),
-    ("py:class", r"_pytest\..+"),
-    ("py:class", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
+    (r"py:.+", r"boilercore\..+"),
+    (r"py:.+", r"docutils\..+"),
+    (r"py:.+", r"numpy\.typing\..+"),
+    (r"py:.+", r"numpydoc\.docscrape\..+"),
+    (r"py:.+", r"_pytest\..+"),
+    (r"py:.+", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
     # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
     ("py:class", rf"{PACKAGE}.*\.types\..+"),
-    ("py:class", rf"{PACKAGE}\.captivate\.previews\..+"),
+    ("py:class", rf"{PACKAGE}_pipeline\.captivate\.previews\..+"),
     # ? Until done with Pydantic v1
     ("py:class", r"pydantic\.v1\..+"),
 ]
