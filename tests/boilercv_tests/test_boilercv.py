@@ -11,12 +11,12 @@ from boilercv_tests import STAGES
 def test_correlations():
     """Test bubble collapse correlations."""
     from boilercv_pipeline.correlations import (  # noqa: PLC0415
-        dimensionless_bubble_diameter_florschuetz,
+        dimensionless_bubble_diameter_florschuetz_chao_1965,
         fourier,
         jakob,
     )
 
-    result = dimensionless_bubble_diameter_florschuetz(
+    result = dimensionless_bubble_diameter_florschuetz_chao_1965(
         jakob(
             liquid_density=1000,  # kg/m^3
             vapor_density=0.804,  # kg/m^3

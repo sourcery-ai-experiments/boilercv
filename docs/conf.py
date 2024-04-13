@@ -50,6 +50,7 @@ ISPX_MAPPING: dict[str, IspxMappingValue] = {
     "cv2": get_ispx("docs.opencv.org/2.4"),
     "python": get_ispx("docs.python.org/3"),
     "pandas": get_ispx("pandas.pydata.org/docs"),
+    "colorcet": get_ispx("https://colorcet.holoviz.org/"),
 }
 """Intersphinx mapping."""
 TIPPY_RTD_URLS = [
@@ -205,7 +206,9 @@ maximum_signature_line_length = 1
 # ? Parse Numpy docstrings
 autodoc2_docstring_parser_regexes = [(".*", f"{PACKAGE}_docs.docstrings")]
 # ! Intersphinx
-intersphinx_mapping = ISPX_MAPPING
+intersphinx_mapping = {
+    pkg: ispx for pkg, ispx in ISPX_MAPPING.items() if pkg != "colorcet"
+}
 nitpick_ignore = [
     ("py:class", "cv2.LineSegmentDetector"),
     ("py:class", f"{PACKAGE}.correlations.T"),

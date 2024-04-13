@@ -86,7 +86,7 @@ def overlay(
         color: Color for the overlay.
         alpha: Alpha value for the overlay. Range: 0-1
     """
-    background = Image.fromarray(image).convert("RGBA")
+    background = Image.fromarray(image).convert("RGBA")  # pyright: ignore[reportArgumentType] 1.1.356, pillow 10.0.0
     objects = Image.fromarray(overlay)
     if overlay.ndim == 2:
         objects = ImageOps.colorize(objects, WHITE3, color)  # type: ignore  # pyright 1.1.348, pillow 10.2.0
