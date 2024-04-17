@@ -4,8 +4,7 @@
 --editable scripts/
 --editable tests/
 --editable submodules/boilercore
-copier==9.1.1
-pyyaml-include==1.4.1  # ! https://github.com/copier-org/copier/issues/1568
+copier==9.2.0
 debugpy==1.8.1
 fawltydeps==0.15.0
 flit==3.9.0
