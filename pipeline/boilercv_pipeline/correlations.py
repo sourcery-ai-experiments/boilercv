@@ -41,13 +41,13 @@ def fourier(liquid_thermal_diffusivity, initial_bubble_diameter, time):
     return liquid_thermal_diffusivity * time / initial_bubble_diameter**2
 
 
-def dimensionless_bubble_diameter_florschuetz_chao_1965(bubble_jakob, bubble_fourier):
+def dimensionless_bubble_diameter_florschuetz_chao_1965(bubble_fourier, bubble_jakob):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`."""
     return 1 - 4 * bubble_jakob * sqrt(bubble_fourier / pi)
 
 
 def dimensionless_bubble_diameter_isenberg_sideman_1970(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     return (
@@ -61,7 +61,7 @@ def dimensionless_bubble_diameter_isenberg_sideman_1970(
 
 
 def dimensionless_bubble_diameter_akiyama_1973(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     return (
@@ -75,7 +75,7 @@ def dimensionless_bubble_diameter_akiyama_1973(
 
 
 def dimensionless_bubble_diameter_chen_mayinger_1992(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     return (
@@ -89,7 +89,7 @@ def dimensionless_bubble_diameter_chen_mayinger_1992(
 
 
 def dimensionless_bubble_diameter_kalman_mori_2002(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     return (
@@ -103,7 +103,7 @@ def dimensionless_bubble_diameter_kalman_mori_2002(
 
 
 def dimensionless_bubble_diameter_lucic_mayinger_2010(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     # assert 1_000 < bubble_initial_reynolds < 30_000
@@ -120,7 +120,7 @@ def dimensionless_bubble_diameter_lucic_mayinger_2010(
 
 
 def dimensionless_bubble_diameter_kim_park_2011(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     return (
@@ -134,7 +134,7 @@ def dimensionless_bubble_diameter_kim_park_2011(
 
 
 def dimensionless_bubble_diameter_al_issa_et_al_2014(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     return (
@@ -148,7 +148,7 @@ def dimensionless_bubble_diameter_al_issa_et_al_2014(
 
 
 def dimensionless_bubble_diameter_tang_et_al_2016(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
     return (
@@ -162,7 +162,7 @@ def dimensionless_bubble_diameter_tang_et_al_2016(
 
 
 def dimensionless_bubble_diameter_yuan_et_al_2009(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`yuandewenCondensationHeatTransfer2009,tangReviewDirectContact2022`."""
     # assert 335 < bubble_initial_reynolds < 1770
@@ -180,7 +180,7 @@ def dimensionless_bubble_diameter_yuan_et_al_2009(
 
 
 def dimensionless_bubble_diameter_inaba_et_al_2013(
-    bubble_initial_reynolds, liquid_prandtl, bubble_jakob, bubble_fourier
+    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`."""
     # assert 7_000 < bubble_initial_reynolds < 70_000

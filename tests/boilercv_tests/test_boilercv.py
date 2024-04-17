@@ -16,177 +16,173 @@ from boilercv_pipeline.correlations import (
     dimensionless_bubble_diameter_lucic_mayinger_2010,
     dimensionless_bubble_diameter_tang_et_al_2016,
     dimensionless_bubble_diameter_yuan_et_al_2009,
-    fourier,
-    jakob,
-    prandtl,
-    reynolds,
 )
-from numpy import allclose, array, linspace, nan
+from numpy import allclose, linspace
 
 from boilercv_tests import STAGES
 
 EQUAL_NAN = True
 
 KWDS = {
-    "bubble_initial_reynolds": reynolds(
-        velocity=0.1,  # m/s
-        characteristic_length=0.001,  # m
-        kinematic_viscosity=1e-6,  # m^2/s
-    ),
-    "liquid_prandtl": prandtl(
-        dynamic_viscosity=1e-3,  # Pa-s
-        isobaric_specific_heat=4180,  # J/kg-K
-        thermal_conductivity=0.6,  # W/m-K
-    ),
-    "bubble_jakob": jakob(
-        liquid_density=1000,  # kg/m^3
-        vapor_density=0.804,  # kg/m^3
-        liquid_isobaric_specific_heat=4180,  # J/kg-K
-        subcooling=2,  # K
-        latent_heat_of_vaporization=2.23e6,  # J/kg
-    ),
-    "bubble_fourier": fourier(
-        liquid_thermal_diffusivity=1.43e-7,  # m^2/s
-        initial_bubble_diameter=0.001,  # m
-        time=linspace(0, 0.2, 10),  # s
-    ),
+    "bubble_initial_reynolds": 100.0,
+    "liquid_prandtl": 1.0,
+    "bubble_jakob": 1.0,
+    "bubble_fourier": linspace(0.0, 5e-3, 10),
 }
+"""Common keyword arguments applied to correlations.
 
+A single test condition has been chosen to exercise each correlation across as wide of a
+range as possible without returning `np.nan` values. This is done as follows:
+
+- Let `bubble_initial_reynolds`,
+`liquid_prandtl`, and `bubble_jakob` be 100.0, 1.0, and 1.0, respectively.
+- Apply the correlation `dimensionless_bubble_diameter_tang_et_al_2016` with
+`bubble_fourier` such that the `dimensionless_bubble_diameter` is very close to zero.
+This is the correlation with the most rapidly vanishing value of
+`dimensionless_bubble_diameter`.
+- Choose ten linearly-spaced points for `bubble_fourier` between `0` and the maximum
+`bubble_fourier` just found.
+"""
 
 EXPECTED = {
-    dimensionless_bubble_diameter_akiyama_1973: array([
-        1.0,
-        0.78055897,
-        0.53243403,
-        0.22065206,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-    ]),
-    dimensionless_bubble_diameter_al_issa_et_al_2014: array([
-        1.0,
-        0.79136882,
-        0.57642113,
-        0.35199827,
-        0.10863999,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-    ]),
-    dimensionless_bubble_diameter_chen_mayinger_1992: array([
-        1.0,
-        0.48727464,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-    ]),
-    dimensionless_bubble_diameter_florschuetz_chao_1965: array([
-        1.00000000,
-        0.40681224,
-        0.16110582,
-        -0.02743134,
-        -0.18637552,
-        -0.32640816,
-        -0.45300734,
-        -0.5694273,
-        -0.67778836,
-        -0.77956329,
-    ]),
-    dimensionless_bubble_diameter_inaba_et_al_2013: array([
-        1.0,
-        0.0895377,
-        -0.82092461,
-        -1.73138691,
-        -2.64184922,
-        -3.55231152,
-        -4.46277383,
-        -5.37323613,
-        -6.28369844,
-        -7.19416074,
-    ]),
-    dimensionless_bubble_diameter_isenberg_sideman_1970: array([
-        1.0,
-        0.64748913,
-        0.12087821,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-    ]),
-    dimensionless_bubble_diameter_kalman_mori_2002: array([
-        1.0,
-        0.96713401,
-        0.93410469,
-        0.90090455,
-        0.86752541,
-        0.83395833,
-        0.80019348,
-        0.76622,
-        0.73202587,
-        0.69759769,
-    ]),
-    dimensionless_bubble_diameter_kim_park_2011: array([
-        1.0,
-        0.94173421,
-        0.88236392,
-        0.82176745,
-        0.75979638,
-        0.69626612,
-        0.63094155,
-        0.5635141,
-        0.49356299,
-        0.4204842,
-    ]),
-    dimensionless_bubble_diameter_lucic_mayinger_2010: array([
-        1.0,
-        0.15458502,
-        -0.69082996,
-        -1.53624493,
-        -2.38165991,
-        -3.22707489,
-        -4.07248987,
-        -4.91790485,
-        -5.76331982,
-        -6.6087348,
-    ]),
-    dimensionless_bubble_diameter_tang_et_al_2016: array([
-        1.0,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-    ]),
-    dimensionless_bubble_diameter_yuan_et_al_2009: array([
-        1.0,
-        0.62284694,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-        nan,
-    ]),
+    dimensionless_bubble_diameter_akiyama_1973: [
+        1.000000,
+        0.995887,
+        0.991767,
+        0.987640,
+        0.983507,
+        0.979367,
+        0.975219,
+        0.971065,
+        0.966903,
+        0.962734,
+    ],
+    dimensionless_bubble_diameter_al_issa_et_al_2014: [
+        1.000000,
+        0.995927,
+        0.991852,
+        0.987776,
+        0.983698,
+        0.979618,
+        0.975536,
+        0.971452,
+        0.967366,
+        0.963278,
+    ],
+    dimensionless_bubble_diameter_chen_mayinger_1992: [
+        1.000000,
+        0.992963,
+        0.985922,
+        0.978875,
+        0.971822,
+        0.964763,
+        0.957699,
+        0.950629,
+        0.943553,
+        0.936471,
+    ],
+    dimensionless_bubble_diameter_florschuetz_chao_1965: [
+        1.000000,
+        0.946807,
+        0.924774,
+        0.907868,
+        0.893615,
+        0.881058,
+        0.869705,
+        0.859266,
+        0.849549,
+        0.840423,
+    ],
+    dimensionless_bubble_diameter_inaba_et_al_2013: [
+        1.000000,
+        0.967928,
+        0.935856,
+        0.903785,
+        0.871713,
+        0.839642,
+        0.807570,
+        0.775499,
+        0.743427,
+        0.711355,
+    ],
+    dimensionless_bubble_diameter_isenberg_sideman_1970: [
+        1.000000,
+        0.993721,
+        0.987422,
+        0.981104,
+        0.974765,
+        0.968405,
+        0.962024,
+        0.955622,
+        0.949199,
+        0.942753,
+    ],
+    dimensionless_bubble_diameter_kalman_mori_2002: [
+        1.000000,
+        0.999766,
+        0.999532,
+        0.999298,
+        0.999064,
+        0.998830,
+        0.998596,
+        0.998363,
+        0.998129,
+        0.997895,
+    ],
+    dimensionless_bubble_diameter_kim_park_2011: [
+        1.000000,
+        0.992802,
+        0.985588,
+        0.978359,
+        0.971113,
+        0.963852,
+        0.956573,
+        0.949278,
+        0.941967,
+        0.934638,
+    ],
+    dimensionless_bubble_diameter_lucic_mayinger_2010: [
+        1.000000,
+        0.973077,
+        0.946155,
+        0.919233,
+        0.892311,
+        0.865389,
+        0.838466,
+        0.811544,
+        0.784622,
+        0.757700,
+    ],
+    dimensionless_bubble_diameter_tang_et_al_2016: [
+        1.000000,
+        0.927931,
+        0.853449,
+        0.776152,
+        0.695500,
+        0.610738,
+        0.520744,
+        0.423701,
+        0.316230,
+        0.190161,
+    ],
+    dimensionless_bubble_diameter_yuan_et_al_2009: [
+        1.000000,
+        0.993324,
+        0.986629,
+        0.979915,
+        0.973182,
+        0.966429,
+        0.959656,
+        0.952864,
+        0.946050,
+        0.939216,
+    ],
 }
+"""Expected results for each correlation.
+
+Made by running `python -m boilercv_tests.generate` and copying `EXPECTED` from
+`tests/plots/applied_correlations.py`.
+"""
 
 
 @pytest.mark.parametrize(("correlation", "expected"), EXPECTED.items())
@@ -197,7 +193,7 @@ def test_correlations(correlation, expected):
         for kwd, value in KWDS.items()
         if kwd in Signature.from_callable(correlation).parameters
     })
-    assert allclose(result, expected, equal_nan=EQUAL_NAN)
+    assert allclose(result, expected)
 
 
 @pytest.mark.slow()
