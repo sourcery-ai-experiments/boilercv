@@ -124,7 +124,7 @@ master_doc = "index"
 language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 extensions = [
-    "autodoc2",
+    # "autodoc2",
     "myst_nb",
     "sphinx_design",
     "sphinx_tippy",
@@ -162,6 +162,15 @@ html_theme_options = {
     "use_repository_button": True,
 }
 # ! MyST
+mathjax3_config = {
+    "tex": {
+        "macros": {
+            # ? User-defined macros: https://docs.mathjax.org/en/latest/input/tex/macros.html
+            # ? Built-in macros: https://docs.mathjax.org/en/latest/input/tex/macros/index.html#tex-commands
+            **{const: rf"\it{{{const}}}" for const in ["Fo", "Ja"]}
+        }
+    }
+}
 myst_enable_extensions = [
     "attrs_block",
     "colon_fence",

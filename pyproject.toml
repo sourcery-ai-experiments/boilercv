@@ -224,6 +224,7 @@ ignore = [
     "FURB118", # Incorrectly applies `itemgetter`
     "FURB140", # Don't replace comprehensions with starmap
     "G0",      # Allow f-strings, etc. in Loguru logging
+    "ICN",     # Don't require these ad-hoc "conventional" import names
     "INP001",  # False positives. Checks for packages missing `__init__.py`
     "ISC",     # False positives. Implicit string concatenation is fine.
     "PD009",   # Allow `df.iat`.

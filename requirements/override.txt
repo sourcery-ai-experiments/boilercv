@@ -1,0 +1,10 @@
+# THIS `docs/pyproject.toml` configuration DOESN'T WORK, SO WE HAVE TO OVERRIDE:
+# # ? For `sympy.parsing.latex.parse_latex`
+# # ? https://github.com/facebookresearch/hydra/issues/2699
+# "antlr4-python3-runtime==4.11",
+# # ? https://github.com/facebookresearch/hydra/pull/2733
+# # ? https://github.com/facebookresearch/hydra/pull/2881
+# "hydra-core @ git+https://github.com/facebookresearch/hydra@2e682d84e789d82dd11ab1f329f2dd1966fa6b54",
+# # ? https://github.com/omry/omegaconf/pull/1114
+# "omegaconf==2.4.0.dev2",
+# antlr4-python3-runtime==4.11
