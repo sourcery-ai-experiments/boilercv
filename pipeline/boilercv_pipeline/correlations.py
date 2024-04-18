@@ -43,9 +43,8 @@ def fourier(liquid_thermal_diffusivity, initial_bubble_diameter, time):
 
 def dimensionless_bubble_diameter_florschuetz_chao_1965(bubble_fourier, bubble_jakob):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`."""
-    # return 1 - 4 * bubble_jakob * sqrt(bubble_fourier / pi)
-    return eval(  # noqa: S307
-        "lambda bubble_fourier,bubble_jakob: (-2.256758334191025147792317806243090343376202517315995427376342886842569873765973657946974640808429454*bubble_fourier**0.5*bubble_jakob + 1.0)"
+    return eval(
+        "lambda bubble_fourier,bubble_jakob: (-4.0*bubble_jakob*(bubble_fourier/pi)**0.5 + 1.0)"
     )(bubble_fourier=bubble_fourier, bubble_jakob=bubble_jakob)
 
 

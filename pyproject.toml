@@ -278,3 +278,6 @@ convention = "numpy"
     "SIM300", # Allow constants (expectations) on the RHS
     "SLF001", # Allow private member access in tests
 ]
+"pipeline/boilercv_pipeline/correlations.py" = [
+    "S307", # Allow `eval` since we're generating lambdas for correlations
+]
