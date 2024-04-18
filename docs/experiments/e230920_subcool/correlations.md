@@ -4,7 +4,7 @@ One correlation for bubble history of direct contact condensation of vapor bubbl
 
 $$
 \beta = 1 - 4\Ja\sqrt{\Fo_0/\pi}
-$$ (eq_dimensionless_bubble_diameter_florschuetz)
+$$ (eq_dimensionless_bubble_diameter_florschuetz_chao_1965_chao_1965)
 
 where $\beta$ is the dimensionless bubble diameter ${D}/{{D}_{0}}$ with ${D}_{0}$ being the initial bubble diameter, ${Ja}$ is the Jakob number ${\rho}_{l} {c}_{pl} {\Delta {T}_{sub}} / {\rho}_{v} {h}_{fg}$ , and ${Fo}_{0}$ is the Fourier number ${\alpha} {t}/{{D}_{b0}^{2}}$ {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`. This correlation was derived from analysis of the physical phenomena, and does not incorporate a fit to experimental data.
 

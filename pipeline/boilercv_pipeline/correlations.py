@@ -42,10 +42,8 @@ def fourier(liquid_thermal_diffusivity, initial_bubble_diameter, time):
 
 
 def dimensionless_bubble_diameter_florschuetz_chao_1965(bubble_fourier, bubble_jakob):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`."""
-    return eval(
-        "lambda bubble_fourier,bubble_jakob: (-4.0*bubble_jakob*(bubble_fourier/pi)**0.5 + 1.0)"
-    )(bubble_fourier=bubble_fourier, bubble_jakob=bubble_jakob)
+    """Get bubble history correlation for condensation of a stagnant bubble {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`."""
+    return -4.0 * bubble_jakob * (bubble_fourier / pi) ** 0.5 + 1.0
 
 
 def dimensionless_bubble_diameter_isenberg_sideman_1970(
@@ -108,9 +106,6 @@ def dimensionless_bubble_diameter_lucic_mayinger_2010(
     bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    # assert 1_000 < bubble_initial_reynolds < 30_000
-    # assert 45 < bubble_jakob < 80
-    # assert 2.1 < liquid_prandtl < 4.3
     return (
         1
         - 2.92
@@ -167,9 +162,6 @@ def dimensionless_bubble_diameter_yuan_et_al_2009(
     bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble {cite}`yuandewenCondensationHeatTransfer2009,tangReviewDirectContact2022`."""
-    # assert 335 < bubble_initial_reynolds < 1770
-    # assert 0 < bubble_jakob < 60
-    # assert 1.71 < liquid_prandtl < 1.75
     return (
         1
         - 1.8
@@ -185,8 +177,6 @@ def dimensionless_bubble_diameter_inaba_et_al_2013(
     bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
 ):
     """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`."""
-    # assert 7_000 < bubble_initial_reynolds < 70_000
-    # assert 0.24 < bubble_jakob < 27
     return (
         1
         - 1.1
