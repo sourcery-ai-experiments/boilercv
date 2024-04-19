@@ -165,11 +165,11 @@ def dimensionless_bubble_diameter_yuan_et_al_2009(
     return (
         1
         - 1.8
-        * bubble_fourier
         * bubble_initial_reynolds**0.5
-        * bubble_jakob
         * liquid_prandtl ** (1 / 3)
-        * (1 - 0.5 * bubble_fourier * bubble_jakob**0.1)
+        * bubble_jakob
+        * bubble_fourier
+        * (1 - 0.5 * bubble_jakob**0.1 * bubble_fourier)
     ) ** (2 / 3)
 
 

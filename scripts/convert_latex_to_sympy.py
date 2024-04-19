@@ -42,7 +42,7 @@ def main():
     APP()
 
 
-@APP.default()
+@APP.default
 def parse(latex: str):
     """Parse LaTeX."""
     print(parse_latex(latex))  # noqa: T201

@@ -6,13 +6,13 @@ from sympy.utilities.lambdify import lambdastr
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.manual import EQUATIONS, SYMPY, TABLE
+from boilercv_pipeline.manual import EQUATIONS, POST_REPL, SYMPY, TABLE
 
 PYTHON = "python"
 """Key for Python functions in the equations TOML file."""
 ARGS = {
-    "Fo_{o}": "bubble_fourier",
-    "Re_{bo}": "bubble_initial_reynolds",
+    "Fo_0": "bubble_fourier",
+    "Re_b0": "bubble_initial_reynolds",
     "Ja": "bubble_jakob",
     "Pr": "liquid_prandtl",
 }
@@ -27,8 +27,11 @@ def main():  # noqa: D103
     toml = parse(EQUATIONS.read_text("utf-8"))
     equations = toml[TABLE]
     for i, expression in enumerate(tqdm(equations)):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
-        eq = expression.get(SYMPY).replace("\n", "")
-        if not eq or expression.get(PYTHON):
+        eq = expression.get(SYMPY)
+        if not eq:
+            continue
+        eq = eq.strip().replace("\n", "").replace("    ", "")
+        if expression.get(PYTHON):
             continue
         for symbol, sub in SUBS.items():
             eq = eq.replace(symbol, sub)
@@ -43,7 +46,10 @@ def main():  # noqa: D103
             .removeprefix("(")
             .removesuffix(")")
         )
-    EQUATIONS.write_text(encoding="utf-8", data=dumps(toml))
+    data = dumps(toml)
+    for old, new in POST_REPL.items():
+        data = data.replace(old, new)
+    EQUATIONS.write_text(encoding="utf-8", data=data)
 
 
 if __name__ == "__main__":

@@ -89,7 +89,7 @@ if (!$NoPreSync) {
 
 # ? Compile
 'COMPILING' | Write-Progress
-$Comps = & $py -m boilercv_tools compile
+$Comps = boilercv_tools compile
 $Comp = $High ? $Comps[1] : $Comps[0]
 'COMPILED' | Write-Progress -Done
 
@@ -116,7 +116,7 @@ if (!$NoPostSync) {
     'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
     pre-commit install
     'SYNCING LOCAL DEV CONFIGS' | Write-Progress
-    & $py -m boilercv_tools 'sync-local-dev-configs'
+    boilercv_tools 'sync-local-dev-configs'
     'SYNCING PIPELINE PARAMS' | Write-Progress
     & $py -m boilercv_pipeline.models.params
     'PATCHING NOTEBOOKS' | Write-Progress
@@ -134,7 +134,7 @@ if ($CI) {
 # ? Lock
 if ($Lock) {
     'LOCKING' | Write-Progress
-    & $py -m boilercv_tools lock
+    boilercv_tools lock
     'LOCKED' | Write-Progress -Done
 }
 

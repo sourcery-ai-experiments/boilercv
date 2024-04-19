@@ -93,6 +93,16 @@
       }
     },
     {
+      "name": "Python: Current file (TUI)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "env": {
+        "BOILERCV_DEBUG": "True",
+        "BOILERCV_PREVIEW": "True"
+      }
+    },
+    {
       "name": "Python: Current file with args",
       "type": "debugpy",
       "request": "launch",
