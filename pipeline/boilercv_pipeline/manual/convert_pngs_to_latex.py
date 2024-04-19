@@ -12,7 +12,7 @@ from boilercv_pipeline.manual import EQUATIONS, LATEX, PIPX, PNGS, POST_REPL, TA
 
 NAME = "name"
 """Key for equation names in the equations TOML file."""
-PARSER = quote((Path("Scripts") / "convert_png_to_latex.py").as_posix())
+PARSER = quote((Path("scripts") / "convert_png_to_latex.py").as_posix())
 """Escaped path to converter script suitable for `subprocess.run` invocation."""
 INDEX = "https://download.pytorch.org/whl/cu121"
 """Extra index URL for PyTorch and CUDA dependencies."""

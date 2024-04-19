@@ -1,6 +1,8 @@
 <#.SYNOPSIS
 Common utilities.#>
 
+. scripts/Initialize-Shell.ps1
+
 function Get-Py {
     <#.SYNOPSIS
     Get virtual environment Python interpreter, creating it if necessary.#>
@@ -11,7 +13,7 @@ function Get-Py {
         'Virtual environment is the wrong Python version' | Write-Progress -Info
         Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
     }
-    uv venv --python $VERSION
+    uv venv --python $(Get-PySystem $Version)
     return Start-PyVenv
 }
 
@@ -42,7 +44,7 @@ function Get-PySystem {
     'Could not find correct version of Python' | Write-Progress -Info
     'DOWNLOADING AND INSTALLING CORRECT PYTHON VERSION TO PROJECT BIN' | Write-Progress
     $SysPyVenvPath = 'bin/sys_venv'
-    if (!(Test-Path $SysPyVenvPath)) { uv venv --python $Version $SysPyVenvPath }
+    if (!(Test-Path $SysPyVenvPath)) { uv venv $SysPyVenvPath }
     $SysPyVenv = Start-PyVenv $SysPyVenvPath
     uv pip install $(Get-Content 'requirements/install.in')
     return & $SysPyVenv scripts/install.py $Version
