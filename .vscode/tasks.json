@@ -174,7 +174,7 @@
       "dependsOn": ["dvc: sync params"],
       "type": "shell",
       "options": { "shell": { "executable": "pwsh", "args": ["-Command"] } },
-      "command": "(dvc dag --md) -Replace 'mermaid', '{mermaid}' > docs/dag.md && . '~/.local/nodeenvs/markdownlint/Scripts/Activate.ps1' && markdownlint --fix docs/dag.md",
+      "command": "(dvc dag --md) -Replace 'mermaid', '{mermaid}' > docs/dag.md && . '~/.local/nodeenvs/markdownlint/scripts/activate.ps1' && markdownlint --fix docs/dag.md",
       "icon": { "id": "graph" },
       "problemMatcher": []
     },

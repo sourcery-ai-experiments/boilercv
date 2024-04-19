@@ -32,8 +32,8 @@ function Set-Env {
     $Env:PATH = "bin$sep$Env:PATH"
     # ? Activate virtual environment if one exists
     if (Test-Path '.venv') {
-        if ($IsWindows) { return .venv/Scripts/Activate.ps1 }
-        return .venv/bin/Activate.ps1
+        if ($IsWindows) { return .venv/scripts/activate.ps1 }
+        return .venv/bin/activate.ps1
     }
 }
 Set-Env
