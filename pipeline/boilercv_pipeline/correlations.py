@@ -67,10 +67,10 @@ def dimensionless_bubble_diameter_akiyama_1973(
     return (
         1
         - 1.036
-        * bubble_initial_reynolds ** (1 / 2)
-        * liquid_prandtl ** (1 / 3)
-        * bubble_jakob
         * bubble_fourier
+        * bubble_initial_reynolds ** (1 / 2)
+        * bubble_jakob
+        * liquid_prandtl ** (1 / 3)
     ) ** 0.714
 
 

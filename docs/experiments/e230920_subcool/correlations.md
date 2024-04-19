@@ -18,10 +18,14 @@ Bubble histories seem to correspond roughly with the analytical model by Florsch
 
 {{ dimensionless_bubble_diameter_florschuetz_chao_1965 }}
 
-## Yuan et al (2009)
-
-{{ dimensionless_bubble_diameter_yuan_et_al_2009 }}
-
 ## Isenberg and Sideman (1970)
 
 {{ dimensionless_bubble_diameter_isenberg_sideman_1970 }}
+
+## Akiyama (1973)
+
+{{ dimensionless_bubble_diameter_akiyama_1973 }}
+
+## Yuan et al (2009)
+
+{{ dimensionless_bubble_diameter_yuan_et_al_2009 }}
