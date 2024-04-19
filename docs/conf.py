@@ -11,6 +11,7 @@ from boilercv_docs.patch_nbs import patch_nbs
 from boilercv_docs.types import IspxMappingValue
 from ruamel.yaml import YAML
 from sphinx.application import Sphinx
+from tomlkit import parse
 
 # ! Initialization
 patch_nbs()
@@ -27,6 +28,8 @@ BIB = DOCS / "refs.bib"
 """Bibliography file."""
 COPIER_ANSWERS = ROOT / ".copier-answers.yml"
 """Copier answers file."""
+EQUATIONS = Path("../data/equations.toml")
+"""Equations."""
 # ! Template answers
 ANS = YAML().load(COPIER_ANSWERS.read_text(encoding="utf-8"))
 """Project template answers."""
@@ -124,7 +127,7 @@ master_doc = "index"
 language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 extensions = [
-    # "autodoc2",
+    "autodoc2",
     "myst_nb",
     "sphinx_design",
     "sphinx_tippy",
@@ -167,7 +170,8 @@ mathjax3_config = {
         "macros": {
             # ? User-defined macros: https://docs.mathjax.org/en/latest/input/tex/macros.html
             # ? Built-in macros: https://docs.mathjax.org/en/latest/input/tex/macros/index.html#tex-commands
-            **{const: rf"\it{{{const}}}" for const in ["Fo", "Ja"]}
+            **{const: rf"\mathit{{{const}}}" for const in ["Fo", "Ja", "Re", "Pr"]},
+            **{f"{const}o": rf"\mathit{{{const}0}}" for const in ["", "b"]},
         }
     }
 }
@@ -182,8 +186,16 @@ myst_enable_extensions = [
     "tasklist",
 ]
 myst_heading_anchors = 6
+equations = {
+    expression["name"]: f"""
+$$
+{expression["latex"]}
+$$ (eq_{expression["name"]})""".strip()
+    for expression in parse(EQUATIONS.read_text("utf-8"))["equation"]  # pyright: ignore[reportGeneralTypeIssues]  1.1.356, 0.12.4
+}
 myst_substitutions = {
-    "binder": f"[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blakeNaccarato/{PACKAGE}/{REV}?labpath=docs%2Fexperiments%2Fe230920_subcool%2Ffind_centers.ipynb)"
+    "binder": f"[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blakeNaccarato/{PACKAGE}/{REV}?labpath=docs%2Fexperiments%2Fe230920_subcool%2Ffind_centers.ipynb)",
+    **equations,
 }
 # ! BibTeX
 bibtex_bibfiles = dpaths(BIB_TEMPLATE, BIB)

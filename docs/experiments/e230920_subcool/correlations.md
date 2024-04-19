@@ -2,19 +2,13 @@
 
 One correlation for bubble history of direct contact condensation of vapor bubbles in a subcooled liquid such considers a stagnant bubble in liquid dominated by heat transfer, which can be represented as
 
-$$
-\beta = 1 - 4\Ja\sqrt{\Fo_0/\pi}
-$$ (eq_dimensionless_bubble_diameter_florschuetz_chao_1965_chao_1965)
+{{ dimensionless_bubble_diameter_florschuetz_chao_1965 }}
 
 where $\beta$ is the dimensionless bubble diameter ${D}/{{D}_{0}}$ with ${D}_{0}$ being the initial bubble diameter, ${Ja}$ is the Jakob number ${\rho}_{l} {c}_{pl} {\Delta {T}_{sub}} / {\rho}_{v} {h}_{fg}$ , and ${Fo}_{0}$ is the Fourier number ${\alpha} {t}/{{D}_{b0}^{2}}$ {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`. This correlation was derived from analysis of the physical phenomena, and does not incorporate a fit to experimental data.
 
 A later correlation, one which does incoprorate a fit to experimental data, is
 
-$$
-\beta = \left( 1 - 1.8 {Re}_{b0}^{0.5} Pr^{1/3} {Ja} {Fo}_{0}
-            \left(1 - 0.5 {Ja}^{0.1} {Fo}_{0}\right)
-        \right) ^ {2/3}
-$$ (eq_dimensionless_bubble_diameter_yuan)
+{{ dimensionless_bubble_diameter_yuan_et_al_2009 }}
 
 where ${Re}_{b0}$ and ${Pr}$ are the bubble Reynolds and liquid Prandtl numbers, respectively {cite}`tangReviewDirectContact2022,yuandewenCondensationHeatTransfer2009`. Experimental bubble data is nondimensionalized by initial bubble diameter, and correlations are plotted against experimental data in **Figure&NonBreakingSpace;5**. Correlations are plotted for the average initial bubble diameter and velocity of the population of bubbles studied.
 

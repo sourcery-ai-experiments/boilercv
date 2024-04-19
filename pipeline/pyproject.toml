@@ -11,7 +11,14 @@ dependencies = [
     "boilercine @ git+https://github.com/blakeNaccarato/boilercine@046ee0146394bebf5693fe0c18bbcea3d3e64fe5",
     "cmasher>=1.7.2",
     "colorcet>=3.0.1",
-    # ? https://github.com/iterative/vscode-dvc/blob/1.2.11/extension/src/cli/dvc/contract.ts#L3
+    # TODO: Trim these down
+    # "copykitten>=1.1.1",
+    # "markdown-it-py>=3.0.0",
+    # "pillow>=10.3.0",
+    "sympy>=1.12",
+    "tomlkit>=0.12.4",
+    # TODO: END TODO
+    # ? https://github.com/iterative/vscode-dvc/blob/1.2.12/extension/src/cli/dvc/contract.ts#L3
     "dvc>=3.33.3",
     "imageio[pyav]>=2.31.1",
     "loguru>=0.7.0",
