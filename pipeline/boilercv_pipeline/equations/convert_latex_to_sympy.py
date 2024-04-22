@@ -8,7 +8,7 @@ from loguru import logger
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.manual import EQUATIONS, LATEX, PIPX, POST_REPL, SYMPY, TABLE
+from boilercv_pipeline.equations import EQUATIONS, LATEX, PIPX, POST_REPL, SYMPY, TABLE
 
 PARSER = (Path("scripts") / "convert_latex_to_sympy.py").as_posix()
 """Escaped path to parser script suitable for `subprocess.run` invocation."""

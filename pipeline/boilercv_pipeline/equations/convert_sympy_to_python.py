@@ -6,7 +6,7 @@ from sympy.utilities.lambdify import lambdastr
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.manual import EQUATIONS, POST_REPL, SYMPY, TABLE
+from boilercv_pipeline.equations import EQUATIONS, POST_REPL, SYMPY, TABLE
 
 PYTHON = "python"
 """Key for Python functions in the equations TOML file."""

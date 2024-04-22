@@ -6,7 +6,7 @@ from PIL import Image
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.manual import EQUATIONS, PNGS, TABLE
+from boilercv_pipeline.equations import EQUATIONS, PNGS, TABLE
 
 NAME = "name"
 """Key for equation names in the equations TOML file."""

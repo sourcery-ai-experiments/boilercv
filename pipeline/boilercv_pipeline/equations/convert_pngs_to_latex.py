@@ -8,7 +8,7 @@ from loguru import logger
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.manual import EQUATIONS, LATEX, PIPX, PNGS, POST_REPL, TABLE
+from boilercv_pipeline.equations import EQUATIONS, LATEX, PIPX, PNGS, POST_REPL, TABLE
 
 NAME = "name"
 """Key for equation names in the equations TOML file."""
