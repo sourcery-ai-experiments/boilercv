@@ -1,126 +1,145 @@
 <#.SYNOPSIS
-Common utilities.#>
+Sync Python dependencies.#>
+Param(
+    # Python version.
+    [string]$Version,
+    # Sync to highest dependencies.
+    [switch]$High,
+    # Add all local dependency compilations to the lock.
+    [switch]$Lock,
+    # Don't run pre-sync actions.
+    [switch]$NoPreSync,
+    # Don't run post-sync actions.
+    [switch]$NoPostSync
+)
 
+. scripts/Common.ps1
 . scripts/Initialize-Shell.ps1
 
-function Get-Py {
-    <#.SYNOPSIS
-    Get virtual environment Python interpreter, creating it if necessary.#>
-    Param([Parameter(Mandatory)][string]$Version)
-    if (Test-Path '.venv') {
-        $VenvPy = Start-PyVenv
-        if (Select-PyVersion $VenvPy $Version) { return $VenvPy }
-        'Virtual environment is the wrong Python version' | Write-Progress -Info
-        Remove-Item -Recurse -Force $Env:VIRTUAL_ENV
+'*** SYNCING' | Write-Progress
+
+# ? Allow toggling CI in order to test local dev workflows
+$CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
+$Env:UV_SYSTEM_PYTHON = $CI ? 'true' : $null
+
+# ? Don't pre-sync or post-sync in CI
+$NoPreSync = $NoPreSync ? $NoPreSync : [bool]$CI
+$NoPostSync = $NoPostSync ? $NoPostSync : [bool]$CI
+(
+    $($CI ? 'Will run CI steps' : 'Will run local steps'),
+    $($NoPreSync ? "Won't run pre-sync tasks" : 'Will run pre-sync tasks'),
+    $($NoPostSync ? "Won't run post-sync tasks" : 'Will run post-sync tasks')
+) | Write-Progress -Info
+
+# ? Install uv
+$uvVersionRe = Get-Content 'requirements/uv.in' | Select-String -Pattern '^uv==(.+)$'
+$uvVersion = $uvVersionRe.Matches.Groups[1].value
+if (!(Test-Path 'bin/uv*') -or !(uv --version | Select-String $uvVersion)) {
+    $Env:CARGO_HOME = '.'
+    if ($IsWindows) {
+        'INSTALLING UV FOR WINDOWS' | Write-Progress
+        $uvInstaller = "$([System.IO.Path]::GetTempPath())$([System.Guid]::NewGuid()).ps1"
+        Invoke-RestMethod "https://github.com/astral-sh/uv/releases/download/$uvVersion/uv-installer.ps1" |
+            Out-File $uvInstaller
+        powershell -Command "$uvInstaller -NoModifyPath"
     }
-    uv venv --python $(Get-PySystem $Version)
-    return Start-PyVenv
+    else {
+        'INSTALLING UV' | Write-Progress
+        $Env:INSTALLER_NO_MODIFY_PATH = $true
+        curl --proto '=https' --tlsv1.2 -LsSf "https://github.com/astral-sh/uv/releases/download/$uvVersion/uv-installer.sh" |
+            sh
+    }
+    'UV INSTALLED' | Write-Progress -Done
 }
 
-function Get-PySystem {
-    <#.SYNOPSIS
-    Get system Python interpreter.#>
-    Param([Parameter(Mandatory)][string]$Version)
-
-    $getExe = 'from sys import executable; print(executable)'
-
-    # ? Try to get a known-correct Python at the project `bin`
-    if (Test-Path ($py = "bin/python$Version/Scripts/python.exe")) { return $py }
-    elseif (($py = "python$Version") | Get-Command -ErrorAction 'Ignore') { return & $py -c $getExe }
-
-    # ? Get the global interpreter, return it if it's the correct Python version
-    if (Get-Command -Name 'py' -ErrorAction 'Ignore') { $py = 'py' }
-    elseif (Get-Command -Name 'python3' -ErrorAction 'Ignore') { $py = 'python3' }
-    elseif (Get-Command -Name 'python' -ErrorAction 'Ignore') { $py = 'python' }
-    else { throw 'Python doesn''t appear to be installed. Install from https://www.python.org.' }
-
-    # ? Look for suitable global Python interpreter, return if correct Python version
-    'Looking for suitable global Python interpreter' | Write-Progress -Info
-    if ($py -eq 'py') { $SysPy = & $py -$Version -c $getExe }
-    else { $SysPy = & $py -c $getExe }
-    if (Select-PyVersion $py $Version) { return $SysPy }
-
-    # ? Install the correct Python from any system Python
-    'Could not find correct version of Python' | Write-Progress -Info
-    'DOWNLOADING AND INSTALLING CORRECT PYTHON VERSION TO PROJECT BIN' | Write-Progress
-    $SysPyVenvPath = 'bin/sys_venv'
-    if (!(Test-Path $SysPyVenvPath)) { uv venv $SysPyVenvPath }
-    $SysPyVenv = Start-PyVenv $SysPyVenvPath
-    uv pip install $(Get-Content 'requirements/install.in')
-    return & $SysPyVenv scripts/install.py $Version
+# ? Synchronize local environment and return if not in CI
+'INSTALLING TOOLS' | Write-Progress
+$pyDevVersionRe = Get-Content '.copier-answers.yml' |
+    Select-String -Pattern '^python_version:\s?["'']([^"'']+)["'']$'
+$Version = $Version ? $Version : $pyDevVersionRe.Matches.Groups[1].value
+if ($CI) {
+    $py = Get-PySystem $Version
+    "Using $(Resolve-Path $py)" | Write-Progress -Info
 }
+else {
+    $py = Get-Py $Version
+    "Using $(Resolve-Path $py -Relative)" | Write-Progress -Info
+}
+# ? Install the `boilercv_tools` Python module
+uv pip install --editable=scripts
+'TOOLS INSTALLED' | Write-Progress -Done
 
-function Start-PyVenv {
-    <#.SYNOPSIS
-    Get an activated virtual environment Python interpreter.#>
-    Param([Parameter(ValueFromPipeline)][string]$Path = '.venv')
-    process {
-        if (Test-Path ($scripts = "$Path/Scripts")) {
-            & "$scripts/activate.ps1"
-            return "$scripts/python.exe"
+# ? Pre-sync
+if (!$NoPreSync) {
+    '*** RUNNING PRE-SYNC TASKS' | Write-Progress
+    'SYNCING SUBMODULES' | Write-Progress
+    if ($Env:DEVCONTAINER) {
+        $repo = Get-ChildItem /workspaces
+        $submodules = Get-ChildItem "$repo/submodules"
+        $safeDirs = @($repo) + $submodules
+        foreach ($dir in $safeDirs) {
+            if (!($safeDirs -contains $dir)) { git config --global --add safe.directory $dir }
         }
-        $bin = "$Path/bin"
-        & "$bin/activate.ps1"
-        # ? uv-sourced, virtualenv-based `activate.ps1` uses incorrectly `;` instead of `:`
-        $Env:PATH = $Env:PATH -Replace ';', ':'
-        . scripts/Initialize-Shell.ps1
-        return "$bin/python"
     }
+    git submodule update --init --merge
+    'SUBMODULES SYNCED' | Write-Progress -Done
+    '' | Write-Host
+    '*** PRE-SYNC DONE ***' | Write-Progress -Done
 }
 
-function Select-PyVersion {
-    <#.SYNOPSIS
-    Select Python version.#>
-    Param([Parameter(Mandatory)][string]$Py, [Parameter(Mandatory)][string]$Version)
-    $versions = ($py -eq 'py') ? (& $py --list) : (& $Py --version)
-    return $versions | Select-String -Pattern $([Regex]::Escape($Version))
+# ? Compile
+'COMPILING' | Write-Progress
+$Comps = boilercv_tools compile
+$Comp = $High ? $Comps[1] : $Comps[0]
+'COMPILED' | Write-Progress -Done
+
+# ? Sync
+if ('dvc' | Test-CommandLock) {
+    'The DVC VSCode extension is locking `dvc.exe` (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' |
+        Write-Progress -Info
+    'INSTALLING INSTEAD OF SYNCING' |
+        Write-Progress
+    $CompNoDvc = Get-Content $Comp | Select-String -Pattern '^(?!dvc[^-])'
+    $CompNoDvc | Set-Content $Comp
+    uv pip install --requirement=$Comp
+    'DEPENDENCIES INSTALLED' | Write-Progress -Done
+}
+else {
+    'SYNCING DEPENDENCIES' | Write-Progress
+    uv pip sync $Comp
+    'DEPENDENCIES SYNCED' | Write-Progress -Done
 }
 
-function Test-CommandLock {
-    <#.SYNOPSIS
-    Test whether the file handle to a command is locked.#>
-    Param ([parameter(Mandatory, ValueFromPipeline)][string]$Name)
-    process {
-        if (!($Name | Get-Command -ErrorAction 'Ignore')) { return $false }
-        return Get-Command $Name | Test-FileLock
-    }
+# ? Post-sync
+if (!$NoPostSync) {
+    '*** RUNNING POST-SYNC TASKS' | Write-Progress
+    'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
+    pre-commit install
+    'SYNCING LOCAL DEV CONFIGS' | Write-Progress
+    boilercv_tools 'sync-local-dev-configs'
+    'SYNCING PIPELINE PARAMS' | Write-Progress
+    & $py -m boilercv_pipeline.models.params
+    'PATCHING NOTEBOOKS' | Write-Progress
+    & $py -m boilercv_docs.patch_nbs
+    '' | Write-Host
+    '*** POST-SYNC DONE ***' | Write-Progress -Done
+}
+# ? Sync project with template in CI
+if ($CI) {
+    'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
+    scripts/Sync-Template.ps1 -Stay
+    'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
 
-function Test-FileLock {
-    <#.SYNOPSIS
-    Test whether a file handle is locked.#>
-    Param ([parameter(Mandatory, ValueFromPipeline)][string]$Path)
-    process {
-        if ( !($Path | Test-Path) ) { return $false }
-        try {
-            $handle = (
-                New-Object 'System.IO.FileInfo' $Path).Open([System.IO.FileMode]::Open,
-                [System.IO.FileAccess]::ReadWrite,
-                [System.IO.FileShare]::None
-            )
-            if ($handle) { $handle.Close() }
-            return $false
-        }
-        catch [System.IO.IOException], [System.UnauthorizedAccessException] { return $true }
-    }
+# ? Lock
+if ($Lock) {
+    'LOCKING' | Write-Progress
+    boilercv_tools lock
+    'LOCKED' | Write-Progress -Done
 }
 
-function Write-Progress {
-    <#.SYNOPSIS
-    Write progress and completion messages.#>
-    Param(
-        [Parameter(Mandatory, ValueFromPipeline)][string]$Message,
-        [switch]$Done,
-        [switch]$Info
-    )
-    begin {
-        $InProgress = !$Done -and !$Info
-        if ($Info) { $Color = 'Magenta' }
-        elseif ($Done) { $Color = 'Green' }
-        else { $Color = 'Yellow' }
-    }
-    process {
-        if ($InProgress) { Write-Host }
-        "$Message$($InProgress ? '...' : '')" | Write-Host -ForegroundColor $Color
-    }
-}
+'' | Write-Host
+'*** DONE ***' | Write-Progress -Done
+
+# ? Stop PSScriptAnalyzer from complaining about these "unused" variables
+$PSNativeCommandUseErrorActionPreference, $NoModifyPath | Out-Null

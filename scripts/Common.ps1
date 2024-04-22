@@ -57,11 +57,19 @@ function Start-PyVenv {
     process {
         if (Test-Path ($scripts = "$Path/Scripts")) {
             & "$scripts/activate.ps1"
-            return "$scripts/python.exe"
+            $Py = "$scripts/python.exe"
         }
-        $bin = "$Path/bin"
-        & "$bin/activate.ps1"
-        return "$bin/python"
+        else {
+            $bin = "$Path/bin"
+            & "$bin/activate.ps1"
+            # ? uv-sourced, virtualenv-based `activate.ps1` incorrectly uses  `;` sep
+            $Env:PATH = $Env:PATH -Replace ';', ':'
+            $Py = "$bin/python"
+        }
+        # ? Prepend local `bin` to PATH
+        $sep = $IsWindows ? ';' : ':'
+        $Env:PATH = "bin$sep$Env:PATH"
+        return $Py
     }
 }
 

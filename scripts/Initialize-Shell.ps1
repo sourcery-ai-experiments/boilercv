@@ -32,7 +32,7 @@ function Set-Env {
         if ($IsWindows) { .venv/scripts/activate.ps1 }
         else {
             .venv/bin/activate.ps1
-            # ? uv-sourced, virtualenv-based `activate.ps1` uses incorrectly `;` instead of `:`
+            # ? uv-sourced, virtualenv-based `activate.ps1` incorrectly uses  `;` sep
             $Env:PATH = $Env:PATH -Replace ';', ':'
         }
     }
