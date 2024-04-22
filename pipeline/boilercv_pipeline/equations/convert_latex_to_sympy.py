@@ -24,8 +24,8 @@ def main():  # noqa: D103
         if not latex:
             continue
         latex = quote(latex.strip().replace("\n", "").replace("    ", ""))
-        if expression.get(SYMPY):
-            continue
+        # if expression.get(SYMPY):
+        #     continue
         result = run(
             args=split(f"{PIPX} run {PARSER} {latex}"),
             capture_output=True,
@@ -34,10 +34,10 @@ def main():  # noqa: D103
         )
         if result.returncode:
             raise RuntimeError(result.stderr)
-        sympy = result.stdout.strip()
+        eq = result.stdout.strip()
         for old, new in REPL.items():
-            sympy = sympy.replace(old, new)
-        toml[TABLE][i][SYMPY] = sympy  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
+            eq = eq.replace(old, new)
+        toml[TABLE][i][SYMPY] = eq  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
     data = dumps(toml)
     for old, new in POST_REPL.items():
         data = data.replace(old, new)

@@ -18,7 +18,6 @@ paths:
   md: data/md
   media: data/media
   package: pipeline/boilercv_pipeline
-  correlations: pipeline/boilercv_pipeline/correlations.py
   models: pipeline/boilercv_pipeline/models
   paths_module: pipeline/boilercv_pipeline/models/paths.py
   stages:

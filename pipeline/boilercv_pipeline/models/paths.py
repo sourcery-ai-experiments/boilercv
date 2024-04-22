@@ -47,7 +47,6 @@ class Paths(CreatePathsModel):
     # * Git-tracked inputs
     # ! Package
     package: DirectoryPath = get_package_dir(boilercv_pipeline)
-    correlations: FilePath = package / "correlations.py"
     models: DirectoryPath = package / "models"
     paths_module: FilePath = models / "paths.py"
     stages: dict[str, FilePath] = map_stages(package / "stages")
