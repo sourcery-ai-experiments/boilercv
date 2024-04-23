@@ -70,6 +70,11 @@ uv pip install --editable=scripts
 # ? Pre-sync
 if (!$NoPreSync) {
     '*** RUNNING PRE-SYNC TASKS' | Write-Progress
+    if ($CI) {
+        'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
+        scripts/Sync-Template.ps1 -Stay
+        'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
+    }
     'SYNCING SUBMODULES' | Write-Progress
     if ($Env:DEVCONTAINER) {
         $repo = Get-ChildItem /workspaces
@@ -89,40 +94,15 @@ if (!$NoPreSync) {
 'SYNCING DEPENDENCIES' | Write-Progress
 $Comps = boilercv_tools sync
 $Comp = $High ? $Comps[1] : $Comps[0]
-if ('dvc' | Test-CommandLock) {
-    'The DVC VSCode extension is locking `dvc.exe` (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' |
-        Write-Progress -Info
-    'INSTALLING INSTEAD OF SYNCING' |
-        Write-Progress
-    $CompNoDvc = Get-Content $Comp | Select-String -Pattern '^(?!dvc[^-])'
-    $CompNoDvc | Set-Content $Comp
-    uv pip install --requirement=$Comp
-    'DEPENDENCIES INSTALLED' | Write-Progress -Done
-}
-else {
-    'SYNCING DEPENDENCIES' | Write-Progress
-    uv pip sync $Comp
-    'DEPENDENCIES SYNCED' | Write-Progress -Done
-}
+uv pip sync $Comp
+'DEPENDENCIES SYNCED' | Write-Progress -Done
+
 # ? Post-sync
 if (!$NoPostSync) {
     '*** RUNNING POST-SYNC TASKS' | Write-Progress
     'INSTALLING PRE-COMMIT HOOKS' | Write-Progress
     pre-commit install
-    'SYNCING LOCAL DEV CONFIGS' | Write-Progress
-    boilercv_tools 'sync-local-dev-configs'
-    'SYNCING PIPELINE PARAMS' | Write-Progress
-    & $py -m boilercv_pipeline.models.params
-    'PATCHING NOTEBOOKS' | Write-Progress
-    & $py -m boilercv_docs.patch_nbs
-    '' | Write-Host
     '*** POST-SYNC DONE ***' | Write-Progress -Done
-}
-# ? Sync project with template in CI
-if ($CI) {
-    'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
-    scripts/Sync-Template.ps1 -Stay
-    'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
 
 '' | Write-Host
