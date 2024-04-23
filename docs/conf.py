@@ -238,12 +238,12 @@ nitpick_ignore = [
 ]
 nitpick_ignore_regex = [
     # ? Missing inventory
-    (r"py:.+", r"boilercore\..+"),
-    (r"py:.+", r"docutils\..+"),
-    (r"py:.+", r"numpy\.typing\..+"),
-    (r"py:.+", r"numpydoc\.docscrape\..+"),
-    (r"py:.+", r"_pytest\..+"),
-    (r"py:.+", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
+    ("py:class", r"docutils\..+"),
+    ("py:class", r"numpydoc\.docscrape\..+"),
+    ("py:class", r"_pytest\..+"),
+    ("py:class", r"boilercore\..+"),
+    ("py:class", r"numpy\.typing\..+"),
+    ("py:class", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
     # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
     ("py:class", rf"{PACKAGE}.*\.types\..+"),
     ("py:class", rf"{PACKAGE}_pipeline\.captivate\.previews\..+"),

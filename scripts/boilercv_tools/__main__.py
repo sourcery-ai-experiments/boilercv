@@ -21,8 +21,7 @@ APP = App(help_format="markdown")
 """CLI."""
 
 
-def main():
-    """Invoke the CLI."""
+def main():  # noqa: D103
     APP()
 
 
