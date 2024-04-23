@@ -6,7 +6,12 @@ build-backend = "flit_core.buildapi"
 name = "boilercv_tools"
 version = "0.0.0"
 description = "Tools."
-dependencies = ["cyclopts==2.5.0", "ipython==8.23.0", "pipx==1.5.0"]
+dependencies = [
+    "cyclopts==2.5.0",
+    "ipython==8.23.0",
+    "pipx==1.5.0",
+    "ruamel-yaml==0.18.6",
+]
 [project.scripts]
 "boilercv_tools" = "boilercv_tools.__main__:main"
 
@@ -22,6 +27,10 @@ ignore_undeclared = [
     "boilercv",
 ]
 ignore_unused = [
+    # ? Core script tools
+    "pipx", # For `pipx run` of scripts with dependencies isolated by PEP 723
+    # ? Other deps
     "ipython", # Used for local experimentation
-    "pipx",    # Used to isolate dependencies
 ]
+[tool.fawltydeps.custom_mapping]
+ruamel-yaml = ["ruamel"]

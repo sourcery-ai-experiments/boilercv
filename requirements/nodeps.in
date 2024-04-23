@@ -1,1 +1,4 @@
 pycine @ git+https://github.com/ottomatic-io/pycine@815cfca06cafc50745a43b2cd0168982225c6dca
+# ? Wheels are missing on Linux for PySide6, `uv` doesn't like it
+pyside6-addons==6.5.2 ; sys_platform=='linux'
+pyside6-essentials==6.5.2 ; sys_platform=='linux'

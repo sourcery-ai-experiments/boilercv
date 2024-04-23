@@ -93,7 +93,7 @@
       }
     },
     {
-      "name": "Python: Current file (TUI)",
+      "name": "Python: Current file (interactive terminal)",
       "type": "debugpy",
       "request": "launch",
       "program": "${file}",

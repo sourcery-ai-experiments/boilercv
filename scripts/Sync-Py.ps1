@@ -5,8 +5,6 @@ Param(
     [string]$Version,
     # Sync to highest dependencies.
     [switch]$High,
-    # Add all local dependency compilations to the lock.
-    [switch]$Lock,
     # Don't run pre-sync actions.
     [switch]$NoPreSync,
     # Don't run post-sync actions.
@@ -87,13 +85,10 @@ if (!$NoPreSync) {
     '*** PRE-SYNC DONE ***' | Write-Progress -Done
 }
 
-# ? Compile
-'COMPILING' | Write-Progress
-$Comps = boilercv_tools compile
-$Comp = $High ? $Comps[1] : $Comps[0]
-'COMPILED' | Write-Progress -Done
-
 # ? Sync
+'SYNCING DEPENDENCIES' | Write-Progress
+$Comps = boilercv_tools sync
+$Comp = $High ? $Comps[1] : $Comps[0]
 if ('dvc' | Test-CommandLock) {
     'The DVC VSCode extension is locking `dvc.exe` (Disable the VSCode DVC extension or close VSCode and sync in an external terminal to perform a full sync)' |
         Write-Progress -Info
@@ -109,7 +104,6 @@ else {
     uv pip sync $Comp
     'DEPENDENCIES SYNCED' | Write-Progress -Done
 }
-
 # ? Post-sync
 if (!$NoPostSync) {
     '*** RUNNING POST-SYNC TASKS' | Write-Progress
@@ -129,13 +123,6 @@ if ($CI) {
     'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
     scripts/Sync-Template.ps1 -Stay
     'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
-}
-
-# ? Lock
-if ($Lock) {
-    'LOCKING' | Write-Progress
-    boilercv_tools lock
-    'LOCKED' | Write-Progress -Done
 }
 
 '' | Write-Host
