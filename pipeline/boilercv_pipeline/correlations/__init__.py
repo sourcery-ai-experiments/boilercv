@@ -2,6 +2,8 @@
 
 from numpy import pi, sqrt
 
+from boilercv_pipeline.correlations import dimensionless_bubble_diameter  # noqa: F401
+
 
 def thermal_diffusivity(thermal_conductivity, density, isobaric_specific_heat):
     """Thermal diffusivity."""
