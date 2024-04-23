@@ -68,6 +68,6 @@ stages:
     deps:
       - "${paths.stages.compare_theory}"
       - "${paths.tracks}"
-      - "${paths.correlations}"
+      # - "${paths.correlations}"
     outs:
       - "${paths.lifetimes}"
