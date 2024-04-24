@@ -63,11 +63,11 @@ uv pip install --editable=scripts
 '*** RUNNING PRE-SYNC TASKS' | Write-Progress
 if ($CI) {
     'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
-    $Changes = !(git diff-index --quiet --cached HEAD)
     try {scripts/Sync-Template.ps1 -Stay} catch [System.Management.Automation.NativeCommandExitException] {
-        git stash save
+        git stash save --include-untracked
         scripts/Sync-Template.ps1 -Stay
         git stash pop
+        git add --all
     }
     'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
