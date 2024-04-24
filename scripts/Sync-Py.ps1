@@ -64,9 +64,11 @@ uv pip install --editable=scripts
 if ($CI) {
     'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
     $Changes = !(git diff-index --quiet --cached HEAD)
-    if ($Changes) { git stash save }
-    scripts/Sync-Template.ps1 -Stay
-    if ($Changes) { git stash pop }
+    try {scripts/Sync-Template.ps1 -Stay} catch [System.Management.Automation.NativeCommandExitException] {
+        git stash save
+        scripts/Sync-Template.ps1 -Stay
+        git stash pop
+    }
     'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
 if ($Devcontainer) {
