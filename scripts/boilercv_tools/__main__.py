@@ -9,13 +9,7 @@ from subprocess import run
 
 from cyclopts import App
 
-from boilercv_tools.sync import (
-    PYTEST,
-    disable_concurrent_tests,
-    escape,
-    get_comps,
-    synchronize,
-)
+from boilercv_tools.sync import PYTEST, disable_concurrent_tests, escape, synchronize
 
 APP = App(help_format="markdown")
 """CLI."""
@@ -28,14 +22,7 @@ def main():  # noqa: D103
 @APP.command
 def sync(high: bool = False):
     """Sync."""
-    synchronize()
-    comps = get_comps()
-    run(
-        input=comps.high if high else comps.low,
-        args=split("bin/uv pip sync -"),
-        check=True,
-        text=True,
-    )
+    run(input=synchronize(high), args=split("bin/uv pip sync -"), check=True, text=True)
 
 
 @APP.command
