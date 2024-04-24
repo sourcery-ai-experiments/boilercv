@@ -152,7 +152,7 @@ jobs:
     strategy:
       matrix:
         runner:
-          - "macos-14"
+          - "macos-13" # ? `pytables` doesn't support `macos-14` yet https://github.com/PyTables/PyTables/pull/1050
           - "ubuntu-22.04"
           - "windows-2022"
         python:
