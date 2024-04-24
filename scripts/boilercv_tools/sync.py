@@ -65,8 +65,8 @@ See: https://packaging.python.org/en/latest/specifications/name-normalization/#n
 """
 
 
-def synchronize(high: bool = False) -> str:  # noqa: PLR0911
-    """Sync dependencies. Prefer the existing compilation if compatible.
+def check_compilation(high: bool = False) -> str:  # noqa: PLR0911
+    """Check compilation, re-lock if incompatible, and return the compilation.
 
     Parameters
     ----------

@@ -4,12 +4,15 @@ import tomllib
 from collections.abc import Collection
 from pathlib import Path
 from re import finditer
-from shlex import split
-from subprocess import run
 
 from cyclopts import App
 
-from boilercv_tools.sync import PYTEST, disable_concurrent_tests, escape, synchronize
+from boilercv_tools.sync import (
+    PYTEST,
+    check_compilation,
+    disable_concurrent_tests,
+    escape,
+)
 
 APP = App(help_format="markdown")
 """CLI."""
@@ -20,9 +23,9 @@ def main():  # noqa: D103
 
 
 @APP.command
-def sync(high: bool = False):
-    """Sync."""
-    run(input=synchronize(high), args=split("bin/uv pip sync -"), check=True, text=True)
+def compile(high: bool = False):  # noqa: A001
+    """Compile."""
+    log(check_compilation(high))
 
 
 @APP.command
