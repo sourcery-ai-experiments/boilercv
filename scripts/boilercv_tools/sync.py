@@ -7,6 +7,7 @@ from pathlib import Path
 from platform import platform
 from re import finditer, search, sub
 from shlex import join, quote, split
+from shutil import rmtree
 from subprocess import run
 from sys import version_info
 from typing import NamedTuple, TypeAlias
@@ -94,7 +95,51 @@ class Comp(NamedTuple):
     """Name of highest dependency compilation or the compilation itself."""
 
 
-def synchronize() -> tuple[Comp, ...]:  # noqa: PLR0911
+class CompPaths(NamedTuple):
+    """Dependency compilation."""
+
+    low: Path
+    """Path to the lowest direct dependency compilation."""
+    high: Path
+    """Path to the highest dependency compilation."""
+
+
+def get_comp_names(platform: Platform = PLATFORM, version: Version = VERSION) -> Comp:
+    """Get names of a dependency compilation.
+
+    Parameters
+    ----------
+    platform
+        Platform to compile for.
+    version
+        Python version to compile for.
+    """
+    sep = "_"
+    base = sep.join(["requirements", platform, version])
+    return Comp(base, sep.join([base, "high"]))
+
+
+def get_comp_paths(
+    platform: Platform = PLATFORM, version: Version = VERSION
+) -> CompPaths:
+    """Get names of a dependency compilation.
+
+    Parameters
+    ----------
+    platform
+        Platform to compile for.
+    version
+        Python version to compile for.
+    """
+    names = get_comp_names(platform, version)
+    return CompPaths(COMPS / f"{names.low}.txt", COMPS / f"{names.high}.txt")
+
+
+PLATFORM_COMP_PATHS = get_comp_paths(PLATFORM, VERSION)
+"""Paths to the dependency compilation for this platform and Python version."""
+
+
+def synchronize() -> CompPaths:  # noqa: PLR0911
     """Sync dependencies. Prefer the existing compilation if compatible."""
     old = get_comps()
     if not old.low:
@@ -121,30 +166,30 @@ def synchronize() -> tuple[Comp, ...]:  # noqa: PLR0911
             continue
         return lock()  # Direct dependency missing
     low = comp(high=False, no_deps=False)
-    return lock() if any(d not in low for d in old_directs) else get_all_comps()
+    rmtree(COMPS, ignore_errors=True)
+    COMPS.mkdir(exist_ok=True, parents=True)
+    if any(d not in low for d in old_directs):
+        return lock()  # Direct dependency version mismatch
+    for old_comp, path in zip(old, get_comp_paths(), strict=True):
+        path.write_text(encoding="utf-8", data=old_comp)
+    return PLATFORM_COMP_PATHS
 
 
-def lock() -> tuple[Comp, ...]:
+def lock():
     """Lock dependencies for all platforms and Python versions."""
-    comps = tuple(
-        recompile(platform, version) for platform in PLATFORMS for version in VERSIONS
-    )
+    lock_contents: dict[str, str] = {}
+    for platform in PLATFORMS:  # noqa: F402
+        for version in VERSIONS:
+            comps = recompile(platform, version)
+            paths = get_comp_paths(platform, version)
+            for path, comp in zip(paths, comps, strict=True):
+                if platform == PLATFORM and version == VERSION:
+                    path.write_text(encoding="utf-8", data=comp)
+                lock_contents[get_comp_key(path.stem)] = comp
     LOCK.write_text(
-        encoding="utf-8",
-        data=dumps(
-            indent=2,
-            sort_keys=True,
-            obj={
-                **LOCK_CONTENTS,
-                **{
-                    get_comp_key(comp.stem): comp.read_text("utf-8")
-                    for comp in COMPS.iterdir()
-                },
-            },
-        )
-        + "\n",
+        encoding="utf-8", data=dumps(indent=2, sort_keys=True, obj=lock_contents) + "\n"
     )
-    return comps
+    return PLATFORM_COMP_PATHS
 
 
 def recompile(platform: Platform = PLATFORM, version: Version = VERSION) -> Comp:
@@ -160,13 +205,6 @@ def recompile(platform: Platform = PLATFORM, version: Version = VERSION) -> Comp
     return Comp(
         comp(high=False, no_deps=False, platform=platform, version=version),
         comp(high=True, no_deps=False, platform=platform, version=version),
-    )
-
-
-def get_all_comps() -> tuple[Comp, ...]:
-    """Get all existing dependency compilations."""
-    return tuple(
-        get_comps(platform, version) for platform in PLATFORMS for version in VERSIONS
     )
 
 
@@ -197,30 +235,6 @@ def get_comp_key(name: str) -> str:
         Name of the dependency compilation.
     """
     return name.removeprefix("requirements_")
-
-
-def get_all_comp_names() -> tuple[Comp, ...]:
-    """Get all compilation names."""
-    return tuple(
-        get_comp_names(platform, version)
-        for platform in PLATFORMS
-        for version in VERSIONS
-    )
-
-
-def get_comp_names(platform: Platform = PLATFORM, version: Version = VERSION) -> Comp:
-    """Get names of a dependency compilation.
-
-    Parameters
-    ----------
-    platform
-        Platform to compile for.
-    version
-        Python version to compile for.
-    """
-    sep = "_"
-    base = sep.join(["requirements", platform, version])
-    return Comp(base, sep.join([base, "high"]))
 
 
 def comp(
