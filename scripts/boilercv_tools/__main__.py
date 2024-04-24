@@ -11,7 +11,6 @@ from cyclopts import App
 
 from boilercv_tools.sync import (
     PYTEST,
-    CompPaths,
     disable_concurrent_tests,
     escape,
     get_comps,
@@ -88,9 +87,6 @@ def log(obj):
     match obj:
         case str():
             print(obj)  # noqa: T201
-        case CompPaths():
-            for comp in obj:
-                log(comp)
         case Collection():
             for o in obj:
                 log(o)
