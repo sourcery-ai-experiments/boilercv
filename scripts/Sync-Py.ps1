@@ -17,10 +17,10 @@ Param(
 'CHECKING ENVIRONMENT TYPE' | Write-Progress
 $High = $High ? $High : [bool]$Env:SYNC_PY_HIGH
 $CI = $Env:SYNC_PY_DISABLE_CI ? $null : $Env:CI
-$DEVCONTAINER = $Env:SYNC_PY_DISABLE_DEVCONTAINER ? $null : $Env:DEVCONTAINER
+$Devcontainer = $Env:SYNC_PY_DISABLE_DEVCONTAINER ? $null : $Env:DEVCONTAINER
 $Env:UV_SYSTEM_PYTHON = $CI ? 'true' : $null
 if ($CI) { $msg = 'CI' }
-elseif ($DEVCONTAINER) { $msg = 'devcontainer' }
+elseif ($Devcontainer) { $msg = 'devcontainer' }
 else { $msg = 'contributor environment' }
 "Will run $msg steps" | Write-Progress -Info
 
@@ -61,7 +61,12 @@ uv pip install --editable=scripts
 'TOOLS INSTALLED' | Write-Progress -Done
 
 '*** RUNNING PRE-SYNC TASKS' | Write-Progress
-if ($Env:DEVCONTAINER) {
+if ($CI) {
+    'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
+    scripts/Sync-Template.ps1 -Stay -Stash
+    'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
+}
+if ($Devcontainer) {
     $repo = Get-ChildItem '/workspaces'
     $submodules = Get-ChildItem "$repo/submodules"
     $safeDirs = @($repo) + $submodules
@@ -69,12 +74,7 @@ if ($Env:DEVCONTAINER) {
         if (!($safeDirs -contains $dir)) { git config --global --add safe.directory $dir }
     }
 }
-elseif ($CI) {
-    'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
-    scripts/Sync-Template.ps1 -Stay
-    'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
-}
-else {
+if (!$CI) {
     'SYNCING SUBMODULES' | Write-Progress
     git submodule update --init --merge
     'SUBMODULES SYNCED' | Write-Progress -Done

@@ -7,6 +7,8 @@ name = "boilercv_tools"
 version = "0.0.0"
 description = "Tools."
 dependencies = [
+    # ? Core script tools
+    "copier==9.2.0",
     "cyclopts==2.5.0",
     "ipython==8.23.0",
     "pipx==1.5.0",
@@ -28,7 +30,8 @@ ignore_undeclared = [
 ]
 ignore_unused = [
     # ? Core script tools
-    "pipx", # For `pipx run` of scripts with dependencies isolated by PEP 723
+    "copier", # For template sync
+    "pipx",   # For `pipx run` of scripts with dependencies isolated by PEP 723
     # ? Other deps
     "ipython", # Used for local experimentation
 ]
