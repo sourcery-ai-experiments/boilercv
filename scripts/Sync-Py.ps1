@@ -83,7 +83,7 @@ if (!$CI) {
 '*** PRE-SYNC DONE ***' | Write-Progress -Done
 
 'SYNCING DEPENDENCIES' | Write-Progress
-boilercv_tools sync $($High ? '--high' : '--no-high')
+& $py -m boilercv_tools sync $($High ? '--high' : '--no-high')
 'DEPENDENCIES SYNCED' | Write-Progress -Done
 
 '*** RUNNING POST-SYNC TASKS' | Write-Progress

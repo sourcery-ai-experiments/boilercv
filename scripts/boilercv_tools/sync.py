@@ -141,7 +141,7 @@ def get_compilation(
     if not lockfile.exists():
         return ""
     contents = loads(lockfile.read_text("utf-8"))
-    return contents.get(get_compilation_key(platform, python_version, high))
+    return contents.get(get_compilation_key(platform, python_version, high), "")
 
 
 def get_compilation_key(
