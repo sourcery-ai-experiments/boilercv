@@ -16,7 +16,7 @@ ci:
   autoupdate_schedule: "quarterly"
 default_install_hook_types:
   - pre-commit
-  - post-checkout # dvc-post-checkout
+  - post-checkout # sync, dvc-post-checkout
   - pre-push # dvc-pre-push
 repos:
   - repo: "meta"
@@ -28,6 +28,9 @@ repos:
     hooks:
       - id: "sync"
         name: "sync"
+        stages:
+          - "pre-commit"
+          - "post-checkout"
         always_run: true
         pass_filenames: false
         language: "system"
