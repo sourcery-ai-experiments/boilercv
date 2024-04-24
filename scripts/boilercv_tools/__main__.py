@@ -4,6 +4,8 @@ import tomllib
 from collections.abc import Collection
 from pathlib import Path
 from re import finditer
+from shlex import split
+from subprocess import run
 
 from cyclopts import App
 
@@ -12,6 +14,7 @@ from boilercv_tools.sync import (
     CompPaths,
     disable_concurrent_tests,
     escape,
+    get_comps,
     synchronize,
 )
 
@@ -24,9 +27,16 @@ def main():  # noqa: D103
 
 
 @APP.command
-def sync():
-    """Prepare a compilation."""
-    log(synchronize())
+def sync(high: bool = False):
+    """Sync."""
+    synchronize()
+    comps = get_comps()
+    run(
+        input=comps.high if high else comps.low,
+        args=split("bin/uv pip sync -"),
+        check=True,
+        text=True,
+    )
 
 
 @APP.command

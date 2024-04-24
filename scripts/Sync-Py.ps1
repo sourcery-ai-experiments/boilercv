@@ -92,9 +92,7 @@ if (!$NoPreSync) {
 
 # ? Sync
 'SYNCING DEPENDENCIES' | Write-Progress
-$Comps = boilercv_tools sync
-$Comp = $High ? $Comps[1] : $Comps[0]
-uv pip sync $Comp
+boilercv_tools sync $($High ? '--high' : '--no-high')
 'DEPENDENCIES SYNCED' | Write-Progress -Done
 
 # ? Post-sync
