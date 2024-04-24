@@ -1,7 +1,6 @@
 """Sync tools."""
 
-from collections.abc import Mapping, Sequence
-from datetime import UTC, date, datetime, time
+from datetime import UTC, datetime
 from json import dumps, loads
 from pathlib import Path
 from platform import platform
@@ -9,7 +8,7 @@ from re import finditer, search, sub
 from shlex import join, quote, split
 from subprocess import run
 from sys import version_info
-from typing import NamedTuple, TypeAlias
+from typing import NamedTuple
 
 from ruamel.yaml import YAML
 
@@ -293,12 +292,6 @@ def escape(path: str | Path) -> str:
         Path to escape.
     """
     return quote(Path(path).as_posix())
-
-
-Leaf: TypeAlias = int | float | bool | date | time | str
-"""Leaf node."""
-Node: TypeAlias = Leaf | Sequence["Node"] | Mapping[str, "Node"]
-"""General node."""
 
 
 def disable_concurrent_tests(addopts: str) -> str:
