@@ -33,7 +33,7 @@ jobs:
         with:
           name: "lock"
           path: "lock.json"
-      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: "actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9" # v4.0.2
         with:
           path: "${{ env.UV_CACHE_DIR }}"
           key: "uv-${{ matrix.runner }}-${{ matrix.python }}-${{ hashFiles('lock.json') }}"
@@ -51,7 +51,7 @@ jobs:
       - uses: "actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427" # v4.1.4
         with:
           name: "lock"
-      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: "actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9" # v4.0.2
         with:
           path: "${{ env.UV_CACHE_DIR }}"
           key: "uv-${{ matrix.runner }}-${{ matrix.python }}-${{ hashFiles('lock.json') }}"
@@ -92,7 +92,7 @@ jobs:
       - uses: "actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427" # v4.1.4
         with:
           name: "lock"
-      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: "actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9" # v4.0.2
         with:
           path: "${{ env.UV_CACHE_DIR }}"
           key: "uv-${{ matrix.runner }}-${{ matrix.python }}-${{ hashFiles('lock.json') }}"
@@ -115,7 +115,7 @@ jobs:
       - uses: "actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427" # v4.1.4
         with:
           name: "lock"
-      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: "actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9" # v4.0.2
         with:
           path: "${{ env.UV_CACHE_DIR }}"
           key: "uv-${{ matrix.runner }}-${{ matrix.python }}-${{ hashFiles('lock.json') }}"
@@ -138,7 +138,7 @@ jobs:
       - uses: "actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427" # v4.1.4
         with:
           name: "lock"
-      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: "actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9" # v4.0.2
         with:
           path: "${{ env.UV_CACHE_DIR }}"
           key: "uv-${{ matrix.runner }}-${{ matrix.python }}-${{ hashFiles('lock.json') }}"
@@ -168,7 +168,7 @@ jobs:
       - uses: "actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427" # v4.1.4
         with:
           name: "lock"
-      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: "actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9" # v4.0.2
         with:
           path: "${{ env.UV_CACHE_DIR }}"
           key: "uv-${{ matrix.runner }}-${{ matrix.python }}-${{ hashFiles('lock.json') }}"
@@ -202,7 +202,7 @@ jobs:
       - uses: "actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427" # v4.1.4
         with:
           name: "lock"
-      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      - uses: "actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9" # v4.0.2
         with:
           path: "${{ env.UV_CACHE_DIR }}"
           key: "uv-${{ matrix.runner }}-${{ matrix.python }}-${{ hashFiles('lock.json') }}"
