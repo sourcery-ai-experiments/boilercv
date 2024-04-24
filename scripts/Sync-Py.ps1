@@ -63,7 +63,10 @@ uv pip install --editable=scripts
 '*** RUNNING PRE-SYNC TASKS' | Write-Progress
 if ($CI) {
     'SYNCING PROJECT WITH TEMPLATE' | Write-Progress
-    scripts/Sync-Template.ps1 -Stay -Stash
+    $Changes = !(git diff-index --quiet --cached HEAD)
+    if ($Changes) { git stash }
+    scripts/Sync-Template.ps1 -Stay
+    if ($Changes) { git stash pop }
     'PROJECT SYNCED WITH TEMPLATE' | Write-Progress
 }
 if ($Devcontainer) {
