@@ -95,19 +95,19 @@ repos:
             |tests/.*
           )$
   - repo: "https://github.com/pre-commit/pre-commit-hooks"
-    rev: "v4.5.0"
+    rev: "v4.6.0"
     hooks:
       - id: "end-of-file-fixer"
       - id: "trailing-whitespace"
   - repo: "https://github.com/iterative/dvc"
-    rev: "3.49.0"
+    rev: "3.50.0"
     hooks:
       - id: "dvc-post-checkout"
         additional_dependencies: ["dvc[gs]"]
       - id: "dvc-pre-push"
         additional_dependencies: ["dvc[gs]"]
   - repo: "https://github.com/DavidAnson/markdownlint-cli2"
-    rev: "v0.12.1"
+    rev: "v0.13.0"
     hooks:
       - id: "markdownlint-cli2"
   - repo: "https://github.com/srstevenson/nb-clean"
@@ -127,7 +127,7 @@ repos:
             |tests/.*
           )$
   - repo: "https://github.com/charliermarsh/ruff-pre-commit"
-    rev: "v0.3.7"
+    rev: "v0.4.1"
     hooks:
       - id: "ruff"
         args: ["--extend-fixable", "PIE790"]
