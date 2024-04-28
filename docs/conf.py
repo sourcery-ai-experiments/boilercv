@@ -47,6 +47,7 @@ VERSION = ANS["project_version"]
 ISPX_MAPPING: dict[str, IspxMappingValue] = {
     **{pkg: get_rtd(pkg) for pkg in ["myst_parser", "nbformat", "numpydoc"]},
     **{pkg: get_rtd(pkg, latest=True) for pkg in ["pyqtgraph"]},
+    "jupyterbook": get_url("jupyterbook.org/en"),
     "numpy": get_url("numpy.org/doc"),
     "matplotlib": get_url("matplotlib.org"),
     "pytest": get_url("docs.pytest.org/en"),
@@ -238,17 +239,17 @@ nitpick_ignore = [
 ]
 nitpick_ignore_regex = [
     # ? Missing inventory
-    ("py:class", r"docutils\..+"),
-    ("py:class", r"numpydoc\.docscrape\..+"),
-    ("py:class", r"_pytest\..+"),
-    ("py:class", r"boilercore\..+"),
-    ("py:class", r"numpy\.typing\..+"),
-    ("py:class", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
+    (r"py:.*", r"docutils\..+"),
+    (r"py:.*", r"numpydoc\.docscrape\..+"),
+    (r"py:.*", r"_pytest\..+"),
+    (r"py:.*", r"boilercore\..+"),
+    (r"py:.*", r"numpy\.typing\..+"),
+    (r"py:.*", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
     # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
-    ("py:class", rf"{PACKAGE}.*\.types\..+"),
-    ("py:class", rf"{PACKAGE}_pipeline\.captivate\.previews\..+"),
+    (r"py:.*", rf"{PACKAGE}.*\.types\..+"),
+    (r"py:.*", rf"{PACKAGE}_pipeline\.captivate\.previews\..+"),
     # ? Until done with Pydantic v1
-    ("py:class", r"pydantic\.v1\..+"),
+    (r"py:.*", r"pydantic\.v1\..+"),
 ]
 # ! Tippy
 # ? https://sphinx-tippy.readthedocs.io/en/latest/index.html#confval-tippy_anchor_parent_selector

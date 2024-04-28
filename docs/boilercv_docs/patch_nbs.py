@@ -8,9 +8,13 @@ from nbformat import NO_CONVERT, NotebookNode, read, write
 EXCLUDE_THEBE = [
     Path(p) for p in ["docs/experiments/e230920_subcool/find_tracks_trackpy.ipynb"]
 ]
+"""Notebooks to exclude Thebe buttons from."""
 SRC = "source"
+"""Cell source key."""
 CODE = "code"
+"""Code cell type."""
 MD = "markdown"
+"""Markdown cell type."""
 
 
 def main():  # noqa: D103
@@ -27,9 +31,7 @@ def patch_nbs():
         nb: NotebookNode = read(path, NO_CONVERT)  # type: ignore  # pyright 1.1.348,  # nbformat: 5.9.2
         if path not in EXCLUDE_THEBE:
             # ? Patch the first Markdown cell
-            i, first = next(
-                (i, c) for i, c in enumerate(nb.cells) if c.cell_type == "markdown"
-            )
+            i, first = next((i, c) for i, c in enumerate(nb.cells) if c.cell_type == MD)
             nb.cells[i][SRC] = patch(
                 first.get(SRC, ""),
                 """
@@ -40,7 +42,7 @@ def patch_nbs():
                 """,
             )
         # ? Patch the first code cell
-        code_cells = ((i, c) for i, c in enumerate(nb.cells) if c.cell_type == "code")
+        code_cells = ((i, c) for i, c in enumerate(nb.cells) if c.cell_type == CODE)
         i, first = next(code_cells)
         nb.cells[i][SRC] = patch(
             first.get(SRC, ""),
@@ -69,7 +71,16 @@ def patch_nbs():
 def insert_tag(cell: NotebookNode, tags_to_insert: list[str]) -> NotebookNode:
     """Insert tags to a notebook cell.
 
-    See: https://jupyterbook.org/en/stable/content/metadata.html?highlight=python#add-tags-using-python-code
+    Parameters
+    ----------
+    cell
+        Notebook cell to insert tags to.
+    tags_to_insert
+        Tags to insert.
+
+    References
+    ----------
+    - [Jupyter Book: Add tags using Python code](https://jupyterbook.org/en/stable/content/metadata.html#add-tags-using-python-code)
     """
     tags = cell.get("metadata", {}).get("tags", [])
     cell["metadata"]["tags"] = sorted(set(tags) | set(tags_to_insert))
@@ -77,7 +88,17 @@ def insert_tag(cell: NotebookNode, tags_to_insert: list[str]) -> NotebookNode:
 
 
 def patch(src: str, content: str, end: str = "\n\n") -> str:
-    """Prepend source lines to cell source if not there already."""
+    """Prepend source lines to cell source if not there already.
+
+    Parameters
+    ----------
+    src
+        Source to prepend to.
+    content
+        Content to prepend.
+    end
+        Ending to append to the content.
+    """
     content = dedent(content).strip()
     return src if src.startswith(content) else f"{content}{end}{src}"
 
