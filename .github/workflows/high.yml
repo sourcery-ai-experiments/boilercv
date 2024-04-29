@@ -3,7 +3,7 @@ name: "high"
 on:
   workflow_dispatch:
   schedule:
-    - cron: "38 16 * * 4"
+    - cron: "15 10 * * 0"
 defaults:
   run:
     shell: "pwsh"
@@ -112,7 +112,7 @@ jobs:
     strategy:
       matrix:
         runner:
-          - "macos-13"
+          - "macos-14"
           - "ubuntu-22.04"
           - "windows-2022"
         python: ["3.11"]

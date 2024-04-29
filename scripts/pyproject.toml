@@ -12,7 +12,6 @@ dependencies = [
     "cyclopts==2.6.1",
     "ipython==8.23.0",
     "pipx==1.5.0",
-    "ruamel-yaml==0.18.6",
 ]
 [project.scripts]
 "boilercv_tools" = "boilercv_tools.__main__:main"
@@ -35,5 +34,3 @@ ignore_unused = [
     # ? Other deps
     "ipython", # Used for local experimentation
 ]
-[tool.fawltydeps.custom_mapping]
-ruamel-yaml = ["ruamel"]
