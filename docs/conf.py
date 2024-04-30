@@ -208,6 +208,7 @@ nb_execution_raise_on_error = True
 # ! Thebe
 thebe_config = {**COMMON_OPTIONS, "repository_branch": REV, "selector": "div.highlight"}
 # ! Other
+numfig = True
 math_eqref_format = "Eq. {number}"
 mermaid_d3_zoom = False
 # ! Autodoc2
