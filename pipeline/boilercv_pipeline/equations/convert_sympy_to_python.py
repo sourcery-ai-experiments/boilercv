@@ -6,19 +6,16 @@ from sympy.utilities.lambdify import lambdastr
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.equations import EQUATIONS, POST_REPL, SYMPY, TABLE
+from boilercv_pipeline.equations import (
+    ARGS,
+    EQUATIONS,
+    PYTHON,
+    SUBS,
+    SYMPY,
+    TABLE,
+    TOML_REPL,
+)
 
-PYTHON = "python"
-"""Key for Python functions in the equations TOML file."""
-ARGS = {
-    "Fo_0": "bubble_fourier",
-    "Re_b0": "bubble_initial_reynolds",
-    "Ja": "bubble_jakob",
-    "Pr": "liquid_prandtl",
-}
-"""Potential argument set for lambda functions."""
-SUBS = {**ARGS, "beta": "dimensionless_bubble_diameter", "pi": "pi"}
-"""Substitutions from SymPy symbolic variables to descriptive names."""
 syms = tuple(SUBS.values())
 local_dict = dict(zip(syms, symbols(syms), strict=True))
 
@@ -47,7 +44,7 @@ def main():  # noqa: D103
             .removesuffix(")")
         )
     data = dumps(toml)
-    for old, new in POST_REPL.items():
+    for old, new in TOML_REPL.items():
         data = data.replace(old, new)
     EQUATIONS.write_text(encoding="utf-8", data=data)
 
