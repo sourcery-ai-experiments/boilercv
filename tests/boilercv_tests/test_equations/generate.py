@@ -1,4 +1,6 @@
 """Generate expected results for the response of each correlation to `KWDS`."""
+
+# TODO: Fix generation for new layout
 # sourcery skip: dont-import-test-modules
 
 from decimal import Decimal
@@ -6,7 +8,9 @@ from inspect import Signature
 from pathlib import Path
 from textwrap import dedent
 
-from boilercv_tests.test_boilercv import EXPECTED, KWDS
+from boilercv_pipeline.correlations import EXPECTED, KWDS
+
+from boilercv import dimensionless_params
 
 TMP = Path("tests") / "plots"
 CORRELATIONS = TMP / "applied_correlations.py"
@@ -16,12 +20,13 @@ def main():  # noqa: D103
     TMP.mkdir(parents=True, exist_ok=True)
     CORRELATIONS.unlink(missing_ok=True)
     correlations: dict[str, str] = {
-        correlation.__name__: correlation(**{
+        name: getattr(dimensionless_params, name)(**{
             kwd: value
             for kwd, value in KWDS.items()
-            if kwd in Signature.from_callable(correlation).parameters
+            if kwd
+            in Signature.from_callable(getattr(dimensionless_params, name)).parameters
         })
-        for correlation in EXPECTED
+        for name in EXPECTED
     }
     CORRELATIONS.write_text(
         encoding="utf-8",

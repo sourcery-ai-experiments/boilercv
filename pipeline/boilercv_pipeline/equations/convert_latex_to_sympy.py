@@ -1,47 +1,46 @@
 """Convert LaTeX equations to SymPy equations."""
 
-from pathlib import Path
 from shlex import quote, split
 from subprocess import run
 
 from loguru import logger
-from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.equations import EQUATIONS, LATEX, PIPX, POST_REPL, SYMPY, TABLE
-
-PARSER = (Path("scripts") / "convert_latex_to_sympy.py").as_posix()
-"""Escaped path to parser script suitable for `subprocess.run` invocation."""
-REPL = {"{o}": "0", "{bo}": "b0"}
-"""Replacements to make after parsing LaTeX."""
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+    equations,
+)
+from boilercv_pipeline.equations import LATEX_PARSER, PIPX, SYMPY_REPL
 
 
 def main():  # noqa: D103
-    toml = parse(EQUATIONS.read_text("utf-8"))
-    equations = toml[TABLE]
-    for i, expression in enumerate(tqdm(equations)):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
-        latex = expression.get(LATEX)
+    for expression in tqdm(equations.values()):
+        latex = expression.forms.latex
         if not latex:
             continue
         latex = quote(latex.strip().replace("\n", "").replace("    ", ""))
-        # if expression.get(SYMPY):
-        #     continue
-        result = run(
-            args=split(f"{PIPX} run {PARSER} {latex}"),
-            capture_output=True,
-            check=False,
-            text=True,
-        )
-        if result.returncode:
-            raise RuntimeError(result.stderr)
-        eq = result.stdout.strip()
-        for old, new in REPL.items():
-            eq = eq.replace(old, new)
-        toml[TABLE][i][SYMPY] = eq  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
-    data = dumps(toml)
-    for old, new in POST_REPL.items():
-        data = data.replace(old, new)
-    EQUATIONS.write_text(encoding="utf-8", data=data)
+        if expression.forms.sympy:
+            continue
+    #     toml[EQS][i][SYMPY] = convert_latex_to_sympy(latex)  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
+    # data = dumps(toml)
+    # for old, new in TOML_REPL.items():
+    #     data = data.replace(old, new)
+    # TOML.write_text(encoding="utf-8", data=data)
+
+
+def convert_latex_to_sympy(latex: str) -> str:
+    """Convert LaTeX equation to SymPy equation."""
+    result = run(
+        args=split(f"{PIPX} run {LATEX_PARSER} {latex}"),
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    eq = result.stdout.strip()
+    for old, new in SYMPY_REPL.items():
+        eq = eq.replace(old, new)
+    return eq
 
 
 if __name__ == "__main__":

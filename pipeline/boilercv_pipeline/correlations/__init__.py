@@ -1,189 +1,64 @@
 """Theoretical correlations for bubble lifetimes."""
 
-from numpy import pi, sqrt
+from pathlib import Path
+from typing import NamedTuple
 
-from boilercv_pipeline.correlations import dimensionless_bubble_diameter  # noqa: F401
+from numpy import linspace
 
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+    equations,
+)
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.params import args
 
-def thermal_diffusivity(thermal_conductivity, density, isobaric_specific_heat):
-    """Thermal diffusivity."""
-    return thermal_conductivity / (density * isobaric_specific_heat)
-
-
-def kinematic_viscosity(dynamic_viscosity, density):
-    """Kinematic viscosity."""
-    return dynamic_viscosity / density
-
-
-def reynolds(velocity, characteristic_length, kinematic_viscosity):
-    """Reynolds number."""
-    return velocity * characteristic_length / kinematic_viscosity
+PNGS = Path("data/dimensionless_bubble_diameter_equation_pngs")
+"""Equation PNGs."""
 
 
-def prandtl(dynamic_viscosity, isobaric_specific_heat, thermal_conductivity):
-    """Prandtl number."""
-    return (isobaric_specific_heat * dynamic_viscosity) / thermal_conductivity
+class Args(NamedTuple):
+    """Correlation arguments."""
+
+    args: dict[str, str]
+    """Potential argument set for lambda functions."""
+
+    subs: dict[str, str]
+    """Substitutions from SymPy symbolic variables to descriptive names."""
+
+    kwds: dict[str, list[float]]
+    """Common keyword arguments applied to correlations."""
 
 
-def jakob(
-    liquid_density,
-    vapor_density,
-    liquid_isobaric_specific_heat,
-    subcooling,
-    latent_heat_of_vaporization,
-):
-    """Jakob number."""
-    return (liquid_density * liquid_isobaric_specific_heat * subcooling) / (
-        vapor_density * latent_heat_of_vaporization
-    )
+ARGS = {arg.sym: arg.name for arg in args}
+"""Get potential argument set for lambda functions."""
 
+SUBS = {**ARGS, "beta": "dimensionless_bubble_diameter", "pi": "pi"}
+"""Substitutions from SymPy symbolic variables to descriptive names."""
+KWDS = {
+    arg.name: arg.test if isinstance(arg.test, float) else linspace(**arg.test)
+    for arg in args
+}
+"""Common keyword arguments applied to correlations.
 
-def fourier(liquid_thermal_diffusivity, initial_bubble_diameter, time):
-    """Fourier number."""
-    return liquid_thermal_diffusivity * time / initial_bubble_diameter**2
+A single test condition has been chosen to exercise each correlation across as wide of a
+range as possible without returning `np.nan` values. This is done as follows:
 
+- Let `bubble_initial_reynolds`,
+`liquid_prandtl`, and `bubble_jakob` be 100.0, 1.0, and 1.0, respectively.
+- Apply the correlation `dimensionless_bubble_diameter_tang_et_al_2016` with
+`bubble_fourier` such that the `dimensionless_bubble_diameter` is very close to zero.
+This is the correlation with the most rapidly vanishing value of
+`dimensionless_bubble_diameter`.
+- Choose ten linearly-spaced points for `bubble_fourier` between `0` and the maximum
+`bubble_fourier` just found.
+"""
 
-def dimensionless_bubble_diameter_florschuetz_chao_1965(bubble_fourier, bubble_jakob):
-    """Get bubble history correlation for condensation of a stagnant bubble {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`."""
-    return 1 - 4 * bubble_jakob * sqrt(bubble_fourier / pi)
-
-
-def dimensionless_bubble_diameter_isenberg_sideman_1970(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - (3 / sqrt(pi))
-        * bubble_initial_reynolds ** (1 / 2)
-        * liquid_prandtl ** (1 / 3)
-        * bubble_jakob
-        * bubble_fourier
-    ) ** (2 / 3)
-
-
-def dimensionless_bubble_diameter_akiyama_1973(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 1.036
-        * bubble_fourier
-        * bubble_initial_reynolds ** (1 / 2)
-        * bubble_jakob
-        * liquid_prandtl ** (1 / 3)
-    ) ** 0.714
-
-
-def dimensionless_bubble_diameter_chen_mayinger_1992(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 0.56
-        * bubble_initial_reynolds**0.7
-        * liquid_prandtl**0.5
-        * bubble_jakob
-        * bubble_fourier
-    ) ** 0.9
-
-
-def dimensionless_bubble_diameter_kalman_mori_2002(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 0.0094
-        * bubble_initial_reynolds**0.855
-        * liquid_prandtl**0.855
-        * bubble_jakob
-        * bubble_fourier
-    ) ** 0.873
-
-
-def dimensionless_bubble_diameter_lucic_mayinger_2010(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 2.92
-        * bubble_initial_reynolds**0.61
-        * liquid_prandtl**0.33
-        * bubble_jakob**0.69
-        * bubble_fourier
-    )
-
-
-def dimensionless_bubble_diameter_kim_park_2011(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 0.67
-        * bubble_initial_reynolds**0.7
-        * liquid_prandtl ** (-0.4564)
-        * bubble_jakob**0.7959
-        * bubble_fourier
-    ) ** 0.769
-
-
-def dimensionless_bubble_diameter_al_issa_et_al_2014(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 0.135
-        * bubble_initial_reynolds**0.89
-        * liquid_prandtl**0.33
-        * bubble_jakob
-        * bubble_fourier
-    ) ** 0.901
-
-
-def dimensionless_bubble_diameter_tang_et_al_2016(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 12.29
-        * bubble_initial_reynolds**0.584
-        * liquid_prandtl**0.333
-        * bubble_jakob**0.581
-        * bubble_fourier
-    ) ** 0.706
-
-
-def dimensionless_bubble_diameter_yuan_et_al_2009(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble {cite}`yuandewenCondensationHeatTransfer2009,tangReviewDirectContact2022`."""
-    return (
-        1
-        - 1.8
-        * bubble_initial_reynolds**0.5
-        * liquid_prandtl ** (1 / 3)
-        * bubble_jakob
-        * bubble_fourier
-        * (1 - 0.5 * bubble_jakob**0.1 * bubble_fourier)
-    ) ** (2 / 3)
-
-
-def dimensionless_bubble_diameter_inaba_et_al_2013(
-    bubble_fourier, bubble_initial_reynolds, liquid_prandtl, bubble_jakob
-):
-    """Bubble history correlation for condensation of a stagnant bubble. {cite}`tangReviewDirectContact2022`."""
-    return (
-        1
-        - 1.1
-        * bubble_initial_reynolds**0.86
-        * liquid_prandtl ** (2 / 3)
-        * bubble_jakob**0.2
-        * bubble_fourier
-    )
+# fmt: off
+EXPECTED = {
+    "al_issa_et_al_2014": [1.000000, 0.995927, 0.991852, 0.987776, 0.983698, 0.979618, 0.975536, 0.971452, 0.967366, 0.963278],
+    "chen_mayinger_1992": [1.000000, 0.992963, 0.985922, 0.978875, 0.971822, 0.964763, 0.957699, 0.950629, 0.943553, 0.936471],
+    "inaba_et_al_2013": [1.000000, 0.967928, 0.935856, 0.903785, 0.871713, 0.839642, 0.807570, 0.775499, 0.743427, 0.711355],
+    "kalman_mori_2002": [1.000000, 0.999766, 0.999532, 0.999298, 0.999064, 0.998830, 0.998596, 0.998363, 0.998129, 0.997895],
+    "kim_park_2011": [1.000000, 0.992802, 0.985588, 0.978359, 0.971113, 0.963852, 0.956573, 0.949278, 0.941967, 0.934638],
+    "lucic_mayinger_2010": [1.000000, 0.973077, 0.946155, 0.919233, 0.892311, 0.865389, 0.838466, 0.811544, 0.784622, 0.757700],
+    "tang_et_al_2016": [1.000000, 0.927931, 0.853449, 0.776152, 0.695500, 0.610738, 0.520744, 0.423701, 0.316230, 0.190161],
+} | {eq.name: eq.expect for eq in equations.values()}
+# fmt: on
