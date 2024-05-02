@@ -8,20 +8,20 @@ from tomlkit import dumps, parse
 from tqdm import tqdm
 
 from boilercv_pipeline.equations import (
-    EQUATIONS,
+    EQS,
     LATEX,
     LATEX_PARSER,
     PIPX,
     SYMPY,
     SYMPY_REPL,
-    TABLE,
+    TOML,
     TOML_REPL,
 )
 
 
 def main():  # noqa: D103
-    toml = parse(EQUATIONS.read_text("utf-8"))
-    equations = toml[TABLE]
+    toml = parse(TOML.read_text("utf-8"))
+    equations = toml[EQS]
     for i, expression in enumerate(tqdm(equations)):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
         latex = expression.get(LATEX)
         if not latex:
@@ -40,11 +40,11 @@ def main():  # noqa: D103
         eq = result.stdout.strip()
         for old, new in SYMPY_REPL.items():
             eq = eq.replace(old, new)
-        toml[TABLE][i][SYMPY] = eq  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
+        toml[EQS][i][SYMPY] = eq  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
     data = dumps(toml)
     for old, new in TOML_REPL.items():
         data = data.replace(old, new)
-    EQUATIONS.write_text(encoding="utf-8", data=data)
+    TOML.write_text(encoding="utf-8", data=data)
 
 
 if __name__ == "__main__":

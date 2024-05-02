@@ -25,4 +25,4 @@ LONG_SYMS = symbols(list(SUBS.values()))
     dimensionless_bubble_diameter,
 ) = SYMS
 
-flourschuetz_chao_1965 = Eq(beta, 1 - 4 * Ja * sqrt(Fo_0 / pi))
+florschuetz_chao_1965 = Eq(beta, 1 - 4 * Ja * sqrt(Fo_0 / pi))

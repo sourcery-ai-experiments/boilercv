@@ -1,8 +1,29 @@
+[[arg]]
+name = 'bubble_initial_reynolds'
+sym = 'Fo_0'
+test = 100.0
+
+[[arg]]
+name = 'bubble_jakob'
+sym = 'Ja'
+test = 1.0
+
+[[arg]]
+name = 'bubble_fourier'
+sym = 'Fo_0'
+test = { start = 0.0, stop = 5e-3, num = 10 }
+
+[[arg]]
+name = 'liquid_prandtl'
+sym = 'Pr'
+test = 1.0
+
 [[equation]]
 name = 'dimensionless_bubble_diameter_florschuetz_chao_1965'
 latex = '\beta = 1 - 4 \Ja \sqrt{\Fo_\o / \pi}'
 sympy = 'Eq(beta, 1 - 4 * Ja * sqrt(Fo_0 / pi))'
 python = '1 - 4 * bubble_jakob * sqrt(bubble_fourier / pi)'
+expect = [1.000000, 0.946807, 0.924774, 0.907868, 0.893615, 0.881058, 0.869705, 0.859266, 0.849549, 0.840423]
 
 [[equation]]
 name = 'dimensionless_bubble_diameter_isenberg_sideman_1970'
@@ -17,6 +38,7 @@ python = '''
     bubble_jakob * bubble_fourier
 )**(2/3)
 '''
+expect = [1.000000, 0.993721, 0.987422, 0.981104, 0.974765, 0.968405, 0.962024, 0.955622, 0.949199, 0.942753]
 
 [[equation]]
 name = 'dimensionless_bubble_diameter_akiyama_1973'
@@ -28,6 +50,7 @@ python = '''
     bubble_jakob * liquid_prandtl**(1/3)
 )**0.714
 '''
+expect = [1.000000, 0.995887, 0.991767, 0.987640, 0.983507, 0.979367, 0.975219, 0.971065, 0.966903, 0.962734]
 
 [[equation]]
 name = 'dimensionless_bubble_diameter_yuan_et_al_2009'
@@ -46,3 +69,4 @@ python = '''
     bubble_jakob * bubble_fourier * (1 - 0.5 * bubble_jakob**0.1 * bubble_fourier)
 )**(2/3)
 '''
+expect = [1.000000, 0.993324, 0.986629, 0.979915, 0.973182, 0.966429, 0.959656, 0.952864, 0.946050, 0.939216]

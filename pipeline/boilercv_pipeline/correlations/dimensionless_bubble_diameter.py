@@ -3,7 +3,7 @@
 from numpy import pi, sqrt
 
 
-def flourschuetz_chao_1965(bubble_fourier, bubble_jakob):
+def florschuetz_chao_1965(bubble_fourier, bubble_jakob):
     """Florschuetz and Chao (1965) dimensionless bubble diameter {cite}`florschuetzMechanicsVaporBubble1965,tangReviewDirectContact2022`.
 
     Parameters

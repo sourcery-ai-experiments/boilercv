@@ -6,12 +6,12 @@ from PIL import Image
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.equations import EQUATIONS, NAME, PNGS, TABLE
+from boilercv_pipeline.equations import EQS, NAME, PNGS, TOML
 
 
 def main():  # noqa: D103
-    toml = parse(EQUATIONS.read_text("utf-8"))
-    equations = toml[TABLE]
+    toml = parse(TOML.read_text("utf-8"))
+    equations = toml[EQS]
     for expression in tqdm(equations):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
         name = expression.get(NAME)
         png = PNGS / f"{name}.png"
@@ -21,7 +21,7 @@ def main():  # noqa: D103
         pixels, width, height = paste_image()
         img = Image.frombytes(mode="RGBA", size=(width, height), data=pixels)
         img.convert("RGB").save(png)
-    EQUATIONS.write_text(encoding="utf-8", data=dumps(toml))
+    TOML.write_text(encoding="utf-8", data=dumps(toml))
 
 
 if __name__ == "__main__":
