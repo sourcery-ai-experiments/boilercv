@@ -7,6 +7,7 @@ from loguru import logger
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
+from boilercv_pipeline.correlations import PNGS, TOML
 from boilercv_pipeline.equations import (
     EQS,
     INDEX,
@@ -15,8 +16,6 @@ from boilercv_pipeline.equations import (
     NAME,
     PIPX,
     PNG_PARSER,
-    PNGS,
-    TOML,
     TOML_REPL,
 )
 

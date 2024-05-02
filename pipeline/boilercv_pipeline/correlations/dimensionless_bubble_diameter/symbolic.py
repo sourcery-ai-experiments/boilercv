@@ -1,4 +1,4 @@
-"""Dimensionless bubble diameter."""
+"""Symbolic dimensionless bubble diameter correlations for bubble collapse."""
 
 from sympy import Eq, pi, sqrt, symbols
 
@@ -17,6 +17,7 @@ SYMS = symbols(list(SUBS))
 (Fo_0, Ja, Re_b0, Pr, beta) = SYMS
 LONG_SYMS = symbols(list(SUBS.values()))
 """Symbols with long names."""
+
 (
     bubble_fourier,
     bubble_jakob,

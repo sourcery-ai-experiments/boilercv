@@ -3,4 +3,4 @@
 !*.dvcignore
 !*.dvc
 !plotting
-!equations.toml
+!*equations.toml

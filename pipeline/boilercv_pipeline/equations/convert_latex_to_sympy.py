@@ -7,6 +7,7 @@ from loguru import logger
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
+from boilercv_pipeline.correlations import TOML
 from boilercv_pipeline.equations import (
     EQS,
     LATEX,
@@ -14,7 +15,6 @@ from boilercv_pipeline.equations import (
     PIPX,
     SYMPY,
     SYMPY_REPL,
-    TOML,
     TOML_REPL,
 )
 

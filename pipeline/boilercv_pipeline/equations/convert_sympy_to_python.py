@@ -6,7 +6,8 @@ from sympy.utilities.lambdify import lambdastr
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.equations import ARGS, EQS, PYTHON, SUBS, SYMPY, TOML, TOML_REPL
+from boilercv_pipeline.correlations import ARGS, SUBS, TOML
+from boilercv_pipeline.equations import EQS, PYTHON, SYMPY, TOML_REPL
 
 syms = tuple(SUBS.values())
 local_dict = dict(zip(syms, symbols(syms), strict=True))

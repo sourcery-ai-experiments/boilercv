@@ -6,7 +6,8 @@ from PIL import Image
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.equations import EQS, NAME, PNGS, TOML
+from boilercv_pipeline.correlations import PNGS, TOML
+from boilercv_pipeline.equations import EQS, NAME
 
 
 def main():  # noqa: D103
