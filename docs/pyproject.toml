@@ -36,7 +36,6 @@ dependencies = [
     "seaborn>=0.12.2",
     "shapely>=2.0.3",
     "sympy>=1.12",
-    "tomlkit>=0.12.4",
     "trackpy>=0.6.2",
 ]
 

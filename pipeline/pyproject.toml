@@ -13,7 +13,6 @@ dependencies = [
     "colorcet>=3.0.1",
     "copykitten>=1.1.1",
     "sympy>=1.12",
-    "tomlkit>=0.12.4",
     # ? https://github.com/iterative/vscode-dvc/blob/1.2.12/extension/src/cli/dvc/contract.ts#L3
     "dvc>=3.33.3",
     "imageio[pyav]>=2.31.1",

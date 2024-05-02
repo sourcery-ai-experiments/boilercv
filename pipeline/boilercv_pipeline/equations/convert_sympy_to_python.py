@@ -2,44 +2,42 @@
 
 from loguru import logger
 from sympy import parse_expr, symbols
-from sympy.utilities.lambdify import lambdastr
-from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.correlations import ARGS, SUBS, TOML
-from boilercv_pipeline.equations import EQS, PYTHON, SYMPY, TOML_REPL
+from boilercv_pipeline.correlations import SUBS
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+    equations,
+)
 
 syms = tuple(SUBS.values())
 local_dict = dict(zip(syms, symbols(syms), strict=True))
 
 
 def main():  # noqa: D103
-    toml = parse(TOML.read_text("utf-8"))
-    equations = toml[EQS]
-    for i, expression in enumerate(tqdm(equations)):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
-        eq = expression.get(SYMPY)
+    for expression in tqdm(equations.values()):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+        eq = expression.forms.sympy
         if not eq:
             continue
         eq = eq.strip().replace("\n", "").replace("    ", "")
-        if expression.get(PYTHON):
+        if expression.forms.python:
             continue
         for symbol, sub in SUBS.items():
             eq = eq.replace(symbol, sub)
         eq = parse_expr(eq, local_dict=local_dict, evaluate=False)
-        toml[EQS][i][PYTHON] = (  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
-            lambdastr(
-                expr=eq.rhs,
-                args=[s for s in eq.rhs.free_symbols if s.name in ARGS.values()],
-            )
-            .split(":")[-1]
-            .strip()
-            .removeprefix("(")
-            .removesuffix(")")
-        )
-    data = dumps(toml)
-    for old, new in TOML_REPL.items():
-        data = data.replace(old, new)
-    TOML.write_text(encoding="utf-8", data=data)
+    #     toml[EQS][i][PYTHON] = (  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
+    #         lambdastr(
+    #             expr=eq.rhs,
+    #             args=[s for s in eq.rhs.free_symbols if s.name in ARGS.values()],
+    #         )
+    #         .split(":")[-1]
+    #         .strip()
+    #         .removeprefix("(")
+    #         .removesuffix(")")
+    #     )
+    # data = dumps(toml)
+    # for old, new in TOML_REPL.items():
+    #     data = data.replace(old, new)
+    # TOML.write_text(encoding="utf-8", data=data)
 
 
 if __name__ == "__main__":

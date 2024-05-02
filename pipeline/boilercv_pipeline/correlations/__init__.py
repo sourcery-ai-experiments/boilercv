@@ -1,30 +1,40 @@
 """Theoretical correlations for bubble lifetimes."""
 
 from pathlib import Path
-from tomllib import loads
+from typing import NamedTuple
 
 from numpy import linspace
 
-from boilercv_pipeline.equations import ARGS, EQS, EXPECT, NAME, SYM, TEST
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+    equations,
+)
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.params import args
 
 PNGS = Path("data/dimensionless_bubble_diameter_equation_pngs")
 """Equation PNGs."""
-TOML = Path("data/dimensionless_bubble_diameter_equations.toml")
-"""Equations TOML file."""
 
-# TODO: Use `svcs` here
-_eqs = loads(TOML.read_text("utf-8"))[EQS]
-"""Potentially stale equations, loaded at module import time."""
-_args = loads(TOML.read_text("utf-8"))[ARGS]
-"""Potentially stale equation args, loaded at module import time."""
 
-ARGS = {arg[SYM]: arg[NAME] for arg in _args}
-"""Potential argument set for lambda functions."""
+class Args(NamedTuple):
+    """Correlation arguments."""
+
+    args: dict[str, str]
+    """Potential argument set for lambda functions."""
+
+    subs: dict[str, str]
+    """Substitutions from SymPy symbolic variables to descriptive names."""
+
+    kwds: dict[str, list[float]]
+    """Common keyword arguments applied to correlations."""
+
+
+ARGS = {arg.sym: arg.name for arg in args}
+"""Get potential argument set for lambda functions."""
+
 SUBS = {**ARGS, "beta": "dimensionless_bubble_diameter", "pi": "pi"}
 """Substitutions from SymPy symbolic variables to descriptive names."""
 KWDS = {
-    arg[NAME]: arg[TEST] if isinstance(arg[TEST], float) else linspace(**arg[TEST])
-    for arg in _args
+    arg.name: arg.test if isinstance(arg.test, float) else linspace(**arg.test)
+    for arg in args
 }
 """Common keyword arguments applied to correlations.
 
@@ -40,6 +50,7 @@ This is the correlation with the most rapidly vanishing value of
 - Choose ten linearly-spaced points for `bubble_fourier` between `0` and the maximum
 `bubble_fourier` just found.
 """
+
 # fmt: off
 EXPECTED = {
     "al_issa_et_al_2014": [1.000000, 0.995927, 0.991852, 0.987776, 0.983698, 0.979618, 0.975536, 0.971452, 0.967366, 0.963278],
@@ -49,10 +60,5 @@ EXPECTED = {
     "kim_park_2011": [1.000000, 0.992802, 0.985588, 0.978359, 0.971113, 0.963852, 0.956573, 0.949278, 0.941967, 0.934638],
     "lucic_mayinger_2010": [1.000000, 0.973077, 0.946155, 0.919233, 0.892311, 0.865389, 0.838466, 0.811544, 0.784622, 0.757700],
     "tang_et_al_2016": [1.000000, 0.927931, 0.853449, 0.776152, 0.695500, 0.610738, 0.520744, 0.423701, 0.316230, 0.190161],
-} | {eq[NAME]: eq[EXPECT] for eq in _eqs}
-"""Expected results for each correlation.
-
-Made by running `python -m boilercv_tests.generate` and copying `EXPECTED` from
-`tests/plots/applied_correlations.py`.
-"""
+} | {eq.name: eq.expect for eq in equations.values()}
 # fmt: on

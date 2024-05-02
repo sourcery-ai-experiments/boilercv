@@ -1,5 +1,7 @@
 """Equations."""
 
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from shlex import quote
 
@@ -38,3 +40,40 @@ TOML_REPL = {'"\n\n': "\n'''\n\n", '"\n': "\n'''\n", ' "': " '''\n", r"\\": "\\"
 """Replacements to make to raw TOML just prior to serialization."""
 LATEX_REPL = {"{0}": r"\o", "{b0}": r"\b0"}
 """Replacements to make after parsing LaTeX from PNGs."""
+
+
+@dataclass
+class Forms:
+    """Forms."""
+
+    latex: str = ""
+    sympy: str = ""
+    python: str = ""
+
+
+@dataclass
+class Equation:
+    """Equation."""
+
+    name: str
+    forms: Forms
+    expect: list[float]
+
+
+@dataclass
+class Transform:
+    """Transform."""
+
+    transform: Callable[[str], str]
+    source: Equation
+    destination: Equation
+
+
+@dataclass
+class Param:
+    """Param."""
+
+    name: str
+    arg: bool = False
+    sym: str = ""
+    test: float | None = None
