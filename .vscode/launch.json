@@ -85,6 +85,7 @@
       "name": "Python: Current file",
       "type": "debugpy",
       "request": "launch",
+      // "purpose": ["debug-in-terminal", "debug-test"],
       "program": "${file}",
       "console": "internalConsole",
       "env": {
@@ -133,7 +134,7 @@
       "presentation": {
         "hidden": true
       },
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "internalConsole",
