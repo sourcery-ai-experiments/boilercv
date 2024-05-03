@@ -28,6 +28,11 @@
       "matchPackageNames": ["submodules/template"]
     },
     {
+      "description": "Manually test `.devcontainer` updates separately",
+      "groupName": "devcontainer",
+      "matchManagers": ["devcontainer"]
+    },
+    {
       "description": "Stubs for pandas sometimes lag",
       "groupName": "pandas",
       "matchManagers": ["pep621", "pip_requirements"],
