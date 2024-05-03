@@ -8,9 +8,10 @@ from tqdm import tqdm
 
 from boilercv_pipeline.correlations import PNGS
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+    LATEX_REPL,
     equations,
 )
-from boilercv_pipeline.equations import INDEX, LATEX_REPL, PIPX, PNG_PARSER
+from boilercv_pipeline.equations import INDEX, PIPX, PNG_PARSER
 
 
 def main():  # noqa: D103

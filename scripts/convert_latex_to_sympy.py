@@ -25,7 +25,7 @@ See Also
 # requires-python = "==3.11"
 # dependencies = [
 #     "antlr4-python3-runtime==4.11",
-#     "cyclopts==2.5.0",
+#     "cyclopts==2.6.1",
 #     "sympy==1.12",
 # ]
 # ///

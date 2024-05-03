@@ -3,18 +3,17 @@
 from copykitten import paste_image
 from loguru import logger
 from PIL import Image
-from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.correlations import PNGS, TOML
-from boilercv_pipeline.equations import EQS, NAME
+from boilercv_pipeline.correlations import PNGS
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+    equations,
+)
 
 
 def main():  # noqa: D103
-    toml = parse(TOML.read_text("utf-8"))
-    equations = toml[EQS]
-    for expression in tqdm(equations):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
-        name = expression.get(NAME)
+    for expression in tqdm(equations.values()):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+        name = expression.name
         png = PNGS / f"{name}.png"
         if not name or png.exists():
             continue
@@ -22,7 +21,7 @@ def main():  # noqa: D103
         pixels, width, height = paste_image()
         img = Image.frombytes(mode="RGBA", size=(width, height), data=pixels)
         img.convert("RGB").save(png)
-    TOML.write_text(encoding="utf-8", data=dumps(toml))
+    # TOML.write_text(encoding="utf-8", data=dumps(toml))
 
 
 if __name__ == "__main__":

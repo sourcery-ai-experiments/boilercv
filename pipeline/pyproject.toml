@@ -12,6 +12,7 @@ dependencies = [
     "cmasher>=1.7.2",
     "colorcet>=3.0.1",
     "copykitten>=1.1.1",
+    "cyclopts>=2.6.1",
     "sympy>=1.12",
     # ? https://github.com/iterative/vscode-dvc/blob/1.2.12/extension/src/cli/dvc/contract.ts#L3
     "dvc>=3.33.3",

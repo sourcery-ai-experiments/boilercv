@@ -1,29 +1,10 @@
 """Equations."""
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from shlex import quote
-
-EQS = "equation"
-"""Equations table name in the equations TOML file."""
-NAME = "name"
-"""Key for equation names in the equations TOML file."""
-LATEX = "latex"
-"""Key for LaTeX expressions in the equations TOML file."""
-SYMPY = "sympy"
-"""Key for SymPy expressions in the equations TOML file."""
-PYTHON = "python"
-"""Key for Python functions in the equations TOML file."""
-EXPECT = "expect"
-"""Key for expected values in the equations TOML file."""
-
-ARGS = "arg"
-"""Equation arguments table name in the equations TOML file."""
-SYM = "sym"
-"""Key for symbolic variable names in the equation arguments table."""
-TEST = "test"
-"""Key for test values in the equation arguments table."""
+from typing import Literal
 
 PIPX = quote((Path(".venv") / "scripts" / "pipx").as_posix())
 """Escaped path to `pipx` executable suitable for `subprocess.run` invocation."""
@@ -34,12 +15,9 @@ PNG_PARSER = quote((Path("scripts") / "convert_png_to_latex.py").as_posix())
 LATEX_PARSER = (Path("scripts") / "convert_latex_to_sympy.py").as_posix()
 """Escaped path to parser script suitable for `subprocess.run` invocation."""
 
-SYMPY_REPL = {"{o}": "0", "{bo}": "b0"}
-"""Replacements after parsing LaTeX to SymPy."""
-TOML_REPL = {'"\n\n': "\n'''\n\n", '"\n': "\n'''\n", ' "': " '''\n", r"\\": "\\"}
-"""Replacements to make to raw TOML just prior to serialization."""
-LATEX_REPL = {"{0}": r"\o", "{b0}": r"\b0"}
-"""Replacements to make after parsing LaTeX from PNGs."""
+
+FormKind = Literal["latex", "sympy", "python"]
+"""Equation form kind."""
 
 
 @dataclass
@@ -65,8 +43,8 @@ class Transform:
     """Transform."""
 
     transform: Callable[[str], str]
-    source: Equation
-    destination: Equation
+    src: FormKind
+    dst: FormKind
 
 
 @dataclass
@@ -77,3 +55,32 @@ class Param:
     arg: bool = False
     sym: str = ""
     test: float | None = None
+
+
+@dataclass
+class Equations:
+    """Equations."""
+
+    equations: dict[str, Equation]
+
+
+# TODO: Post-process forms to replace missing ones with `name`
+
+
+@dataclass
+class LinspaceKwds:
+    """Keyword arguments to `numpy.linspace`."""
+
+    start: float
+    stop: float
+    num: int
+
+
+@dataclass
+class Param2:
+    """Param."""
+
+    name: str
+    forms: Forms = field(default_factory=Forms)
+    arg: bool = False
+    test: float | LinspaceKwds | None = None
