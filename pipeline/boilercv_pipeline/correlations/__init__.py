@@ -1,9 +1,6 @@
 """Theoretical correlations for bubble lifetimes."""
 
 from pathlib import Path
-from typing import NamedTuple
-
-from numpy import linspace
 
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
     equations,
@@ -14,28 +11,12 @@ PNGS = Path("data/dimensionless_bubble_diameter_equation_pngs")
 """Equation PNGs."""
 
 
-class Args(NamedTuple):
-    """Correlation arguments."""
-
-    args: dict[str, str]
-    """Potential argument set for lambda functions."""
-
-    subs: dict[str, str]
-    """Substitutions from SymPy symbolic variables to descriptive names."""
-
-    kwds: dict[str, list[float]]
-    """Common keyword arguments applied to correlations."""
-
-
-ARGS = {arg.sym: arg.name for arg in args}
+ARGS = {arg.forms.sympy: arg.name for arg in args}
 """Get potential argument set for lambda functions."""
 
 SUBS = {**ARGS, "beta": "dimensionless_bubble_diameter", "pi": "pi"}
 """Substitutions from SymPy symbolic variables to descriptive names."""
-KWDS = {
-    arg.name: arg.test if isinstance(arg.test, float) else linspace(**arg.test)
-    for arg in args
-}
+KWDS = {arg.name: arg.test for arg in args}
 """Common keyword arguments applied to correlations.
 
 A single test condition has been chosen to exercise each correlation across as wide of a

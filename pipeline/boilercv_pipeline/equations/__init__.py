@@ -6,6 +6,9 @@ from pathlib import Path
 from shlex import quote
 from typing import Literal
 
+import numpy as np
+from numpy.typing import NDArray
+
 PIPX = quote((Path(".venv") / "scripts" / "pipx").as_posix())
 """Escaped path to `pipx` executable suitable for `subprocess.run` invocation."""
 INDEX = "https://download.pytorch.org/whl/cu121"
@@ -48,16 +51,6 @@ class Transform:
 
 
 @dataclass
-class Param:
-    """Param."""
-
-    name: str
-    arg: bool = False
-    sym: str = ""
-    test: float | None = None
-
-
-@dataclass
 class Equations:
     """Equations."""
 
@@ -77,10 +70,9 @@ class LinspaceKwds:
 
 
 @dataclass
-class Param2:
+class Param:
     """Param."""
 
     name: str
     forms: Forms = field(default_factory=Forms)
-    arg: bool = False
-    test: float | LinspaceKwds | None = None
+    test: float | NDArray[np.float64] | None = None
