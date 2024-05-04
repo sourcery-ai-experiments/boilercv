@@ -6,13 +6,13 @@ from PIL import Image
 from tqdm import tqdm
 
 from boilercv_pipeline.correlations import PNGS
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     equations,
 )
 
 
 def main():  # noqa: D103
-    for expression in tqdm(equations.values()):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+    for expression in tqdm(equations):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
         name = expression.name
         png = PNGS / f"{name}.png"
         if not name or png.exists():

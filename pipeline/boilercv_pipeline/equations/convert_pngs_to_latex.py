@@ -1,5 +1,6 @@
 """Convert PNGs to LaTeX."""
 
+from pathlib import Path
 from shlex import quote, split
 from subprocess import run
 
@@ -7,15 +8,20 @@ from loguru import logger
 from tqdm import tqdm
 
 from boilercv_pipeline.correlations import PNGS
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     LATEX_REPL,
     equations,
 )
-from boilercv_pipeline.equations import INDEX, PIPX, PNG_PARSER
+from boilercv_pipeline.equations import PIPX
+
+PNG_PARSER = quote((Path("scripts") / "convert_png_to_latex.py").as_posix())
+"""Escaped path to converter script suitable for `subprocess.run` invocation."""
+INDEX = "https://download.pytorch.org/whl/cu121"
+"""Extra index URL for PyTorch and CUDA dependencies."""
 
 
 def main():  # noqa: D103
-    for expression in tqdm(equations.values()):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+    for expression in tqdm(equations):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
         name = expression.name
         if not name:
             continue

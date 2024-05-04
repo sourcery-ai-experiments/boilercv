@@ -1,78 +1,78 @@
 """Equations."""
 
-from collections.abc import Callable
-from dataclasses import dataclass, field
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from shlex import quote
-from typing import Literal
+from typing import Literal, Self
 
-import numpy as np
+from numpy import float64
 from numpy.typing import NDArray
+from pydantic import BaseModel, Field, model_validator
 
 PIPX = quote((Path(".venv") / "scripts" / "pipx").as_posix())
 """Escaped path to `pipx` executable suitable for `subprocess.run` invocation."""
-INDEX = "https://download.pytorch.org/whl/cu121"
-"""Extra index URL for PyTorch and CUDA dependencies."""
-PNG_PARSER = quote((Path("scripts") / "convert_png_to_latex.py").as_posix())
-"""Escaped path to converter script suitable for `subprocess.run` invocation."""
-LATEX_PARSER = (Path("scripts") / "convert_latex_to_sympy.py").as_posix()
-"""Escaped path to parser script suitable for `subprocess.run` invocation."""
-
 
 FormKind = Literal["latex", "sympy", "python"]
 """Equation form kind."""
 
 
-@dataclass
-class Forms:
-    """Forms."""
+class Transform(BaseModel):
+    src: FormKind
+    dst: FormKind
+    repls: Mapping[str, str]
 
+
+class Forms(BaseModel):
     latex: str = ""
     sympy: str = ""
     python: str = ""
 
+    def transform(self, transforms: Sequence[Transform]) -> Self:
+        """Set default forms."""
+        for transform in transforms:
+            value = getattr(self, transform.src)
+            for old, new in transform.repls.items():
+                value = value.replace(old, new)
+            setattr(self, transform.dst, value)
+        return self
 
-@dataclass
-class Equation:
-    """Equation."""
 
+class Transformable(BaseModel):
     name: str
-    forms: Forms
-    expect: list[float]
+    forms: Forms = Field(default_factory=Forms)
+    transforms: Sequence[Transform] = Field(default_factory=list)
 
 
-@dataclass
-class Transform:
-    """Transform."""
-
-    transform: Callable[[str], str]
-    src: FormKind
-    dst: FormKind
-
-
-@dataclass
-class Equations:
-    """Equations."""
-
-    equations: dict[str, Equation]
+class Equation(Transformable):
+    @model_validator(mode="after")
+    def transform(self) -> Self:
+        """Set default forms."""
+        self.forms.transform(self.transforms)
+        return self
 
 
-# TODO: Post-process forms to replace missing ones with `name`
+class Param(Transformable, arbitrary_types_allowed=True):
+    test: float | NDArray[float64] | None = None
+
+    @model_validator(mode="after")
+    def transform(self) -> Self:
+        """Set default forms."""
+        self.forms.transform(self.transforms)
+        forms = self.forms
+        for transform in self.transforms:
+            value = getattr(forms, transform.src)
+            for old, new in transform.repls.items():
+                value = value.replace(old, new)
+            setattr(forms, transform.dst, value)
+        if forms.sympy and not forms.latex:
+            forms.latex = forms.sympy
+        for field in set(forms.model_fields) - forms.model_fields_set:
+            name = rf"\{self.name}" if field == "latex" else self.name
+            setattr(self.forms, field, name)
+        return self
 
 
-@dataclass
-class LinspaceKwds:
-    """Keyword arguments to `numpy.linspace`."""
-
-    start: float
-    stop: float
-    num: int
-
-
-@dataclass
-class Param:
-    """Param."""
-
+class Expectation(BaseModel, arbitrary_types_allowed=True):
     name: str
-    forms: Forms = field(default_factory=Forms)
-    test: float | NDArray[np.float64] | None = None
+    test: float | NDArray[float64]
+    expect: float | Sequence[float] | NDArray[float64]

@@ -4,8 +4,8 @@ from loguru import logger
 from sympy import parse_expr, symbols
 from tqdm import tqdm
 
-from boilercv_pipeline.correlations import SUBS
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.generated import (
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+    SUBS,
     equations,
 )
 
@@ -14,7 +14,7 @@ local_dict = dict(zip(syms, symbols(syms), strict=True))
 
 
 def main():  # noqa: D103
-    for expression in tqdm(equations.values()):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+    for expression in tqdm(equations):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
         eq = expression.forms.sympy
         if not eq:
             continue

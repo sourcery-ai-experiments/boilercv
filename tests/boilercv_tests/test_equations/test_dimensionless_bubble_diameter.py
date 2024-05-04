@@ -4,8 +4,12 @@ from inspect import Signature
 
 import numpy
 import pytest
-from boilercv_pipeline.correlations import EXPECTED, KWDS, dimensionless_bubble_diameter
+from boilercv_pipeline.correlations import dimensionless_bubble_diameter
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter import symbolic
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+    EXPECTED,
+    KWDS,
+)
 from numpy import allclose
 from sympy import lambdify
 
