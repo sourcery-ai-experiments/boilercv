@@ -24,7 +24,7 @@ dependencies = [
     "pillow>=10.0.0",
     "ploomber-engine>=0.0.30",
     "pyarrow>=14.0.1",
-    "pydantic>=2",
+    "pydantic>=2.7.1",                  # ? RootModel improvements
     "pyqtgraph>=0.13.3",
     # ? Wheels are missing on Linux for PySide6, `uv` doesn't like it
     "pyside6-addons==6.7.0; sys_platform!='linux'",

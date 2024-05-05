@@ -6,19 +6,69 @@ from tomllib import loads
 
 from numpy import linspace
 
-from boilercv_pipeline.equations import Equation, Expectation, Forms, Param, Transform
+from boilercv_pipeline.equations import (
+    Defaults,
+    Equation,
+    KindModel,
+    Param,
+    Replacements,
+)
 
 EQUATIONS_TOML = Path(__file__).with_suffix(".toml")
 """TOML file with equations."""
 EXPECTED_TOML = Path(__file__).with_name("expectations.toml")
 """TOML file with equations."""
 
+
+def make_param(name: str, param: Param) -> Param:
+    p = Param
+    return param.apply(Defaults(src=p, dst=p, name=name)).apply(
+        Replacements(
+            src=p,
+            dst=p,
+            repls={
+                ("latex", k): ("sympy", v)
+                for k, v in {r"_\b0": "_bo", r"_\o": "_0", "\\": ""}.items()
+            },
+        )
+    )
+
+
+args = {
+    name: make_param(name, param)
+    for name, param in {
+        "bubble_initial_reynolds": Param({"latex": r"\Re_\bo"}),
+        "bubble_jakob": Param({"latex": r"\Ja"}),
+        "bubble_fourier": Param({"latex": r"\Fo_\o"}),
+    }.items()
+}
+
+
+params = {
+    name: make_param(name, param)
+    for name, param in {n: Param({"latex": f"\\{n}"}) for n in ["beta", "pi"]}.items()
+}
+
+# args = (
+#     _Param(
+#         name="bubble_initial_reynolds", forms=KindModel(latex=r"\Re_\bo"), test=100.0
+#     ),
+#     _Param(name="bubble_jakob", forms=KindModel(latex=r"\Ja"), test=1.0),
+#     _Param(
+#         name="bubble_fourier",
+#         forms=KindModel(latex=r"\Fo_\o"),
+#         test=linspace(start=0.0, stop=5.0e-3, num=10),
+#     ),
+#     _Param(name="liquid_prandtl", forms=KindModel(latex=r"\Pr"), test=1.0),
+# )
+
+
 equations = [
     Equation(
         name=eq["name"],
-        forms=Forms(latex=eq["latex"], sympy=eq["sympy"], python=eq["python"]),
+        forms=KindModel(latex=eq["latex"], sympy=eq["sympy"], python=eq["python"]),
         transforms=[
-            Transform(src=kind, dst=kind, repls={"\n": "", "    ": ""})  # pyright: ignore[reportArgumentType]  1.1.360, pydantic 2.4.2
+            Replacements(src=kind, dst=kind, repls={"\n": "", "    ": ""})  # pyright: ignore[reportArgumentType]  1.1.360, pydantic 2.4.2
             for kind in ["latex", "sympy", "python"]
         ],
     )
@@ -34,28 +84,17 @@ LATEX_REPL = {"{0}": r"\o", "{b0}": r"\b0"} | MAKE_RAW
 
 
 class _Param(Param):
-    transforms: Sequence[Transform] = (
-        Transform(
+    transforms: Sequence[Replacements] = (
+        Replacements(
             src="latex", dst="sympy", repls={r"_\b0": "_bo", r"_\o": "_0", "\\": ""}
         ),
     )
 
 
-args = (
-    _Param(name="bubble_initial_reynolds", forms=Forms(latex=r"\Re_\bo"), test=100.0),
-    _Param(name="bubble_jakob", forms=Forms(latex=r"\Ja"), test=1.0),
-    _Param(
-        name="bubble_fourier",
-        forms=Forms(latex=r"\Fo_\o"),
-        test=linspace(start=0.0, stop=5.0e-3, num=10),
-    ),
-    _Param(name="liquid_prandtl", forms=Forms(latex=r"\Pr"), test=1.0),
-)
-
 params = (
     _Param(
         name="dimensionless_bubble_diameter",
-        forms=Forms(latex=r"\beta", sympy="beta"),
+        forms=KindModel(latex=r"\beta", sympy="beta"),
         test=1.0,
     ),
     _Param(name="pi"),
