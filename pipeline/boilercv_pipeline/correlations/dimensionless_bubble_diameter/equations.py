@@ -1,6 +1,5 @@
 """Generated equations."""
 
-from collections.abc import Sequence
 from pathlib import Path
 from tomllib import loads
 
@@ -9,9 +8,10 @@ from numpy import linspace
 from boilercv_pipeline.equations import (
     Defaults,
     Equation,
-    KindModel,
+    NameDefaults,
     Param,
     Replacements,
+    kinds,
 )
 
 EQUATIONS_TOML = Path(__file__).with_suffix(".toml")
@@ -21,17 +21,29 @@ EXPECTED_TOML = Path(__file__).with_name("expectations.toml")
 
 
 def make_param(name: str, param: Param) -> Param:
-    p = Param
-    return param.apply(Defaults(src=p, dst=p, name=name)).apply(
-        Replacements(
-            src=p,
-            dst=p,
-            repls={
-                ("latex", k): ("sympy", v)
-                for k, v in {r"_\b0": "_bo", r"_\o": "_0", "\\": ""}.items()
-            },
+    return (
+        param.apply(Defaults(src=Param, dst=Param, name=name))
+        .apply(NameDefaults(src=Param, dst=Param, name=name))
+        .apply(
+            Replacements(
+                src=Param,
+                dst=Param,
+                repls={
+                    ("latex", k): ("sympy", v)
+                    for k, v in {r"_\b0": "_bo", r"_\o": "_0", "\\": ""}.items()
+                },
+            )
         )
     )
+
+
+# args = (
+#     _Param(name="dimensionless_bubble_diameter", test=1.0,
+#     _Param(name="bubble_initial_reynolds", test=100.0),
+#     _Param(name="bubble_jakob", test=1.0),
+#     _Param(name="bubble_fourier", test=linspace(start=0.0, stop=5.0e-3, num=10),
+#     _Param(name="liquid_prandtl", test=1.0),
+# )
 
 
 args = {
@@ -49,31 +61,28 @@ params = {
     for name, param in {n: Param({"latex": f"\\{n}"}) for n in ["beta", "pi"]}.items()
 }
 
-# args = (
-#     _Param(
-#         name="bubble_initial_reynolds", forms=KindModel(latex=r"\Re_\bo"), test=100.0
-#     ),
-#     _Param(name="bubble_jakob", forms=KindModel(latex=r"\Ja"), test=1.0),
-#     _Param(
-#         name="bubble_fourier",
-#         forms=KindModel(latex=r"\Fo_\o"),
-#         test=linspace(start=0.0, stop=5.0e-3, num=10),
-#     ),
-#     _Param(name="liquid_prandtl", forms=KindModel(latex=r"\Pr"), test=1.0),
-# )
 
-
-equations = [
-    Equation(
-        name=eq["name"],
-        forms=KindModel(latex=eq["latex"], sympy=eq["sympy"], python=eq["python"]),
-        transforms=[
-            Replacements(src=kind, dst=kind, repls={"\n": "", "    ": ""})  # pyright: ignore[reportArgumentType]  1.1.360, pydantic 2.4.2
-            for kind in ["latex", "sympy", "python"]
-        ],
+equations = {
+    eq["name"]: Equation({
+        "latex": eq["latex"],
+        "sympy": eq["sympy"],
+        "python": eq["python"],
+    })
+    .apply(Defaults(src=Equation, dst=Equation, name=eq["name"]))
+    .apply(
+        Replacements(
+            src=Equation,
+            dst=Equation,
+            repls={
+                (src, k): (src, v)
+                for (k, v) in {"\n": "", "    ": ""}.items()
+                for src in kinds
+            },
+        )
     )
     for eq in loads(EQUATIONS_TOML.read_text("utf-8"))["equation"]
-]
+}
+
 
 MAKE_RAW = {r"\\": "\\"}
 """Replacement to turn escaped characters in strings back to their raw form."""
@@ -82,27 +91,9 @@ SYMPY_REPL = {"{o}": "0", "{bo}": "b0"} | MAKE_RAW
 LATEX_REPL = {"{0}": r"\o", "{b0}": r"\b0"} | MAKE_RAW
 """Replacements to make after parsing LaTeX from PNGs."""
 
-
-class _Param(Param):
-    transforms: Sequence[Replacements] = (
-        Replacements(
-            src="latex", dst="sympy", repls={r"_\b0": "_bo", r"_\o": "_0", "\\": ""}
-        ),
-    )
-
-
-params = (
-    _Param(
-        name="dimensionless_bubble_diameter",
-        forms=KindModel(latex=r"\beta", sympy="beta"),
-        test=1.0,
-    ),
-    _Param(name="pi"),
-)
-
-SUBS = {arg.forms.sympy: arg.name for arg in (*args, *params)}
+SUBS = {arg["sympy"]: name for name, arg in (args | params).items()}
 """Substitutions from SymPy symbolic variables to descriptive names."""
-KWDS = {arg.name: arg.test for arg in args}
+KWDS = {name: arg.test for name, arg in args.items()}
 """Common keyword arguments applied to correlations.
 
 A single test condition has been chosen to exercise each correlation across as wide of a
