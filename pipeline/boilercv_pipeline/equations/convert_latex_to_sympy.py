@@ -11,9 +11,9 @@ from tomlkit import parse
 from tqdm import tqdm
 
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+    EQUATIONS,
     EQUATIONS_TOML,
     SYMPY_REPL,
-    equations,
 )
 from boilercv_pipeline.equations import PIPX
 
@@ -31,7 +31,7 @@ def main():  # noqa: D103
 @APP.default
 def default():  # noqa: D103
     toml = parse(EQUATIONS_TOML.read_text("utf-8"))
-    for expression in tqdm(equations):
+    for expression in tqdm(EQUATIONS):
         latex = expression.forms.latex
         if not latex:
             continue

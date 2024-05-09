@@ -9,8 +9,8 @@ from tqdm import tqdm
 
 from boilercv_pipeline.correlations import PNGS
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+    EQUATIONS,
     LATEX_REPL,
-    equations,
 )
 from boilercv_pipeline.equations import PIPX
 
@@ -21,7 +21,7 @@ INDEX = "https://download.pytorch.org/whl/cu121"
 
 
 def main():  # noqa: D103
-    for expression in tqdm(equations):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+    for expression in tqdm(EQUATIONS):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
         name = expression.name
         if not name:
             continue

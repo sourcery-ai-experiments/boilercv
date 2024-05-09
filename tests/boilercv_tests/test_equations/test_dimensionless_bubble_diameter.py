@@ -7,14 +7,14 @@ import pytest
 from boilercv_pipeline.correlations import dimensionless_bubble_diameter
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter import symbolic
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
-    EXPECTED,
+    EXPECTATIONS,
     KWDS,
 )
 from numpy import allclose
 from sympy import lambdify
 
 
-@pytest.mark.parametrize(("name", "expected"), EXPECTED.items())
+@pytest.mark.parametrize(("name", "expected"), EXPECTATIONS.items())
 def test_python(name, expected):
     """Equations evaluate as expected."""
     equation = getattr(dimensionless_bubble_diameter, name)
@@ -39,7 +39,7 @@ def test_syms(symbol_group_name: str):
     ("name", "expected"),
     (
         (name, expected)
-        for name, expected in EXPECTED.items()
+        for name, expected in EXPECTATIONS.items()
         if name in "florschuetz_chao_1965"
     ),
 )

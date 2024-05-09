@@ -7,13 +7,13 @@ from tomlkit import dumps, parse
 
 from boilercv_pipeline.correlations import dimensionless_bubble_diameter
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
-    EXPECTED_TOML,
+    EXPECTATIONS_TOML,
     KWDS,
 )
 
 
 def main():  # noqa: D103
-    expectations = parse(EXPECTED_TOML.read_text("utf-8"))
+    expectations = parse(EXPECTATIONS_TOML.read_text("utf-8"))
     for name, correlation in [
         (name, attr)
         for name, attr in getmembers(dimensionless_bubble_diameter)
@@ -25,7 +25,7 @@ def main():  # noqa: D103
             if kwd in Signature.from_callable(correlation).parameters
         })
         expectations[name] = [str(Decimal(r).quantize(Decimal(10) ** -6)) for r in foo]
-    EXPECTED_TOML.write_text(
+    EXPECTATIONS_TOML.write_text(
         encoding="utf-8", data=dumps(expectations).replace('"', "")
     )
 

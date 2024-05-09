@@ -162,7 +162,8 @@
   },
   //* Even Better TOML (TOML)
   "[toml]": {
-    "editor.defaultFormatter": "tamasfe.even-better-toml"
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
+    "editor.wordWrap": "off"
   },
   "evenBetterToml.formatter.columnWidth": 88,
   //! Other

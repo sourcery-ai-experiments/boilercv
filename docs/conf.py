@@ -10,7 +10,7 @@ from boilercv_docs.nbs import init_nb_env
 from boilercv_docs.patch_nbs import patch_nbs
 from boilercv_docs.types import IspxMappingValue
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
-    equations,
+    EQUATIONS,
 )
 from ruamel.yaml import YAML
 from sphinx.application import Sphinx
@@ -188,15 +188,15 @@ myst_enable_extensions = [
 ]
 myst_heading_anchors = 6
 equations = {
-    expression.name: f"""
+    name: f"""
 $$
-{expression.forms.latex}
-$$ (eq_{expression.name})""".strip()
-    for expression in equations
+{form["latex"]}
+$$ (eq_{name})""".strip()
+    for name, form in EQUATIONS.items()
 }
 myst_substitutions = {
     "binder": f"[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blakeNaccarato/{PACKAGE}/{REV}?labpath=docs%2Fexperiments%2Fe230920_subcool%2Ffind_centers.ipynb)",
-    **equations,
+    **EQUATIONS,
 }
 # ! BibTeX
 bibtex_bibfiles = dpaths(BIB_TEMPLATE, BIB)
