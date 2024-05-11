@@ -191,7 +191,7 @@ myst_heading_anchors = 6
 equations = {
     name: f"""
 $$
-{eq.pipe(apply_common)["latex"]}
+{eq.pipe(apply_common, symbolic="latex")["latex"]}
 $$ (eq_{name})""".strip()
     for name, eq in EQUATIONS.items()
 }
