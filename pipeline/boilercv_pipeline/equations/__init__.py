@@ -2,92 +2,64 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Hashable, Iterator, Mapping
+from collections.abc import Callable, Hashable, Iterator, Mapping, Sequence
+from hashlib import sha512
 from inspect import get_annotations
-from pathlib import Path
-from shlex import quote
 from types import GenericAlias
-from typing import (
-    Any,
-    Generic,
-    NamedTuple,
-    ParamSpec,
-    Protocol,
-    Self,
-    TypeVar,
-    get_args,
-)
+from typing import Generic, NamedTuple, ParamSpec, Protocol, Self, TypeVar, get_args
 
 from pydantic import Field, RootModel
 
-PIPX = quote((Path(".venv") / "scripts" / "pipx").as_posix())
-"""Escaped path to `pipx` executable suitable for `subprocess.run` invocation."""
+P = ParamSpec("P")
 
 K = TypeVar("K", bound=Hashable)
-KR = TypeVar("KR", bound=Hashable)
-V = TypeVar("V", covariant=True)
-VR = TypeVar("VR", contravariant=True)
-P = ParamSpec("P")
+RK = TypeVar("RK", bound=Hashable)
+V = TypeVar("V")
+RV = TypeVar("RV")
 
 
 class MorphMap(
-    RootModel[dict[K, Any]], Mapping[K, V], Generic[K, V], arbitrary_types_allowed=True
+    RootModel[dict[K, V]], Mapping[K, V], Generic[K, V], arbitrary_types_allowed=True
 ):
     """Type-checked, generic, morphable mapping."""
 
     root: dict[K, V] = Field(default_factory=dict)
     """Type-checked dictionary as the root data."""
 
-    def asdict(self) -> dict[K, V]:
-        """Get as dictionary."""
-        return dict(self)
-
     def pipe(
-        self, f: Morph[K, V, KR, VR, P], *args: P.args, **kwds: P.kwargs
-    ) -> MorphMap[KR, VR]:
+        self, f: MappingMorph[K, V, RK, RV, P], *args: P.args, **kwds: P.kwargs
+    ) -> MorphMap[RK, RV]:
         """Pipe."""
-        morphed = self.morph(f, *args, **kwds)
-        k, v = self.get_result_types(f, morphed)
-        return MorphMap[k, v](morphed)
+        result = f(self.model_dump(), *args, **kwds)
+        k, v = self.get_result_types(f, result)
+        return MorphMap[k, v](result)
 
     def pipe_keys(
-        self, f: InnerMorph[K, KR, P], *args: P.args, **kwds: P.kwargs
-    ) -> MorphMap[KR, V]:
-        """Pipe, morphing only keys."""
-        morphed_keys = [f(k, *args, **kwds) for k in self.keys()]
-        self_k, v = self.get_inner_types()
-        k = self.get_inner_result_type(f, morphed_keys) or self_k
-        return MorphMap[k, v](dict(zip(morphed_keys, self.values(), strict=False)))
+        self, f: ValueMorph[K, RK, P], *args: P.args, **kwds: P.kwargs
+    ) -> MorphMap[RK, V]:
+        """Pipe, morphing each key."""
+        k, v = self.get_inner_types()
+        result = [f(k, *args, **kwds) for k in self.keys()]
+        k = self.get_inner_result_type(f, result) or k
+        return MorphMap[k, v](dict(zip(result, self.values(), strict=False)))
 
-    def pipe_vals(
-        self, f: InnerMorph[V, VR, P], *args: P.args, **kwds: P.kwargs
-    ) -> MorphMap[K, VR]:
-        """Pipe, morphing only values."""
-        morphed_vals = [f(k, *args, **kwds) for k in self.values()]
-        k, self_v = self.get_inner_types()
-        v = self.get_inner_result_type(f, morphed_vals) or self_v
-        return MorphMap[k, v](dict(zip(self.keys(), morphed_vals, strict=False)))
-
-    def morph(
-        self,
-        f: Morph[K, V, KR, VR, P] | Callable[..., Any],
-        *args: P.args,
-        **kwds: P.kwargs,
-    ) -> dict[KR, VR]:
-        """Morph."""
-        morphed = f(dict(self), *args, **kwds)
-        if not isinstance(morphed, Mapping):
-            raise TypeError(f"Unsupported return type: {type(morphed)}")
-        return dict(morphed)
+    def pipe_values(
+        self, f: ValueMorph[V, RV, P], *args: P.args, **kwds: P.kwargs
+    ) -> MorphMap[K, RV]:
+        """Pipe, morphing each value."""
+        k, v = self.get_inner_types()
+        result = [f(k, *args, **kwds) for k in self.values()]
+        v = self.get_inner_result_type(f, result) or v
+        return MorphMap[k, v](dict(zip(self.keys(), result, strict=False)))
 
     def get_result_types(
-        self, f: Callable[..., Mapping[KR, VR]], result: dict[KR, VR]
-    ) -> Types[type[KR], type[VR]]:
+        self, f: Callable[..., Mapping[RK, RV] | tuple[RK, RV]], result: Mapping[RK, RV]
+    ) -> Types[type[RK], type[RV]]:
         """Get morphed types of keys and values."""
         annotations = get_annotations(f, eval_str=True)
         return_types: None | GenericAlias | type[Self] = annotations.get("return")
         if return_types is None and not len(result):
-            raise ValueError("Cannot infer return type from empty mapping.")
+            raise TypeError("Cannot infer return type from empty mapping.")
         if return_types is None:
             first_key, first_value = next(iter(result.items()))
             return Types(type(first_key), type(first_value))
@@ -104,10 +76,10 @@ class MorphMap(
             )
         if issubclass(return_types, self.get_base()):
             return return_types.get_inner_types()
-        raise ValueError(f"Unsupported return type: {return_types}")
+        raise TypeError(f"Unsupported return type: {return_types}")
 
     def get_inner_result_type(
-        self, f: Callable[..., R], result: list[R]
+        self, f: Callable[..., R], result: Sequence[R]
     ) -> type | None:
         """Get morphed type of keys or values."""
         annotations = get_annotations(f, eval_str=True)
@@ -137,9 +109,19 @@ class MorphMap(
         """Get types of the keys and values."""
         return Types(*get_args(cls.model_fields["root"].annotation))
 
+    def __hash__(self):
+        # ? https://github.com/pydantic/pydantic/issues/1303#issuecomment-2052395207
+        return int.from_bytes(
+            sha512(
+                f"{self.__class__.__qualname__}::{self.model_dump_json()}".encode(
+                    "utf-8", errors="ignore"
+                )
+            ).digest()
+        )
+
     def __iter__(self) -> Iterator[K]:  # pyright: ignore[reportIncompatibleMethodOverride]
         """Iterate over root rather than the `RootModel` instance."""
-        return iter(dict(self.root))
+        return iter(self.root)
 
     def __getitem__(self, key: K) -> V:
         return self.root[key]
@@ -159,22 +141,33 @@ class Types(NamedTuple, Generic[KT, VT]):
     value: VT
 
 
-GK = TypeVar("GK", bound=Hashable)
-GKR = TypeVar("GKR", bound=Hashable)
-GV = TypeVar("GV", contravariant=True)
-GVR = TypeVar("GVR", covariant=True)
-GP = ParamSpec("GP")
+KPD = TypeVar("KPD", bound=Hashable)
+RKPD = TypeVar("RKPD", bound=Hashable)
+VPD = TypeVar("VPD")
+RVPD = TypeVar("RVPD")
 
 
-class Morph(Protocol[GK, GV, GKR, GVR, GP]):  # noqa: D101
+class DictMorph(Protocol[KPD, VPD, RKPD, RVPD, P]):  # noqa: D101
     def __call__(  # noqa: D102
-        self, m: Mapping[GK, GV], *args: GP.args, **kwds: GP.kwargs
-    ) -> Mapping[GKR, GVR]: ...
+        self, i: dict[KPD, VPD], *args: P.args, **kwds: P.kwargs
+    ) -> dict[RKPD, RVPD]: ...
+
+
+KM = TypeVar("KM", bound=Hashable)
+RKM = TypeVar("RKM", bound=Hashable)
+VM = TypeVar("VM", contravariant=True)
+RVM = TypeVar("RVM")
+
+
+class MappingMorph(Protocol[KM, VM, RKM, RVM, P]):  # noqa: D101
+    def __call__(  # noqa: D102
+        self, i: Mapping[KM, VM], *args: P.args, **kwds: P.kwargs
+    ) -> dict[RKM, RVM]: ...
 
 
 T = TypeVar("T", contravariant=True)
 R = TypeVar("R", covariant=True)
 
 
-class InnerMorph(Protocol[T, R, P]):  # noqa: D101
+class ValueMorph(Protocol[T, R, P]):  # noqa: D101
     def __call__(self, i: T, *args: P.args, **kwds: P.kwargs) -> R: ...  # noqa: D102

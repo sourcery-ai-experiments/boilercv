@@ -7,12 +7,11 @@ from subprocess import run
 from loguru import logger
 from tqdm import tqdm
 
-from boilercv_pipeline.correlations import PNGS
+from boilercv_pipeline.correlations import PIPX, PNGS
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
-    LATEX_REPL,
+    LATEX_REPLS,
 )
-from boilercv_pipeline.equations import PIPX
 
 PNG_PARSER = quote((Path("scripts") / "convert_png_to_latex.py").as_posix())
 """Escaped path to converter script suitable for `subprocess.run` invocation."""
@@ -44,7 +43,7 @@ def main():  # noqa: D103
         if result.returncode:
             raise RuntimeError(result.stderr)
         latex = result.stdout.strip()
-        for old, new in LATEX_REPL.items():
+        for old, new in LATEX_REPLS.items():
             latex = latex.replace(old, new)
     #     toml[EQS][i][LATEX] = latex  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
     # data = dumps(toml)

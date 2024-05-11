@@ -1,17 +1,20 @@
 """Equations."""
 
 from inspect import Signature
+from tomllib import loads
 
 import numpy
 import pytest
 from boilercv_pipeline.correlations import dimensionless_bubble_diameter
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter import symbolic
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
-    EXPECTATIONS,
+    EXPECTATIONS_TOML,
     KWDS,
 )
 from numpy import allclose
 from sympy import lambdify
+
+EXPECTATIONS = loads(EXPECTATIONS_TOML.read_text("utf-8"))
 
 
 @pytest.mark.parametrize(("name", "expected"), EXPECTATIONS.items())

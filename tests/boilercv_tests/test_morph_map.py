@@ -74,7 +74,7 @@ def f9(i: Foo) -> str:  # noqa: D103
 @pytest.mark.parametrize("f", [f8, f9])
 def test_keys(f):
     """`MorphMap` key pipe works as expected."""
-    m.pipe_vals(f)  # pyright: ignore[reportCallIssue]
+    m.pipe_values(f)  # pyright: ignore[reportCallIssue]
 
 
 def f10(i: str):  # noqa: D103
@@ -88,4 +88,4 @@ def f11(i: str) -> int:  # noqa: D103
 @pytest.mark.parametrize("f", [f10, f11])
 def test_values(f):
     """`MorphMap` value pipe works as expected."""
-    m.pipe_vals(f)  # pyright: ignore[reportCallIssue]
+    m.pipe_values(f)  # pyright: ignore[reportCallIssue]

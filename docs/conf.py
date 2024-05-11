@@ -12,6 +12,7 @@ from boilercv_docs.types import IspxMappingValue
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
 )
+from boilercv_pipeline.equations.convert_latex_to_sympy import apply_common
 from ruamel.yaml import YAML
 from sphinx.application import Sphinx
 
@@ -190,13 +191,13 @@ myst_heading_anchors = 6
 equations = {
     name: f"""
 $$
-{form["latex"]}
+{eq.pipe(apply_common)["latex"]}
 $$ (eq_{name})""".strip()
-    for name, form in EQUATIONS.items()
+    for name, eq in EQUATIONS.items()
 }
 myst_substitutions = {
     "binder": f"[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blakeNaccarato/{PACKAGE}/{REV}?labpath=docs%2Fexperiments%2Fe230920_subcool%2Ffind_centers.ipynb)",
-    **EQUATIONS,
+    **equations,
 }
 # ! BibTeX
 bibtex_bibfiles = dpaths(BIB_TEMPLATE, BIB)
