@@ -17,7 +17,8 @@ SYMS = symbols(list(SUBS))
 (Fo_0, Ja, Re_b0, Pr, beta) = SYMS
 LONG_SYMS = symbols(list(SUBS.values()))
 """Symbols with long names."""
-
+LOCALS = dict(zip(SUBS.keys(), SYMS, strict=False))
+"""Local variables for sympyfying."""
 (
     bubble_fourier,
     bubble_jakob,

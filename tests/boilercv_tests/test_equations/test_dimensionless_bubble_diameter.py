@@ -1,16 +1,23 @@
 """Equations."""
 
 from inspect import Signature
+from tomllib import loads
 
 import numpy
 import pytest
-from boilercv_pipeline.correlations import EXPECTED, KWDS, dimensionless_bubble_diameter
+from boilercv_pipeline.correlations import dimensionless_bubble_diameter
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter import symbolic
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+    EXPECTATIONS_TOML,
+    KWDS,
+)
 from numpy import allclose
 from sympy import lambdify
 
+EXPECTATIONS = loads(EXPECTATIONS_TOML.read_text("utf-8"))
 
-@pytest.mark.parametrize(("name", "expected"), EXPECTED.items())
+
+@pytest.mark.parametrize(("name", "expected"), EXPECTATIONS.items())
 def test_python(name, expected):
     """Equations evaluate as expected."""
     equation = getattr(dimensionless_bubble_diameter, name)
@@ -35,7 +42,7 @@ def test_syms(symbol_group_name: str):
     ("name", "expected"),
     (
         (name, expected)
-        for name, expected in EXPECTED.items()
+        for name, expected in EXPECTATIONS.items()
         if name in "florschuetz_chao_1965"
     ),
 )

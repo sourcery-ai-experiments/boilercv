@@ -13,7 +13,6 @@ dependencies = [
     "colorcet>=3.0.1",
     "copykitten>=1.1.1",
     "cyclopts>=2.6.1",
-    "sympy>=1.12",
     # ? https://github.com/iterative/vscode-dvc/blob/1.2.12/extension/src/cli/dvc/contract.ts#L3
     "dvc>=3.33.3",
     "imageio[pyav]>=2.31.1",
@@ -25,7 +24,7 @@ dependencies = [
     "pillow>=10.0.0",
     "ploomber-engine>=0.0.30",
     "pyarrow>=14.0.1",
-    "pydantic>=2",
+    "pydantic>=2.7.1",                  # ? RootModel improvements
     "pyqtgraph>=0.13.3",
     # ? Wheels are missing on Linux for PySide6, `uv` doesn't like it
     "pyside6-addons==6.7.0; sys_platform!='linux'",
@@ -35,6 +34,8 @@ dependencies = [
     "scipy>=1.11.1",
     "seaborn>=0.12.2",
     "sparklines>=0.4.2",
+    "sympy>=1.12",
+    "tomlkit>=0.12.4",
     "tqdm>=4.66.1",
     "xarray[accel,io,parallel]>=2023.7.0",
 ]
