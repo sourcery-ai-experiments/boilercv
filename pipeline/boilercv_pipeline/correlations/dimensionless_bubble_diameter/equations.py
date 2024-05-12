@@ -9,7 +9,9 @@ from typing import Generic, Literal, NamedTuple, TypeAlias, TypeVar
 
 from numpy import float64, linspace
 from numpy.typing import NDArray
+from sympy import Expr
 
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.symbolic import LOCALS
 from boilercv_pipeline.equations import MorphMap
 
 Expectation: TypeAlias = float | Sequence[float] | NDArray[float64]
@@ -26,6 +28,10 @@ FormsM: TypeAlias = Mapping[Kind, str]
 """Forms mapping."""
 FormsD: TypeAlias = dict[Kind, str]
 """Forms dict."""
+Params = Literal["Fo_0", "Ja", "Re_b0", "Pr", "beta"]
+"""Params."""
+Solns = MorphMap[Params, list[Expr]]
+"""Solutions."""
 
 K = TypeVar("K", bound=Hashable)
 V = TypeVar("V")
@@ -71,42 +77,11 @@ LATEX_REPLS = tuple(
 """Replacements to make after parsing LaTeX from PNGs."""
 
 
-def set_forms_defaults(i: FormsM, name: str = "") -> FormsD:
-    """Set default forms."""
-    forms = dict(set_defaults(i, keys=kinds, default=""))
-    if forms["sympy"] and not forms["latex"]:
-        forms["latex"] = forms["sympy"]
-    if not forms["latex"]:
-        forms["latex"] = rf"\{name}"
-    return forms
-
-
-def handle_form_whitespace(i: FormsM) -> FormsD:
-    """Handle whitespace in equation forms."""
-    return replace(i, WHITESPACE_REPLS)
-
-
 def set_defaults(
     i: Mapping[K, V_co], default: V_co, keys: Iterable[K] | None = None
 ) -> dict[K, V_co]:
     """Set defaults."""
     return {key: i.get(key, default) for key in [*i.keys(), *(keys or [])]}
-
-
-def make_param(name: str, param: FormsD) -> Forms:
-    """Make a parameter."""
-    return (
-        Forms(param)
-        .pipe(set_defaults, keys=kinds, default="")
-        .pipe(set_forms_defaults, name=name)
-        .pipe(
-            replace,
-            repls=[
-                FormsRepl(dst="sympy", src="latex", find=k, repl=v)
-                for k, v in {r"_\b0": "_bo", r"_\o": "_0", "\\": ""}.items()
-            ],
-        )
-    )
 
 
 def replace(i: Mapping[K, str], repls: Sequence[Repl[K, str]]) -> dict[K, str]:
@@ -125,17 +100,75 @@ def regex_replace(i: Mapping[K, str], repls: Sequence[Repl[K, str]]) -> dict[K, 
     return i
 
 
+def handle_form_whitespace(i: FormsM) -> FormsD:
+    """Handle whitespace in equation forms."""
+    return replace(i, WHITESPACE_REPLS)
+
+
+def set_equation_forms(i: FormsM) -> FormsD:
+    """Set equation forms."""
+    i = (
+        Forms.make(i)
+        .pipe(handle_form_whitespace)
+        .pipe(
+            replace,
+            tuple(
+                FormsRepl(src="sympy", dst="sympy", find=find, repl=repl)
+                for find, repl in {"{o}": "0", "{bo}": "b0"}.items()
+            ),
+        )
+    )
+    if not i.get("sympy"):
+        return i.model_dump()
+    return i.pipe(
+        regex_replace,
+        tuple(
+            FormsRepl(src="sympy", dst="sympy", find=find, repl=repl)
+            for sym in LOCALS
+            for find, repl in {
+                # ? Symbol split by `(` after first character.
+                rf"{sym[0]}\*\({sym[1:]}([^)]+)\)": rf"{sym}\g<1>",
+                # ? Symbol split by a `*` after first character.
+                rf"{sym[0]}\*{sym[1:]}": rf"{sym}",
+                # ? Symbol missing `*` resulting in failed attempt to call it
+                rf"{sym}\(": rf"{sym}*(",
+            }.items()
+        ),
+    ).model_dump()
+
+
 EXPECTATIONS = loads(EXPECTATIONS_TOML.read_text("utf-8"))
 """Expected results for the response of each correlation to `KWDS`."""
 EQUATIONS = {
-    name: Forms({"latex": eq["latex"], "sympy": eq["sympy"], "python": eq["python"]})
-    .pipe(set_forms_defaults, name=name)
-    .pipe(replace, repls=WHITESPACE_REPLS)
+    name: Forms(eq).pipe(set_equation_forms)
     for name, eq in loads(EQUATIONS_TOML.read_text("utf-8")).items()
 }
 """Equations."""
+
+
+def set_param_forms(i: FormsM, name: str = "") -> FormsD:
+    """Set forms for parameters."""
+    i = dict(set_defaults(i, keys=kinds, default=""))
+    if i["sympy"] and not i["latex"]:
+        i["latex"] = i["sympy"]
+    if not i["latex"]:
+        i["latex"] = rf"\{name}"
+    return i
+
+
 LATEX_PARAMS = {
-    name: make_param(name, param)
+    name: (
+        Forms(param)
+        .pipe(set_defaults, keys=kinds, default="")
+        .pipe(set_param_forms, name=name)
+        .pipe(
+            replace,
+            repls=[
+                FormsRepl(dst="sympy", src="latex", find=k, repl=v)
+                for k, v in {r"_\b0": "_bo", r"_\o": "_0", "\\": ""}.items()
+            ],
+        )
+    )
     for name, param in {
         "bubble_initial_reynolds": FormsD({"latex": r"\Re_\bo"}),
         "bubble_jakob": FormsD({"latex": r"\Ja"}),

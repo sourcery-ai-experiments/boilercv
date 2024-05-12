@@ -11,8 +11,8 @@ from boilercv_docs.patch_nbs import patch_nbs
 from boilercv_docs.types import IspxMappingValue
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
+    set_equation_forms,
 )
-from boilercv_pipeline.equations.convert_latex_to_sympy import apply_common
 from ruamel.yaml import YAML
 from sphinx.application import Sphinx
 
@@ -191,7 +191,7 @@ myst_heading_anchors = 6
 equations = {
     name: f"""
 $$
-{eq.pipe(apply_common, symbolic="latex")["latex"]}
+{eq.pipe(set_equation_forms, symbolic="latex")["latex"]}
 $$ (eq_{name})""".strip()
     for name, eq in EQUATIONS.items()
 }
