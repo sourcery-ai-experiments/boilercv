@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Hashable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Hashable, Mapping, MutableMapping, Sequence
 from hashlib import sha512
 from inspect import get_annotations
 from types import GenericAlias
@@ -18,8 +18,11 @@ V = TypeVar("V")
 RV = TypeVar("RV")
 
 
-class MorphMap(
-    RootModel[dict[K, V]], Mapping[K, V], Generic[K, V], arbitrary_types_allowed=True
+class Morph(
+    RootModel[dict[K, V]],
+    MutableMapping[K, V],
+    Generic[K, V],
+    arbitrary_types_allowed=True,
 ):
     """Type-checked, generic, morphable mapping."""
 
@@ -27,30 +30,30 @@ class MorphMap(
     """Type-checked dictionary as the root data."""
 
     def pipe(
-        self, f: MappingMorph[K, V, RK, RV, P], *args: P.args, **kwds: P.kwargs
-    ) -> MorphMap[RK, RV]:
+        self, f: MutableMappingMorph[K, V, RK, RV, P], *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, RV]:
         """Pipe."""
-        result = f(self.model_dump(), *args, **kwds)
+        result = f(self, *args, **kwds)
         k, v = self.get_result_types(f, result)
-        return MorphMap[k, v](result)
+        return Morph[k, v](dict(result))
 
     def pipe_keys(
         self, f: ValueMorph[K, RK, P], *args: P.args, **kwds: P.kwargs
-    ) -> MorphMap[RK, V]:
+    ) -> Morph[RK, V]:
         """Pipe, morphing each key."""
         k, v = self.get_inner_types()
         result = [f(k, *args, **kwds) for k in self.keys()]
         k = self.get_inner_result_type(f, result) or k
-        return MorphMap[k, v](dict(zip(result, self.values(), strict=False)))
+        return Morph[k, v](dict(zip(result, self.values(), strict=False)))
 
     def pipe_values(
         self, f: ValueMorph[V, RV, P], *args: P.args, **kwds: P.kwargs
-    ) -> MorphMap[K, RV]:
+    ) -> Morph[K, RV]:
         """Pipe, morphing each value."""
         k, v = self.get_inner_types()
         result = [f(k, *args, **kwds) for k in self.values()]
         v = self.get_inner_result_type(f, result) or v
-        return MorphMap[k, v](dict(zip(self.keys(), result, strict=False)))
+        return Morph[k, v](dict(zip(self.keys(), result, strict=False)))
 
     def get_result_types(
         self, f: Callable[..., Mapping[RK, RV] | tuple[RK, RV]], result: Mapping[RK, RV]
@@ -98,13 +101,6 @@ class MorphMap(
         return super().__thisclass__  # pyright: ignore[reportAttributeAccessIssue]
 
     @classmethod
-    def make(cls, d: Mapping[K, V]) -> MorphMap[K, V]:
-        """Create a `MorphMap` from a dictionary."""
-        first_key, first_value = next(iter(d.items()))
-        k, v = Types(type(first_key), type(first_value))
-        return MorphMap[k, v](dict(d))
-
-    @classmethod
     def get_inner_types(cls) -> Types[type, type]:
         """Get types of the keys and values."""
         return Types(*get_args(cls.model_fields["root"].annotation))
@@ -119,15 +115,66 @@ class MorphMap(
             ).digest()
         )
 
-    def __iter__(self) -> Iterator[K]:  # pyright: ignore[reportIncompatibleMethodOverride]
-        """Iterate over root rather than the `RootModel` instance."""
+    # `MutableMapping` methods adapted from `collections.UserDict`, but with `data`
+    # replaced by `root`and `hasattr` guard changed to equivalent `getattr(..., None)`
+    # pattern in `__getitem__`. This is done to prevent inheriting directly from
+    # `UserDict`, which doesn't play nicely with `pydantic.RootModel`.
+    # Source: https://github.com/python/cpython/blob/7d7eec595a47a5cd67ab420164f0059eb8b9aa28/Lib/collections/__init__.py#L1121-L1211
+
+    def __len__(self):
+        return len(self.root)
+
+    def __getitem__(self, key):
+        if key in self.root:
+            return self.root[key]
+        if missing := getattr(self.__class__, "__missing__", None):
+            return missing(self, key)
+        raise KeyError(key)
+
+    def __setitem__(self, key, item):
+        self.root[key] = item
+
+    def __delitem__(self, key):
+        del self.root[key]
+
+    def __iter__(self):  # pyright: ignore[reportIncompatibleMethodOverride]  # Iterate over `root` instead of `self`.
         return iter(self.root)
 
-    def __getitem__(self, key: K) -> V:
-        return self.root[key]
+    # Modify __contains__ to work correctly when __missing__ is present
+    def __contains__(self, key):
+        return key in self.root
 
-    def __len__(self) -> int:
-        return len(self.root)
+    def __repr__(self):
+        k, v = (t.__name__ for t in self.get_inner_types())
+        return f"{self.get_base().__name__}[{k}, {v}]({self.root})"
+
+    def __or__(self, other):
+        if isinstance(other, Morph):
+            return self.__class__(self.root | other.root)
+        if isinstance(other, dict):
+            return self.__class__(self.root | other)
+        return NotImplemented
+
+    def __ror__(self, other):
+        if isinstance(other, Morph):
+            return self.__class__(other.root | self.root)
+        if isinstance(other, dict):
+            return self.__class__(other | self.root)
+        return NotImplemented
+
+    def __ior__(self, other):
+        if isinstance(other, Morph):
+            self.root |= other.root
+        else:
+            self.root |= other
+        return self
+
+    @classmethod
+    def fromkeys(cls, iterable, value=None):  # noqa: D102
+        d = cls()
+        for key in iterable:
+            d[key] = value
+        return d
 
 
 KT = TypeVar("KT", bound=type)
@@ -141,33 +188,25 @@ class Types(NamedTuple, Generic[KT, VT]):
     value: VT
 
 
-KPD = TypeVar("KPD", bound=Hashable)
-RKPD = TypeVar("RKPD", bound=Hashable)
-VPD = TypeVar("VPD")
-RVPD = TypeVar("RVPD")
-
-
-class DictMorph(Protocol[KPD, VPD, RKPD, RVPD, P]):  # noqa: D101
-    def __call__(  # noqa: D102
-        self, i: dict[KPD, VPD], *args: P.args, **kwds: P.kwargs
-    ) -> dict[RKPD, RVPD]: ...
-
-
 KM = TypeVar("KM", bound=Hashable)
 RKM = TypeVar("RKM", bound=Hashable)
-VM = TypeVar("VM", contravariant=True)
+VM = TypeVar("VM")
 RVM = TypeVar("RVM")
 
 
-class MappingMorph(Protocol[KM, VM, RKM, RVM, P]):  # noqa: D101
+class MutableMappingMorph(Protocol[KM, VM, RKM, RVM, P]):
+    """Morph a mutable mapping."""
+
     def __call__(  # noqa: D102
-        self, i: Mapping[KM, VM], *args: P.args, **kwds: P.kwargs
-    ) -> dict[RKM, RVM]: ...
+        self, i: Morph[KM, VM], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RKM, RVM] | MutableMapping[RKM, RVM]: ...
 
 
 T = TypeVar("T", contravariant=True)
 R = TypeVar("R", covariant=True)
 
 
-class ValueMorph(Protocol[T, R, P]):  # noqa: D101
-    def __call__(self, i: T, *args: P.args, **kwds: P.kwargs) -> R: ...  # noqa: D102
+class ValueMorph(Protocol[T, R, P]):
+    """Morph a value."""
+
+    def __call__(self, i: T, /, *args: P.args, **kwds: P.kwargs) -> R: ...  # noqa: D102

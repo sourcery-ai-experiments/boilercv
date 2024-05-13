@@ -1,6 +1,6 @@
 """Generated equations."""
 
-from collections.abc import Hashable, Iterable, Mapping, Sequence
+from collections.abc import Hashable, Iterable, Sequence
 from pathlib import Path
 from re import sub
 from string import whitespace
@@ -12,7 +12,7 @@ from numpy.typing import NDArray
 from sympy import Expr
 
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.symbolic import LOCALS
-from boilercv_pipeline.equations import MorphMap
+from boilercv_pipeline.equations import Morph
 
 Expectation: TypeAlias = float | Sequence[float] | NDArray[float64]
 """Expected result."""
@@ -22,22 +22,16 @@ Kind = Literal["latex", "sympy", "python"]
 """Kind."""
 kinds: list[Kind] = ["latex", "sympy", "python"]
 """Equation kinds."""
-Forms: TypeAlias = MorphMap[Kind, str]
+Forms: TypeAlias = Morph[Kind, str]
 """Forms."""
-FormsM: TypeAlias = Mapping[Kind, str]
-"""Forms mapping."""
-FormsD: TypeAlias = dict[Kind, str]
-"""Forms dict."""
 Params = Literal["Fo_0", "Ja", "Re_b0", "Pr", "beta"]
 """Params."""
-Solns = MorphMap[Params, list[Expr]]
+Solns = Morph[Params, list[Expr]]
 """Solutions."""
 
+T = TypeVar("T")
 K = TypeVar("K", bound=Hashable)
 V = TypeVar("V")
-Kind_T = TypeVar("Kind_T", bound=Kind)
-V_co = TypeVar("V_co", covariant=True)
-Str_co = TypeVar("Str_co", covariant=True, bound=str)
 
 
 EQUATIONS_TOML = Path(__file__).with_suffix(".toml")
@@ -46,20 +40,20 @@ EXPECTATIONS_TOML = Path(__file__).with_name("expectations.toml")
 """TOML file with equations."""
 
 
-class Repl(NamedTuple, Generic[V_co, Str_co]):
+class Repl(NamedTuple, Generic[T]):
     """Contents of `dst` to replace with `src`, with `find` substrings replaced with `repl`."""
 
-    src: V_co
+    src: T
     """Source identifier."""
-    dst: V_co
+    dst: T
     """Destination identifier."""
-    find: Str_co
+    find: str
     """Find this in the source."""
-    repl: Str_co
+    repl: str
     """Replacement for what was found."""
 
 
-FormsRepl: TypeAlias = Repl[Kind, str]
+FormsRepl: TypeAlias = Repl[Kind]
 
 
 MAKE_RAW = {'"': "'", r"\\": "\\"}
@@ -78,34 +72,32 @@ LATEX_REPLS = tuple(
 
 
 def set_defaults(
-    i: Mapping[K, V_co], default: V_co, keys: Iterable[K] | None = None
-) -> dict[K, V_co]:
+    i: Morph[K, V], default: V, keys: Iterable[K] | None = None
+) -> dict[K, V]:
     """Set defaults."""
     return {key: i.get(key, default) for key in [*i.keys(), *(keys or [])]}
 
 
-def replace(i: Mapping[K, str], repls: Sequence[Repl[K, str]]) -> dict[K, str]:
+def replace(i: Morph[K, str], repls: Sequence[Repl[K]]) -> Morph[K, str]:
     """Make replacements from `Repl`s."""
-    i = dict(i)
     for r in repls:
         i[r.dst] = i[r.src].replace(r.find, r.repl)
     return i
 
 
-def regex_replace(i: Mapping[K, str], repls: Sequence[Repl[K, str]]) -> dict[K, str]:
+def regex_replace(i: Morph[K, str], repls: Sequence[Repl[K]]) -> Morph[K, str]:
     """Make regex replacements."""
-    i = dict(i)
     for r in repls:
         i[r.dst] = sub(r.find, r.repl, i[r.src])
     return i
 
 
-def handle_form_whitespace(i: FormsM) -> FormsD:
+def handle_form_whitespace(i: Forms) -> Forms:
     """Handle whitespace in equation forms."""
     return replace(i, WHITESPACE_REPLS)
 
 
-def set_equation_forms(i: FormsM) -> FormsD:
+def set_equation_forms(i: Forms) -> Forms:
     """Set equation forms."""
     i = (
         Forms.make(i)
@@ -146,9 +138,9 @@ EQUATIONS = {
 """Equations."""
 
 
-def set_param_forms(i: FormsM, name: str = "") -> FormsD:
+def set_param_forms(i: Forms, name: str = "") -> Forms:
     """Set forms for parameters."""
-    i = dict(set_defaults(i, keys=kinds, default=""))
+    i = i.pipe(set_defaults, keys=kinds, default="")
     if i["sympy"] and not i["latex"]:
         i["latex"] = i["sympy"]
     if not i["latex"]:
@@ -158,8 +150,7 @@ def set_param_forms(i: FormsM, name: str = "") -> FormsD:
 
 LATEX_PARAMS = {
     name: (
-        Forms(param)
-        .pipe(set_defaults, keys=kinds, default="")
+        param.pipe(set_defaults, keys=kinds, default="")
         .pipe(set_param_forms, name=name)
         .pipe(
             replace,
@@ -170,10 +161,10 @@ LATEX_PARAMS = {
         )
     )
     for name, param in {
-        "bubble_initial_reynolds": FormsD({"latex": r"\Re_\bo"}),
-        "bubble_jakob": FormsD({"latex": r"\Ja"}),
-        "bubble_fourier": FormsD({"latex": r"\Fo_\o"}),
-        **{n: FormsD({"latex": f"\\{n}"}) for n in ["beta", "pi"]},
+        "bubble_initial_reynolds": Forms({"latex": r"\Re_\bo"}),
+        "bubble_jakob": Forms({"latex": r"\Ja"}),
+        "bubble_fourier": Forms({"latex": r"\Fo_\o"}),
+        **{n: Forms({"latex": f"\\{n}"}) for n in ["beta", "pi"]},
     }.items()
 }
 """Parameters for function calls."""

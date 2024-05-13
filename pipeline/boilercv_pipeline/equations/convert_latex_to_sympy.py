@@ -1,6 +1,5 @@
 """Convert LaTeX equations to SymPy equations."""
 
-from collections.abc import Mapping
 from pathlib import Path
 from shlex import quote, split
 from subprocess import run
@@ -19,16 +18,15 @@ from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations impo
     EQUATIONS_TOML,
     MAKE_RAW,
     Forms,
-    FormsD,
-    FormsM,
     FormsRepl,
     K,
     Kind,
-    V_co,
+    V,
     regex_replace,
     set_equation_forms,
 )
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.symbolic import LOCALS
+from boilercv_pipeline.equations import Morph
 
 APP = App()
 """CLI."""
@@ -46,17 +44,15 @@ def default(overwrite: bool = False):  # noqa: D103
     data = EQUATIONS_TOML.read_text("utf-8")
     raw_all_single_quoted = '"' not in data
     toml = parse(data)
-    for name, raw in tqdm(
-        ((name, Forms(equation)) for name, equation in EQUATIONS.items())
-    ):
+    for name, raw in tqdm(((name, equation) for name, equation in EQUATIONS.items())):
         if not raw.get(latex):
             continue
-        sanitized = raw.pipe(set_equation_forms, symbolic=symbolic)
+        sanitized = raw.pipe(set_equation_forms)
         if sanitized.get(symbolic) and not overwrite:
             continue
         changed = (
             sanitized.pipe(convert, PIPX, latex_parser, latex, symbolic)
-            .pipe(set_equation_forms, symbolic)
+            .pipe(set_equation_forms)
             .pipe(compare, orig=sanitized)
             .pipe(remove_symbolically_equiv, orig=sanitized, symbolic=symbolic)
         )
@@ -72,8 +68,8 @@ def default(overwrite: bool = False):  # noqa: D103
 
 
 def convert(
-    i: FormsM, interpreter: Path, script: Path, latex: Kind, symbolic: Kind
-) -> FormsD:
+    i: Forms, interpreter: Path, script: Path, latex: Kind, symbolic: Kind
+) -> Forms:
     """Convert LaTeX equation to SymPy equation."""
     sanitized_latex = regex_replace(
         i,
@@ -92,12 +88,11 @@ def convert(
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    i = dict(i)
     i[symbolic] = result.stdout.strip()
     return i
 
 
-def compare(i: Mapping[K, V_co], orig: Mapping[K, V_co]) -> dict[K, V_co]:
+def compare(i: Morph[K, V], orig: Morph[K, V]) -> dict[K, V]:
     """Compare, returning only the subset that changed."""
     return {k: v for k, v in i.items() if v != orig[k]}
 
@@ -107,9 +102,8 @@ def escape(path: Path) -> str:
     return quote(path.as_posix())
 
 
-def remove_symbolically_equiv(i: FormsM, orig: FormsM, symbolic: Kind) -> FormsD:
+def remove_symbolically_equiv(i: Forms, orig: Forms, symbolic: Kind) -> Forms:
     """Remove symbolically equivalent forms."""
-    i = dict(i)
     old_eq = orig.get(symbolic)
     eq = i.get(symbolic)
     if not old_eq or not eq:

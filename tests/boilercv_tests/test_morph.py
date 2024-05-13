@@ -6,13 +6,13 @@ from collections.abc import Hashable, Mapping, Sized
 from typing import Literal, TypeAlias, TypeVar
 
 import pytest
-from boilercv_pipeline.equations import MorphMap
+from boilercv_pipeline.equations import Morph
 
 K = TypeVar("K", bound=Hashable)
 V = TypeVar("V", bound=Sized)
-Foo: TypeAlias = Literal["foo"]
-m = MorphMap[Foo, str]({"foo": "bar"})
-m2 = MorphMap[str, str]({"baz": "qux"})
+Fruit: TypeAlias = Literal["apple", "banana", "cherry"]
+m = Morph[Fruit, str]({"apple": "delicious"})
+m2 = Morph[str, str]({"anything": "unsure"})
 
 
 def f1(m: Mapping[K, Sized]) -> Mapping[K, int]:  # noqa: D103
@@ -31,7 +31,7 @@ def test_generic_with_other(f):
     m2.pipe(f)  # pyright: ignore[reportCallIssue]
 
 
-def f3(m: Mapping[Foo, str]) -> Mapping[Foo, int]:  # noqa: D103
+def f3(m: Mapping[Fruit, str]) -> Mapping[Fruit, int]:  # noqa: D103
     return {k: len(v) for k, v in m.items()}
 
 
@@ -39,12 +39,12 @@ def f4(m: Mapping[str, str]) -> Mapping[str, int]:  # noqa: D103
     return {k: len(v) for k, v in m.items()}
 
 
-def f5(m: Mapping[Foo, str]) -> MorphMap[str, int]:  # noqa: D103
-    return MorphMap[str, int]({k: len(v) for k, v in m.items()})
+def f5(m: Mapping[Fruit, str]) -> Morph[str, int]:  # noqa: D103
+    return Morph[str, int]({k: len(v) for k, v in m.items()})
 
 
-def f6(m: Mapping[Foo, str]):  # noqa: D103
-    return MorphMap[str, int]({k: len(v) for k, v in m.items()})
+def f6(m: Mapping[Fruit, str]):  # noqa: D103
+    return Morph[str, int]({k: len(v) for k, v in m.items()})
 
 
 @pytest.mark.parametrize("f", [f1, f2, f3, f4, f5, f6])
@@ -53,7 +53,7 @@ def test_pipe(f):
     m.pipe(f)  # pyright: ignore[reportCallIssue]
 
 
-def f7(m: Mapping[Foo, str]) -> int:  # noqa: D103
+def f7(m: Mapping[Fruit, str]) -> int:  # noqa: D103
     return 1
 
 
@@ -63,11 +63,11 @@ def test_pipe_raises():
         m.pipe(f7)  # pyright: ignore[reportArgumentType]
 
 
-def f8(i: Foo):  # noqa: D103
+def f8(i: Fruit):  # noqa: D103
     return "yes" if i == "foo" else "no"
 
 
-def f9(i: Foo) -> str:  # noqa: D103
+def f9(i: Fruit) -> str:  # noqa: D103
     return "yes" if i == "foo" else "no"
 
 
