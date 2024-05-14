@@ -16,6 +16,7 @@ from boilercv_pipeline.correlations import PIPX
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
     EQUATIONS_TOML,
+    LOCALS,
     MAKE_RAW,
     Forms,
     FormsRepl,
@@ -25,7 +26,6 @@ from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations impo
     regex_replace,
     set_equation_forms,
 )
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.symbolic import LOCALS
 from boilercv_pipeline.equations import Morph
 
 APP = App()

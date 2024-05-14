@@ -8,9 +8,9 @@ from tqdm import tqdm
 
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
+    LOCALS,
     Solns,
 )
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.symbolic import LOCALS
 
 APP = App()
 """CLI."""
@@ -21,14 +21,14 @@ def main():  # noqa: D103
 
 
 @APP.default
-def default(overwrite: bool = False):  # noqa: D103
+def default(_overwrite: bool = False):  # noqa: D103
     for name, eq in tqdm(
         (
             (name, sympify(eq.get("sympy"), locals=LOCALS, evaluate=False))
             for name, eq in EQUATIONS.items()
         )
     ):
-        solns = Solns({param: solve(eq, sym) for param, sym in LOCALS.items()})
+        _solns = Solns({param: solve(eq, sym) for param, sym in LOCALS.items()})
         f"""
         def {name}():
         """

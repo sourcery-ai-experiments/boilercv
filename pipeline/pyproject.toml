@@ -55,3 +55,5 @@ ignore_unused = [
     "dvc",     # Core dependency for reproducing the pipeline
     "pyarrow", # Used in `boilercv.__init__`
 ]
+[tool.fawltydeps.custom_mapping]
+pydantic = ["pydantic", "pydantic_core"]
