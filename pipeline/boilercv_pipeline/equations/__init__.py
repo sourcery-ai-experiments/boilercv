@@ -87,7 +87,7 @@ class Morph(  # noqa: PLR0904
     def pipe(
         self, f: TypeType[Self, R, P], /, *args: P.args, **kwds: P.kwargs
     ) -> R: ...
-    # ! MARK: ((Any -> Any) -> Never)
+    # ! ((Any -> Any) -> Never)
     @overload
     def pipe(
         self, f: TypeType[Any, Any, P], /, *args: P.args, **kwds: P.kwargs
