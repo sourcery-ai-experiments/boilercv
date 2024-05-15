@@ -22,64 +22,151 @@ REASON = "Mixed pass/fail parametrized test. Will implement functionality later.
 Fruit: TypeAlias = Literal["apple", "banana", "cherry"]
 ANY_MAP: dict[Hashable, Any] = {"any": "map"}
 FRUIT: list[Fruit] = ["apple", "banana", "cherry"]
-FruitDescriptionsDict: TypeAlias = dict[Fruit, str]
-DICT_FRUIT_DESCRIPTIONS: FruitDescriptionsDict = {"apple": "delicious"}
-FruitCountsDict: TypeAlias = dict[Fruit, int]
-DICT_FRUIT_COUNTS: FruitCountsDict = dict.fromkeys(FRUIT, 0)
+_SelfMap: TypeAlias = MutableMapping[Fruit, str]
+_SelfDict: TypeAlias = dict[Fruit, str]
+SELF_DICT: _SelfDict = {"apple": "delicious"}
+_OtherDict: TypeAlias = dict[Fruit, int]
+OTHER_DICT: _OtherDict = dict.fromkeys(FRUIT, 0)
 # fmt: on
+# fmt: off
 
 # * MARK: Concrete morphs
-# fmt: off
+
 # ! Descriptions
-FruitDescriptionsMorph: TypeAlias = Morph[Fruit, str]
-MORPH_FRUIT_DESCRIPTIONS = FruitDescriptionsMorph(DICT_FRUIT_DESCRIPTIONS)
-class FruitDescriptions(FruitDescriptionsMorph): ...
-FRUIT_DESCRIPTIONS = FruitDescriptions(DICT_FRUIT_DESCRIPTIONS)
+Morph_: TypeAlias = Morph[Fruit, str]
+SELF_MORPH = Morph_(SELF_DICT)
+class _Self(Morph_): ...
+SELF = _Self(SELF_DICT)
+
 # ! Counts
-FruitCountsMorph: TypeAlias = Morph[Fruit, int]
-aliased_fruit_counts = FruitCountsMorph(DICT_FRUIT_COUNTS)
-class FruitCounts(FruitCountsMorph): ...
-FRUIT_COUNTS = FruitCounts(DICT_FRUIT_COUNTS)
+_OtherMorph: TypeAlias = Morph[Fruit, int]
+OTHER_MORPH = _OtherMorph(OTHER_DICT)
+class _Other(_OtherMorph): ...
+OTHER = _Other(OTHER_DICT)
 # fmt: on
+# fmt: off
 
 
 # * MARK: Generic morphs and concrete morphs based on generic morph
-# fmt: off
+
 # ! Note that `TypeAlias`es cannot be `Generic`, e.g. they don't support `TypeVar`s.
-class MyMorph(Morph[K, V], Generic[K, V]): ...
-my_morph = MyMorph(ANY_MAP)
+class _GenericMorph(Morph[K, V], Generic[K, V]): ...
+GENERIC_MORPH = _GenericMorph(ANY_MAP)
+
 # ! Descriptions
-FruitDescriptionsAlias2: TypeAlias = MyMorph[Fruit, str]
-aliased_fruit_descriptions_2 = FruitDescriptionsAlias2(DICT_FRUIT_DESCRIPTIONS)
-class FruitDescriptions2(FruitDescriptionsAlias2): ...
-concrete_fruit_descriptions_2 = FruitDescriptions2(DICT_FRUIT_DESCRIPTIONS)
+_SubSelfMorph: TypeAlias = _GenericMorph[Fruit, str]
+SUB_SELF_MORPH = _SubSelfMorph(SELF_DICT)
+class _SubSelf(_SubSelfMorph): ...
+SUB_SELF = _SubSelf(SELF_DICT)
+
 # ! Counts
-FruitCountsAlias2: TypeAlias = Morph[Fruit, int]
-aliased_fruit_counts_2 = FruitCountsAlias2(DICT_FRUIT_COUNTS)
-class FruitCounts2(FruitCountsAlias2): ...
-concrete_fruit_counts_2 = FruitCounts2(DICT_FRUIT_COUNTS)
+_SubOtherMorph: TypeAlias = _GenericMorph[Fruit, int]
+SUB_OTHER_MORPH = _SubOtherMorph(OTHER_DICT)
+class _SubOther(_SubOtherMorph): ...
+SUB_OTHER = _SubOther(OTHER_DICT)
 # fmt: on
-
-
-# * MARK: Define string-taking functions
 # fmt: off
+
+
+# * MARK: ((Any -> Any) -> Never)
+
 # ! (str -> UNANNOTATED)
-def str_any(i: str): return len(i)
+def str_unk(i: str
+    ): return len(i)
+def _():
+    return SELF.pipe(str_unk)
+
+# ! (str -> Any)
+def str_any(i: str
+    ) -> Any: return len(i)
+def _():
+    return SELF.pipe(str_any)
+
 # ! (str -> int)
-def str_int(i: str) -> int: return len(i)
+def str_int(i: str
+    ) -> int: return len(i)
+def _():
+    return SELF.pipe(str_int)
+
 # ! (str -> Map)
-def str_map(i: str) -> MutableMapping[str, int]: return {i: len(i)}
-def str_dict(_: str) -> FruitDescriptionsDict: return DICT_FRUIT_DESCRIPTIONS
+def str_map(i: str
+    ) -> MutableMapping[str, int]: return {i: len(i)}
+def _():
+    return SELF.pipe(str_map)
+def str_dict(_: str
+    ) -> _SelfDict: return SELF_DICT
+def _():
+    return SELF.pipe(str_dict)
+
 # ! (str -> Morph)
-def str_morph(_: str) -> FruitDescriptionsMorph: return MORPH_FRUIT_DESCRIPTIONS
-# ! (str -> FruitDescriptions)
-def str_self(_: str) -> FruitDescriptions: return FRUIT_DESCRIPTIONS
+def str_morph(_: str
+    ) -> Morph_: return SELF_MORPH
+def _():
+    return SELF.pipe(str_morph)
+
+# ! (str -> Self)
+def str_self(_: str
+    ) -> _Self: return SELF
+def _():
+    return SELF.pipe(str_self)
+
+# * MARK: ((*[K2, V2] -> R) -> R)
+
+# ! (UNANNOTATED -> str)
+def unk_str(i
+    ) -> str: return str(i)
+def _():
+    return SELF.pipe(unk_str)
+
+# ! (Any -> str)
+def any_str(i: Any
+    ) -> str: return str(i)
+def _():
+    return SELF.pipe(any_str)
+
+# ! (Map -> str)
+def map_str(i: _SelfMap
+    ) -> str: return str(i)
+def _():
+    return SELF.pipe(map_str)
+
+# ! (dict -> str)
+def dict_str(i: _SelfDict
+    ) -> str: return str(i)
+def _():
+    return SELF.pipe(dict_str)
+
+# ! (dict -> str)
+def otherdict_str(i: _OtherDict
+    ) -> str: return str(i)
+def _():
+    return SELF.pipe(otherdict_str)
+
+# ! (Morph -> str)
+def morph_str(i: Morph_
+    ) -> str: return str(i)
+def _():
+    return SELF.pipe(morph_str)
+
+# ! (Self -> str)
+def self_str(i: _Self
+    ) -> str: return str(i)
+def _():
+    return SELF.pipe(self_str)
+
 # ! Concrete subclasses are compatible with matching aliases, but not vice versa
-def str_aliased_desc_2(_: str) -> FruitDescriptionsMorph: return FRUIT_DESCRIPTIONS
-def str_desc_2(_: str) -> FruitDescriptions: return MORPH_FRUIT_DESCRIPTIONS  # type: ignore
+def str_aliased_desc_2(_: str
+    ) -> Morph_: return SELF
+def _():
+    return SELF.pipe(str_aliased_desc_2)
+def str_desc_2(_: str
+    ) -> _Self: return SELF_MORPH  # type: ignore
+def _():
+    return SELF.pipe(str_desc_2)
 # fmt: on
 StrTaking: TypeAlias = Callable[[str], Any]
 str_taking: list[StrTaking] = [
+    str_unk,
     str_any,
     str_int,
     str_map,
@@ -94,11 +181,11 @@ str_taking: list[StrTaking] = [
 with suppress(TypeError, ValidationError):
     for f in str_taking:
         # TODO: Should raise `TypeError`
-        v1 = FRUIT_DESCRIPTIONS.pipe(f)  # type: ignore
+        v1 = SELF.pipe(f)  # type: ignore
         # TODO: Should raise `ValidationError` after pipe due to invalid key type
-        v2 = FRUIT_DESCRIPTIONS.pipe_keys(f)
+        v2 = SELF.pipe_keys(f)
         # TODO: Should work
-        v3 = FRUIT_DESCRIPTIONS.pipe_values(f)
+        v3 = SELF.pipe_values(f)
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
@@ -106,7 +193,7 @@ with suppress(TypeError, ValidationError):
 def test_pipe_bad_annotation_raises(f: StrTaking):
     """Functions not taking maps raise `TypeError` when `pipe`d."""
     with pytest.raises(TypeError):
-        FRUIT_DESCRIPTIONS.pipe(f)
+        SELF.pipe(f)
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
@@ -114,38 +201,109 @@ def test_pipe_bad_annotation_raises(f: StrTaking):
 def test_pipe_bad_key_annotation_raises(f: StrTaking):
     """Functions taking improper keys raise `ValidationError` when `pipe_keys`ed."""
     with pytest.raises(TypeError):
-        FRUIT_DESCRIPTIONS.pipe_keys(f)
+        SELF.pipe_keys(f)
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
 @pytest.mark.parametrize("f", str_taking)
 def test_pipe_values(f: StrTaking):
     """Functions work when `pipe_values`ed."""
-    FRUIT_DESCRIPTIONS.pipe(f)
+    SELF.pipe(f)
 
 
 # * MARK: Define map-taking functions
 # fmt: off
-# ! (MutableMapping -> FruitDescriptions)
-def map_morph(i: MutableMapping[Fruit, str]) -> FruitDescriptionsMorph: return FruitDescriptionsMorph(i)
-def map_self(i: MutableMapping[Fruit, str]) -> FruitDescriptions: return FruitDescriptions(i)
-# ! (dict -> FruitDescriptions)
-def dict_morph(i: dict[Fruit, str]) -> FruitDescriptionsMorph: return FruitDescriptionsMorph(i)
-def dict_self(i: dict[Fruit, str]) -> FruitDescriptions: return FruitDescriptions(i)
-# ! (FruitDescriptionsMorph -> FruitDescriptions)
-def morph_morph(i: FruitDescriptionsMorph) -> FruitDescriptionsMorph: return FruitDescriptionsMorph(i)
-def morph_self(i: FruitDescriptionsMorph) -> FruitDescriptions: return FruitDescriptions(i)
-# ! (FruitDescriptions -> FruitDescriptions)
-def self_self(i: FruitDescriptions) -> FruitDescriptions: return i
-# ! (Map -> *UNANNOTATED*)
-def map_any(i: MutableMapping[Fruit, str]): return FruitDescriptionsMorph(i)
-def dict_any(i: dict[Fruit, str]): return FruitDescriptionsMorph(i)
-def morph_any(i: FruitDescriptionsMorph): return FruitDescriptionsMorph(i)
-def self_any(i: FruitDescriptions): return i
-# ! (FruitDescriptionsMorph -> FruitCounts)
-def morph1_self2(_: FruitDescriptionsMorph) -> FruitCounts: return FRUIT_COUNTS
-# ! (FruitDescriptions -> FruitCounts)
-def self1_self2(_: FruitDescriptions) -> FruitCounts: return FRUIT_COUNTS
+
+# ! (Map -> Unk)
+def map_unk(i: _SelfMap
+    ): return Morph_(i)
+def _():
+    return SELF.pipe(map_unk)
+def dict_unk(i: dict[Fruit, str]
+    ): return Morph_(i)
+def _():
+    return SELF.pipe(dict_unk)
+def morph_unk(i: Morph_
+    ): return Morph_(i)
+def _():
+    return SELF.pipe(morph_unk)
+def self_unk(i: _Self
+    ): return i
+def _():
+    return SELF.pipe(self_unk)
+
+# ! (Map -> Any)
+def map_any(i: _SelfMap
+    ) -> Any: return Morph_(i)
+def _():
+    return SELF.pipe(map_any)
+def dict_any(i: dict[Fruit, str]
+    ) -> Any: return Morph_(i)
+def _():
+    return SELF.pipe(dict_any)
+def morph_any(i: Morph_
+    ) -> Any: return Morph_(i)
+def _():
+    return SELF.pipe(morph_any)
+def self_any(i: _Self
+    ) -> Any: return i
+def _():
+    return SELF.pipe(self_any)
+
+# ! (MutableMapping -> Morph)
+def map_morph(i: _SelfMap
+    ) -> Morph_: return Morph_(i)
+def _():
+    return SELF.pipe(map_morph)
+def map_self(i: _SelfMap
+    ) -> _Self: return _Self(i)
+def _():
+    return SELF.pipe(map_self)
+
+# ! (dict -> Self)
+def dict_morph(i: dict[Fruit, str]
+    ) -> Morph_: return Morph_(i)
+def _():
+    return SELF.pipe(dict_morph)
+def dict_self(i: dict[Fruit, str]
+    ) -> _Self: return _Self(i)
+def _():
+    return SELF.pipe(dict_self)
+
+# ! (Morph -> Self)
+def morph_morph(i: Morph_
+    ) -> Morph_: return Morph_(i)
+def _():
+    return SELF.pipe(morph_morph)
+def morph_self(i: Morph_
+    ) -> _Self: return _Self(i)
+def _():
+    return SELF.pipe(morph_self)
+
+# ! (Self -> Self)
+def self_self(i: _Self
+    ) -> _Self: return i
+def _():
+    return SELF.pipe(self_self)
+
+# ! (Morph -> Other)
+def morph1_self2(_: Morph_
+    ) -> _Other: return OTHER
+def _():
+    return SELF.pipe(morph1_self2)
+
+# ! (Self -> Other)
+def self1_self2(_: _Self
+    ) -> _Other: return OTHER
+def _():
+    return SELF.pipe(self1_self2)
+
+# ! (Self -> Other)
+def other_dict(_: _GenericMorph[Fruit, int]
+    ) -> _SelfDict: return SELF_DICT
+def _():
+    return SELF.pipe(other_dict)
+
 # fmt: on
 AnyTaking: TypeAlias = Callable[..., Any]
 map_taking: list[AnyTaking] = [
@@ -169,16 +327,16 @@ map_taking: list[AnyTaking] = [
 with suppress(TypeError, ValidationError):
     for f in map_taking:
         # TODO: Should work
-        v10 = FRUIT_DESCRIPTIONS.pipe(f)
+        v10 = SELF.pipe(f)
         # TODO: Should raise `TypeError`
-        v11 = FRUIT_DESCRIPTIONS.pipe_keys(f)  # type: ignore
-        v12 = FRUIT_DESCRIPTIONS.pipe_values(f)  # type: ignore
+        v11 = SELF.pipe_keys(f)  # type: ignore
+        v12 = SELF.pipe_values(f)  # type: ignore
 
 
 @pytest.mark.parametrize("f", map_taking)
 def test_pipe_works(f: AnyTaking):
     """Functions work when `pipe`d."""
-    FRUIT_DESCRIPTIONS.pipe(f)
+    SELF.pipe(f)
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
@@ -186,7 +344,7 @@ def test_pipe_works(f: AnyTaking):
 def test_pipe_map_key_raises(f: AnyTaking):
     """Functions taking maps raise `TypeError` when `pipe_keys`ed."""
     with pytest.raises(TypeError):
-        FRUIT_DESCRIPTIONS.pipe_keys(f)
+        SELF.pipe_keys(f)
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
@@ -194,4 +352,4 @@ def test_pipe_map_key_raises(f: AnyTaking):
 def test_pipe_map_value_raises(f: AnyTaking):
     """Functions taking maps raise `TypeError` when `pipe_values`ed."""
     with pytest.raises(TypeError):
-        FRUIT_DESCRIPTIONS.pipe(f)
+        SELF.pipe(f)
