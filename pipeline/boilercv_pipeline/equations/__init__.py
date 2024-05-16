@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from hashlib import sha512
 from typing import (
     Any,
+    ClassVar,
     Generic,
     NamedTuple,
     ParamSpec,
@@ -89,8 +90,10 @@ class Morph(  # noqa: PLR0904
 ):
     """Type-checked, generic, morphable mapping."""
 
-    model_config = ConfigDict(strict=True, frozen=True)
+    model_config: ClassVar = ConfigDict(strict=True, frozen=True)
     """Root configuration, merged with subclass configs."""
+    registered_morphs: ClassVar[list[Morph[Any, Any]] | None] = None
+    """Pipeline outputs not matching this model will attempt to match these."""
     root: MutableMapping[K, V] = Field(default_factory=dict)
     """Type-checked dictionary as the root data."""
 
@@ -170,6 +173,11 @@ class Morph(  # noqa: PLR0904
         if Types(k, v) == self.get_inner_types():
             try:
                 return self.model_validate(result)
+            except ValidationError:
+                pass
+        for morph in self.registered_morphs or []:
+            try:
+                return morph.model_validate(result)
             except ValidationError:
                 pass
         base = previous_base = self
