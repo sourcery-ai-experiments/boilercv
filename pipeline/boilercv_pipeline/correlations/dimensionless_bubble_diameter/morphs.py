@@ -1,12 +1,13 @@
 """Morphs."""
 
-from collections.abc import Sequence
+from collections.abc import Iterable
 from re import sub
 from string import whitespace
 from typing import Any, ClassVar, Generic, Self
 
 from pydantic import model_validator
 from pydantic_core import PydanticUndefinedType
+from typing_extensions import TypedDict
 
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
     Expr,
@@ -17,19 +18,18 @@ from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
     Sym,
     V,
     kinds,
-    syms,
 )
 from boilercv_pipeline.equations import Morph
 
 
-def replace(i: dict[K, str], repls: Sequence[Repl[K]]) -> dict[K, str]:
+def replace(i: dict[K, str], repls: Iterable[Repl[K]]) -> dict[K, str]:
     """Make replacements from `Repl`s."""
     for r in repls:
         i[r.dst] = i[r.src].replace(r.find, r.repl)
     return i
 
 
-def regex_replace(i: dict[K, str], repls: Sequence[Repl[K]]) -> dict[K, str]:
+def regex_replace(i: dict[K, str], repls: Iterable[Repl[K]]) -> dict[K, str]:
     """Make regex replacements."""
     for r in repls:
         i[r.dst] = sub(r.find, r.repl, i[r.src])
@@ -74,7 +74,7 @@ class Forms(DefaultMorph[Kind, str]):
         return self.model_construct(
             replace(
                 dict(self),
-                tuple(
+                (
                     FormsRepl(src=kind, dst=kind, find=find, repl=" ")
                     for find in whitespace
                     for kind in kinds
@@ -85,11 +85,20 @@ class Forms(DefaultMorph[Kind, str]):
 
 DefaultMorph.register(Forms)
 
+solve_syms: tuple[Sym, ...] = ("Fo_0", "beta")
 
-class Solns(DefaultMorph[Sym, list[Expr]]):
+
+class Soln(TypedDict):
+    """All solutions."""
+
+    solutions: list[Expr]
+    warnings: list[str]
+
+
+class Solns(DefaultMorph[Sym, Soln]):
     """Solution forms."""
 
-    default_keys: ClassVar = syms
+    default_keys: ClassVar[tuple[Sym, ...]] = solve_syms
     default_factory: ClassVar = list
 
 

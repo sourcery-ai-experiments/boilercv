@@ -41,11 +41,13 @@ Param: TypeAlias = Literal[
     "pi",
 ]
 """Parameter."""
+JsonStrPlainSerializer = PlainSerializer(
+    lambda v: str(v), return_type=str, when_used="json"
+)
+"""Serializer that stringifies values only when serializing to JSON."""
 Expectation: TypeAlias = (
     float
-    | Annotated[
-        NDArray[float64], PlainValidator(lambda v: v), PlainSerializer(lambda v: str(v))
-    ]
+    | Annotated[NDArray[float64], PlainValidator(lambda v: v), JsonStrPlainSerializer]
 )
 """Expected result."""
 syms: tuple[Sym, ...] = get_args(Sym)
@@ -64,6 +66,6 @@ def validate_expr(v: Basic):
 
 
 Expr: TypeAlias = Annotated[
-    Basic, PlainValidator(validate_expr), PlainSerializer(lambda v: str(v))
+    Basic, PlainValidator(validate_expr), JsonStrPlainSerializer
 ]
 """Expression."""

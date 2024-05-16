@@ -14,12 +14,12 @@ local_dict = dict(zip(syms, symbols(syms), strict=True))
 
 
 def main():  # noqa: D103
-    for expression in tqdm(EQUATIONS):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
-        eq = expression.forms.sympy
+    for expression in tqdm(EQUATIONS.values()):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+        eq = expression["sympy"]
         if not eq:
             continue
         eq = eq.strip().replace("\n", "").replace("    ", "")
-        if expression.forms.python:
+        if expression["python"]:
             continue
         for symbol, sub in SYMPY_SUBS.items():
             eq = eq.replace(symbol, sub)

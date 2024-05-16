@@ -150,7 +150,7 @@ class Morph(  # noqa: PLR0904
         own_types = self.get_inner_types()
         if isinstance(result, self.get_cls()):
             return self.validate_nearest(result, *own_types)
-        return_hint: None | type[Morph] = get_type_hints(f).get("return")
+        return_hint: None | type[Morph[Any, Any]] = get_type_hints(f).get("return")
         if not isinstance(result, Mapping) or (not return_hint and not len(result)):
             return result
         if not return_hint:
@@ -178,14 +178,14 @@ class Morph(  # noqa: PLR0904
             except ValidationError:
                 pass
         for morph in self.registered_morphs:
-            meta = morph.__pydantic_generic_metadata__
+            meta = morph.__pydantic_generic_metadata__  # pyright: ignore[reportAttributeAccessIssue]
             concrete = not meta["origin"]
             if not concrete:
                 morph_k, morph_v = meta["args"]
                 k = k if isinstance(morph_k, TypeVar) else morph_k
                 v = v if isinstance(morph_v, TypeVar) else morph_v
             try:
-                return morph(result) if concrete else morph[k, v](result)
+                return morph(result) if concrete else morph[k, v](result)  # pyright: ignore[reportIndexIssue]
             except ValidationError:
                 pass
         base = previous_base = self

@@ -75,9 +75,9 @@ def convert(
     i: Forms, interpreter: Path, script: Path, latex: Kind, symbolic: Kind
 ) -> Forms:
     """Convert LaTeX equation to SymPy equation."""
-    sanitized_latex = regex_replace(
-        i,
-        tuple(
+    sanitized_latex = i.pipe(
+        regex_replace,
+        (
             FormsRepl(src=latex, dst=latex, find=find, repl=repl)
             for find, repl in {r"\\left\(": "(", r"\\right\)": ")"}.items()
         ),
@@ -112,8 +112,8 @@ def remove_symbolically_equiv(i: Forms, orig: Forms, symbolic: Kind) -> Forms:
     eq = i.get(symbolic)
     if not old_eq or not eq:
         return i
-    old = sympify(old_eq, locals=LOCALS, evaluate=False)
-    new = sympify(eq, locals=LOCALS, evaluate=False)
+    old = sympify(old_eq, locals=LOCALS.model_dump(), evaluate=False)
+    new = sympify(eq, locals=LOCALS.model_dump(), evaluate=False)
     compare = (old.lhs - old.rhs) - (new.lhs - new.rhs)
     if compare == 0:
         # ? Equations compare equal without simplifying
@@ -124,7 +124,7 @@ def remove_symbolically_equiv(i: Forms, orig: Forms, symbolic: Kind) -> Forms:
         # ? Equations compare equal after simplifying
         i.pop(symbolic)
         return i
-    compare = compare.evalf(subs=dict.fromkeys(LOCALS, 1))
+    compare = compare.evalf(subs=dict.fromkeys(LOCALS, 0.1))
     if complex(compare).real < finfo(float).eps:
         # ? Equations compare equal within machine after unit substitution
         i.pop(symbolic)

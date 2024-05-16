@@ -27,6 +27,8 @@ EQUATIONS_TOML = Path(__file__).with_suffix(".toml")
 """TOML file with equations."""
 EXPECTATIONS_TOML = Path(__file__).with_name("expectations.toml")
 """TOML file with equations."""
+SOLUTIONS_TOML = Path(__file__).with_name("solutions.toml")
+"""TOML file with solutions."""
 EXPECTATIONS = loads(EXPECTATIONS_TOML.read_text("utf-8"))
 """Expected results for the response of each correlation to `KWDS`."""
 MAKE_RAW = {'"': "'", r"\\": "\\"}
@@ -38,7 +40,7 @@ LATEX_REPLS = tuple(
 """Replacements to make after parsing LaTeX from PNGs."""
 PARAMS = Morph[Param, Sym](dict(zip(params, syms, strict=True)))
 """Parameters."""
-SYMBOLS = symbols(list(PARAMS.values()))
+SYMBOLS = symbols(list(PARAMS.values()), nonnegative=True, real=True, finite=True)
 """Symbols."""
 LOCALS = Morph[Sym, Expr](dict(zip(syms, SYMBOLS, strict=False)))
 """Local variables for sympyfying."""
@@ -70,7 +72,7 @@ def set_equation_forms(i: Forms) -> Forms:
     """Set equation forms."""
     i = i.pipe(
         replace,
-        tuple(
+        (
             FormsRepl(src="sympy", dst="sympy", find=find, repl=repl)
             for find, repl in {"{o}": "0", "{bo}": "b0"}.items()
         ),
@@ -79,7 +81,7 @@ def set_equation_forms(i: Forms) -> Forms:
         return i
     return i.pipe(
         regex_replace,
-        tuple(
+        (
             FormsRepl(src="sympy", dst="sympy", find=find, repl=repl)
             for sym in LOCALS
             for find, repl in {
@@ -121,9 +123,9 @@ LATEX_PARAMS = {
         )
     )
     for name, param in {
-        "bubble_initial_reynolds": Forms({"latex": r"\Re_\bo"}),
-        "bubble_jakob": Forms({"latex": r"\Ja"}),
         "bubble_fourier": Forms({"latex": r"\Fo_\o"}),
+        "bubble_jakob": Forms({"latex": r"\Ja"}),
+        "bubble_initial_reynolds": Forms({"latex": r"\Re_\bo"}),
         **{n: Forms({"latex": f"\\{n}"}) for n in ["beta", "pi"]},
     }.items()
 }
