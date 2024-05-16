@@ -20,6 +20,7 @@ from typing import (
 )
 
 from pydantic import ConfigDict, Field, RootModel, ValidationError
+from pydantic.root_model import _RootModelMetaclass
 
 T = TypeVar("T", contravariant=True)
 R = TypeVar("R", covariant=True)
@@ -92,7 +93,7 @@ class Morph(  # noqa: PLR0904
 
     model_config: ClassVar = ConfigDict(strict=True, frozen=True)
     """Root configuration, merged with subclass configs."""
-    registered_morphs: ClassVar[list[Morph[Any, Any]] | None] = None
+    registered_morphs: ClassVar[list[_RootModelMetaclass]] = []
     """Pipeline outputs not matching this model will attempt to match these."""
     root: MutableMapping[K, V] = Field(default_factory=dict)
     """Type-checked dictionary as the root data."""
@@ -146,38 +147,45 @@ class Morph(  # noqa: PLR0904
         """Pipe."""
         with (copy := self.model_copy()).thaw():
             result = f(copy, *args, **kwds)
+        own_types = self.get_inner_types()
         if isinstance(result, self.get_cls()):
-            return self.model_validate(result)
-        return_hint = get_type_hints(f).get("return")
+            return self.validate_nearest(result, *own_types)
+        return_hint: None | type[Morph] = get_type_hints(f).get("return")
         if not isinstance(result, Mapping) or (not return_hint and not len(result)):
             return result
         if not return_hint:
             first_key, first_value = next(iter(result.items()))
-            return self.model_nearest_valid(result, type(first_key), type(first_value))
+            return self.validate_nearest(result, type(first_key), type(first_value))
         if len(hints := get_args(return_hint)) == 2:
             hint_k, hint_v = hints
-            self_k, self_v = self.get_inner_types()
-            return self.model_nearest_valid(
+            self_k, self_v = own_types
+            return self.validate_nearest(
                 result,
                 self_k if isinstance(hint_k, TypeVar) else hint_k,
                 self_v if isinstance(hint_v, TypeVar) else hint_v,
             )
         if issubclass(return_hint, self.get_base()):
-            return self.model_nearest_valid(result, *return_hint.get_inner_types())
+            return self.validate_nearest(result, *return_hint.get_inner_types())
         return result
 
-    def model_nearest_valid(
+    def validate_nearest(
         self, result: Self | Mapping[Any, Any], k: type, v: type
     ) -> Self | Mapping[Any, Any]:
-        """Try returning validated mapping from parent models."""
+        """Try validating against own, registered, or parent models, or just return."""
         if Types(k, v) == self.get_inner_types():
             try:
                 return self.model_validate(result)
             except ValidationError:
                 pass
-        for morph in self.registered_morphs or []:
+        for morph in self.registered_morphs:
+            meta = morph.__pydantic_generic_metadata__
+            concrete = not meta["origin"]
+            if not concrete:
+                morph_k, morph_v = meta["args"]
+                k = k if isinstance(morph_k, TypeVar) else morph_k
+                v = v if isinstance(morph_v, TypeVar) else morph_v
             try:
-                return morph.model_validate(result)
+                return morph(result) if concrete else morph[k, v](result)
             except ValidationError:
                 pass
         base = previous_base = self
@@ -280,6 +288,11 @@ class Morph(  # noqa: PLR0904
         cls.model_config = original | ConfigDict(frozen=False)
         yield
         cls.model_config = original
+
+    @classmethod
+    def register(cls, model: type[Morph[Any, Any]]):
+        """Register the model."""
+        cls.registered_morphs.append(model)
 
     # `MutableMapping` methods adapted from `collections.UserDict`, but with `data`
     # replaced by `root`and `hasattr` guard changed to equivalent `getattr(..., None)`

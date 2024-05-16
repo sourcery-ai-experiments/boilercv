@@ -39,7 +39,6 @@ def regex_replace(i: dict[K, str], repls: Sequence[Repl[K]]) -> dict[K, str]:
 class DefaultMorph(Morph[K, V], Generic[K, V]):
     """Morph with default values."""
 
-    registered_morphs: ClassVar[list[Morph[Any, Any]] | None] = None
     default_keys: ClassVar[tuple[Any, ...]] = ()
     """Default keys."""
     default: ClassVar = None
@@ -84,8 +83,14 @@ class Forms(DefaultMorph[Kind, str]):
         )
 
 
+DefaultMorph.register(Forms)
+
+
 class Solns(DefaultMorph[Sym, list[Expr]]):
     """Solution forms."""
 
     default_keys: ClassVar = syms
     default_factory: ClassVar = list
+
+
+DefaultMorph.register(Solns)

@@ -19,14 +19,16 @@ from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations impo
     LOCALS,
     MAKE_RAW,
     FormsRepl,
-    K,
-    Kind,
-    V,
     set_equation_forms,
 )
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import (
     Forms,
     regex_replace,
+)
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
+    K,
+    Kind,
+    V,
 )
 from boilercv_pipeline.equations import Morph
 
