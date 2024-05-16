@@ -7,11 +7,11 @@
 debugpy==1.8.1
 fawltydeps==0.15.0
 flit==3.9.0
-keyring==25.1.0
+keyring==25.2.1
 pandas-stubs~=2.2.0
-pre-commit==3.7.0
-pyright==1.1.360
-ruff==0.4.1
+pre-commit==3.7.1
+pyright==1.1.363
+ruff==0.4.4
 snakeviz==2.2.0
-sourcery==1.16.0
+sourcery==1.18.0
 towncrier==23.11.0
