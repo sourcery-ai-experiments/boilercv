@@ -2,25 +2,24 @@
 
 from __future__ import annotations
 
-from collections.abc import Hashable, Mapping, MutableMapping
+from collections.abc import Callable, Hashable, Mapping, MutableMapping
 from contextlib import contextmanager
 from hashlib import sha512
-from inspect import get_annotations
-from types import GenericAlias
+from itertools import chain
 from typing import (
     Any,
     Generic,
     NamedTuple,
-    Never,
     ParamSpec,
     Protocol,
     Self,
     TypeVar,
     get_args,
+    get_type_hints,
     overload,
 )
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import ConfigDict, Field, RootModel, ValidationError
 
 T = TypeVar("T", contravariant=True)
 R = TypeVar("R", covariant=True)
@@ -31,9 +30,20 @@ class TypeType(Protocol[T, R, P]):  # noqa: D101
     def __call__(self, i: T, /, *args: P.args, **kwds: P.kwargs) -> R: ...  # noqa: D102
 
 
-AnyTypeType = TypeType[Any, Any, Any]
 K = TypeVar("K", bound=Hashable)
 V = TypeVar("V")
+
+
+class TypeMap(Protocol[T, K, V, P]):  # noqa: D101
+    def __call__(  # noqa: D102
+        self, i: T, /, *args: P.args, **kwds: P.kwargs
+    ) -> MutableMapping[K, V]: ...
+
+
+class TypeDict(Protocol[T, K, V, P]):  # noqa: D101
+    def __call__(  # noqa: D102
+        self, i: T, /, *args: P.args, **kwds: P.kwargs
+    ) -> dict[K, V]: ...
 
 
 class MapType(Protocol[K, V, R, P]):  # noqa: D101
@@ -42,7 +52,12 @@ class MapType(Protocol[K, V, R, P]):  # noqa: D101
     ) -> R: ...
 
 
-AnyMapType = MapType[Any, Any, Any, Any]
+class DictType(Protocol[K, V, R, P]):  # noqa: D101
+    def __call__(  # noqa: D102
+        self, i: dict[K, V], /, *args: P.args, **kwds: P.kwargs
+    ) -> R: ...
+
+
 RK = TypeVar("RK", bound=Hashable)
 RV = TypeVar("RV")
 
@@ -53,7 +68,12 @@ class MapMap(Protocol[K, V, RK, RV, P]):  # noqa: D101
     ) -> MutableMapping[RK, RV]: ...
 
 
-AnyMapMap = MapMap[Any, Any, Any, Any, Any]
+class DictDict(Protocol[K, V, RK, RV, P]):  # noqa: D101
+    def __call__(  # noqa: D102
+        self, i: dict[K, V], /, *args: P.args, **kwds: P.kwargs
+    ) -> dict[RK, RV]: ...
+
+
 KT = TypeVar("KT", bound=type)
 VT = TypeVar("VT", bound=type)
 
@@ -79,91 +99,180 @@ class Morph(  # noqa: PLR0904
     def pipe(
         self, f: MapMap[K, V, K, V, P], /, *args: P.args, **kwds: P.kwargs
     ) -> Self: ...
+    @overload
+    def pipe(
+        self, f: DictDict[K, V, K, V, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Self: ...
+    # ! ((Self -> [K, V]) -> Self)
+    @overload
+    def pipe(
+        self, f: TypeMap[Self, K, V, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Self: ...
+    @overload
+    def pipe(
+        self, f: TypeDict[Self, K, V, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Self: ...
+    # ! ((Self -> [RK, RV]) -> Morph[RK, RV])
+    @overload
+    def pipe(
+        self, f: TypeMap[Self, RK, RV, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, RV]: ...
+    @overload
+    def pipe(
+        self, f: TypeDict[Self, RK, RV, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, RV]: ...
     # ! (([K, V] -> R) -> R)
     @overload
     def pipe(self, f: MapType[K, V, R, P], /, *args: P.args, **kwds: P.kwargs) -> R: ...
+    @overload
+    def pipe(
+        self, f: DictType[K, V, R, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> R: ...
     # ! ((Self -> R) -> R)
     @overload
     def pipe(
         self, f: TypeType[Self, R, P], /, *args: P.args, **kwds: P.kwargs
     ) -> R: ...
-    # ! ((Any -> Any) -> Never)
-    @overload
-    def pipe(
-        self, f: TypeType[Any, Any, P], /, *args: P.args, **kwds: P.kwargs
-    ) -> Never: ...
-    def pipe(self, f: (AnyMapMap | AnyMapType | AnyTypeType), /, *args, **kwds):
+    # ! ((Any -> Any) -> Any)
+    def pipe(self, f: TypeType[Any, Any, P], /, *args: P.args, **kwds: P.kwargs):
         """Pipe."""
-        self.get_cls()
-        copy = self.model_copy()
-        with copy.thaw():
+        with (copy := self.model_copy()).thaw():
             result = f(copy, *args, **kwds)
-        k, v = self.get_result_types(f, result)
-        kc, vc = self.get_inner_types()
-        if k is kc and v is vc:
+        if isinstance(result, self.get_cls()):
             return self.model_validate(result)
-        return self.get_base()[k, v](result)
-
-    def pipe_keys(self, f, *args, **kwds):
-        """Pipe, morphing each key."""
-        keys = [f(key, *args, **kwds) for key in self.keys()]
-        result = dict(zip(keys, self.values(), strict=False))
-        k, v = self.get_inner_types()
-        k = self.get_inner_result_type(f, keys) or k
-        cls = self.get_cls()
-        kc, vc = cls.get_inner_types()
-        if k is kc and v is vc:
-            return cls(result)
-        return self.get_base()[k, v](result)
-
-    def pipe_values(self, f, *args, **kwds):
-        """Pipe, morphing each value."""
-        values = [f(val, *args, **kwds) for val in self.values()]
-        result = dict(zip(self.keys(), values, strict=False))
-        k, v = self.get_inner_types()
-        v = self.get_inner_result_type(f, values) or v
-        cls = self.get_cls()
-        kc, vc = cls.get_inner_types()
-        if k is kc and v is vc:
-            return cls(result)
-        return self.get_base()[k, v](result)
-
-    # TODO: Generalize to other entire overloaded union of allowed types
-    def get_result_types(self, f, result):
-        """Get morphed types of keys and values."""
-        annotations = get_annotations(f, eval_str=True)
-        return_types: None | GenericAlias | type[Self] = annotations.get("return")
-        self_types = self.get_inner_types()
-        if return_types is None and not len(result):
-            return self_types
-        if return_types is None:
+        return_hint = get_type_hints(f).get("return")
+        if not isinstance(result, Mapping) or (not return_hint and not len(result)):
+            return result
+        if not return_hint:
             first_key, first_value = next(iter(result.items()))
-            return Types(type(first_key), type(first_value))
-        if isinstance(return_types, GenericAlias):
-            typed_returns = get_args(return_types)
-            ret_k, ret_v = Types(*typed_returns)
-            self_k, self_v = Types(*self_types)
-            return Types(
-                self_k if isinstance(ret_k, TypeVar) else ret_k,
-                self_v if isinstance(ret_v, TypeVar) else ret_v,
+            return self.model_nearest_valid(result, type(first_key), type(first_value))
+        if len(hints := get_args(return_hint)) == 2:
+            hint_k, hint_v = hints
+            self_k, self_v = self.get_inner_types()
+            return self.model_nearest_valid(
+                result,
+                self_k if isinstance(hint_k, TypeVar) else hint_k,
+                self_v if isinstance(hint_v, TypeVar) else hint_v,
             )
-        if issubclass(return_types, self.get_base()):
-            return return_types.get_inner_types()
-        raise TypeError(f"Unsupported return type: {return_types}")
+        if issubclass(return_hint, self.get_base()):
+            return self.model_nearest_valid(result, *return_hint.get_inner_types())
+        return result
 
-    # TODO: Generalize to other entire overloaded union of allowed types
-    def get_inner_result_type(self, f, result):
+    # ! ((Any -> [RK, RV]) -> Morph[RK, RV])
+    @overload
+    def pipe_keys(
+        self, f: TypeMap[list[K], RK, RV, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, RV]: ...
+    @overload
+    def pipe_keys(
+        self, f: TypeDict[list[K], RK, RV, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, RV]: ...
+    # ! ((K -> K) -> Self)
+    @overload
+    def pipe_keys(
+        self, f: TypeType[list[K], list[K], P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Self: ...
+    # ! ((K -> RK) -> Morph[RK, V])
+    @overload
+    def pipe_keys(
+        self, f: TypeType[list[K], RK, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, V]: ...
+    def pipe_keys(self, f: TypeType[Any, Any, P], /, *args: P.args, **kwds: P.kwargs):
+        """Pipe, morphing each key."""
+        return self.model_inner_nearest_valid(
+            f=f, keys=f(list(self.keys()), *args, **kwds)
+        )
+
+    # ! ((Any -> [RK, RV]) -> Morph[RK, RV])
+    @overload
+    def pipe_values(
+        self, f: TypeMap[list[V], RK, RV, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, RV]: ...
+    @overload
+    def pipe_values(
+        self, f: TypeDict[list[V], RK, RV, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[RK, RV]: ...
+    # ! ((V -> V) -> Self)
+    @overload
+    def pipe_values(
+        self, f: TypeType[list[V], list[V], P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Self: ...
+    # ! ((V -> RV) -> Morph[K, RV])
+    @overload
+    def pipe_values(
+        self, f: TypeType[list[V], RV, P], /, *args: P.args, **kwds: P.kwargs
+    ) -> Morph[K, RV]: ...
+    def pipe_values(self, f: TypeType[Any, Any, P], /, *args: P.args, **kwds: P.kwargs):
+        """Pipe, morphing each key."""
+        return self.model_inner_nearest_valid(
+            f=f, vals=f(list(self.values()), *args, **kwds)
+        )
+
+    def model_inner_nearest_valid(
+        self,
+        f: Callable[..., Any],
+        keys: list[Any] | None = None,
+        vals: list[Any] | None = None,
+    ):
         """Get morphed type of keys or values."""
-        annotations = get_annotations(f, eval_str=True)
-        return_type: None | TypeVar | type = annotations.get("return")
-        if return_type is None and not len(result):
-            raise ValueError("Cannot infer return type from empty mapping.")
-        if return_type is None:
-            first = next(iter(result))
-            return type(first)
-        if not return_type:
-            return None
-        return None if isinstance(return_type, TypeVar) else return_type
+        self_k, self_v = self.get_inner_types()
+        return_hint = get_type_hints(f).get("return")
+        if return_hint:
+            if isinstance(return_hint, TypeVar):
+                return self.model_nearest_valid(
+                    self.compose(keys, vals), self_k, self_v
+                )
+            hints = get_args(return_hint)
+            if len(hints) == 1:
+                hint_t = hints[0]
+                return self.model_nearest_valid(
+                    self.compose(keys, vals),
+                    *((hint_t, self_v) if keys else (self_k, hint_t)),
+                )
+            if len(hints) == 2:
+                hint_k, hint_v = hints
+                self_k, self_v = self.get_inner_types()
+                maps = keys or vals
+                if not maps:
+                    raise ValueError("No keys or values to morph.")
+                result = self.compose(
+                    list(chain.from_iterable([list(e.keys()) for e in maps])),
+                    list(chain.from_iterable([list(e.values()) for e in maps])),
+                )
+                return self.model_nearest_valid(
+                    result,
+                    self_k if isinstance(hint_k, TypeVar) else hint_k,
+                    self_v if isinstance(hint_v, TypeVar) else hint_v,
+                )
+        result = self.compose(keys, vals)
+        if not return_hint and not len(result):
+            return self.model_nearest_valid(result, self_k, self_v)
+        if not return_hint:
+            first_t = type(next(iter(result)))
+            return self.model_nearest_valid(
+                result, *((first_t, self_v) if keys else (self_k, first_t))
+            )
+        raise ValueError("Not sure.")
+
+    def model_nearest_valid(self, result, k, v) -> Morph[Any, Any] | None:
+        """Try returning validated mapping from parent models."""
+        if Types(k, v) == self.get_inner_types():
+            try:
+                return self.model_validate(result)
+            except ValidationError:
+                pass
+        base = previous_base = self
+        while (base := base.get_parent()) is not previous_base:
+            try:
+                return base[k, v](result)
+            except ValidationError:
+                previous_base = base
+                continue
+        return result
+
+    def compose(self, keys: list[Any] | None, vals: list[Any] | None):
+        """Compose a dictionary from keys and values."""
+        return dict(zip(keys or self.keys(), vals or self.values(), strict=True))
 
     def __hash__(self):
         # ? https://github.com/pydantic/pydantic/issues/1303#issuecomment-2052395207
@@ -179,9 +288,17 @@ class Morph(  # noqa: PLR0904
         return f"{self.get_cls().__name__}({self.root})"
 
     @classmethod
-    def get_base(cls):
+    def get_base(cls) -> type[Morph[Any, Any]]:
         """Get base model class."""
-        return super().__thisclass__  # pyright: ignore[reportAttributeAccessIssue]
+        base = previous_base = cls
+        while (base := base.get_parent()) is not previous_base:
+            previous_base = base
+        return base  # pyright: ignore[reportReturnType]
+
+    @classmethod
+    def get_parent(cls) -> Morph[Any, Any]:
+        """Get parent model class."""
+        return cls.__pydantic_generic_metadata__["origin"] or super().__thisclass__  # pyright: ignore[reportAttributeAccessIssue, reportReturnType]
 
     @classmethod
     def get_cls(cls) -> Any:  # Type inference is incorrect

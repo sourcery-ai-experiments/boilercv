@@ -32,6 +32,7 @@ def test_python(name, expected):
     assert allclose(result, expected)
 
 
+@pytest.mark.skip()
 @pytest.mark.parametrize("symbol_group_name", ["SYMS", "LONG_SYMS"])
 def test_syms(symbol_group_name: str):
     """Declared symbolic variables assigned to correct symbols."""

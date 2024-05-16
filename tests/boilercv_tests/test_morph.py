@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from collections.abc import Callable, Hashable, MutableMapping
 from contextlib import suppress
-from typing import Any, Generic, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias
 
 import pytest
-from boilercv_pipeline.equations import K, Morph, V
+from boilercv_pipeline.equations import K, Morph, TypeType, V
 from pydantic import ValidationError
 
 # TODO: Implement existing behavior outlined here
 # TODO: After that's working, also handle nested mappings
 
-SKIP = True
+SKIP = False
 REASON = "Mixed pass/fail parametrized test. Will implement functionality later."
 
 
@@ -28,10 +28,9 @@ SELF_DICT: _SelfDict = {"apple": "delicious"}
 _OtherDict: TypeAlias = dict[Fruit, int]
 OTHER_DICT: _OtherDict = dict.fromkeys(FRUIT, 0)
 # fmt: on
-# fmt: off
 
 # * MARK: Concrete morphs
-
+# fmt: off
 # ! Descriptions
 Morph_: TypeAlias = Morph[Fruit, str]
 SELF_MORPH = Morph_(SELF_DICT)
@@ -44,11 +43,10 @@ OTHER_MORPH = _OtherMorph(OTHER_DICT)
 class _Other(_OtherMorph): ...
 OTHER = _Other(OTHER_DICT)
 # fmt: on
-# fmt: off
 
 
 # * MARK: Generic morphs and concrete morphs based on generic morph
-
+# fmt: off
 # ! Note that `TypeAlias`es cannot be `Generic`, e.g. they don't support `TypeVar`s.
 class _GenericMorph(Morph[K, V], Generic[K, V]): ...
 GENERIC_MORPH = _GenericMorph(ANY_MAP)
@@ -65,50 +63,49 @@ SUB_OTHER_MORPH = _SubOtherMorph(OTHER_DICT)
 class _SubOther(_SubOtherMorph): ...
 SUB_OTHER = _SubOther(OTHER_DICT)
 # fmt: on
+
+
+# * MARK: ((Any -> Any) -> Any)
 # fmt: off
-
-
-# * MARK: ((Any -> Any) -> Never)
-
 # ! (str -> UNANNOTATED)
 def str_unk(i: str
     ): return len(i)
 def _():
-    return SELF.pipe(str_unk)
+    return SELF.pipe(str_unk)  # type: ignore
 
 # ! (str -> Any)
 def str_any(i: str
     ) -> Any: return len(i)
 def _():
-    return SELF.pipe(str_any)
+    return SELF.pipe(str_any)  # type: ignore
 
 # ! (str -> int)
 def str_int(i: str
     ) -> int: return len(i)
 def _():
-    return SELF.pipe(str_int)
+    return SELF.pipe(str_int)  # type: ignore
 
 # ! (str -> Map)
 def str_map(i: str
     ) -> MutableMapping[str, int]: return {i: len(i)}
 def _():
-    return SELF.pipe(str_map)
+    return SELF.pipe(str_map)  # type: ignore
 def str_dict(_: str
     ) -> _SelfDict: return SELF_DICT
 def _():
-    return SELF.pipe(str_dict)
+    return SELF.pipe(str_dict)  # type: ignore
 
 # ! (str -> Morph)
 def str_morph(_: str
     ) -> Morph_: return SELF_MORPH
 def _():
-    return SELF.pipe(str_morph)
+    return SELF.pipe(str_morph)  # type: ignore
 
 # ! (str -> Self)
 def str_self(_: str
     ) -> _Self: return SELF
 def _():
-    return SELF.pipe(str_self)
+    return SELF.pipe(str_self)  # type: ignore
 
 # * MARK: ((*[K2, V2] -> R) -> R)
 
@@ -136,11 +133,11 @@ def dict_str(i: _SelfDict
 def _():
     return SELF.pipe(dict_str)
 
-# ! (dict -> str)
+# ! (otherdict -> str)
 def otherdict_str(i: _OtherDict
     ) -> str: return str(i)
 def _():
-    return SELF.pipe(otherdict_str)
+    return SELF.pipe(otherdict_str)  # type: ignore
 
 # ! (Morph -> str)
 def morph_str(i: Morph_
@@ -158,57 +155,86 @@ def _():
 def str_aliased_desc_2(_: str
     ) -> Morph_: return SELF
 def _():
-    return SELF.pipe(str_aliased_desc_2)
+    return SELF.pipe(str_aliased_desc_2)  # type: ignore
 def str_desc_2(_: str
     ) -> _Self: return SELF_MORPH  # type: ignore
 def _():
-    return SELF.pipe(str_desc_2)
+    return SELF.pipe(str_desc_2)  # type: ignore
+
 # fmt: on
+
+# * MARK: Test string-taking functions
+
+Pipe: TypeAlias = TypeType[Any, Any, Any]
 StrTaking: TypeAlias = Callable[[str], Any]
 str_taking: list[StrTaking] = [
     str_unk,
     str_any,
     str_int,
     str_map,
-    str_dict,
-    str_morph,
     str_self,
+    otherdict_str,  # type: ignore
     str_aliased_desc_2,
-    str_desc_2,
 ]
 
-# * MARK: Test string-taking functions
+
 with suppress(TypeError, ValidationError):
-    for f in str_taking:
-        # TODO: Should raise `TypeError`
-        v1 = SELF.pipe(f)  # type: ignore
-        # TODO: Should raise `ValidationError` after pipe due to invalid key type
-        v2 = SELF.pipe_keys(f)
-        # TODO: Should work
-        v3 = SELF.pipe_values(f)
+    if TYPE_CHECKING:
+        for f in str_taking:
+            # TODO: Should raise `TypeError`
+            v1 = SELF.pipe(f)  # type: ignore
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
 @pytest.mark.parametrize("f", str_taking)
-def test_pipe_bad_annotation_raises(f: StrTaking):
+def test_pipe_str_taking(f: Pipe):
     """Functions not taking maps raise `TypeError` when `pipe`d."""
-    with pytest.raises(TypeError):
-        SELF.pipe(f)
+    assert SELF.pipe(f) == f(SELF)
+
+
+SelfLikeMapReturning: TypeAlias = Callable[..., _SelfMap]
+self_like_map_returning: list[SelfLikeMapReturning] = [str_dict, str_morph, str_desc_2]
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
-@pytest.mark.parametrize("f", str_taking)
-def test_pipe_bad_key_annotation_raises(f: StrTaking):
-    """Functions taking improper keys raise `ValidationError` when `pipe_keys`ed."""
-    with pytest.raises(TypeError):
-        SELF.pipe_keys(f)
+@pytest.mark.parametrize("f", self_like_map_returning)
+def test_pipe_self_returning(f: Pipe):
+    """Functions not taking maps raise `TypeError` when `pipe`d."""
+    assert SELF.pipe(f) == _Self(f(SELF))
+
+
+def list_int_str(i: list[Fruit]) -> list[int]:
+    return [len(j) for j in i]
+
+
+FruitListTaking: TypeAlias = Callable[[list[Fruit]], Any]
 
 
 @pytest.mark.skipif(SKIP, reason=REASON)
-@pytest.mark.parametrize("f", str_taking)
-def test_pipe_values(f: StrTaking):
-    """Functions work when `pipe_values`ed."""
-    SELF.pipe(f)
+@pytest.mark.parametrize("f", [list_int_str])
+def test_pipe_keys(f: FruitListTaking):
+    result = SELF.pipe_keys(f)
+    k, v = result.get_inner_types()
+    assert result == Morph[k, v](
+        dict(zip(f(list(SELF.keys())), SELF.values(), strict=False))
+    )
+
+
+def list_str_int(i: list[str]) -> list[int]:
+    return [len(j) for j in i]
+
+
+IntListTaking: TypeAlias = Callable[[list[str]], Any]
+
+
+@pytest.mark.skipif(SKIP, reason=REASON)
+@pytest.mark.parametrize("f", [list_str_int])
+def test_pipe_values(f: IntListTaking):
+    result = SELF.pipe_values(f)
+    k, v = result.get_inner_types()
+    assert result == Morph[k, v](
+        dict(zip(SELF.keys(), f(list(SELF.values())), strict=False))
+    )
 
 
 # * MARK: Define map-taking functions
@@ -302,9 +328,12 @@ def _():
 def other_dict(_: _GenericMorph[Fruit, int]
     ) -> _SelfDict: return SELF_DICT
 def _():
-    return SELF.pipe(other_dict)
+    return SELF.pipe(other_dict)  # type: ignore
 
 # fmt: on
+
+# * MARK: Test map-taking functions
+
 AnyTaking: TypeAlias = Callable[..., Any]
 map_taking: list[AnyTaking] = [
     map_morph,
@@ -320,36 +349,17 @@ map_taking: list[AnyTaking] = [
     self_any,
     morph1_self2,
     self1_self2,
+    other_dict,
 ]
 
-# * MARK: Test map-taking functions
-
 with suppress(TypeError, ValidationError):
-    for f in map_taking:
-        # TODO: Should work
-        v10 = SELF.pipe(f)
-        # TODO: Should raise `TypeError`
-        v11 = SELF.pipe_keys(f)  # type: ignore
-        v12 = SELF.pipe_values(f)  # type: ignore
+    if TYPE_CHECKING:
+        for f in map_taking:
+            # TODO: Should work
+            v10 = SELF.pipe(f)
 
 
 @pytest.mark.parametrize("f", map_taking)
 def test_pipe_works(f: AnyTaking):
     """Functions work when `pipe`d."""
     SELF.pipe(f)
-
-
-@pytest.mark.skipif(SKIP, reason=REASON)
-@pytest.mark.parametrize("f", map_taking)
-def test_pipe_map_key_raises(f: AnyTaking):
-    """Functions taking maps raise `TypeError` when `pipe_keys`ed."""
-    with pytest.raises(TypeError):
-        SELF.pipe_keys(f)
-
-
-@pytest.mark.skipif(SKIP, reason=REASON)
-@pytest.mark.parametrize("f", map_taking)
-def test_pipe_map_value_raises(f: AnyTaking):
-    """Functions taking maps raise `TypeError` when `pipe_values`ed."""
-    with pytest.raises(TypeError):
-        SELF.pipe(f)

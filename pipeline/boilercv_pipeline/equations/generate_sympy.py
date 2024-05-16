@@ -9,7 +9,7 @@ from tqdm import tqdm
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
     LOCALS,
-    Solns,
+    Exprs,
 )
 
 APP = App()
@@ -28,7 +28,7 @@ def default(_overwrite: bool = False):  # noqa: D103
             for name, eq in EQUATIONS.items()
         )
     ):
-        _solns = Solns({param: solve(eq, sym) for param, sym in LOCALS.items()})
+        _solns = Exprs({param: solve(eq, sym) for param, sym in LOCALS.items()})
         f"""
         def {name}():
         """
