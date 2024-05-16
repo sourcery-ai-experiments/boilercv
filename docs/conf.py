@@ -11,7 +11,6 @@ from boilercv_docs.patch_nbs import patch_nbs
 from boilercv_docs.types import IspxMappingValue
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
-    set_equation_forms,
 )
 from ruamel.yaml import YAML
 from sphinx.application import Sphinx
@@ -52,6 +51,7 @@ ISPX_MAPPING: dict[str, IspxMappingValue] = {
     "numpy": get_url("numpy.org/doc"),
     "matplotlib": get_url("matplotlib.org"),
     "pytest": get_url("docs.pytest.org/en"),
+    "sympy": get_url("docs.sympy.org", latest=True),
     "cv2": get_ispx("docs.opencv.org/2.4"),
     "python": get_ispx("docs.python.org/3"),
     "pandas": get_ispx("pandas.pydata.org/docs"),
@@ -141,6 +141,9 @@ extensions = [
     "sphinxcontrib.mermaid",
     "sphinxcontrib.towncrier",
 ]
+suppress_warnings = [
+    "autodoc2.dup_item"  # "Duplicate items in boilercv_tests.test_morph
+]
 # ! Theme
 html_title = PACKAGE
 html_favicon = "_static/favicon.ico"
@@ -191,7 +194,7 @@ myst_heading_anchors = 6
 equations = {
     name: f"""
 $$
-{eq.pipe(set_equation_forms, symbolic="latex")["latex"]}
+{eq["latex"]}
 $$ (eq_{name})""".strip()
     for name, eq in EQUATIONS.items()
 }
@@ -238,6 +241,7 @@ nitpick_ignore = [
     ("py:class", f"{PACKAGE}.correlations.T"),
     ("py:class", f"{PACKAGE}.data.sets.Stage"),
     ("py:class", f"{PACKAGE}.experiments.e230920_subcool.NbProcess"),
+    ("py:class", f"{PACKAGE}.experiments.e230920_subcool.NbProcess"),
 ]
 nitpick_ignore_regex = [
     # ? Missing inventory
@@ -246,10 +250,15 @@ nitpick_ignore_regex = [
     (r"py:.*", r"_pytest\..+"),
     (r"py:.*", r"boilercore\..+"),
     (r"py:.*", r"numpy\.typing\..+"),
+    # ? sympy: https://github.com/sympy/sympy/issues/17619#issuecomment-536781620
+    (r"py:.*", r"sympy\..+"),
+    (r"py:.*", r"pydantic\..+"),  # ? https://github.com/pydantic/pydantic/issues/1339
     (r"py:.*", r"PySide6\..+"),  # ? https://bugreports.qt.io/browse/PYSIDE-2215
     # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
-    (r"py:.*", rf"{PACKAGE}.*\.types\..+"),
-    (r"py:.*", rf"{PACKAGE}_pipeline\.captivate\.previews\..+"),
+    (r"py:class", rf"{PACKAGE}.*\.types\..+"),
+    (r"py:class", rf"{PACKAGE}_pipeline\.captivate\.previews\..+"),
+    (r"py:class", rf"{PACKAGE}_pipeline\.equations\..+"),
+    (r"py:class", rf"{PACKAGE}_tests\.test_morph\..+"),
     # ? Until done with Pydantic v1
     (r"py:.*", r"pydantic\.v1\..+"),
 ]

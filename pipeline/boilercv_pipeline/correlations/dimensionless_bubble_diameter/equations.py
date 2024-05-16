@@ -43,7 +43,7 @@ SYMBOLS = symbols(list(PARAMS.values()))
 LOCALS = Morph[Sym, Expr](dict(zip(syms, SYMBOLS, strict=False)))
 """Local variables for sympyfying."""
 KWDS = Morph[Param, Expectation]({
-    "bubble_fourier": list(linspace(start=0.0, stop=5.0e-3, num=10)),
+    "bubble_fourier": linspace(start=0.0, stop=5.0e-3, num=10),
     "bubble_jakob": 1.0,
     "bubble_initial_reynolds": 100.0,
     "liquid_prandtl": 1.0,

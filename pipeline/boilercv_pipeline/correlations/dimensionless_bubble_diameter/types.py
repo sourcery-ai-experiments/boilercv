@@ -1,8 +1,10 @@
 """Types."""
 
-from collections.abc import Hashable, Sequence
+from collections.abc import Hashable
 from typing import Annotated, Generic, Literal, NamedTuple, TypeAlias, TypeVar, get_args
 
+from numpy import float64
+from numpy.typing import NDArray
 from pydantic import PlainSerializer, PlainValidator
 from sympy import Basic
 
@@ -39,9 +41,13 @@ Param: TypeAlias = Literal[
     "pi",
 ]
 """Parameter."""
-Expectation: TypeAlias = float | Sequence[float]
+Expectation: TypeAlias = (
+    float
+    | Annotated[
+        NDArray[float64], PlainValidator(lambda v: v), PlainSerializer(lambda v: str(v))
+    ]
+)
 """Expected result."""
-
 syms: tuple[Sym, ...] = get_args(Sym)
 """Symbols."""
 kinds: tuple[Kind, ...] = get_args(Kind)
