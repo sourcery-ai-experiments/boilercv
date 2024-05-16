@@ -56,9 +56,9 @@ def default(overwrite: bool = False):  # noqa: D103
         if not toml.get(name) or overwrite
     ):
         toml[name] = loads(get_solutions(eq).model_dump_json())
-    if overwrite:
-        toml = {name: toml[name] for name in sorted(toml)}
-    SOLUTIONS_TOML.write_text(encoding="utf-8", data=dumps(toml))
+    SOLUTIONS_TOML.write_text(
+        encoding="utf-8", data=dumps({name: toml[name] for name in sorted(toml)})
+    )
 
 
 def get_solutions(eq: sympy.Eq):
