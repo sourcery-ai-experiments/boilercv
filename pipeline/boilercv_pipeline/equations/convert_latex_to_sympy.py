@@ -1,6 +1,5 @@
 """Convert LaTeX equations to SymPy equations."""
 
-from collections.abc import Mapping
 from pathlib import Path
 from shlex import quote, split
 from subprocess import run
@@ -15,29 +14,26 @@ from tqdm import tqdm
 
 from boilercv_pipeline.correlations import PIPX
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+    EQUATIONS,
     EQUATIONS_TOML,
+    LOCALS,
     MAKE_RAW,
-    Forms,
-    FormsD,
-    FormsM,
     FormsRepl,
+    set_equation_forms,
+)
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import (
+    Forms,
+    regex_replace,
+)
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
     K,
     Kind,
-    V_co,
-    handle_form_whitespace,
-    regex_replace,
-    replace,
+    V,
 )
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.symbolic import LOCALS
+from boilercv_pipeline.equations import Morph
 
 APP = App()
 """CLI."""
-LATEX_PARSER = Path("scripts") / "convert_latex_to_sympy.py"
-"""Escaped path to parser script suitable for `subprocess.run` invocation."""
-LATEX = "latex"
-"""Source kind."""
-SYMBOLIC = "sympy"
-"""Destination kind."""
 
 
 def main():  # noqa: D103
@@ -46,20 +42,23 @@ def main():  # noqa: D103
 
 @APP.default
 def default(overwrite: bool = False):  # noqa: D103
+    latex_parser = Path("scripts") / "convert_latex_to_sympy.py"
+    latex = "latex"
+    symbolic = "sympy"
     data = EQUATIONS_TOML.read_text("utf-8")
     raw_all_single_quoted = '"' not in data
     toml = parse(data)
-    for name, raw in tqdm(((name, Forms(equation)) for name, equation in toml.items())):
-        if not raw.get(LATEX):
+    for name, raw in tqdm(((name, equation) for name, equation in EQUATIONS.items())):
+        if not raw.get(latex):
             continue
-        sanitized = raw.pipe(apply_common, symbolic=SYMBOLIC)
-        if sanitized.get(SYMBOLIC) and not overwrite:
+        sanitized = raw.pipe(set_equation_forms)
+        if sanitized.get(symbolic) and not overwrite:
             continue
         changed = (
-            sanitized.pipe(convert, PIPX, LATEX_PARSER, LATEX, SYMBOLIC)
-            .pipe(apply_common, SYMBOLIC)
+            sanitized.pipe(convert, PIPX, latex_parser, latex, symbolic)
+            .pipe(set_equation_forms)
             .pipe(compare, orig=sanitized)
-            .pipe(remove_symbolically_equiv, orig=sanitized, symbolic=SYMBOLIC)
+            .pipe(remove_symbolically_equiv, orig=sanitized, symbolic=symbolic)
         )
         if overwrite or changed:
             for kind, eq in changed.items():
@@ -72,45 +71,13 @@ def default(overwrite: bool = False):  # noqa: D103
     EQUATIONS_TOML.write_text(encoding="utf-8", data=data)
 
 
-def apply_common(i: FormsM, symbolic: Kind) -> FormsD:
-    """Apply common replacements."""
-    i = (
-        Forms.make(i)
-        .pipe(handle_form_whitespace)
-        .pipe(
-            replace,
-            tuple(
-                FormsRepl(src="sympy", dst="sympy", find=find, repl=repl)
-                for find, repl in {"{o}": "0", "{bo}": "b0"}.items()
-            ),
-        )
-    )
-    if not i.get(symbolic):
-        return i.model_dump()
-    return i.pipe(
-        regex_replace,
-        tuple(
-            FormsRepl(src=symbolic, dst=symbolic, find=find, repl=repl)
-            for sym in LOCALS
-            for find, repl in {
-                # ? Symbol split by `(` after first character.
-                rf"{sym[0]}\*\({sym[1:]}([^)]+)\)": rf"{sym}\g<1>",
-                # ? Symbol split by a `*` after first character.
-                rf"{sym[0]}\*{sym[1:]}": rf"{sym}",
-                # ? Symbol missing `*` resulting in failed attempt to call it
-                rf"{sym}\(": rf"{sym}*(",
-            }.items()
-        ),
-    ).model_dump()
-
-
 def convert(
-    i: FormsM, interpreter: Path, script: Path, latex: Kind, symbolic: Kind
-) -> FormsD:
+    i: Forms, interpreter: Path, script: Path, latex: Kind, symbolic: Kind
+) -> Forms:
     """Convert LaTeX equation to SymPy equation."""
-    sanitized_latex = regex_replace(
-        i,
-        tuple(
+    sanitized_latex = i.pipe(
+        regex_replace,
+        (
             FormsRepl(src=latex, dst=latex, find=find, repl=repl)
             for find, repl in {r"\\left\(": "(", r"\\right\)": ")"}.items()
         ),
@@ -125,12 +92,11 @@ def convert(
     )
     if result.returncode:
         raise RuntimeError(result.stderr)
-    i = dict(i)
     i[symbolic] = result.stdout.strip()
     return i
 
 
-def compare(i: Mapping[K, V_co], orig: Mapping[K, V_co]) -> dict[K, V_co]:
+def compare(i: Morph[K, V], orig: Morph[K, V]) -> dict[K, V]:
     """Compare, returning only the subset that changed."""
     return {k: v for k, v in i.items() if v != orig[k]}
 
@@ -140,15 +106,14 @@ def escape(path: Path) -> str:
     return quote(path.as_posix())
 
 
-def remove_symbolically_equiv(i: FormsM, orig: FormsM, symbolic: Kind) -> FormsD:
+def remove_symbolically_equiv(i: Forms, orig: Forms, symbolic: Kind) -> Forms:
     """Remove symbolically equivalent forms."""
-    i = dict(i)
     old_eq = orig.get(symbolic)
     eq = i.get(symbolic)
     if not old_eq or not eq:
         return i
-    old = sympify(old_eq, locals=LOCALS, evaluate=False)
-    new = sympify(eq, locals=LOCALS, evaluate=False)
+    old = sympify(old_eq, locals=LOCALS.model_dump(), evaluate=False)
+    new = sympify(eq, locals=LOCALS.model_dump(), evaluate=False)
     compare = (old.lhs - old.rhs) - (new.lhs - new.rhs)
     if compare == 0:
         # ? Equations compare equal without simplifying
@@ -159,7 +124,7 @@ def remove_symbolically_equiv(i: FormsM, orig: FormsM, symbolic: Kind) -> FormsD
         # ? Equations compare equal after simplifying
         i.pop(symbolic)
         return i
-    compare = compare.evalf(subs=dict.fromkeys(LOCALS, 1))
+    compare = compare.evalf(subs=dict.fromkeys(LOCALS, 0.1))
     if complex(compare).real < finfo(float).eps:
         # ? Equations compare equal within machine after unit substitution
         i.pop(symbolic)

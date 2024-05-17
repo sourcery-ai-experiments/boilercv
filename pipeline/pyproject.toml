@@ -34,9 +34,11 @@ dependencies = [
     "scipy>=1.11.1",
     "seaborn>=0.12.2",
     "sparklines>=0.4.2",
+    "stopit>=1.1.2",
     "sympy>=1.12",
     "tomlkit>=0.12.4",
     "tqdm>=4.66.1",
+    "typing-extensions>=4.11.0",
     "xarray[accel,io,parallel]>=2023.7.0",
 ]
 
@@ -55,3 +57,5 @@ ignore_unused = [
     "dvc",     # Core dependency for reproducing the pipeline
     "pyarrow", # Used in `boilercv.__init__`
 ]
+[tool.fawltydeps.custom_mapping]
+pydantic = ["pydantic", "pydantic_core"]

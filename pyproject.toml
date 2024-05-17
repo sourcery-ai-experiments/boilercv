@@ -279,6 +279,12 @@ convention = "numpy"
     "SIM300", # Allow constants (expectations) on the RHS
     "SLF001", # Allow private member access in tests
 ]
+"tests/boilercv_tests/test_morph.py" = [
+    "D101", # Allow not documenting a test class
+    "D103", # Allow not documenting a test function
+    "E302", # Allow manual spacing of test classes close to their headings
+    "E305", # Allow manual spacing of test classes close to their headings
+]
 "pipeline/boilercv_pipeline/correlations.py" = [
     "S307", # Allow `eval` since we're generating lambdas for correlations
 ]

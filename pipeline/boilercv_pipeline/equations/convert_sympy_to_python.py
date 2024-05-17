@@ -6,22 +6,22 @@ from tqdm import tqdm
 
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     EQUATIONS,
-    SUBS,
+    SYMPY_SUBS,
 )
 
-syms = tuple(SUBS.values())
+syms = tuple(SYMPY_SUBS.values())
 local_dict = dict(zip(syms, symbols(syms), strict=True))
 
 
 def main():  # noqa: D103
-    for expression in tqdm(EQUATIONS):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
-        eq = expression.forms.sympy
+    for expression in tqdm(EQUATIONS.values()):  # pyright: ignore[reportArgumentType, reportCallIssue]  1.1.356, tomlkit 0.12.4
+        eq = expression["sympy"]
         if not eq:
             continue
         eq = eq.strip().replace("\n", "").replace("    ", "")
-        if expression.forms.python:
+        if expression["python"]:
             continue
-        for symbol, sub in SUBS.items():
+        for symbol, sub in SYMPY_SUBS.items():
             eq = eq.replace(symbol, sub)
         eq = parse_expr(eq, local_dict=local_dict, evaluate=False)
     #     toml[EQS][i][PYTHON] = (  # pyright: ignore[reportArgumentType, reportIndexIssue]  1.1.356, tomlkit 0.12.4
