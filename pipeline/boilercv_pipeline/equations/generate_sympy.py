@@ -14,19 +14,18 @@ from sympy.solvers import solve
 from tomlkit import dumps, parse
 from tqdm import tqdm
 
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import (
     EQUATIONS,
     KWDS,
     LOCALS,
+    SOLUTIONS,
     SOLUTIONS_TOML,
-)
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import (
+    Expr,
     Soln,
     Solns,
     solve_syms,
 )
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
-    Expr,
     params,
     syms,
 )
@@ -48,8 +47,7 @@ def main():  # noqa: D103
 
 @APP.default
 def default(overwrite: bool = False):  # noqa: D103
-    data = SOLUTIONS_TOML.read_text("utf-8")
-    toml = parse(data)
+    toml = parse(dumps(SOLUTIONS.model_dump(mode="json")))
     for name, eq in tqdm(
         (name, sympify(eq["sympy"], locals=LOCALS.model_dump(), evaluate=False))
         for name, eq in EQUATIONS.items()

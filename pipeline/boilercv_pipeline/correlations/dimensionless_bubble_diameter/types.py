@@ -1,15 +1,13 @@
 """Types."""
 
-from collections.abc import Hashable
 from typing import Annotated, Generic, Literal, NamedTuple, TypeAlias, TypeVar, get_args
 
 from numpy import float64
 from numpy.typing import NDArray
 from pydantic import PlainSerializer, PlainValidator
-from sympy import Basic
 
-T = TypeVar("T", bound=Hashable)
-K = TypeVar("K", bound=Hashable)
+T = TypeVar("T")
+K = TypeVar("K")
 V = TypeVar("V")
 
 
@@ -26,10 +24,18 @@ class Repl(NamedTuple, Generic[T]):
     """Replacement for what was found."""
 
 
-Sym: TypeAlias = Literal["Fo_0", "Ja", "Re_b0", "Pr", "beta", "pi"]
-"""Symbol."""
+Eq: TypeAlias = Literal[
+    "florschuetz_chao_1965", "isenberg_sideman_1970", "akiyama_1973", "yuan_et_al_2009"
+]
+"""Equation."""
 Kind: TypeAlias = Literal["latex", "sympy", "python"]
 """Kind."""
+kinds: tuple[Kind, ...] = get_args(Kind)
+"""Equation kinds."""
+Sym: TypeAlias = Literal["Fo_0", "Ja", "Re_b0", "Pr", "beta", "pi"]
+"""Symbol."""
+syms: tuple[Sym, ...] = get_args(Sym)
+"""Symbols."""
 FormsRepl: TypeAlias = Repl[Kind]
 """Forms replacements."""
 Param: TypeAlias = Literal[
@@ -41,6 +47,8 @@ Param: TypeAlias = Literal[
     "pi",
 ]
 """Parameter."""
+params: tuple[Param, ...] = get_args(Param)
+"""Parameters."""
 JsonStrPlainSerializer = PlainSerializer(
     lambda v: str(v), return_type=str, when_used="json"
 )
@@ -50,22 +58,3 @@ Expectation: TypeAlias = (
     | Annotated[NDArray[float64], PlainValidator(lambda v: v), JsonStrPlainSerializer]
 )
 """Expected result."""
-syms: tuple[Sym, ...] = get_args(Sym)
-"""Symbols."""
-kinds: tuple[Kind, ...] = get_args(Kind)
-"""Equation kinds."""
-params: tuple[Param, ...] = get_args(Param)
-"""Parameters."""
-
-
-def validate_expr(v: Basic):
-    """Validate expression."""
-    if unexpected_syms := [str(sym) for sym in v.free_symbols if str(sym) not in syms]:
-        raise ValueError(f"Got unexpected symbols: {', '.join(unexpected_syms)}")
-    return v
-
-
-Expr: TypeAlias = Annotated[
-    Basic, PlainValidator(validate_expr), JsonStrPlainSerializer
-]
-"""Expression."""

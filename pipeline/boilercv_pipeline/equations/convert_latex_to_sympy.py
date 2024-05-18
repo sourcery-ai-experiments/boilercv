@@ -14,16 +14,16 @@ from tqdm import tqdm
 
 from boilercv_pipeline.correlations import PIPX
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
+    FormsRepl,
+)
+from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import (
     EQUATIONS,
     EQUATIONS_TOML,
     LOCALS,
     MAKE_RAW,
-    FormsRepl,
-    set_equation_forms,
-)
-from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import (
     Forms,
     regex_replace,
+    set_equation_forms,
 )
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
     K,
@@ -48,17 +48,16 @@ def default(overwrite: bool = False):  # noqa: D103
     data = EQUATIONS_TOML.read_text("utf-8")
     raw_all_single_quoted = '"' not in data
     toml = parse(data)
-    for name, raw in tqdm(((name, equation) for name, equation in EQUATIONS.items())):
-        if not raw.get(latex):
+    for name, eq in tqdm(((name, equation) for name, equation in EQUATIONS.items())):
+        if not eq.get(latex):
             continue
-        sanitized = raw.pipe(set_equation_forms)
-        if sanitized.get(symbolic) and not overwrite:
+        if eq.get(symbolic) and not overwrite:
             continue
         changed = (
-            sanitized.pipe(convert, PIPX, latex_parser, latex, symbolic)
-            .pipe(set_equation_forms)
-            .pipe(compare, orig=sanitized)
-            .pipe(remove_symbolically_equiv, orig=sanitized, symbolic=symbolic)
+            eq.pipe(convert, PIPX, latex_parser, latex, symbolic)
+            .pipe(set_equation_forms, symbols=LOCALS)
+            .pipe(compare, orig=eq)
+            .pipe(remove_symbolically_equiv, orig=eq, symbolic=symbolic)
         )
         if overwrite or changed:
             for kind, eq in changed.items():
