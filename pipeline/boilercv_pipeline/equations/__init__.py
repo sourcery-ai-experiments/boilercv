@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Mapping, MutableMapping
+from collections.abc import Iterable, Iterator, Mapping, MutableMapping
 from contextlib import contextmanager
 from hashlib import sha512
 from types import GenericAlias
@@ -22,6 +22,7 @@ from typing import (
     get_type_hints,
     overload,
 )
+from warnings import warn
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel, ValidationError
 
@@ -82,28 +83,26 @@ KT = TypeVar("KT", bound=type)
 VT = TypeVar("VT", bound=type)
 
 
-class Types(NamedTuple, Generic[KT, VT]):
-    """Mapping types."""
+class Types(NamedTuple):
+    """Inner types for mapings."""
 
-    key: KT
-    value: VT
+    key: type
+    value: type
 
 
 class MorphCommon(MutableMapping[K, V], ABC, Generic[K, V]):  # noqa: PLR0904
     """Abstract base class for morphable mappings.
 
-    Generally, you should subclass from :class:`Morph` or :class:`BaseMorph` for
-    :class:`Morph`-like mappings.
+    Generally, you should subclass from {class}`Morph` or {class}`BaseMorph` for
+    {class}`Morph`-like mappings.
 
     ```
     class MyMorph(RootModel[MutableMapping[K, V]], MorphCommon[K, V], Generic[K, V]):  # noqa: PLR0904
-        model_config: ClassVar = ConfigDict(strict=True, frozen=True)
         root: MutableMapping[K, V] = Field(default_factory=dict)
     ```
 
     ```
     class MyBaseMorph(BaseModel, MorphCommon[K, V], Generic[K, V]):
-        model_config: ClassVar = ConfigDict(strict=True, frozen=True)
         root: Morph[K, V] = Field(default_factory=Morph[K, V])
     ```
     """
@@ -134,7 +133,7 @@ class MorphCommon(MutableMapping[K, V], ABC, Generic[K, V]):  # noqa: PLR0904
         cls.registered_morphs = (*cls.registered_morphs, model)
 
     @classmethod
-    def get_inner_types(cls) -> Types[type, type]:
+    def get_inner_types(cls) -> Types:
         """Get types of the keys and values."""
         return Types(*get_args(cls.model_fields["root"].annotation))  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -325,82 +324,45 @@ class Morph(RootModel[MutableMapping[K, V]], MorphCommon[K, V], Generic[K, V]):
         self, f: TypeType[Self, R, P], /, *args: P.args, **kwds: P.kwargs
     ) -> R: ...
     # ! ((Any -> Any) -> Any)
-    def pipe(  # noqa: C901, PLR0912
+    def pipe(
         self, f: TypeType[Any, Any, P], /, *args: P.args, **kwds: P.kwargs
     ) -> Self | Morph[Any, Any] | Any:
         """Pipe."""
         self_k, self_v = self.get_inner_types()
-        hints = get_type_hints(f)
-        # * We may not have hints
-        in_k: type | None = None
-        in_v: type | None = None
-        ret_k: type | None = None
-        ret_v: type | None = None
-        # * Get input hint
-        in_hint = next(iter(get_type_hints(f).values())) if len(hints) > 1 else None
-        if len(in_hints := get_args(in_hint)) == 2:
-            in_k, in_v = in_hints
-        elif (
-            in_hint
-            and not isinstance(in_hint, GenericAlias)
-            and issubclass(in_hint, Morph)
-        ):
-            in_k, in_v = in_hint.get_inner_types()  # type: ignore
-        # * Get return hint
-        ret_hint = hints.get("return")
-        if len(ret_hints := get_args(ret_hint)) == 2:
-            ret_k, ret_v = ret_hints
-        elif (
-            ret_hint
-            and not isinstance(ret_hint, GenericAlias)
-            and issubclass(ret_hint, Morph)
-        ):
-            ret_k, ret_v = ret_hint.get_inner_types()  # type: ignore
-        # * Propgate hints
-        if isinstance(ret_k, TypeVar) and in_k and ret_k is in_k:
-            ret_k = self_k
-        if isinstance(ret_v, TypeVar) and in_v and ret_v is in_v:
-            ret_v = self_v
-        with self.thaw(validate=ret_k is self_k and ret_v is self_v) as copy:
-            result = f(copy, *args, **kwds)
-        if not isinstance(result, Mapping):
-            return result
-        if ret_k is self_k and ret_v is self_v:
-            return result
+        ret_k = ret_v = None
         if (
-            ret_k
-            and ret_v
-            and not isinstance(ret_k, TypeVar)
-            and not isinstance(ret_v, TypeVar)
+            len(hints := get_type_hints(f)) > 1
+            and (first_hint := next(iter(get_type_hints(f).values())))
+            and (in_hint := self.get_hint(first_hint))
         ):
+            in_k, in_v = in_hint
+            if ret_hint := self.get_hint(hints.get("return")):
+                ret_k, ret_v = ret_hint
+                if isinstance(ret_k, TypeVar) and ret_k is in_k:
+                    ret_k = self_k
+                if isinstance(ret_v, TypeVar) and ret_v is in_v:
+                    ret_v = self_v
+        return_alike = ret_k is self_k and ret_v is self_v
+        with self.thaw(validate=return_alike) as copy:
+            try:
+                result = f(copy, *args, **kwds)
+            except TypeError as err:
+                raise TypeError(f"Failed to pipe {type(self)} through {f}.") from err
+        if return_alike or not isinstance(result, Mapping) or not result:
+            return result
+        if all(ret and not isinstance(ret, TypeVar) for ret in (ret_k, ret_v)):
             return self.validate_nearest(result, ret_k, ret_v)
-        if not result:
-            return self.validate_nearest(result, self_k, self_v)
-        if not ret_k or isinstance(ret_k, TypeVar):
-            if (  # noqa: SIM114
-                get_origin(self_k) == Literal
-                and (choices := get_args(self_k))
-                and all(k in choices for k in result)
-            ):
-                ret_k = self_k
-            elif all(isinstance(k, self_k) for k in result):
-                ret_k = self_k
-        if not ret_v or isinstance(ret_v, TypeVar):
-            if (  # noqa: SIM114
-                get_origin(self_v) == Literal
-                and (choices := get_args(self_v))
-                and all(k in choices for k in result.values())
-            ):
-                ret_v = self_v
-            elif all(isinstance(k, self_v) for k in result.values()):
-                ret_v = self_v
-        return self.validate_nearest(result, ret_k or Any, ret_v or Any)
+        return self.validate_nearest(
+            result,
+            self.validate_hint(self_k, ret_k, result.keys()),
+            self.validate_hint(self_v, ret_v, result.values()),
+        )
 
     def validate_nearest(
-        self, result: Self | Mapping[Any, Any], k: type, v: type
+        self, result: Self | Mapping[Any, Any], k: type | None, v: type | None
     ) -> Self | Mapping[Any, Any]:
         """Try validating against own, registered, or parent models, or just return."""
-        if Types(k, v) == self.get_inner_types():
+        if k and v and Types(k, v) == self.get_inner_types():
             try:
                 return self.model_validate(result)
             except ValidationError:
@@ -431,6 +393,38 @@ class Morph(RootModel[MutableMapping[K, V]], MorphCommon[K, V], Generic[K, V]):
                 previous_base = base
                 continue
         return result
+
+    def get_hint(self, hint: Any) -> Types | None:
+        """Get hint."""
+        hints = get_args(hint)
+        if not hints:
+            return None
+        if len(hints) == 2:
+            return Types(*hints)
+        if not isinstance(hint, GenericAlias):
+            if issubclass(hint, Morph):
+                return hint.get_inner_types()
+            if not issubclass(hint, Mapping):
+                warn(
+                    f"Function to pipe {type(self)} through has input {hint} that doesn't appear to take a mapping.",
+                    stacklevel=2,
+                )
+        return None
+
+    def validate_hint(
+        self, self_hint: type, ret_hint: type | None, result: Iterable[Any]
+    ) -> type | Any:
+        """Validate hint."""
+        if not ret_hint or isinstance(ret_hint, TypeVar):
+            if (  # noqa: SIM114
+                get_origin(self_hint) == Literal
+                and (choices := get_args(self_hint))
+                and all(k in choices for k in result)
+            ):
+                return self_hint
+            elif all(isinstance(k, self_hint) for k in result):
+                return self_hint
+        return Any
 
 
 class BaseMorph(BaseModel, MorphCommon[K, V], ABC, Generic[K, V]):

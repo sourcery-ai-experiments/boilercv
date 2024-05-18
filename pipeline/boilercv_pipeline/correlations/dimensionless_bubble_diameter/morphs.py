@@ -1,6 +1,7 @@
 """Morphs."""
 
 from collections.abc import Iterable
+from contextlib import nullcontext
 from pathlib import Path
 from re import sub
 from string import whitespace
@@ -11,6 +12,7 @@ from pydantic import BaseModel, Field, PlainSerializer, PlainValidator, model_va
 from pydantic_core import PydanticUndefinedType
 from sympy import Basic, symbols, sympify
 from tomlkit import TOMLDocument, parse
+from tomlkit.items import Table
 
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
     Eq,
@@ -220,6 +222,29 @@ class TomlMorph(BaseMorph[K, V], Generic[K, V]):
         PlainSerializer(lambda v: dict(v), return_type=dict, when_used="json"),
     ] = Field(default_factory=TOMLDocument)
 
+    def sync(
+        self, root: Self | None = None, toml: TOMLDocument | None = None
+    ) -> Self | None:
+        """Sync TOML with root."""
+        # TODO: This force-updates every key in TOML. Only update if keys are different after pre-processing.
+        # TODO: Fix type-hints with a recursive type hint.
+        if not toml:
+            toml = self.toml
+        with nullcontext() if root else self.thaw() as synced_copy:
+            src: dict[Any, Any] = root or synced_copy.root.model_dump(mode="json")  # pyright: ignore[reportAssignmentType, reportOptionalMemberAccess]
+            for key in src:
+                if (
+                    key in toml
+                    and isinstance(src[key], dict)
+                    and isinstance(toml[key], Table)
+                ):  # pyright: ignore[reportArgumentType]
+                    self.sync(src[key], toml[key])  # pyright: ignore[reportArgumentType]
+                    continue
+                toml[key] = src[key]
+            for key in [k for k in toml if k not in src]:
+                del toml[key]
+        return synced_copy
+
     @classmethod
     def make(cls, toml: Path) -> Self:  # noqa: D102
         data = parse(toml.read_text("utf-8"))
@@ -232,3 +257,5 @@ class Solns2(TomlMorph[Eq, Solns]):
 
 SOLUTIONS = Solns2.make(toml=SOLUTIONS_TOML)
 """Solutions."""
+
+SOLUTIONS.sync()
