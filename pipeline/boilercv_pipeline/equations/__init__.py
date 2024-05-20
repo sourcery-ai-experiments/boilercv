@@ -444,3 +444,10 @@ class BaseMorph(BaseModel, MorphCommon[K, V], ABC, Generic[K, V]):
         with self.thaw(validate=True) as copy:
             copy.root = self.root.pipe(f, *args, **kwds)
         return copy
+
+    @contextmanager
+    def thaw(self, validate: bool = False) -> Iterator[Self]:
+        """Produce a thawed copy of an instance."""
+        with super().thaw(validate) as base_copy, self.root.thaw(validate) as root_copy:
+            base_copy.root = root_copy
+            yield base_copy
