@@ -1,6 +1,15 @@
 """Types."""
 
-from typing import Annotated, Generic, Literal, NamedTuple, TypeAlias, TypeVar, get_args
+from typing import (
+    Annotated,
+    Any,
+    Generic,
+    Literal,
+    NamedTuple,
+    TypeAlias,
+    TypeVar,
+    get_args,
+)
 
 from numpy import float64
 from numpy.typing import NDArray
@@ -58,3 +67,7 @@ Expectation: TypeAlias = (
     | Annotated[NDArray[float64], PlainValidator(lambda v: v), JsonStrPlainSerializer]
 )
 """Expected result."""
+Leaf: TypeAlias = Any
+"""Leaf node."""
+Node: TypeAlias = dict[Any, "Node | Leaf"]
+"""General node."""

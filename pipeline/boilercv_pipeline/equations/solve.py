@@ -1,4 +1,4 @@
-"""Generate SymPy equations."""
+"""Solve equations."""
 
 from json import loads
 from re import sub

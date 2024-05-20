@@ -21,7 +21,7 @@ warnings = []
 
 [isenberg_sideman_1970]
 [isenberg_sideman_1970.Fo_0]
-solutions = ["sqrt(pi)*(beta**(3/2) + 1)/(3*Ja*Pr**(1/3)*sqrt(Re_b0))"]
+solutions = ["sqrt(pi)*(beta**(3/2) + 1)/((3*Ja*Pr**(1/3)*sqrt(Re_b0)))"]
 warnings = [
     "could not verify solution {Fo_0: sqrt(pi)*(beta**(3/2) + 1)/(3*Ja*Pr**(1/3)*sqrt(Re_b0))}.",
     "assumptions concerning following solution(s) cannot be checked: {Fo_0: sqrt(pi)*(beta**(3/2) + 1)/(3*Ja*Pr**(1/3)*sqrt(Re_b0))}, {Fo_0: sqrt(pi)*(1 - beta**(3/2))/(3*Ja*Pr**(1/3)*sqrt(Re_b0))}",
@@ -34,9 +34,9 @@ warnings = []
 [yuan_et_al_2009]
 [yuan_et_al_2009.Fo_0]
 solutions = [
-    "1.0/Ja**(1/10) - 1.05409255338946*sqrt(0.9*Ja**2*Pr**0.333333333333333*Re_b0 - Ja**1.1*Re_b0**0.5*beta**1.5 - 1.0*Ja**1.1*Re_b0**0.5)/(Ja**(11/10)*Pr**(1/6)*sqrt(Re_b0))",
-    "1.0/Ja**(1/10) + 1.05409255338946*sqrt(0.9*Ja**2*Pr**0.333333333333333*Re_b0 - Ja**1.1*Re_b0**0.5*beta**1.5 - 1.0*Ja**1.1*Re_b0**0.5)/(Ja**(11/10)*Pr**(1/6)*sqrt(Re_b0))",
-    "1.0/Ja**(1/10) + 1.05409255338946*sqrt(0.9*Ja**2*Pr**0.333333333333333*Re_b0 + Ja**1.1*Re_b0**0.5*beta**1.5 - 1.0*Ja**1.1*Re_b0**0.5)/(Ja**(11/10)*Pr**(1/6)*sqrt(Re_b0))",
+    "-1.05409255338946*sqrt(0.9*Ja**2*Pr**0.333333333333333*Re_b0 - Ja**1.1*Re_b0**0.5*beta**1.5 - 1.0*Ja**1.1*Re_b0**0.5)/(Ja**(11/10)*Pr**(1/6)*sqrt(Re_b0)) + 1.0/(Ja**(1/10))",
+    "1.05409255338946*sqrt(0.9*Ja**2*Pr**0.333333333333333*Re_b0 - Ja**1.1*Re_b0**0.5*beta**1.5 - 1.0*Ja**1.1*Re_b0**0.5)/((Ja**(11/10)*Pr**(1/6)*sqrt(Re_b0))) + 1.0/(Ja**(1/10))",
+    "1.05409255338946*sqrt(0.9*Ja**2*Pr**0.333333333333333*Re_b0 + Ja**1.1*Re_b0**0.5*beta**1.5 - 1.0*Ja**1.1*Re_b0**0.5)/((Ja**(11/10)*Pr**(1/6)*sqrt(Re_b0))) + 1.0/(Ja**(1/10))",
 ]
 warnings = [
     "could not verify solution {Fo_0: 1.0/Ja**(1/10) - 1.4142135623731*sqrt(1.0*_t**3*Ja**(11/10)*sqrt(Re_b0) - 0.555555555555556*Ja**(11/10)*sqrt(Re_b0) + 0.5*Ja**2*Pr**(1/3)*Re_b0)/(Ja**(11/10)*Pr**(1/6)*sqrt(Re_b0))}.",

@@ -38,7 +38,6 @@ dependencies = [
     "sympy>=1.12",
     "tomlkit>=0.12.4",
     "tqdm>=4.66.1",
-    "typing-extensions>=4.11.0",
     "xarray[accel,io,parallel]>=2023.7.0",
 ]
 

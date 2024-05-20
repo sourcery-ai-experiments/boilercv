@@ -1,17 +1,16 @@
 """Morphs."""
 
 from collections.abc import Iterable, MutableMapping
-from contextlib import nullcontext
 from pathlib import Path
 from re import sub
 from string import whitespace
 from typing import Annotated, Any, ClassVar, Generic, Self, TypeAlias, overload
 
 from numpy import linspace, pi
-from pydantic import BaseModel, Field, PlainSerializer, PlainValidator, model_validator
+from pydantic import BaseModel, Field, PlainValidator, model_validator
 from pydantic_core import PydanticUndefinedType
 from sympy import Basic, symbols, sympify
-from tomlkit import TOMLDocument, parse
+from tomlkit import parse
 from tomlkit.container import Container
 from tomlkit.items import Item
 
@@ -22,6 +21,8 @@ from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
     JsonStrPlainSerializer,
     K,
     Kind,
+    Leaf,
+    Node,
     Param,
     Repl,
     Sym,
@@ -213,78 +214,54 @@ EQUATIONS = Morph[Eq, Forms]({
 """Equations."""
 
 
-Node: TypeAlias = dict[Any, "Node"]
-
-
 class TomlMorph(BaseMorph[K, V], Generic[K, V]):
     """Morphable mapping."""
 
     path: Path
     root: Morph[K, V] = Field(default_factory=Morph[K, V])
-    toml: Annotated[
-        Container | Item,
-        PlainValidator(lambda v: v),
-        PlainSerializer(lambda v: dict(v), return_type=dict, when_used="json"),
-    ] = Field(default_factory=TOMLDocument)
 
     # ! Root case
     @overload
-    def sync(self, root: None = None, toml: None = None) -> None: ...
+    def sync(self, src: None = None, dst: None = None) -> Container: ...
     # ! General case
     @overload
-    def sync(self, root: Node, toml: Container | Item) -> Self: ...
+    def sync(self, src: Node | Leaf, dst: Item | Container) -> None: ...
     # ! Union
     def sync(
-        self, root: Node | None = None, toml: Container | Item | None = None
-    ) -> Self | None:
-        """Sync TOML with root."""
-        with nullcontext() if root else self.thaw() as synced_copy:
-            if not synced_copy:
-                return
-            if root:
-                src = root
-            else:
-                model_dump: dict[Any, Any] = synced_copy.root.model_dump(mode="json")
-                src = model_dump
-            dst = toml or synced_copy.toml
-            if not isinstance(dst, MutableMapping):
-                return
-            for key in [k for k in dst if k not in src]:
-                del dst[key]
-            for key in src:
-                if key in dst:
-                    if src[key] == dst[key]:
-                        continue
-                    if isinstance(src[key], dict) and isinstance(
-                        dst[key], MutableMapping
-                    ):
-                        synced_copy.sync(src[key], dst[key])
-                        continue
-                dst[key] = src[key]
-        return synced_copy
+        self, src: Node | Leaf | None = None, dst: Item | Container | None = None
+    ) -> Container | None:
+        """Sync a TOML document."""
+        if not src:
+            model_dump: Node = self.root.model_dump(mode="json")
+            src = model_dump
+        dst = dst or parse(self.path.read_text("utf-8"))
+        if not isinstance(dst, MutableMapping):
+            return
+        for key in [k for k in dst if k not in src]:
+            del dst[key]
+        for key in src:
+            if key in dst:
+                if src[key] == dst[key]:
+                    continue
+                if isinstance(src[key], dict) and isinstance(dst[key], MutableMapping):
+                    self.sync(src[key], dst[key])
+                    continue
+            dst[key] = src[key]
+        return dst
 
     def write(self) -> None:
         """Write to TOML."""
-        self.sync()
-        self.path.write_text(self.toml.as_string(), "utf-8")
+        self.path.write_text(self.sync().as_string(), "utf-8")
 
     @classmethod
-    def make(cls, path: Path) -> Self:  # noqa: D102
-        data = parse(path.read_text("utf-8"))
-        return cls(path=path, toml=data, root=data)  # pyright: ignore[reportArgumentType]
+    def read(cls, path: Path) -> Self:
+        """Read from TOML."""
+        return cls(path=path, root=parse(path.read_text("utf-8")))  # type: ignore[reportArgumentType]
 
 
-class Solns2(TomlMorph[Eq, Solns]):
+class TomlSolns(TomlMorph[Eq, Solns]):
     """Morph with underlying TOML type and defaults."""
 
 
-SOLUTIONS = Solns2.make(path=SOLUTIONS_TOML)
+SOLUTIONS = TomlSolns.read(path=SOLUTIONS_TOML)
 """Solutions."""
-
-
-def foo(i):  # noqa: D103
-    del i["florschuetz_chao_1965"]
-    return i
-
-
-# SOLUTIONS.pipe(foo).write()
