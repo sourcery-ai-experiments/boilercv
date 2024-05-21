@@ -165,24 +165,6 @@ def lock(high: bool = False, proj_compilation: Compilation | None = None) -> str
     return sys_compilation.requirements
 
 
-def compile(compiler: Compiler) -> tuple[datetime, str]:  # noqa: A001
-    """Compile dependencies."""
-    time, cmd = compiler.get_command()
-    result = run(args=cmd, capture_output=True, check=False, text=True)
-    if result.returncode:
-        raise RuntimeError(result.stderr)
-    requirements = (
-        "\n".join([
-            "# nodeps",
-            *[line.strip() for line in NODEPS.read_text("utf-8").splitlines()],
-            "# compilation",
-            result.stdout,
-        ])
-        + "\n"
-    )
-    return time, requirements
-
-
 def get_lockfile_key(platform: Platform, python_version: PythonVersion) -> str:
     """Get the name of a dependency compilation.
 
@@ -341,6 +323,24 @@ class Compilation:
             time=contents[key]["time"],
             requirements=contents[key]["requirements"],
         )
+
+
+def compile(compiler: Compiler) -> tuple[datetime, str]:  # noqa: A001
+    """Compile dependencies."""
+    time, cmd = compiler.get_command()
+    result = run(args=cmd, capture_output=True, check=False, text=True)
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    requirements = (
+        "\n".join([
+            "# nodeps",
+            *[line.strip() for line in NODEPS.read_text("utf-8").splitlines()],
+            "# compilation",
+            result.stdout,
+        ])
+        + "\n"
+    )
+    return time, requirements
 
 
 def get_subs() -> dict[str, Dep]:
