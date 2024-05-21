@@ -3,16 +3,12 @@
 import tomllib
 from collections.abc import Collection
 from pathlib import Path
-from re import finditer
+from re import finditer, sub
+from shlex import join, split
 
 from cyclopts import App
 
-from boilercv_tools.sync import (
-    PYTEST,
-    check_compilation,
-    disable_concurrent_tests,
-    escape,
-)
+from boilercv_tools.sync import PYTEST, check_compilation, escape
 
 APP = App(help_format="markdown")
 """CLI."""
@@ -70,6 +66,11 @@ def sync_local_dev_configs():
         encoding="utf-8",
         data="\n".join(["[pytest]", *[f"{k} = {v}" for k, v in pytest.items()], ""]),
     )
+
+
+def disable_concurrent_tests(addopts: str) -> str:
+    """Normalize `addopts` string and disable concurrent pytest tests."""
+    return sub(pattern=r"-n\s*[^\s]+", repl="-n 0", string=join(split(addopts)))
 
 
 def log(obj):
