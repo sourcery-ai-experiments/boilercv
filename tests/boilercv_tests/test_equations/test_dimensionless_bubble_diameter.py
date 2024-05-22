@@ -4,6 +4,9 @@ from inspect import Signature
 from tomllib import loads
 
 import pytest
+from numpy import allclose
+from sympy import lambdify
+
 from boilercv_pipeline.correlations import dimensionless_bubble_diameter
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter import (
     equations as symbolic,
@@ -12,8 +15,6 @@ from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import 
     EXPECTATIONS_TOML,
     KWDS,
 )
-from numpy import allclose
-from sympy import lambdify
 
 lambdify  # noqa: B018
 

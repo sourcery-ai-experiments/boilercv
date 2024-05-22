@@ -7,8 +7,9 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, Any, Generic, Literal, TypeAlias
 
 import pytest
-from boilercv_pipeline.equations import K, Morph, TypeType, V
 from pydantic import ValidationError
+
+from boilercv.morphs import K, Morph, TypeType, V
 
 # fmt: off
 
