@@ -84,23 +84,6 @@ PYTHON_VERSIONS: tuple[PythonVersion, ...] = (  # pyright: ignore[reportAssignme
 )
 """Supported Python versions."""
 
-# ! Checking
-NAME_PAT = r"[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]*[A-Za-z0-9]"
-"""Regular expression for a legal Python package name.
-
-See: https://packaging.python.org/en/latest/specifications/name-normalization/#name-format
-"""
-OP_PAT = r" @ |=="
-"""Regular expression for valid version separators in {meth}`~boilercv_tools.sync.compile` output."""
-DEP_PAT = rf"(?P<name>{NAME_PAT})(?P<op>{OP_PAT})(?P<rev>.+)"
-"""Regular expression for a dependency and its version specifier."""
-VIAS_PAT = r"(?:\n\s{4}.+)+"
-"""Regular expression for vias metadata printed in `uv pip compile` output."""
-DIRECT_VIA_PAT = r"\(.+\)"
-"""Regular expression for valid version separators in the lock file."""
-META_VALUE_PREFIX_PAT = r"#\s{3}"
-"""Regular expression for value in a metadata section."""
-
 
 def check_compilation(high: bool = False) -> str:
     """Check compilation, re-lock if incompatible, and return the requirements."""
@@ -215,7 +198,7 @@ class Compiler:
     """Paths compiled from, such as `requirements.in` or `pyproject.toml`."""
 
     def get_command(self) -> tuple[datetime, list[str]]:
-        """Command to reproduce {py:attr}`requirements`."""
+        """Command to reproduce compilation requirements."""
         time = datetime.now(UTC)
         return time, [
             "bin/uv",
@@ -270,11 +253,22 @@ class Compiler:
         )
 
 
+NAME_PAT = r"[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]*[A-Za-z0-9]"
+"""Regular expression for a legal Python package name.
+
+See: https://packaging.python.org/en/latest/specifications/name-normalization/#name-format
+"""
+OP_PAT = "|".join(ops)
+"""Regular expression for valid version separators."""
+
+
 def get_directs() -> dict[str, Dep]:
     """Get directs."""
     directs: dict[str, Dep] = {}
     _, requirements = compile(Compiler(no_deps=True))
-    for direct in finditer(rf"(?m)^{DEP_PAT}$", requirements):
+    for direct in finditer(
+        rf"(?m)^(?P<name>{NAME_PAT})(?P<op>{OP_PAT})(?P<rev>.+)$", requirements
+    ):
         op = direct["op"]
         if not isinstance(op, str) or op not in ops:
             raise ValueError(f"Invalid operator in {direct.groups()}")
@@ -382,5 +376,5 @@ def get_submodule_info(kind: SubmoduleInfoKind) -> list[str]:
 
 
 def escape(path: str | Path) -> str:
-    """Escape a path, suitable for passing to e.g. {meth}`~run`."""
+    """Escape a path, suitable for passing to e.g. {func}`~subprocess.run`."""
     return quote(Path(path).as_posix())

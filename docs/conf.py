@@ -4,6 +4,9 @@ from datetime import date
 from hashlib import sha256
 from pathlib import Path
 
+from ruamel.yaml import YAML
+from sphinx.application import Sphinx
+
 from boilercv_docs import DOCS, PYPROJECT, chdir_docs
 from boilercv_docs.intersphinx import get_ispx, get_rtd, get_url
 from boilercv_docs.nbs import init_nb_env
@@ -12,8 +15,6 @@ from boilercv_docs.types import IspxMappingValue
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.morphs import (
     EQUATIONS,
 )
-from ruamel.yaml import YAML
-from sphinx.application import Sphinx
 
 # ! Initialization
 patch_nbs()
@@ -45,17 +46,17 @@ VERSION = ANS["project_version"]
 """Package version."""
 # ! Intersphinx and related
 ISPX_MAPPING: dict[str, IspxMappingValue] = {
-    **{pkg: get_rtd(pkg) for pkg in ["myst_parser", "nbformat", "numpydoc"]},
+    **{pkg: get_rtd(pkg) for pkg in ["myst_parser", "nbformat", "numpydoc", "tomlkit"]},
     **{pkg: get_rtd(pkg, latest=True) for pkg in ["pyqtgraph"]},
     "jupyterbook": get_url("jupyterbook.org/en"),
     "numpy": get_url("numpy.org/doc"),
     "matplotlib": get_url("matplotlib.org"),
     "pytest": get_url("docs.pytest.org/en"),
     "sympy": get_url("docs.sympy.org", latest=True),
-    "cv2": get_ispx("docs.opencv.org/2.4"),
-    "python": get_ispx("docs.python.org/3"),
-    "pandas": get_ispx("pandas.pydata.org/docs"),
     "colorcet": get_ispx("https://colorcet.holoviz.org/"),
+    "cv2": get_ispx("docs.opencv.org/2.4"),
+    "pandas": get_ispx("pandas.pydata.org/docs"),
+    "python": get_ispx("docs.python.org/3"),
 }
 """Intersphinx mapping."""
 TIPPY_RTD_URLS = [
@@ -142,7 +143,7 @@ extensions = [
     "sphinxcontrib.towncrier",
 ]
 suppress_warnings = [
-    "autodoc2.dup_item"  # "Duplicate items in boilercv_tests.test_morph
+    "autodoc2.dup_item"  # "Duplicate items in boilercv_tests.test_morphs
 ]
 # ! Theme
 html_title = PACKAGE
@@ -250,6 +251,7 @@ nitpick_ignore_regex = [
     (r"py:.*", r"_pytest\..+"),
     (r"py:.*", r"boilercore\..+"),
     (r"py:.*", r"numpy\.typing\..+"),
+    (r"py:.*", r"tomlkit\.container\..+"),
     # ? sympy: https://github.com/sympy/sympy/issues/17619#issuecomment-536781620
     (r"py:.*", r"sympy\..+"),
     (r"py:.*", r"pydantic\..+"),  # ? https://github.com/pydantic/pydantic/issues/1339
@@ -257,8 +259,7 @@ nitpick_ignore_regex = [
     # ? TypeAlias: https://github.com/sphinx-doc/sphinx/issues/10785
     (r"py:class", rf"{PACKAGE}.*\.types\..+"),
     (r"py:class", rf"{PACKAGE}_pipeline\.captivate\.previews\..+"),
-    (r"py:class", rf"{PACKAGE}_pipeline\.equations\..+"),
-    (r"py:class", rf"{PACKAGE}_tests\.test_morph\..+"),
+    (r"py:.*", rf"{PACKAGE}_tests\.test_morphs\..+"),
     # ? Until done with Pydantic v1
     (r"py:.*", r"pydantic\.v1\..+"),
 ]

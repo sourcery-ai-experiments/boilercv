@@ -12,6 +12,7 @@ from tomlkit import dumps, parse
 from tomlkit.items import Table
 from tqdm import tqdm
 
+from boilercv.morphs import Morph
 from boilercv_pipeline.correlations import PIPX
 from boilercv_pipeline.correlations.dimensionless_bubble_diameter.equations import (
     FormsRepl,
@@ -30,7 +31,6 @@ from boilercv_pipeline.correlations.dimensionless_bubble_diameter.types import (
     Kind,
     V,
 )
-from boilercv_pipeline.equations import Morph
 
 APP = App()
 """CLI."""
