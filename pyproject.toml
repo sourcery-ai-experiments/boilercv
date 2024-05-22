@@ -15,6 +15,7 @@ dependencies = [
     "numpy>=1.24.4",
     "pandas[hdf5,performance]>=2.0.2",
     "pillow>=10.0.0",
+    "pydantic>=2.7.1",                     # ? RootModel improvements
     "pytz>=2023.3",
     "xarray[accel,io,parallel]>=2023.7.0",
 ]
@@ -193,7 +194,7 @@ reportUnusedCallResult = "none"
 cache-dir = ".cache/.ruff_cache"
 extend-exclude = ["bin", "submodules"]
 extend-include = ["*.ipynb"]
-src = ["src"]
+src = ["src", "docs", "pipeline", "scripts", "tests"]
 output-format = "grouped"
 fix = true
 preview = true
@@ -279,7 +280,7 @@ convention = "numpy"
     "SIM300", # Allow constants (expectations) on the RHS
     "SLF001", # Allow private member access in tests
 ]
-"tests/boilercv_tests/test_morph.py" = [
+"tests/boilercv_tests/test_morphs.py" = [
     "D101", # Allow not documenting a test class
     "D103", # Allow not documenting a test function
     "E302", # Allow manual spacing of test classes close to their headings
